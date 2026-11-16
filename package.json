@@ -1,0 +1,80 @@
+{
+  "name": "kanbonk",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local-first Kanban boards for desktop, browser and mobile with device-to-device sync and Trello import/export",
+  "license": "MIT",
+  "author": {
+    "name": "Khasky",
+    "url": "https://github.com/khasky"
+  },
+  "homepage": "https://github.com/khasky/kanbonk",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khasky/kanbonk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/khasky/kanbonk/issues"
+  },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/khasky"
+    },
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/khasky"
+    },
+    {
+      "type": "ko-fi",
+      "url": "https://ko-fi.com/khasky"
+    }
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test": "vitest run",
+    "preview": "vite preview",
+    "serve:lan": "node server.mjs",
+    "test:load": "node scripts/load-test.mjs",
+    "build:mcp": "vite build --ssr src/mcp/agent.ts --outDir dist-mcp --emptyOutDir",
+    "mcp": "node mcp/kanbonk-mcp.mjs",
+    "build:extension": "tsc && node scripts/build-extension.mjs",
+    "dev:extension": "node scripts/build-extension.mjs --watch",
+    "tauri": "tauri",
+    "release": "commit-and-tag-version",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@noble/ciphers": "2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2.8.4",
+    "@tauri-apps/plugin-fs": "^2.7.1",
+    "fflate": "^0.8.3",
+    "html-to-image": "^1.11.13",
+    "openai": "^7.57.0",
+    "qrcode-generator": "^2.0.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1",
+    "ws": "8.23.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "@tauri-apps/cli": "^2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^6.0.2",
+    "commit-and-tag-version": "^12.7.3",
+    "husky": "^9.1.7",
+    "typescript": "~6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^5.1.0"
+  }
+}
