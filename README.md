@@ -1,76 +1,71 @@
+<div align="center">
+
+<img src="src-tauri/icons/128x128@2x.png" width="104" height="104" alt="Kanbonk: a letter K made of cards">
+
 # Kanbonk
 
-**Local-first Kanban boards for desktop, browser and mobile — no account, no cloud, no server.**
+Local-first Kanban boards for desktop, browser and mobile. No account, no cloud, no server.
 
-Kanbonk is a Trello-style task manager that keeps every workspace, board, list, card and attachment on your own devices. Devices sync directly with each other over Wi-Fi, a private peer-to-peer link or an encrypted file you pass by Bluetooth, and Kanbonk can import and export Trello JSON and CSV.
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Version](https://img.shields.io/github/package-json/v/khasky/kanbonk?color=blue)](./package.json) [![GitHub issues](https://img.shields.io/github/issues/khasky/kanbonk)](https://github.com/khasky/kanbonk/issues) ![Platforms](https://img.shields.io/badge/platform-web%20%7C%20Windows%20%7C%20Android%20%7C%20Chrome%2FEdge-blue.svg) ![Status: alpha](https://img.shields.io/badge/status-alpha-orange.svg) [![Sponsor](https://img.shields.io/badge/sponsor-%E2%9D%A4-ea4aaa.svg?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/khasky) [![Emojery](https://api.emojery.app/badge/github/khasky/kanbonk.svg)](https://emojery.app/react?t=github/khasky/kanbonk)
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Platforms](https://img.shields.io/badge/platforms-web%20%7C%20Windows%20%7C%20Android%20%7C%20Chrome%2FEdge-informational)
-![Status](https://img.shields.io/badge/status-alpha-orange)
+[Features](#features) · [Quick start](#quick-start) · [Platforms](#platforms) · [Privacy](#privacy-and-security) · [Documentation](#documentation) · [Project status](#project-status) · [Contributing](#contributing) · [Security](#security) · [Support](#support) · [License](#license)
 
-![A Kanbonk board with a "Development" zone grouping four lists](docs/images/board.png)
+<img src="docs/images/board.png" width="100%" alt="A Kanbonk board with a Development zone grouping four lists">
 
-## Table of contents
+<sub>Built with <b>React</b> · <b>TypeScript</b> · <b>Tauri</b></sub>
 
-- [Features](#features)
-- [Quick start](#quick-start)
-- [Platforms](#platforms)
-- [Privacy and security](#privacy-and-security)
-- [Documentation](#documentation)
-- [Project status](#project-status)
-- [Contributing](#contributing)
-- [License](#license)
+</div>
+
+Kanbonk keeps every workspace, board, list, card and attachment on your own devices. Devices sync directly with each other over Wi-Fi, a private peer-to-peer link or an encrypted file you pass by Bluetooth, and existing boards come in from Trello JSON, ZIP and CSV exports.
 
 ## Features
 
-**Boards like Trello**
+**Boards**
 
-- Workspaces, boards, lists and cards with drag and drop: lists move left and right, cards move within a list and between lists.
-- Card modal over the board, or a standalone card page when opened by link (`/c/<id>`): title, visual Markdown description and comments, start and due dates, checklists, labels in any color, members, attachments, covers and full-card colors, stickers.
-- **Sub-cards**, **clone** (`<name> - Clone` right below) and **share**: print, PNG, JSON, link and QR code.
-- **Zones**: group adjacent lists into one zone, e.g. *Development* = Todo + In progress + Testing + Deployment. A list belongs to at most one zone.
-- **Calendar view** (week, month, year): a card sits on its start date (or creation date) and stretches to its due date like an event in Google Calendar. Drag cards between days, drag their edges to change dates, delete with ×.
-- **Card dependencies**: a card can depend on another card, on any board. Deleting a card warns about the cards that depend on it.
-- Instant search on the board and across all workspaces with filters (`board:`, `label:`, `due:overdue`, `has:attachments`, …).
-- Stays responsive on boards with thousands of cards, on phones too: see the [load test results](docs/testing.md#performance).
-- Short, URL-safe IDs like Trello's (`DMZD8gZ6`).
+- **Lists and cards** — drag lists left and right, drag cards within a list and between lists. A card opens over the board, or as its own page by link (`/c/<id>`).
+- **Rich cards** — title, visual Markdown description and comments, start and due dates, checklists, labels in any color, members, attachments, covers, full-card colors and stickers.
+- **Sub-cards, clone and share** — a clone lands right below the original as `<name> - Clone`; share a card as print, PNG, JSON, link or QR code.
+- **Zones** — group adjacent lists into one zone, e.g. *Development* = Todo + In progress + Testing + Deployment. A list belongs to at most one zone.
+- **Calendar** — week, month and year views. A card sits on its start date (or creation date) and stretches to its due date like an event; drag it between days, drag its edges to change dates, delete it with ×.
+- **Dependencies** — a card can depend on another card on any board. Deleting a card warns about the cards that depend on it.
+- **Instant search** — on the board and across all workspaces, with filters such as `board:`, `label:`, `due:overdue` and `has:attachments`.
+- **Fast on big boards** — stays responsive with thousands of cards, on phones too. See the [load test results](docs/testing.md#performance).
 
 **Your data stays yours**
 
-- **Trash** for workspaces, boards, lists and cards, kept for 30 days. Restoring an item also restores the parents and dependencies it needs.
-- **Automatic backups**: version snapshots every 10 minutes and, where the browser supports it, a daily ZIP with all files written to a folder you choose.
-- **Semantic duplicate finder** across boards that runs entirely on the device, with one-click merge.
-- Full revision history for every workspace, board, list and card.
+- **Trash** — deleted workspaces, boards, lists and cards are kept for 30 days. Restoring an item also restores the parents and dependencies it needs.
+- **Automatic backups** — version snapshots every 10 minutes and, where the browser supports it, a daily ZIP with all files written to a folder you choose.
+- **Duplicate finder** — finds similar cards across boards entirely on the device and merges them in one click.
+- **History** — full revision history for every workspace, board, list and card.
 
 **Board + document, AI and agents**
 
-- Every board has a **project document** with links to cards, backlinks and a live project summary, so the context lives next to the work.
-- **AI assistant with your own key** (Claude, ChatGPT, Gemini or any OpenAI-compatible server): turns emails and meeting notes into cards that quote their source, and writes the project document citing cards. Nothing is sent without a click.
-- **MCP server**: AI agents read and change boards through a headless Kanbonk device that syncs with your devices after you trust it.
+- **Project document** — every board has a document with links to cards, backlinks and a live project summary, so the context lives next to the work.
+- **AI assistant with your own key** — Claude, ChatGPT, Gemini or any OpenAI-compatible server. It turns emails and meeting notes into cards that quote their source and writes the project document citing cards. Nothing is sent without a click.
+- **MCP server** — AI agents read and change boards through a headless Kanbonk device that syncs with your devices after you trust it.
 
 **Sync without a cloud**
 
-- Every change appears instantly and is saved locally; offline changes queue up and are sent when the connection returns.
-- Several tabs of the same browser stay in sync automatically.
-- **Wi-Fi**: devices meet in a room on a small local relay (`npm run serve:lan`) that only sees encrypted packets.
-- **Internet peer-to-peer**: a direct, DTLS-encrypted WebRTC link set up by exchanging an invitation, e.g. through a messenger.
-- **Bluetooth, USB or messenger**: an encrypted `.kanbonk-sync` file with data and attachments.
-- **Trusted devices**: a new device must be approved before any data is accepted. Concurrent edits are detected and you choose which version to keep.
+- **Instant and offline** — every change is saved locally at once; offline changes queue up and are sent when the connection returns. Tabs of the same browser stay in sync automatically.
+- **Wi-Fi** — devices meet in a room on a small local relay (`npm run serve:lan`) that only sees encrypted packets.
+- **Peer-to-peer over the internet** — a direct, DTLS-encrypted WebRTC link set up by exchanging an invitation, e.g. through a messenger.
+- **Bluetooth, USB or messenger** — an encrypted `.kanbonk-sync` file with data and attachments.
+- **Trusted devices** — a new device must be approved before any data is accepted. Concurrent edits are detected and you choose which version to keep.
 
-**Trello compatible**
+**Import and export**
 
-- Import Trello JSON exports, ZIP archives with attachments and Trello CSV.
-- Export any board as Trello-shaped JSON or as CSV with Trello's columns.
+- **Import** — Trello JSON exports, ZIP archives with attachments and Trello CSV.
+- **Export** — any board as Trello-shaped JSON or as CSV with the same columns.
 
-See the [feature guide](docs/features.md) for details.
+The [feature guide](docs/features.md) covers every page and setting.
 
 ## Quick start
 
-Requirements: [Node.js](https://nodejs.org/) 22.12 or newer and npm.
+Requires [Node.js](https://nodejs.org/) 22.12 or newer and npm.
 
 ```sh
 git clone https://github.com/khasky/kanbonk.git
-cd listva
+cd kanbonk
 npm install
 npm run dev
 ```
@@ -96,7 +91,7 @@ npm run serve:lan -- 192.168.1.10 4174
 One React app in `src/` runs everywhere; the platform-specific code lives in a single module, [`src/platform.ts`](src/platform.ts).
 
 | Platform | Develop | Build | Output |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Web | `npm run dev` | `npm run build` | `dist/` |
 | Chrome / Edge extension | `npm run dev:extension` | `npm run build:extension` | `dist-extension/` (load unpacked) |
 | Windows (Tauri) | `npm run tauri dev` | `npm run tauri build` | NSIS `.exe` and `.msi` in `src-tauri/target/release/bundle/` |
@@ -107,19 +102,19 @@ Native builds need the [Tauri prerequisites](https://v2.tauri.app/start/prerequi
 
 ## Privacy and security
 
-- No account, telemetry or Kanbonk server. Each device keeps its data locally (IndexedDB in browsers and in the app WebViews).
-- Wi-Fi sync packets are encrypted end to end with XChaCha20-Poly1305 using a key derived from a 128-bit pairing code. The relay forwards ciphertext and never stores data.
-- Peer-to-peer sync uses WebRTC data channels (DTLS). Public STUN servers learn only network addresses.
-- File bundles are encrypted with the pairing code of a trusted device.
-- The AI assistant is off until you add your own key. The key stays on the device; board data goes straight to the chosen provider only when you press an AI action (see [docs/ai.md](docs/ai.md#privacy)).
-- The LAN server serves the app over plain HTTP. Use it only on a network you trust: anyone on that network could tamper with the page before encryption starts.
+- **No account, telemetry or Kanbonk server.** Each device keeps its data locally, in IndexedDB in browsers and in the app WebViews.
+- **Encrypted Wi-Fi sync.** Packets are encrypted end to end with XChaCha20-Poly1305 under a key derived from a 128-bit pairing code. The relay forwards ciphertext and never stores data.
+- **Encrypted peer-to-peer sync.** WebRTC data channels use DTLS. Public STUN servers learn only network addresses.
+- **Encrypted file bundles.** A sync file is encrypted with the pairing code of a trusted device.
+- **AI only on request.** The assistant is off until you add your own key. The key stays on the device, and board data goes straight to the chosen provider only when you press an AI action (see [docs/ai.md](docs/ai.md#privacy)).
+- **Trusted networks only for the LAN server.** It serves the app over plain HTTP, so anyone on that network could tamper with the page before encryption starts.
 
-The design and its limits are described in [docs/sync.md](docs/sync.md). To report a vulnerability, see [SECURITY.md](SECURITY.md).
+The design and its limits are described in [docs/sync.md](docs/sync.md).
 
 ## Documentation
 
 | Document | Contents |
-|---|---|
+| --- | --- |
 | [Feature guide](docs/features.md) | Pages, cards, zones, calendar, search syntax, automation, reminders |
 | [Architecture](docs/architecture.md) | Code layout, state flow, routing, platform layer |
 | [Data model](docs/data-model.md) | Entities, IDs, revisions, soft delete, tombstones |
@@ -128,7 +123,7 @@ The design and its limits are described in [docs/sync.md](docs/sync.md). To repo
 | [AI and the board document](docs/ai.md) | Project document, AI providers, privacy, inbox triage, citations |
 | [MCP server](docs/mcp.md) | Connecting AI agents, tools, security |
 | [Backups](docs/backups.md) | Automatic snapshots, folder backups, ZIP backup format |
-| [Trello import and export](docs/trello.md) | JSON, ZIP and CSV formats, the Trello bridge extension |
+| [Trello import and export](docs/trello.md) | JSON, ZIP and CSV formats, the bridge extension for attachments |
 | [Platforms](docs/platforms.md) | Building and developing for web, extension, Windows, Android |
 | [Testing](docs/testing.md) | Automated tests, what has been verified, manual device checklist |
 
@@ -138,10 +133,20 @@ Kanbonk is **alpha** software. The web app, the Windows build, the Chrome/Edge e
 
 ## Contributing
 
-Bug reports, ideas and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first, and follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+Bug reports, ideas and pull requests are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for branch naming, commit conventions and checks. Taking part is covered by the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
+## Security
+
+Found a vulnerability? Don't open a public issue — report it privately, see [SECURITY.md](./SECURITY.md).
+
+## Support
+
+If **Kanbonk** is useful to you, you can support development:
+
+- [GitHub Sponsors](https://github.com/sponsors/khasky)
+- [Patreon](https://www.patreon.com/khasky)
+- [Ko-Fi](https://ko-fi.com/khasky)
 
 ## License
 
-[MIT](LICENSE) © Kanbonk contributors.
-
-Kanbonk is not affiliated with Trello or Atlassian. Trello is a trademark of Atlassian.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
