@@ -1,0 +1,24 @@
+name: PR title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  pr-title:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read # read the title
+      statuses: write # report the result on the PR
+    steps:
+      # Default type list is conventional-commit-types, the same set commitlint
+      # enforces here - see CONTRIBUTING.md -> Commit messages.
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # A branch's own commits are already gated by the hook, and they are
+          # squashed away on merge - only the title survives.
+          validateSingleCommit: false
