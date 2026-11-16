@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "Kanbonk",
+  "description": "Local Kanbonk boards in your browser: data stays in the extension and syncs with your computer and phone without a cloud.",
+  "version": "0.1.0",
+  "icons": { "32": "icons/32.png", "128": "icons/128.png" },
+  "action": { "default_title": "Open Kanbonk", "default_icon": { "32": "icons/32.png" } },
+  "background": { "service_worker": "background.js" }
+}
