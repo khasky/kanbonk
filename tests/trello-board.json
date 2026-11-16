@@ -1,0 +1,35 @@
+{
+  "id": "trello-board-1",
+  "name": "Trello import",
+  "desc": "Import check",
+  "prefs": { "backgroundColor": "#0c66e4" },
+  "lists": [
+    { "id": "trello-list-1", "name": "Plans", "pos": 1, "closed": false }
+  ],
+  "labels": [
+    { "id": "trello-label-1", "name": "Important", "color": "red" }
+  ],
+  "cards": [
+    {
+      "id": "trello-card-1",
+      "idList": "trello-list-1",
+      "name": "Card from Trello",
+      "desc": "Description from the export",
+      "pos": 1,
+      "idLabels": ["trello-label-1"],
+      "due": "2026-12-01T12:00:00.000Z",
+      "attachments": [
+        { "id": "trello-attachment-1", "name": "note.txt", "mimeType": "text/plain", "bytes": 15, "url": "https://trello.com/1/cards/trello-card-1/attachments/trello-attachment-1/download/note.txt" }
+      ]
+    }
+  ],
+  "checklists": [
+    { "id": "trello-checklist-1", "idCard": "trello-card-1", "name": "Steps", "checkItems": [
+      { "id": "trello-item-1", "name": "Done", "state": "complete", "pos": 1 },
+      { "id": "trello-item-2", "name": "Remaining", "state": "incomplete", "pos": 2 }
+    ] }
+  ],
+  "actions": [
+    { "id": "trello-action-1", "type": "commentCard", "date": "2026-11-01T10:00:00.000Z", "memberCreator": { "fullName": "Author" }, "data": { "card": { "id": "trello-card-1" }, "text": "Comment from Trello" } }
+  ]
+}
