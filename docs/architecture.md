@@ -50,14 +50,14 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 | `devices.ts` | Trusted devices, encrypted file bundles, the tab channel |
 | `storage.ts` | IndexedDB access: state, attachments, snapshots, settings; device ID |
 | `backup.ts`, `autoBackup.ts`, `SettingsDialog.tsx` | ZIP backups, state validation, automatic snapshots and scheduled full backups with their settings |
-| `importTrello.ts`, `trelloFormats.ts`, `trelloBridge.ts` | Trello JSON/ZIP/CSV import, Trello JSON/CSV export, the Trello import extension client |
+| `trello/import/`, `trello/formats.ts`, `trello/bridge.ts` | Trello JSON/ZIP import (parsing, ZIP reading, attachments), JSON/CSV export and CSV import, the Trello import extension client |
 | `automation.ts`, `reminders.ts`, `repeatingDue.ts` | Board rules, due reminders, repeating due dates |
 | `inbox.ts`, `links.ts`, `activity.ts`, `labels.ts` | Personal inbox, links between cards, activity feed, label colors |
 | `MarkdownEditor.tsx`, `htmlToMarkdown.ts`, `MarkdownText.tsx` | Visual Markdown editing and rendering |
 | `ColorInput.tsx`, `CardPicker.tsx`, `share.ts` | Color picker with presets, searchable card chooser, card print/PNG/JSON/link/QR |
 | `boardDoc.ts`, `DocView.tsx` | The board document: card links, backlinks, live project summary |
 | `ai.ts`, `AiPanel.tsx` | AI providers (bring your own key), inbox triage and documents with citations |
-| `mcp/tools.ts`, `mcp/agent.ts` | MCP tools and the headless agent device; the Node entry is `mcp/kanbonk-mcp.mjs` |
+| `mcp/tools/`, `mcp/agent.ts` | MCP tool schemas (`definitions.ts`) and their implementation (`run.ts`), the headless agent device; the Node entry is `mcp/kanbonk-mcp.mjs` |
 
 ## State flow
 

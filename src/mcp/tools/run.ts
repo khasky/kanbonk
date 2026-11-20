@@ -1,4 +1,25 @@
-import { type Json, tools, trashKinds } from "./definitions";
+// Kanbonk operations for AI agents (MCP tools). Pure functions over AppState so the same code runs in the MCP server,
+// in tests, and could run in the app. Every change records revisions with the agent's device ID, so it syncs and
+// shows up in card history like an edit from any other trusted device.
+import {
+  cloneCard,
+  createSubCard,
+  emptyBoardFilter,
+  filterBoardCards,
+  linkDependency,
+  newId,
+  positionBefore,
+  recordRevision,
+  recordRevisions,
+  searchCards,
+  type AppState,
+  type Card,
+} from "../../model";
+import { moveToTrash, restoreFromTrash, trashEntries, visibleState, type TrashKind } from "../../trash";
+import { createZone, moveListToList } from "../../zones";
+import { projectSummary } from "../../boardDoc";
+import { findDuplicates, mergeDuplicate } from "../../dedupe";
+import { type Json, trashKinds } from "./definitions";
 
 export class ToolError extends Error {}
 
@@ -7,7 +28,7 @@ function need<T>(value: T | undefined, what: string): T {
   return value;
 }
 
-export const text = (args: Json, key: string, required = false): string | undefined => {
+const text = (args: Json, key: string, required = false): string | undefined => {
   const value = args[key];
   if (value === undefined || value === null) {
     if (required) throw new ToolError(`"${key}" is required`);

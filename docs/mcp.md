@@ -1,6 +1,6 @@
 # MCP server for AI agents
 
-Implementation: [`src/mcp/tools.ts`](../src/mcp/tools.ts), [`src/mcp/agent.ts`](../src/mcp/agent.ts), [`mcp/kanbonk-mcp.mjs`](../mcp/kanbonk-mcp.mjs). Tests: [`tests/mcpTools.test.ts`](../tests/mcpTools.test.ts).
+Implementation: [`src/mcp/tools/`](../src/mcp/tools/), [`src/mcp/agent.ts`](../src/mcp/agent.ts), [`mcp/kanbonk-mcp.mjs`](../mcp/kanbonk-mcp.mjs). Tests: [`tests/mcpTools.test.ts`](../tests/mcpTools.test.ts).
 
 Kanbonk has no server, so the MCP server is a **headless Kanbonk device**: it keeps its own copy of the data in a folder, exposes Kanbonk operations as [Model Context Protocol](https://modelcontextprotocol.io/) tools over stdio, and syncs with your devices over the encrypted Wi-Fi relay like any other device. The app asks you to trust it once, exactly as with a new phone.
 
