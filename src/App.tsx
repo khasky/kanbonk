@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import {
   deviceId,
   loadAttachment,
@@ -174,22 +174,24 @@ function App() {
   const trash = useTrash({ fullState, setState, deviceId: localDeviceId.current, onNotice: setNotice });
   const { requestDelete } = trash;
 
+  const restorePanels = useEffectEvent(() => panels.restore());
   useEffect(() => {
     loadState()
       .then((loaded) => {
         loaded = ensureInbox(loaded, localDeviceId.current);
         setState(loaded);
-        panels.restore();
+        restorePanels();
         setReady(true);
       })
       .catch((cause) => setError(`Could not open local data: ${String(cause)}`));
   }, []);
 
+  const notifyTabs = useEffectEvent(() => sync.notifyTabs());
   useEffect(() => {
     if (!ready) return;
     queue.current = queue.current
       .then(() => saveState(fullState))
-      .then(() => sync.notifyTabs())
+      .then(() => notifyTabs())
       .catch((cause) => setError(`Could not save changes: ${String(cause)}`));
   }, [fullState, ready]);
 
@@ -213,6 +215,7 @@ function App() {
     };
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cards and boards are triggers, so new due dates and rules apply at once.
   useEffect(() => {
     if (ready)
       setState((current) =>
@@ -290,6 +293,7 @@ function App() {
     }));
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fileVersion is a trigger that reloads the image after files change.
   useEffect(() => {
     const id = board?.backgroundImageId;
     if (!id) return;

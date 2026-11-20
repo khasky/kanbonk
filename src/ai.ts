@@ -22,8 +22,7 @@ const storageKey = "kanbonk-ai";
 export function readAiSettings(): AiSettings | null {
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) ?? "null") as Partial<AiSettings> | null;
-    return saved &&
-      saved.provider &&
+    return saved?.provider &&
       saved.provider in aiProviders &&
       typeof saved.apiKey === "string" &&
       (saved.apiKey || saved.provider === "compatible") &&

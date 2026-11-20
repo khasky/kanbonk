@@ -10,7 +10,7 @@ export function CardStickers({ card }: { card: Card }) {
     let active = true;
     const urls: string[] = [];
     void Promise.all(
-      imageIds.map(async (id) => {
+      (imageKey ? imageKey.split(",") : []).map(async (id) => {
         try {
           const blob = await loadAttachment(id);
           if (!blob || !active) return null;
@@ -29,7 +29,7 @@ export function CardStickers({ card }: { card: Card }) {
       active = false;
       for (const url of urls) URL.revokeObjectURL(url);
     };
-  }, [imageKey, card]);
+  }, [imageKey]);
   if (!card.stickers?.length) return null;
   return (
     <span

@@ -25,6 +25,7 @@ export function ListCards({ cards, render }: { cards: Card[]; render: (card: Car
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: limit is a trigger; a new observer reports the sentinel again if it is still in view.
   useEffect(() => {
     const element = sentinel.current;
     if (!more || !element) return;
