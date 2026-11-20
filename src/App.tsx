@@ -16,7 +16,8 @@ import { cardLink, downloadCardJson, downloadCardPng, printCard, qrSvg } from ".
 import { saveFile, shareFile } from "./platform";
 import { assignListToZone, createZone, deleteZone, moveListToList, moveZone, updateZone, zoneRuns } from "./zones";
 import { BoardCalendar, DedupeDialog, DeleteDialog, HomePage, MissingPage, TrashPage, WorkspacePage, ZoneFrame } from "./pages";
-import { autoBackupIntervalMs, autoSnapshot, backupFolderName, chooseBackupFolder, folderBackupSupported, forgetBackupFolder, lastFolderBackup, writeFolderBackup } from "./autoBackup";
+import { autoBackupIntervalMs, autoSnapshot, backupDue, lastAutoBackup, loadAutoBackupSettings, writeAutoBackup } from "./autoBackup";
+import { SettingsDialog } from "./SettingsDialog";
 import { createSyncBundle, openSyncBundle, readTrustedDevices, saveTrustedDevices, tabChannel, trustDevice, type SyncTransport, type TrustedDevice } from "./devices";
 import { cloneCard, createSubCard, parentCandidates, subCards, type Label, type Member, rememberStateIds, recordRevisions, canEditComment, convertChecklistItem, copyBoard, copyList, createCardFromTemplate, deleteLabel, emptyBoardFilter, emptyState, filterBoardCards, isCardAvailable, linkDependency, markMediaLocal, moveChecklistItem, newId, positionBefore, recordRevision, restoreRevision, searchCards, sortListCards, transferCard, unlinkDependency, type AppState, type AutomationRule, type Board, type BoardFilter, type BoardList, type Zone, type Card, type Checklist, type Revision } from "./model";
 import { addImportedBoardWithRevisions, parseTrelloBoard, prepareTrelloWorkspace, readTrelloExport, restoreExistingAttachments, restoreTrelloAttachments } from "./importTrello";
@@ -192,8 +193,9 @@ function App() {
   const [backgroundImage, setBackgroundImage] = useState<{ id: string; url: string } | null>(null);
   const tabs = useRef<{ notify: () => void; close: () => void } | null>(null);
   const [snapshots, setSnapshots] = useState<SnapshotMeta[]>([]);
-  const [folderStatus, setFolderStatus] = useState("");
-  const [folderName, setFolderName] = useState<string | undefined>();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const autoBackupRunning = useRef(false);
+  const autoBackupError = useRef("");
   const [pendingDelete, setPendingDelete] = useState<{ kind: TrashKind; id: string; name: string; impact: TrashImpact } | null>(null);
   const [notice, setNotice] = useState("");
   useEffect(() => { if (!notice) return; const timer = window.setTimeout(() => setNotice(""), 8000); return () => window.clearTimeout(timer); }, [notice]);
@@ -303,15 +305,24 @@ function App() {
     return () => { channel.close(); tabs.current = null; };
   }, [ready]);
 
-  // Automatic backups: local snapshots every 10 minutes (and when the page is hidden) plus a daily ZIP into a chosen folder.
+  // Automatic backups: local snapshots every 10 minutes (and when the page is hidden) plus full ZIP backups on the schedule from Settings.
   useEffect(() => {
     if (!ready) return;
     const run = () => {
       void autoSnapshot(stateRef.current).then((meta) => { if (meta) setSnapshots((current) => [meta, ...current]); }).catch((cause) => setError(`Automatic backup was not created: ${String(cause)}`));
-      void lastFolderBackup().then(async (last) => {
-        if (!await backupFolderName() || last?.slice(0, 10) === new Date().toISOString().slice(0, 10)) return;
-        setFolderStatus(`Latest backup in folder: ${await writeFolderBackup(stateRef.current)}`);
-      }).catch((cause) => setFolderStatus(String(cause instanceof Error ? cause.message : cause)));
+      if (autoBackupRunning.current) return;
+      autoBackupRunning.current = true;
+      void (async () => {
+        const settings = await loadAutoBackupSettings();
+        if (!backupDue(settings, await lastAutoBackup())) return;
+        await writeAutoBackup(stateRef.current, settings);
+        autoBackupError.current = "";
+      })().catch((cause) => {
+        // A failing backup is reported once per distinct reason, not every 10 minutes.
+        const message = String(cause instanceof Error ? cause.message : cause);
+        if (message !== autoBackupError.current) setError(`Automatic backup failed: ${message} Check ⋯ → Settings.`);
+        autoBackupError.current = message;
+      }).finally(() => { autoBackupRunning.current = false; });
     };
     const first = window.setTimeout(run, 30_000);
     const interval = window.setInterval(run, autoBackupIntervalMs);
@@ -489,7 +500,6 @@ function App() {
 
   async function refreshBackupInfo() {
     setSnapshots((await listSnapshots()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
-    setFolderName(await backupFolderName());
   }
 
   async function restoreSnapshot(meta: SnapshotMeta) {
@@ -1041,6 +1051,7 @@ function App() {
         <div className="topbar-more-menu" onClick={(event) => { if ((event.target as HTMLElement).closest("button")) (event.currentTarget.parentElement as HTMLDetailsElement).open = false; }}>
           <button onClick={openImport}>Import from Trello</button>
           <button onClick={() => { setBackupReport(""); setBackupOpen(true); void refreshBackupInfo(); }}>Backup</button>
+          <button onClick={() => setSettingsOpen(true)}>Settings</button>
           <button onClick={() => setSyncOpen(true)}>Sync</button>
           <button onClick={() => setAiOpen(true)}>AI assistant</button>
           <button onClick={() => setDedupeOpen(true)}>Duplicates across boards</button>
@@ -1094,6 +1105,7 @@ function App() {
     {remindersOpen && <div className="dialog-backdrop" onMouseDown={() => setRemindersOpen(false)}><section className="side-panel" role="dialog" aria-modal="true" aria-label="Reminders" onMouseDown={(event) => event.stopPropagation()}><header><h2>Reminders</h2><button onClick={() => setRemindersOpen(false)} aria-label="Close reminders"><Icon name="close" /></button></header>{reminders.length ? reminders.map((item) => <div className="panel-row reminder-row" key={item.id}><button onClick={() => { if (item.boardId === inboxBoardId) showPanel("inbox"); else showBoard(item.boardId); setCardId(item.id); setRemindersOpen(false); }}>{item.name}<small>{new Date(item.dueAt!).toLocaleString("en-US")}</small></button><button onClick={() => setDismissedReminders((current) => ({ ...current, [item.id]: reminderSignature(item) }))} aria-label={`Dismiss reminder ${item.name}`}>Dismiss</button></div>) : <p>No new reminders.</p>}</section></div>}
     {automationBoardId && state.boards.some((item) => item.id === automationBoardId && !item.archived) && <AutomationPanel key={automationBoardId} board={state.boards.find((item) => item.id === automationBoardId)!} state={state} onClose={() => setAutomationBoardId(null)} onAdd={(listId, action, labelId, trigger, name, leadMinutes) => addAutomationRule(automationBoardId, listId, action, labelId, trigger, name, leadMinutes)} onRemove={(ruleId) => removeAutomationRule(automationBoardId, ruleId)} />}
     {panel && <div className="dialog-backdrop" onMouseDown={() => setPanel(null)}><section className="side-panel" role="dialog" aria-modal="true" aria-label={panel === "archive" ? "Archive" : "Version history"} onMouseDown={(event) => event.stopPropagation()}><header><h2>{panel === "archive" ? "Archive" : "Version history"}</h2><button onClick={() => setPanel(null)} aria-label="Close"><Icon name="close" /></button></header>{panel === "archive" ? <>{state.cards.filter((item) => item.boardId === (archiveBoardId ?? boardId) && item.archived).map((item) => <div className="panel-row" key={item.id}>{item.name}<button onClick={() => updateCard(item.id, (current) => ({ ...current, archived: false }))}>Restore</button></div>)}{state.lists.filter((item) => item.boardId === (archiveBoardId ?? boardId) && item.archived).map((item) => <div className="panel-row" key={item.id}>{item.name}<button onClick={() => updateList(item.id, (current) => ({ ...current, archived: false }))}>Restore</button></div>)}</> : <><p>The last 30 versions of each item are kept.</p>{state.revisions.filter((item) => item.entityId === (card?.id ?? boardId)).slice().reverse().map((revision) => <div className="panel-row" key={revision.id}><span><strong>{revision.snapshot.name}</strong><small>{new Date(revision.createdAt).toLocaleString()}</small></span><button onClick={() => restore(revision)}>Restore</button></div>)}</>}</section></div>}
+    {settingsOpen && <SettingsDialog getState={() => stateRef.current} onClose={() => setSettingsOpen(false)} />}
     {aiOpen && <AiSettingsDialog settings={aiSettings} onClose={() => setAiOpen(false)} onSave={(next) => { saveAiSettings(next); setAiSettings(next); setAiOpen(false); }} />}
     {syncOpen && <div className="dialog-backdrop" onMouseDown={() => setSyncOpen(false)}><section className="creation-dialog sync-dialog" role="dialog" aria-modal="true" aria-label="Device sync" onMouseDown={(event) => event.stopPropagation()}><h2>Device sync</h2>
       <label>Sync method<select value={syncTransport} onChange={(event) => { const value = event.target.value as SyncTransport; setSyncTransport(value); localStorage.setItem("kanbonk-sync-transport", value); }}><option value="wifi">Wi-Fi / local network</option><option value="internet">Internet: direct P2P connection (WebRTC)</option><option value="file">File: Bluetooth / USB / messenger</option></select></label>
@@ -1102,9 +1114,7 @@ function App() {
       {syncTransport === "file" && <section className="local-sync"><h3>Sync package</h3><p>An encrypted file with your data and attachments. Send it via Bluetooth (the Share menu on your phone), USB or a messenger; only a device that knows the pairing code can open it.</p><label>Pairing code (for a new device)<input value={bundleCode} onChange={(event) => setBundleCode(event.target.value)} spellCheck={false} autoComplete="off" /></label><div><button onClick={() => setBundleCode(newRoomCode())}>Create code</button><button className="primary-button" disabled={!/^[a-f0-9]{32}$/.test(bundleCode.trim().toLowerCase())} onClick={() => void shareSyncBundle(bundleCode.trim().toLowerCase())}>Send package with code</button></div><label>Open received package<input type="file" accept=".kanbonk-sync,application/octet-stream" onChange={(event) => { void openBundle(event.target.files?.[0] ?? null); event.target.value = ""; }} /></label></section>}
       {syncTransport === "wifi" && <LocalRoomControls serverUrl={syncServerUrl} roomCode={syncRoomCode} onServerChange={setSyncServerUrl} onCodeChange={setSyncRoomCode} onConnect={connectLocalRoom} />}{syncTransport !== "file" && <><p>{syncTransport === "internet" ? "Direct connection over the internet: devices exchange an invitation and a response through any channel (messenger, email). Data flows directly and is encrypted (DTLS); the public STUN server only sees network addresses, not data. Only someone you sent the invitation to can connect, and only after you confirm trust." : "If both browsers support WebRTC, you can connect directly over the local network. Exchange an invitation and a response."}</p><button className="primary-button" onClick={createSyncOffer}>Create invitation</button><label>Invitation: send it to the second device or paste the one you received<textarea value={syncSignal} onChange={(event) => setSyncSignal(event.target.value)} /></label><button onClick={acceptSyncOffer} disabled={!syncSignal}>Accept invitation</button><label>Response: send it to the first device or paste the one you received<textarea value={syncResponse} onChange={(event) => setSyncResponse(event.target.value)} /></label><button onClick={acceptSyncAnswer} disabled={!syncResponse}>Connect with response</button></>}<button onClick={() => { try { syncRef.current?.syncNow(); } catch (cause) { setSyncStatus(String(cause)); } }}>Sync now</button>{syncStatus && <p className="import-report" role="status">{syncStatus}</p>}{syncConflicts.map((conflict) => <div className="sync-conflict" key={`${conflict.kind}-${conflict.id}`}><strong>Conflict: {conflict.local.name}</strong><small>Choose a version of this item.</small><div><button onClick={() => { setState((current) => chooseConflict(current, conflict, "local", localDeviceId.current)); setSyncConflicts((current) => current.filter((item) => item !== conflict)); setSyncStatus("Version chosen. Syncing…"); }}>My version</button><button onClick={() => { setState((current) => chooseConflict(current, conflict, "remote", localDeviceId.current)); setSyncConflicts((current) => current.filter((item) => item !== conflict)); setSyncStatus("Version chosen. Syncing…"); }}>Other device's version</button></div></div>)}<div><button onClick={() => setSyncOpen(false)}>Close</button></div></section></div>}
     {backupOpen && <div className="dialog-backdrop" onMouseDown={() => { if (!backupBusy) setBackupOpen(false); }}><section className="creation-dialog import-dialog" role="dialog" aria-modal="true" aria-label="Backup" onMouseDown={(event) => event.stopPropagation()}><h2>Backup</h2><p>Save all boards and available local files to ZIP. To restore, select all parts of one backup at once. Existing data is kept; conflicting changes will ask you to choose a version.</p><button className="primary-button" onClick={exportBackup} disabled={backupBusy}>{backupBusy ? "Please wait…" : "Download backup"}</button><label>Backup ZIP parts<input type="file" accept=".zip,application/zip" multiple onChange={(event) => setBackupFiles(Array.from(event.target.files ?? []))} /></label><button onClick={importBackup} disabled={backupBusy || !backupFiles.length}>Restore from ZIP</button>
-      <section className="auto-backups"><h3>Automatic backups</h3><p>Every 10 minutes, if anything changed, a snapshot of all data is saved (the last 20, plus one per day for 30 days).{folderBackupSupported() ? " In addition, once a day a full ZIP backup with files is written to the chosen folder." : ""}</p>
-        {folderBackupSupported() && <div className="row-actions">{folderName ? <><span>Folder: <strong>{folderName}</strong></span><button onClick={() => void writeFolderBackup(stateRef.current, true).then((result) => setFolderStatus(`Written: ${result}`)).catch((cause) => setFolderStatus(String(cause instanceof Error ? cause.message : cause)))}>Write now</button><button onClick={() => void forgetBackupFolder().then(refreshBackupInfo)}>Turn off</button></> : <button onClick={() => void chooseBackupFolder().then((name) => { setFolderName(name); return writeFolderBackup(stateRef.current, true); }).then((result) => setFolderStatus(`Written: ${result}`)).catch((cause) => setFolderStatus(String(cause instanceof Error ? cause.message : cause)))}>Choose folder for daily backups</button>}</div>}
-        {folderStatus && <p className="import-report" role="status">{folderStatus}</p>}
+      <section className="auto-backups"><h3>Snapshots</h3><p>Every 10 minutes, if anything changed, a snapshot of all data is saved inside the app (the last 20, plus one per day for 30 days). Full backups with files outside the app are set up in <button type="button" className="link-button" onClick={() => { setBackupOpen(false); setSettingsOpen(true); }}>Settings</button>.</p>
         <button onClick={() => void autoSnapshot(stateRef.current).then(refreshBackupInfo)}>Create snapshot now</button>
         {snapshots.length ? <div className="snapshot-list">{snapshots.map((meta) => <div className="panel-row" key={meta.id}><span><strong>{new Date(meta.createdAt).toLocaleString("en-US")}</strong><small>boards: {meta.boards}, cards: {meta.cards}, {Math.round(meta.size / 1024)} KB</small></span><button onClick={() => void restoreSnapshot(meta)}>Restore</button></div>)}</div> : <p>No snapshots yet.</p>}
       </section>{backupReport && <p className="import-report" role="status">{backupReport}</p>}{backupConflicts.map((conflict) => <div className="sync-conflict" key={`${conflict.kind}-${conflict.id}`}><strong>Conflict: {conflict.local.name}</strong><small>Choose a version of this item.</small><div><button onClick={() => { setState((current) => chooseConflict(current, conflict, "local", localDeviceId.current)); setBackupConflicts((current) => current.filter((item) => item !== conflict)); }}>Current version</button><button onClick={() => { setState((current) => chooseConflict(current, conflict, "remote", localDeviceId.current)); setBackupConflicts((current) => current.filter((item) => item !== conflict)); }}>Backup version</button></div></div>)}<div><button onClick={() => setBackupOpen(false)} disabled={backupBusy}>Close</button></div></section></div>}

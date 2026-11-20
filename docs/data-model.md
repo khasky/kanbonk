@@ -80,7 +80,7 @@ The project was previously called Listva, and data written under that name is mi
 | IndexedDB `kanbonk`, store `app` | The `AppState` |
 | store `attachments` | File bytes by attachment/background/sticker ID |
 | store `backups` | Automatic snapshots (JSON) and their metadata |
-| store `settings` | Backup folder handle and similar settings |
+| store `settings` | Automatic backup settings, backup folder, time of the last backup, IDs of backup downloads (extension) |
 | `localStorage` | Device ID (`kanbonk-device-id`), author name, trusted devices, chosen sync transport, UI preferences (panels, filters, dismissed reminders, ignored duplicates) |
 
 Each origin has its own storage: the web app on `localhost:1420`, the web app on `192.168.1.10:4174`, the extension and each native app are separate devices from Kanbonk's point of view and sync like any other devices.

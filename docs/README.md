@@ -9,7 +9,7 @@
 | [Trash and dependencies](trash-and-dependencies.md) | understand delete, restore chains and card dependencies |
 | [AI and the board document](ai.md) | use the project document and connect Claude, ChatGPT, Gemini or a compatible server |
 | [MCP server](mcp.md) | let AI agents work with your boards |
-| [Backups](backups.md) | understand automatic snapshots, folder backups and the ZIP format |
+| [Backups](backups.md) | understand automatic snapshots, scheduled full backups and the ZIP format |
 | [Trello import and export](trello.md) | move boards between Trello and Kanbonk |
 | [Platforms](platforms.md) | build or develop for web, the extension, Windows or Android |
 | [Testing](testing.md) | run tests, see what has been verified and what still needs checking |

@@ -103,3 +103,4 @@ button.local-badge{border:0;cursor:pointer;white-space:nowrap}
 .local-badge.pending{color:#fff7d6;background:#7f5f01}
 .local-badge.offline{color:#fff;background:#626f86}
 .local-badge.pending,.local-badge.offline{display:inline-block}
+.settings-dialog .backup-target{display:grid;gap:8px;border:1px solid #dfe1e6;border-radius:6px;padding:8px 12px 12px;margin:0}.settings-dialog .backup-target legend{font-weight:600;padding:0 4px}.settings-dialog label.settings-option{flex-direction:row;align-items:center;gap:8px;font-weight:400}.settings-dialog label.settings-option span{overflow-wrap:anywhere}.settings-dialog label.settings-option input[type=radio]{width:auto;margin:0}.settings-dialog label.settings-option input[type=number]{width:72px}.settings-dialog .backup-target button{justify-self:start}.settings-dialog select{min-height:36px}

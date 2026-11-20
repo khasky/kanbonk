@@ -43,7 +43,7 @@ Load it: open `chrome://extensions` (or `edge://extensions`), enable **Developer
 How it is put together ([`scripts/build-extension.mjs`](../scripts/build-extension.mjs)):
 
 - Vite builds the regular app with a relative base (`./`).
-- [`extension/manifest.json`](../extension/manifest.json) (Manifest V3, no permissions) and [`extension/background.js`](../extension/background.js) are copied next to it, plus icons from `src-tauri/icons/`.
+- [`extension/manifest.json`](../extension/manifest.json) (Manifest V3; `unlimitedStorage` keeps the browser from capping or evicting the extension's data, `downloads` lets automatic backups save to and prune `Downloads/Kanbonk Backups`, and `key` pins the extension ID to `mocdkcnklkbfedhhpcbhljmiemaohemh`) and [`extension/background.js`](../extension/background.js) are copied next to it, plus icons from `src-tauri/icons/`.
 - The toolbar button opens `index.html` in a tab or focuses the open one.
 - Routes use the URL hash (`index.html#/b/<id>`) because extension pages have no server fallback.
 
@@ -62,7 +62,7 @@ pnpm tauri build    # release build and installers
 
 On Windows the installers are written to `src-tauri/target/release/bundle/nsis/Kanbonk_<version>_x64-setup.exe` and `.../msi/Kanbonk_<version>_x64_en-US.msi`. They are unsigned; Windows SmartScreen will warn until you sign them.
 
-Tauri configuration: [`src-tauri/tauri.conf.json`](../src-tauri/tauri.conf.json). Rust plugins: `tauri-plugin-dialog` and `tauri-plugin-fs`, used by `saveFile()` for exports and backups. Permissions: [`src-tauri/capabilities/default.json`](../src-tauri/capabilities/default.json) grants `dialog:default`, `fs:default` and `fs:allow-write-file`; writing is limited to paths the user picks in a save dialog.
+Tauri configuration: [`src-tauri/tauri.conf.json`](../src-tauri/tauri.conf.json). Rust plugins: `tauri-plugin-dialog` and `tauri-plugin-fs`, used by `saveFile()` for exports and backups. Permissions: [`src-tauri/capabilities/default.json`](../src-tauri/capabilities/default.json) grants `dialog:default`, `fs:default` and `fs:allow-write-file`; writing is limited to paths the user picks in a save dialog. Automatic backups go through the app's own commands in [`src-tauri/src/lib.rs`](../src-tauri/src/lib.rs) instead, which only write and delete `kanbonk-auto-*.zip` in `Documents/Kanbonk Backups` or a folder the user chose.
 
 ## Android
 

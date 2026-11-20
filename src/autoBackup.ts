@@ -2,6 +2,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { newId, type AppState } from "./model";
 import { createBackupParts } from "./backup";
 import { listSnapshots, loadSetting, saveSetting, saveSnapshot, type SnapshotMeta } from "./storage";
+import { defaultBackupDestination, folderDestination, platform, type BackupDestination, type BackupFolder } from "./platform";
 
 export const autoBackupIntervalMs = 10 * 60 * 1000;
 const recentKept = 20;
@@ -38,50 +39,90 @@ export async function autoSnapshot(state: AppState, now = new Date()): Promise<S
   return meta;
 }
 
-type DirectoryHandle = FileSystemDirectoryHandle & {
-  queryPermission?: (options: { mode: "readwrite" }) => Promise<PermissionState>;
-  requestPermission?: (options: { mode: "readwrite" }) => Promise<PermissionState>;
-};
+export type BackupFrequency = "6h" | "day" | "week" | "off";
+export interface AutoBackupSettings { frequency: BackupFrequency; keep: number; target: "default" | "folder" }
+export const defaultAutoBackup: AutoBackupSettings = { frequency: "day", keep: 7, target: "default" };
+const periods: Record<Exclude<BackupFrequency, "off">, number> = { "6h": 6 * 3600_000, day: 24 * 3600_000, week: 7 * 24 * 3600_000 };
 
-export function folderBackupSupported(): boolean {
-  return typeof (window as unknown as { showDirectoryPicker?: unknown }).showDirectoryPicker === "function";
+export async function loadAutoBackupSettings(): Promise<AutoBackupSettings> {
+  const saved = await loadSetting<Partial<AutoBackupSettings>>("auto-backup");
+  // Before these settings existed, choosing a folder was the way to turn on daily backups.
+  const target = saved?.target ?? (await backupFolder() ? "folder" : "default");
+  // A web page can only add a new download each time, so there backups start only once the user asks for them.
+  const unasked = platform === "web" && target === "default" ? "off" : defaultAutoBackup.frequency;
+  const frequency = saved?.frequency && saved.frequency in { ...periods, off: 0 } ? saved.frequency : unasked;
+  const keep = Number.isInteger(saved?.keep) && saved!.keep! >= 1 && saved!.keep! <= 100 ? saved!.keep! : defaultAutoBackup.keep;
+  return { frequency, keep, target };
 }
 
-export async function chooseBackupFolder(): Promise<string> {
-  const picker = (window as unknown as { showDirectoryPicker: (options: { mode: "readwrite"; id: string }) => Promise<DirectoryHandle> }).showDirectoryPicker;
-  const handle = await picker({ mode: "readwrite", id: "kanbonk-backups" });
-  await saveSetting("backup-folder", handle);
-  return handle.name;
+export async function saveAutoBackupSettings(settings: AutoBackupSettings): Promise<void> {
+  await saveSetting("auto-backup", settings);
 }
 
-export async function backupFolderName(): Promise<string | undefined> {
-  return (await loadSetting<DirectoryHandle>("backup-folder"))?.name;
+export async function backupFolder(): Promise<BackupFolder | undefined> {
+  const saved = await loadSetting<BackupFolder | FileSystemDirectoryHandle>("backup-folder");
+  if (!saved) return undefined;
+  // Earlier versions stored the directory handle itself.
+  return saved.kind === "handle" || saved.kind === "path" ? saved as BackupFolder : { kind: "handle", handle: saved as FileSystemDirectoryHandle };
 }
 
-export async function forgetBackupFolder(): Promise<void> {
-  await saveSetting("backup-folder", undefined);
+export async function setBackupFolder(folder: BackupFolder | undefined): Promise<void> {
+  await saveSetting("backup-folder", folder);
 }
 
-/** Writes a full ZIP backup (data + files) for today into the chosen folder, replacing today's earlier copy. */
-export async function writeFolderBackup(state: AppState, interactive = false): Promise<string> {
-  const handle = await loadSetting<DirectoryHandle>("backup-folder");
-  if (!handle) throw new Error("No backup folder is selected.");
-  let permission = await handle.queryPermission?.({ mode: "readwrite" }) ?? "granted";
-  if (permission !== "granted" && interactive) permission = await handle.requestPermission?.({ mode: "readwrite" }) ?? "denied";
-  if (permission !== "granted") throw new Error("Allow writing to the backup folder again.");
-  const day = new Date().toISOString().slice(0, 10);
+export async function lastAutoBackup(): Promise<string | undefined> {
+  return loadSetting<string>("backup-folder-last");
+}
+
+export function backupDue(settings: AutoBackupSettings, last: string | undefined, now = new Date()): boolean {
+  if (settings.frequency === "off") return false;
+  return !last || now.getTime() - new Date(last).getTime() >= periods[settings.frequency];
+}
+
+const backupName = /^kanbonk-auto-(.+)-(\d+)of(\d+)\.zip$/;
+
+/** Backup files beyond the newest `keep` complete backups; a backup is complete when all its ZIP parts are present. */
+export function backupsToDelete(names: string[], keep: number): string[] {
+  const groups = new Map<string, { parts: Set<number>; total: number; names: string[] }>();
+  for (const name of names) {
+    const match = name.match(backupName);
+    if (!match) continue;
+    const group = groups.get(match[1]) ?? { parts: new Set(), total: Number(match[3]), names: [] };
+    group.parts.add(Number(match[2]));
+    group.names.push(name);
+    groups.set(match[1], group);
+  }
+  const stamps = [...groups.keys()].sort().reverse();
+  const kept = stamps.filter((stamp) => groups.get(stamp)!.parts.size === groups.get(stamp)!.total).slice(0, keep);
+  if (kept.length < keep) return [];
+  const oldestKept = kept[kept.length - 1];
+  return stamps.filter((stamp) => stamp < oldestKept).flatMap((stamp) => groups.get(stamp)!.names);
+}
+
+async function destination(settings: AutoBackupSettings, interactive: boolean): Promise<BackupDestination> {
+  if (settings.target === "folder") {
+    const folder = await backupFolder();
+    if (!folder) throw new Error("No backup folder is chosen.");
+    return folderDestination(folder, interactive);
+  }
+  const fallback = await defaultBackupDestination();
+  if (!fallback) throw new Error("This app has no default backup location; choose a folder.");
+  return fallback;
+}
+
+/** Writes a full ZIP backup (data and files) and deletes backups beyond the newest `keep`. Returns a short report. */
+export async function writeAutoBackup(state: AppState, settings: AutoBackupSettings, interactive = false, now = new Date()): Promise<string> {
+  const target = await destination(settings, interactive);
+  const stamp = now.toISOString().slice(0, 19).replace(/:/g, "-") + "Z";
   let written = 0;
   for await (const part of createBackupParts(state)) {
-    const file = await handle.getFileHandle(`kanbonk-auto-${day}-${part.index}of${part.total}.zip`, { create: true });
-    const writable = await file.createWritable();
-    await writable.write(part.blob);
-    await writable.close();
+    await target.write(`kanbonk-auto-${stamp}-${part.index}of${part.total}.zip`, part.blob);
     written++;
   }
-  await saveSetting("backup-folder-last", new Date().toISOString());
-  return `${handle.name}: ${written} ZIP`;
-}
-
-export async function lastFolderBackup(): Promise<string | undefined> {
-  return loadSetting<string>("backup-folder-last");
+  await saveSetting("backup-folder-last", now.toISOString());
+  let removed = 0;
+  if (target.list && target.remove) {
+    for (const name of backupsToDelete(await target.list(), settings.keep)) { await target.remove(name); removed++; }
+  }
+  return `${target.label}: ${written} ZIP${removed ? `, ${removed} older ${removed === 1 ? "file" : "files"} deleted` : ""}.`;
 }

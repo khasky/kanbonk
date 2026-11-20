@@ -41,7 +41,7 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 | `lanSync.ts` | Sync sessions over the LAN relay or WebRTC, the wire protocol, trust handshake |
 | `devices.ts` | Trusted devices, encrypted file bundles, the tab channel |
 | `storage.ts` | IndexedDB access: state, attachments, snapshots, settings; device ID |
-| `backup.ts`, `autoBackup.ts` | ZIP backups, state validation, automatic snapshots and folder backups |
+| `backup.ts`, `autoBackup.ts`, `SettingsDialog.tsx` | ZIP backups, state validation, automatic snapshots and scheduled full backups with their settings |
 | `importTrello.ts`, `trelloFormats.ts`, `trelloBridge.ts` | Trello JSON/ZIP/CSV import, Trello JSON/CSV export, the Trello import extension client |
 | `automation.ts`, `reminders.ts`, `repeatingDue.ts` | Board rules, due reminders, repeating due dates |
 | `inbox.ts`, `links.ts`, `activity.ts`, `labels.ts` | Personal inbox, links between cards, activity feed, label colors |
@@ -89,6 +89,6 @@ Feature detection for optional browser APIs (File System Access, Web Share, WebR
 
 ## Native shells
 
-- **Tauri** ([`src-tauri/`](../src-tauri)) wraps `dist/` for Windows, macOS, Linux, Android and iOS. Rust code only registers the `dialog` and `fs` plugins; permissions are in `src-tauri/capabilities/default.json`.
-- **Browser extension** ([`extension/`](../extension)) is a Manifest V3 extension with no permissions. Its service worker opens or focuses the Kanbonk tab; the page is the regular app built with a relative base path.
+- **Tauri** ([`src-tauri/`](../src-tauri)) wraps `dist/` for Windows, macOS, Linux, Android and iOS. Rust code registers the `dialog` and `fs` plugins and four commands that write, list and delete automatic backups (`kanbonk-auto-*.zip` only); permissions are in `src-tauri/capabilities/default.json`.
+- **Browser extension** ([`extension/`](../extension)) is a Manifest V3 extension with two permissions: `unlimitedStorage`, so the browser neither caps nor evicts its boards and files, and `downloads`, for automatic backups to `Downloads/Kanbonk Backups`. The manifest `key` pins its ID, so the storage origin does not depend on the folder it was loaded from. Its service worker opens or focuses the Kanbonk tab; the page is the regular app built with a relative base path.
 - **LAN server** ([`server.mjs`](../server.mjs)) serves `dist/` with an SPA fallback and relays encrypted WebSocket packets between two members of a room.

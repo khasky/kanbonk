@@ -34,7 +34,7 @@ Kanbonk keeps every workspace, board, list, card and attachment on your own devi
 **Your data stays yours**
 
 - **Trash** — deleted workspaces, boards, lists and cards are kept for 30 days. Restoring an item also restores the parents and dependencies it needs.
-- **Automatic backups** — version snapshots every 10 minutes and, where the browser supports it, a daily ZIP with all files written to a folder you choose.
+- **Automatic backups** — version snapshots every 10 minutes and a full ZIP with all files every 6 hours, day or week, written to Downloads, Documents or a folder you choose; the newest N are kept.
 - **Duplicate finder** — finds similar cards across boards entirely on the device and merges them in one click.
 - **History** — full revision history for every workspace, board, list and card.
 
@@ -122,7 +122,7 @@ The design and its limits are described in [docs/sync.md](docs/sync.md).
 | [Trash and dependencies](docs/trash-and-dependencies.md) | Delete, restore chains, 30-day purge, card dependencies |
 | [AI and the board document](docs/ai.md) | Project document, AI providers, privacy, inbox triage, citations |
 | [MCP server](docs/mcp.md) | Connecting AI agents, tools, security |
-| [Backups](docs/backups.md) | Automatic snapshots, folder backups, ZIP backup format |
+| [Backups](docs/backups.md) | Automatic snapshots, scheduled full backups, ZIP backup format |
 | [Trello import and export](docs/trello.md) | JSON, ZIP and CSV formats, the Trello import extension |
 | [Platforms](docs/platforms.md) | Building and developing for web, extension, Windows, Android |
 | [Testing](docs/testing.md) | Automated tests, what has been verified, manual device checklist |
