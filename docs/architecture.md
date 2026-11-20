@@ -40,7 +40,7 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 | `format.ts`, `uiPreferences.ts`, `workspaces.ts` | Date and count formatting, UI preferences in localStorage, the personal workspace |
 | `router.ts` | History API router: routes, links, modal-over-page cards |
 | `platform.ts` | Platform detection, saving and sharing files, hash routing in the extension |
-| `model.ts` | Types, short IDs, revisions, search, list and card operations, dependencies, copying |
+| `model/` | Types (`types.ts`), short IDs, revisions, search and filters, card and list operations, dependencies, copying, media references; `model/index.ts` re-exports all of it |
 | `trash.ts` | Soft delete, restore chains, purge, tombstones, the visible state |
 | `zones.ts` | Grouping lists into zones, zone drag and drop |
 | `calendar.ts` | Calendar ranges, card placement, lane layout for multi-day cards |
