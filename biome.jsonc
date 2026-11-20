@@ -1,0 +1,56 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": {
+    // JSON and Markdown are left as written: manifests are edited by tools, docs by hand.
+    "includes": ["**", "!src-tauri/gen", "!src-tauri/target", "!**/*.json", "!**/*.md"]
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 120
+  },
+  "javascript": {
+    "formatter": { "quoteStyle": "double", "semicolons": "always", "trailingCommas": "all" }
+  },
+  "linter": {
+    "rules": {
+      "preset": "recommended",
+      // Rules below are off because satisfying them changes behavior or markup, not just style.
+      // Turning one on is a change of its own, checked in the running app.
+      "a11y": "off",
+      "style": {
+        // Used where the data model guarantees presence (e.g. a card's list).
+        "noNonNullAssertion": "off"
+      },
+      "suspicious": {
+        // Filename sanitizing strips control characters on purpose.
+        "noControlCharactersInRegex": "off",
+        // Static lists rendered once; keys by index are stable there.
+        "noArrayIndexKey": "off"
+      },
+      "security": {
+        // The only use renders Markdown that is sanitized before insertion.
+        "noDangerouslySetInnerHtml": "off"
+      },
+      "correctness": {
+        // Reported, not enforced: adding a dependency can change when an effect runs.
+        "useExhaustiveDependencies": "warn"
+      }
+    }
+  },
+  "css": {
+    "linter": { "enabled": true },
+    "formatter": { "enabled": true }
+  },
+  "overrides": [
+    {
+      // Reordering selectors or dropping !important changes the cascade.
+      "includes": ["**/*.css"],
+      "linter": {
+        "rules": { "style": { "noDescendingSpecificity": "off" }, "complexity": { "noImportantStyles": "off" } }
+      }
+    }
+  ],
+  "assist": { "actions": { "source": { "organizeImports": "off" } } }
+}
