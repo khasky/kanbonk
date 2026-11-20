@@ -1,4 +1,4 @@
-import { ColorInput } from "../ColorInput";
+import { ColorInput } from "../ui/ColorInput";
 import type { Zone } from "../model";
 import type { ReactNode } from "react";
 

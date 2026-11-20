@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CardPicker } from "../CardPicker";
+import { CardPicker } from "../ui/CardPicker";
 import type { relatedCards } from "../links";
 import { type AppState, type Card, isCardAvailable, parentCandidates } from "../model";
 

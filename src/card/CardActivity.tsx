@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { cardActivityFeed } from "../activity";
-import { MarkdownEditor } from "../MarkdownEditor";
-import { MarkdownText } from "../MarkdownText";
+import { MarkdownEditor } from "../ui/MarkdownEditor";
+import { MarkdownText } from "../ui/MarkdownText";
 import { type AppState, type Card, canEditComment, newId } from "../model";
 
 /** Comments, with the card's change history mixed in when details are shown. Only own comments can be edited. */

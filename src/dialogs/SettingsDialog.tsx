@@ -1,6 +1,6 @@
-import { Modal } from "./ui/Modal";
+import { Modal } from "../ui/Modal";
 import { useEffect, useState } from "react";
-import type { AppState } from "./model";
+import type { AppState } from "../model";
 import {
   backupFolder,
   defaultAutoBackup,
@@ -11,7 +11,7 @@ import {
   writeAutoBackup,
   type AutoBackupSettings,
   type BackupFrequency,
-} from "./autoBackup";
+} from "../autoBackup";
 import {
   backupFolderLabel,
   backupFolderSupported,
@@ -19,7 +19,7 @@ import {
   pickBackupFolder,
   platform,
   type BackupFolder,
-} from "./platform";
+} from "../platform";
 
 const frequencies: Array<[BackupFrequency, string]> = [
   ["6h", "Every 6 hours"],

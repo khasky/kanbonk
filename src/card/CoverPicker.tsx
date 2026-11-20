@@ -1,4 +1,4 @@
-import { ColorInput } from "../ColorInput";
+import { ColorInput } from "../ui/ColorInput";
 import type { Card } from "../model";
 
 const coverColors = [

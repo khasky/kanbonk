@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { htmlToMarkdown, type MdNode } from "./htmlToMarkdown";
+import { htmlToMarkdown, type MdNode } from "../htmlToMarkdown";
 
 function markdownToHtml(text: string): string {
   return renderToStaticMarkup(

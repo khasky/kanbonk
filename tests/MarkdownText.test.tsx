@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { MarkdownText } from "../src/MarkdownText";
+import { MarkdownText } from "../src/ui/MarkdownText";
 import type { Card } from "../src/model";
 
 describe("MarkdownText", () => {

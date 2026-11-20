@@ -24,8 +24,9 @@ import {
 import { exportTrelloCsv, exportTrelloJson } from "./trelloFormats";
 import { mergeDuplicate, pairKey } from "./dedupe";
 
-import { DocView } from "./DocView";
-import { AiPanel, AiSettingsDialog, type ProposedCard } from "./AiPanel";
+import { DocView } from "./board/DocView";
+import { AiPanel, type ProposedCard } from "./board/AiPanel";
+import { AiSettingsDialog } from "./dialogs/AiSettingsDialog";
 import { readAiSettings, saveAiSettings, type AiSettings } from "./ai";
 
 import { saveFile } from "./platform";
@@ -38,7 +39,7 @@ import { HomePage } from "./pages/HomePage";
 import { MissingPage } from "./pages/MissingPage";
 import { TrashPage } from "./pages/TrashPage";
 import { WorkspacePage } from "./pages/WorkspacePage";
-import { SettingsDialog } from "./SettingsDialog";
+import { SettingsDialog } from "./dialogs/SettingsDialog";
 import { AuthorDialog } from "./dialogs/AuthorDialog";
 import { BackupDialog } from "./dialogs/BackupDialog";
 import { type BoardCopyOptions, BoardCopyDialog } from "./dialogs/BoardCopyDialog";
@@ -109,10 +110,10 @@ import { InboxView } from "./panels/InboxView";
 import { PlannerView } from "./panels/PlannerView";
 import { Icon } from "./ui/Icon";
 import { readBoardFilters, readDismissedReminders, type PanelName } from "./uiPreferences";
-import "./MarkdownText.css";
-import "./activity.css";
-import "./App.css";
-import "./pages.css";
+import "./ui/MarkdownText.css";
+import "./styles/activity.css";
+import "./styles/App.css";
+import "./styles/pages.css";
 
 function App() {
   const [fullState, setState] = useState<AppState>(emptyState);

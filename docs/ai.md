@@ -1,6 +1,6 @@
 # AI assistant and the board document
 
-Implementation: [`src/ai.ts`](../src/ai.ts), [`src/AiPanel.tsx`](../src/AiPanel.tsx), [`src/boardDoc.ts`](../src/boardDoc.ts), [`src/DocView.tsx`](../src/DocView.tsx). Tests: [`tests/ai.test.ts`](../tests/ai.test.ts), [`tests/boardDoc.test.ts`](../tests/boardDoc.test.ts).
+Implementation: [`src/ai.ts`](../src/ai.ts), [`src/board/AiPanel.tsx`](../src/board/AiPanel.tsx), [`src/dialogs/AiSettingsDialog.tsx`](../src/dialogs/AiSettingsDialog.tsx), [`src/boardDoc.ts`](../src/boardDoc.ts), [`src/board/DocView.tsx`](../src/board/DocView.tsx). Tests: [`tests/ai.test.ts`](../tests/ai.test.ts), [`tests/boardDoc.test.ts`](../tests/boardDoc.test.ts).
 
 ## The board document (board + doc twin)
 
