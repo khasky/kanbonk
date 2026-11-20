@@ -170,6 +170,7 @@ function App() {
   const [authorDraft, setAuthorDraft] = useState("");
   const [importFiles, setImportFiles] = useState<File[]>([]);
   const [importBusy, setImportBusy] = useState(false);
+  const [importTime, setImportTime] = useState<{ start: number; end?: number }>();
   const [importReport, setImportReport] = useState("");
   const [backupOpen, setBackupOpen] = useState(false);
   const [backupFiles, setBackupFiles] = useState<File[]>([]);
@@ -877,12 +878,14 @@ function App() {
   function openImport() {
     setImportFiles([]);
     setImportReport("");
+    setImportTime(undefined);
     setImporting(true);
   }
 
   async function importBoard() {
     if (!importFiles.length) return;
     setImportBusy(true);
+    setImportTime({ start: Date.now() });
     setImportReport("");
     try {
       const zips = importFiles.filter((file) => file.name.toLowerCase().endsWith(".zip"));
@@ -932,13 +935,14 @@ function App() {
       const unavailable = warnings.length ? `Attachments not fetched: ${missingAttachments.length}. Stickers: ${missingStickers.length}. ${warnings.slice(0, 3).join(" ")}${missingAttachments.length && !zips.length && !directDownload ? " Export the board with the Kanbonk Trello Import extension and choose its ZIP files." : ""}` : "";
       setImportReport(`Imported: ${counted(result.lists.length, "list", "lists")}, ${counted(result.cards.length, "card", "cards")}, ${counted(result.attachments.length - missingAttachments.length, "attachment", "attachments")}, ${counted(result.stickers.length - missingStickers.length, "sticker", "stickers")}. ${[...result.warnings.filter((item) => !item.startsWith("Attachments need") && !item.startsWith("Trello sticker images need")), unavailable, result.board.archived ? "The board is closed in Trello; you can find it under “Closed boards”." : ""].filter(Boolean).join(" ")}`);
     } catch (cause) { setImportReport(`Import failed: ${String(cause)}`); }
-    finally { setImportBusy(false); }
+    finally { setImportBusy(false); setImportTime((time) => time && { ...time, end: Date.now() }); }
   }
 
   async function addMissingAttachments() {
     const zips = importFiles.filter((file) => file.name.toLowerCase().endsWith(".zip"));
     if (!zips.length) return;
     setImportBusy(true);
+    setImportTime({ start: Date.now() });
     setImportReport("");
     try {
       const restored = await restoreExistingAttachments(state, zips);
@@ -948,7 +952,7 @@ function App() {
       if (restored.restoredBackgrounds || restored.restoredStickers) setFileVersion((current) => current + 1);
       setImportReport(`Attachments restored: ${restored.restored}. Stickers: ${restored.restoredStickers}. Board backgrounds: ${restored.restoredBackgrounds}.`);
     } catch (cause) { setImportReport(`ZIP error: ${String(cause)}`); }
-    finally { setImportBusy(false); }
+    finally { setImportBusy(false); setImportTime((time) => time && { ...time, end: Date.now() }); }
   }
 
   function markSynced(deviceId: string) {
@@ -1119,7 +1123,7 @@ function App() {
         {snapshots.length ? <div className="snapshot-list">{snapshots.map((meta) => <div className="panel-row" key={meta.id}><span><strong>{new Date(meta.createdAt).toLocaleString("en-US")}</strong><small>boards: {meta.boards}, cards: {meta.cards}, {Math.round(meta.size / 1024)} KB</small></span><button onClick={() => void restoreSnapshot(meta)}>Restore</button></div>)}</div> : <p>No snapshots yet.</p>}
       </section>{backupReport && <p className="import-report" role="status">{backupReport}</p>}{backupConflicts.map((conflict) => <div className="sync-conflict" key={`${conflict.kind}-${conflict.id}`}><strong>Conflict: {conflict.local.name}</strong><small>Choose a version of this item.</small><div><button onClick={() => { setState((current) => chooseConflict(current, conflict, "local", localDeviceId.current)); setBackupConflicts((current) => current.filter((item) => item !== conflict)); }}>Current version</button><button onClick={() => { setState((current) => chooseConflict(current, conflict, "remote", localDeviceId.current)); setBackupConflicts((current) => current.filter((item) => item !== conflict)); }}>Backup version</button></div></div>)}<div><button onClick={() => setBackupOpen(false)} disabled={backupBusy}>Close</button></div></section></div>}
     {authorDialogOpen && <div className="dialog-backdrop" onMouseDown={() => setAuthorDialogOpen(false)}><form className="creation-dialog" role="dialog" aria-modal="true" aria-label="My name" onMouseDown={(event) => event.stopPropagation()} onSubmit={(event) => { event.preventDefault(); setLocalAuthor(saveLocalAuthor(authorDraft)); setAuthorDialogOpen(false); }}><h2>My name</h2><p>Your name is stored only on this device and shown on new comments.</p><label>Name<input autoFocus value={authorDraft} onChange={(event) => setAuthorDraft(event.target.value)} maxLength={60} required /></label><div><button type="button" onClick={() => setAuthorDialogOpen(false)}>Cancel</button><button className="primary-button" disabled={!authorDraft.trim()}>Save</button></div></form></div>}
-    {importing && <div className="dialog-backdrop" onMouseDown={() => setImporting(false)}><section className="creation-dialog import-dialog" role="dialog" aria-modal="true" aria-label="Import from Trello" onMouseDown={(event) => event.stopPropagation()}><h2>Import from Trello</h2><p>To move a board with all its files, install the Kanbonk Trello Import extension: open chrome://extensions or edge://extensions, turn on Developer mode, choose Load unpacked and select the trello-import-extension folder of the project. Then open the board in Trello and press <strong>Export board</strong> in the Kanbonk panel. The board arrives as ZIP parts of about 100 MB.</p><p>Choose all the parts here at once. A board JSON or CSV exported from Trello also works; attachments are then fetched through the extension while a Trello tab is open.</p><label>Files from Trello<input type="file" multiple accept=".zip,application/zip,.json,application/json,.csv,text/csv" onChange={(event) => setImportFiles(Array.from(event.target.files ?? []))} /></label>{importFiles.length > 1 && <p className="hint">{counted(importFiles.length, "file", "files")} chosen.</p>}{importReport && <p className="import-report" role="status">{importReport}</p>}<div><button onClick={() => setImporting(false)}>Close</button><button onClick={addMissingAttachments} disabled={importBusy || !importFiles.some((file) => file.name.toLowerCase().endsWith(".zip"))} title="Fill missing files of a board imported earlier">Add files to imported board</button><button className="primary-button" onClick={importBoard} disabled={importBusy || !importFiles.length}>{importBusy ? "Importing…" : "Import"}</button></div></section></div>}
+    {importing && <div className="dialog-backdrop" onMouseDown={() => { if (!importBusy) setImporting(false); }}><section className="creation-dialog import-dialog" role="dialog" aria-modal="true" aria-label="Import from Trello" onMouseDown={(event) => event.stopPropagation()}><h2>Import from Trello</h2><p>To move a board with all its files, install the Kanbonk Trello Import extension: open chrome://extensions or edge://extensions, turn on Developer mode, choose Load unpacked and select the trello-import-extension folder of the project. Then open the board in Trello and press <strong>Export board</strong> in the Kanbonk panel. The board arrives as ZIP parts of about 100 MB.</p><p>Choose all the parts here at once. A board JSON or CSV exported from Trello also works; attachments are then fetched through the extension while a Trello tab is open.</p><label>Files from Trello<input type="file" multiple accept=".zip,application/zip,.json,application/json,.csv,text/csv" disabled={importBusy} onChange={(event) => setImportFiles(Array.from(event.target.files ?? []))} /></label>{importFiles.length > 1 && <p className="hint">{counted(importFiles.length, "file", "files")} chosen.</p>}{importTime && <ElapsedTime {...importTime} />}{importReport && <p className="import-report" role="status">{importReport}</p>}<div><button onClick={() => setImporting(false)} disabled={importBusy}>Close</button><button onClick={addMissingAttachments} disabled={importBusy || !importFiles.some((file) => file.name.toLowerCase().endsWith(".zip"))} title="Fill missing files of a board imported earlier">Add files to imported board</button><button className="primary-button" onClick={importBoard} disabled={importBusy || !importFiles.length}>{importBusy ? "Importing…" : "Import"}</button></div></section></div>}
     {boardCopy && <div className="dialog-backdrop" onMouseDown={() => setBoardCopy(null)}><form className="creation-dialog board-copy-dialog" role="dialog" aria-modal="true" aria-label="Copy board" onMouseDown={(event) => event.stopPropagation()} onSubmit={(event) => { event.preventDefault(); submitBoardCopy(); }}><h2>Copy board</h2><label>Title<input autoFocus value={boardCopy.name} onChange={(event) => setBoardCopy({ ...boardCopy, name: event.target.value })} required maxLength={120} /></label><label>Workspace<select value={boardCopy.workspaceId} onChange={(event) => setBoardCopy({ ...boardCopy, workspaceId: event.target.value })}>{state.workspaces.filter((item) => item.id !== inboxWorkspaceId && !item.archived).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label className="copy-option"><input type="checkbox" checked={boardCopy.keepCards} onChange={(event) => setBoardCopy({ ...boardCopy, keepCards: event.target.checked })} />Keep cards</label><label className="copy-option"><input type="checkbox" checked={boardCopy.keepTemplates} onChange={(event) => setBoardCopy({ ...boardCopy, keepTemplates: event.target.checked })} />Keep card templates</label><p>Comments, members and archived cards are not copied.</p><div><button type="button" onClick={() => setBoardCopy(null)}>Cancel</button><button className="primary-button" type="submit">Create copy</button></div></form></div>}    {creation && <div className="dialog-backdrop" onMouseDown={() => setCreation(null)}><form className="creation-dialog" role="dialog" aria-modal="true" aria-label={creation.kind === "board" ? "Create board" : "Create workspace"} onMouseDown={(event) => event.stopPropagation()} onSubmit={(event) => { event.preventDefault(); submitCreation(); }}><h2>{creation.kind === "board" ? "Create board" : "Create workspace"}</h2><label>Title<input autoFocus value={creationName} onChange={(event) => setCreationName(event.target.value)} required maxLength={120} /></label><div><button type="button" onClick={() => setCreation(null)}>Cancel</button><button className="primary-button" type="submit">Create</button></div></form></div>}
   </div>;
 }
@@ -1490,6 +1494,18 @@ function AttachmentRow({ attachment, linkedCard, onNavigateCard, onDownload, onR
     else action = <small>Link unavailable</small>;
   }
   return <div className="attachment-entry"><div className="attachment-row"><span>{attachment.name}<small>{attachment.status === "link" ? "Link" : `${Math.round(attachment.size / 1024)} KB ${attachment.status === "missing" ? "· file missing" : ""}`}</small></span>{action}<button onClick={onRemove} aria-label={`Delete attachment ${attachment.name}`}>Delete</button></div>{localUrl && kind === "image" && <img className="attachment-preview" src={localUrl} alt={attachment.name} />}{localUrl && kind === "video" && <video className="attachment-preview" src={localUrl} controls preload="metadata" />}{localUrl && kind === "audio" && <audio className="attachment-audio" src={localUrl} controls preload="metadata" />}</div>;
+}
+
+/** Running time of a long operation, ticking every second until `end` is set. */
+function ElapsedTime({ start, end }: { start: number; end?: number }) {
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    if (end) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [end]);
+  const seconds = Math.max(0, Math.round(((end ?? now) - start) / 1000));
+  return <p className="hint" role="timer">{end ? "Took" : "Elapsed"}: {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}</p>;
 }
 
 export default App;
