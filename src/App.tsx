@@ -170,6 +170,7 @@ function App() {
   const [authorDraft, setAuthorDraft] = useState("");
   const [importFiles, setImportFiles] = useState<File[]>([]);
   const [importBusy, setImportBusy] = useState(false);
+  const boardMenu = useRef<HTMLDetailsElement>(null);
   const [importTime, setImportTime] = useState<{ start: number; end?: number }>();
   const [importReport, setImportReport] = useState("");
   const [backupOpen, setBackupOpen] = useState(false);
@@ -1081,7 +1082,7 @@ function App() {
         <span className="toolbar-spacer" />
         <input type="search" className="board-search" value={boardFilter.keyword} onChange={(event) => updateFilter({ keyword: event.target.value })} placeholder="Search this board" aria-label="Search cards on this board" />
         <button className="toolbar-button" aria-expanded={filterOpen} aria-label={filterCount ? `Board filter, active: ${filterCount}` : "Board filter"} onClick={() => setFilterOpen((current) => !current)}><Icon name="search" /> Filter{filterCount ? ` (${filterCount})` : ""}</button>
-        <details className="board-more" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false; }} onKeyDown={(event) => { if (event.key === "Escape") { event.currentTarget.open = false; event.currentTarget.querySelector("summary")?.focus(); } }}>
+        <details ref={boardMenu} className="board-more" onBlur={(event) => { if ((event.target as Element).getAttribute("type") !== "color" && !event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false; }} onKeyDown={(event) => { if (event.key === "Escape") { event.currentTarget.open = false; event.currentTarget.querySelector("summary")?.focus(); } }}>
           <summary className="toolbar-button" aria-label="Board menu" title="Board menu">⋯</summary>
           <div className="board-more-menu" onClick={(event) => { if ((event.target as HTMLElement).closest("button")) (event.currentTarget.parentElement as HTMLDetailsElement).open = false; }}>
             <button onClick={() => openArchive(board.id)}>Archive</button>
@@ -1094,7 +1095,7 @@ function App() {
             <button onClick={() => exportBoard("csv")} title="Trello CSV export columns">Export CSV (Trello)</button>
             <button onClick={() => requestDelete("board", board.id)}>Move board to trash</button>
             <label className="background-upload">Background from file<input type="file" accept="image/*" onChange={(event) => { void uploadBoardBackground(event.target.files?.[0] ?? null); event.target.value = ""; }} /></label>
-            <label className="board-color-option">Background color<ColorInput value={/^#[\da-f]{6}$/i.test(board.background) ? board.background : "#0c66e4"} presets={boardColors} label="Board background color" onCommit={(background) => updateBoard((item) => ({ ...item, background, backgroundImageId: undefined }))} /></label>
+            <label className="board-color-option">Background color<ColorInput value={/^#[\da-f]{6}$/i.test(board.background) ? board.background : "#0c66e4"} presets={boardColors} label="Board background color" onCommit={(background) => { updateBoard((item) => ({ ...item, background, backgroundImageId: undefined })); if (boardMenu.current) boardMenu.current.open = false; }} /></label>
           </div>
         </details>
       </div>
