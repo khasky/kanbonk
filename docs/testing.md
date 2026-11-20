@@ -4,8 +4,9 @@
 
 ```sh
 pnpm test         # Vitest, all files in tests/
-pnpm build    # TypeScript type check and production build
-ppnpm test:load  # browser load test, see Performance below
+pnpm test:e2e     # Playwright, all files in e2e/
+pnpm build        # TypeScript type check and production build
+pnpm test:load    # browser load test, see Performance below
 ```
 
 Vitest runs two projects, configured in `vitest.config.ts`: `unit` runs every file in parallel, then `perf` runs `heavyBoard.test.ts` alone. Time budgets measure wall-clock time, and measured while other test files compete for the CPU they would report the machine's load instead of the code's speed.
@@ -30,6 +31,19 @@ Vitest runs two projects, configured in `vitest.config.ts`: `unit` runs every fi
 
 `tests/trello-board.json` and `tests/trello-attachments.zip` are synthetic fixtures.
 
+## Browser tests
+
+`pnpm test:e2e` starts the Vite dev server on port 4179 and drives the web app with Playwright, one fresh browser profile per test. Each test fails on an uncaught page error.
+
+| Test file | Covers |
+|---|---|
+| `board.e2e.ts` | Creating a workspace, board, lists and cards, moving a list, data after reload; opening a card by its `/c/` address, Esc back to the board, a missing card |
+| `card.e2e.ts` | Card dialog: label, checklist item, sub-card, comment, description in the visual editor, data after reload |
+| `trash.e2e.ts` | Moving a list with its card to the trash and restoring it |
+| `tabs.e2e.ts` | A board rename in one tab appears in another tab |
+
+The first run needs a browser: `pnpm exec playwright install chromium`. To use an installed Edge or Chrome instead, set `E2E_CHANNEL=msedge` or `E2E_CHANNEL=chrome`. Failure traces go to `node_modules/.cache/e2e-results/`; open one with `pnpm exec playwright show-trace <path>`.
+
 Test data is synthetic. Never commit real board exports.
 
 ## Performance
@@ -38,7 +52,7 @@ Test data is synthetic. Never commit real board exports.
 
 ```sh
 pnpm build && pnpm preview --port 4174 --strictPort   # in another terminal
-ppnpm test:load      # needs playwright-core and Chrome/Edge; set PLAYWRIGHT_CORE and CHROME_PATH if they are not found
+pnpm test:load       # needs playwright-core and Chrome/Edge; set PLAYWRIGHT_CORE and CHROME_PATH if they are not found
 ```
 
 | Measurement (ms) | Desktop budget | Desktop | Phone (4x CPU) budget | Phone (4x CPU) |
