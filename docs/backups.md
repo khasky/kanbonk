@@ -24,11 +24,11 @@ In browsers with the File System Access API (Chrome, Edge and other Chromium bro
 
 ## Manual backup format
 
-A backup is one or more ZIP parts of up to 80 MB each. The first part contains `listva-backup.json`:
+A backup is one or more ZIP parts of up to 80 MB each. The first part contains `kanbonk-backup.json`:
 
 ```json
 {
-  "format": "listva-backup",
+  "format": "kanbonk-backup",
   "version": 2,
   "id": "<backup id>",
   "parts": 3,

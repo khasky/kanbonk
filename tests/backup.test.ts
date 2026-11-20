@@ -150,10 +150,10 @@ describe("Kanbonk backup", () => {
     const source = new Map<string, Blob>([["background-1", new Blob(["image"])], ["attachment-1", new Blob(["hello"])]]);
     const parts = await partsFor(example(), source);
     const entries = unzipSync(new Uint8Array(await parts[0].arrayBuffer()));
-    const manifest = JSON.parse(strFromU8(entries["listva-backup.json"]));
+    const manifest = JSON.parse(strFromU8(entries["kanbonk-backup.json"]));
     manifest.version = 1;
     for (const file of manifest.files) delete file.hash;
-    entries["listva-backup.json"] = strToU8(JSON.stringify(manifest));
+    entries["kanbonk-backup.json"] = strToU8(JSON.stringify(manifest));
     parts[0] = new File([new Uint8Array(zipSync(entries))], parts[0].name);
     const restored = new Map<string, Blob>();
 

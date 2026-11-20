@@ -1,5 +1,6 @@
 import { sha256 } from "@noble/hashes/sha2.js";
 import { applyTombstones } from "./trash";
+import { migrateLegacyState } from "./legacy";
 import { ancestryFromRevisions, recordRevision, type AppState, type Board, type BoardList, type Card, type EntityKind, type Label, type Revision, type Workspace } from "./model";
 
 export interface SyncConflict {
@@ -69,6 +70,7 @@ function recentRevisions(revisions: Revision[], heads: Record<string, string>, c
 }
 
 export function mergeStates(local: AppState, remote: AppState): { state: AppState; conflicts: SyncConflict[] } {
+  remote = migrateLegacyState(remote);
   const revisions = [...local.revisions];
   const revisionIds = new Set(revisions.map((item) => item.id));
   for (const revision of remote.revisions) if (!revisionIds.has(revision.id)) { revisions.push(revision); revisionIds.add(revision.id); }

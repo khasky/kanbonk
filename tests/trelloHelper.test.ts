@@ -36,10 +36,10 @@ describe("Trello browser helper", () => {
     const second = unzipSync(new Uint8Array(await output[1].arrayBuffer()));
     const exported = JSON.parse(strFromU8(first["board.json"]));
     expect(exported).toMatchObject(board);
-    expect(exported.listvaOrganizationName).toBe("Workspace");
-    expect(exported.listvaCommentsComplete).toBe(true);
-    expect(exported.listvaComments).toHaveLength(1001);
-    expect(exported.listvaComments.at(-1).id).toBe("older");
+    expect(exported.kanbonkOrganizationName).toBe("Workspace");
+    expect(exported.kanbonkCommentsComplete).toBe(true);
+    expect(exported.kanbonkComments).toHaveLength(1001);
+    expect(exported.kanbonkComments.at(-1).id).toBe("older");
     expect(strFromU8(first["attachments/first/same.png"])).toBe("first file");
     expect(strFromU8(first["attachments/second/same.png"])).toBe("second file");
     expect(Object.keys(first).filter((path) => path.startsWith("attachments/"))).toHaveLength(20);

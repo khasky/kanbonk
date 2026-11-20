@@ -12,7 +12,7 @@ export const aiProviders: Record<AiProvider, { name: string; model: string; base
   compatible: { name: "OpenAI-compatible URL", model: "" },
 };
 
-const storageKey = "listva-ai";
+const storageKey = "kanbonk-ai";
 
 export function readAiSettings(): AiSettings | null {
   try {

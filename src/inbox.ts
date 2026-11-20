@@ -1,8 +1,8 @@
 import { recordRevision, type AppState, type Board, type BoardList } from "./model";
 
-export const inboxBoardId = "listva-inbox";
-export const inboxListId = "listva-inbox-list";
-export const inboxWorkspaceId = "listva-inbox-workspace";
+export const inboxBoardId = "kanbonk-inbox";
+export const inboxListId = "kanbonk-inbox-list";
+export const inboxWorkspaceId = "kanbonk-inbox-workspace";
 
 export function ensureInbox(state: AppState, deviceId: string): AppState {
   let next = state;

@@ -12,7 +12,7 @@
       const details = await fetch(`/1/boards/${encodeURIComponent(board.id)}?fields=idOrganization&organization=true&organization_fields=displayName`, { credentials: "include" });
       if (!details.ok) throw new Error(`HTTP ${details.status}`);
       const organization = (await details.json()).organization;
-      if (organization?.id === board.idOrganization && organization.displayName) board.listvaOrganizationName = organization.displayName;
+      if (organization?.id === board.idOrganization && organization.displayName) board.kanbonkOrganizationName = organization.displayName;
     } catch (error) {
       console.warn(`Kanbonk: could not fetch the Trello workspace name: ${String(error)}`);
     }
@@ -32,8 +32,8 @@
       if (!lastId || lastId === before) throw new Error("Could not continue exporting comments");
       before = lastId;
     }
-    board.listvaComments = comments;
-    board.listvaCommentsComplete = true;
+    board.kanbonkComments = comments;
+    board.kanbonkCommentsComplete = true;
   } catch (error) {
     console.warn(`Kanbonk: comment history is limited to the JSON export: ${String(error)}`);
   }

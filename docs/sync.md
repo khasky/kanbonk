@@ -8,20 +8,20 @@ Pick one in **⋯ → Sync → Sync method**.
 
 | Transport | When to use | How it connects | What sees the traffic |
 |---|---|---|---|
-| Tabs | Several tabs or windows of the same browser profile | `BroadcastChannel("listva-state")`, automatic | Nothing leaves the browser |
+| Tabs | Several tabs or windows of the same browser profile | `BroadcastChannel("kanbonk-state")`, automatic | Nothing leaves the browser |
 | **Wi-Fi / LAN** | Devices on the same network, including the desktop app and a browser on one computer | Both devices join a room on the LAN relay (`server.mjs`) | The relay forwards ciphertext only |
 | **Internet (P2P)** | Two devices on different networks | WebRTC data channel; an invitation and a reply are exchanged manually (messenger, email) | Public STUN servers learn IP addresses; data is DTLS-encrypted and goes directly between peers |
 | **File (Bluetooth, USB, messenger)** | No network between the devices | An encrypted `.kanbonk-sync` file sent by any means | Whoever holds the file sees only ciphertext |
 
 ### Wi-Fi / LAN relay
 
-1. On a computer run `npm run build` and `npm run serve:lan -- <local-ip> 4174` (or `node server.mjs 0.0.0.0 4174` to listen on all interfaces).
+1. On a computer run `pnpm build` and `pnpm serve:lan <local-ip> 4174` (or `node server.mjs 0.0.0.0 4174` to listen on all interfaces).
 2. Open `http://<local-ip>:4174` on every device, or point the desktop or mobile app at that server address in the sync dialog.
 3. On the first device press **Create code**, then **Connect with code**. Enter the same server address and code on the second device.
 
 The relay ([`server.mjs`](../server.mjs)) serves the app and upgrades `/sync?room=<64 hex>` to a WebSocket. A room holds at most two members; messages from one are forwarded to the other, and the relay announces `peer-ready` and `peer-left`. It keeps nothing on disk. The client refuses relay addresses outside private network ranges (`localhost`, `10/8`, `172.16/12`, `192.168/16`, link-local, `.local`, IPv6 ULA).
 
-For the desktop app and a browser on the same computer, run the relay on `127.0.0.1` and use `http://127.0.0.1:4173` (the default of `npm run serve:lan`).
+For the desktop app and a browser on the same computer, run the relay on `127.0.0.1` and use `http://127.0.0.1:4173` (the default of `pnpm serve:lan`).
 
 ### Internet P2P
 
@@ -34,8 +34,8 @@ There is no TURN relay, by design: Kanbonk runs no servers. Peers behind symmetr
 **Send package** (for a trusted device) or **Send package with code** creates `kanbonk-sync-YYYY-MM-DD.kanbonk-sync`:
 
 ```
-"LISTVA-SYNC-1" | 24-byte nonce | XChaCha20-Poly1305( key, ZIP{ state.json, sender.json, files/<id>, types/<id> } )
-key = SHA-256("listva-key:" + pairing code)
+"KANBONK-SYNC-1" | 24-byte nonce | XChaCha20-Poly1305( key, ZIP{ state.json, sender.json, files/<id>, types/<id> } )
+key = SHA-256("kanbonk-key:" + pairing code)
 ```
 
 On phones the browser opens the share sheet (Bluetooth, Nearby Share, messengers). In the Android app, which has no Web Share API, the file is saved through the system save dialog and then shared from the Files app. The receiver opens the file with **Open received package**; Kanbonk tries the codes of all trusted devices plus the code typed in the dialog. A bundle created on the same device is rejected.
@@ -46,7 +46,7 @@ Changes are written to IndexedDB and shown immediately (optimistic UI); a sync s
 
 ## Trusted devices
 
-The first time two devices connect, each sends `hello` with its device ID and name. The receiving side asks the user whether to trust the peer; until the user agrees, all incoming data packets are dropped. Trusted devices are stored in `localStorage` (`listva-trusted-devices`) with the pairing code, which becomes the pair's shared secret for later connections and file bundles. Trusted devices can be removed in the sync dialog.
+The first time two devices connect, each sends `hello` with its device ID and name. The receiving side asks the user whether to trust the peer; until the user agrees, all incoming data packets are dropped. Trusted devices are stored in `localStorage` (`kanbonk-trusted-devices`) with the pairing code, which becomes the pair's shared secret for later connections and file bundles. Trusted devices can be removed in the sync dialog.
 
 Trusted devices are also the team: a card's **Members** list offers trusted devices and members imported from Trello. The MCP agent ([mcp.md](mcp.md)) is a trusted device too.
 
@@ -59,8 +59,8 @@ Over the relay, every packet is sealed:
 ```
 
 ```
-room = hex(SHA-256("listva-room:" + code))   // what the relay sees
-key  = SHA-256("listva-key:"  + code)        // never leaves the devices
+room = hex(SHA-256("kanbonk-room:" + code))   // what the relay sees
+key  = SHA-256("kanbonk-key:"  + code)       // never leaves the devices
 code = 128 random bits as 32 hex characters
 ```
 

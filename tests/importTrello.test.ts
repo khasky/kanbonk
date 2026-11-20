@@ -37,7 +37,7 @@ describe("Trello import", () => {
     expect(created.state.workspaces[0]).toMatchObject({ name: "Trello trello-w", sourceTrelloId: "trello-workspace" });
     expect(created.changedWorkspaceId).toBe(created.workspaceId);
 
-    const second = parseTrelloBoard({ ...fixture, id: "second-board", idOrganization: "trello-workspace", listvaOrganizationName: "Team" }, "personal");
+    const second = parseTrelloBoard({ ...fixture, id: "second-board", idOrganization: "trello-workspace", kanbonkOrganizationName: "Team" }, "personal");
     const reused = prepareTrelloWorkspace(created.state, second.organization, "personal");
     expect(reused.workspaceId).toBe(created.workspaceId);
     expect(reused.state.workspaces).toHaveLength(1);
@@ -219,7 +219,7 @@ describe("Trello import", () => {
   });
 
   it("uses the complete comment history supplied by the browser helper", () => {
-    const source = { ...fixture, actions: Array.from({ length: 1000 }, () => ({ type: "updateCard" })), listvaCommentsComplete: true, listvaComments: [{ type: "commentCard", date: "2020-01-01T00:00:00.000Z", data: { card: { id: fixture.cards[0].id }, text: "Old comment" }, memberCreator: { fullName: "Author" } }] };
+    const source = { ...fixture, actions: Array.from({ length: 1000 }, () => ({ type: "updateCard" })), kanbonkCommentsComplete: true, kanbonkComments: [{ type: "commentCard", date: "2020-01-01T00:00:00.000Z", data: { card: { id: fixture.cards[0].id }, text: "Old comment" }, memberCreator: { fullName: "Author" } }] };
     const imported = parseTrelloBoard(source, "workspace-1");
     expect(imported.cards[0].comments.map((comment) => comment.text)).toEqual(["Old comment"]);
     expect(imported.activity.filter((item) => item.category === "comment")).toHaveLength(1);
@@ -230,7 +230,7 @@ describe("Trello import", () => {
   it("imports Trello actions into board activity with author, time and full comments without duplicates", () => {
     const recent = { id: "comment-1", type: "commentCard", date: "2025-01-02T00:00:00.000Z", data: { card: { id: fixture.cards[0].id, name: "Task" }, text: "Recent comment" }, memberCreator: { fullName: "Author" } };
     const old = { ...recent, id: "comment-2", date: "2024-01-02T00:00:00.000Z", data: { ...recent.data, text: "Old comment" } };
-    const source = { ...fixture, actions: [{ id: "create-1", type: "createCard", date: "2025-01-01T00:00:00.000Z", data: { card: { id: fixture.cards[0].id, name: "Task" } }, memberCreator: { fullName: "Author" } }, recent], listvaCommentsComplete: true, listvaComments: [recent, old] };
+    const source = { ...fixture, actions: [{ id: "create-1", type: "createCard", date: "2025-01-01T00:00:00.000Z", data: { card: { id: fixture.cards[0].id, name: "Task" } }, memberCreator: { fullName: "Author" } }, recent], kanbonkCommentsComplete: true, kanbonkComments: [recent, old] };
     const imported = parseTrelloBoard(source, "workspace-1");
     const state = addImportedBoard(emptyState(), imported);
     expect(state.activity).toHaveLength(3);

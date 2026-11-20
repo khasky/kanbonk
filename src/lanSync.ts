@@ -89,8 +89,8 @@ export class LanSync {
       const code = local.code.trim().toLowerCase();
       if (!/^[a-f0-9]{32}$/.test(code)) throw new Error("The room code must contain 32 hexadecimal characters.");
       const encoder = new TextEncoder();
-      const room = hex(sha256(encoder.encode(`listva-room:${code}`)));
-      this.roomKey = sha256(encoder.encode(`listva-key:${code}`));
+      const room = hex(sha256(encoder.encode(`kanbonk-room:${code}`)));
+      this.roomKey = sha256(encoder.encode(`kanbonk-key:${code}`));
       const url = new URL(local.url);
       if (url.protocol !== "ws:" && url.protocol !== "wss:") throw new Error("Enter the address of the local Kanbonk server.");
       if (!isLocalAddress(url.hostname)) throw new Error("The sync server must be on the local network.");
@@ -159,7 +159,7 @@ export class LanSync {
 
   async createOffer(): Promise<string> {
     if (!this.connection) throw new Error("A WebRTC invitation is not needed with a room code.");
-    this.bindChannel(this.connection.createDataChannel("listva"));
+    this.bindChannel(this.connection.createDataChannel("kanbonk"));
     await connectionStep(this.connection.setLocalDescription(await connectionStep(this.connection.createOffer())));
     await this.waitForIce();
     return JSON.stringify(this.connection.localDescription);

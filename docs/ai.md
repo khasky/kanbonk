@@ -21,7 +21,7 @@ Every board has a project document next to it: the **Doc** tab of the board tool
 | Google (Gemini) | set in the dialog | Gemini's OpenAI-compatible endpoint |
 | OpenAI-compatible | set in the dialog | Any `/v1/chat/completions` server: LM Studio, Ollama, OpenRouter, a company gateway. **API URL** is required, the key is optional |
 
-The key is the user's own (bring your own key). It is stored only in this device's `localStorage` (`listva-ai`), is not synced to other devices and is not included in backups. **Remove key** removes it.
+The key is the user's own (bring your own key). It is stored only in this device's `localStorage` (`kanbonk-ai`), is not synced to other devices and is not included in backups. **Remove key** removes it.
 
 ### Privacy
 

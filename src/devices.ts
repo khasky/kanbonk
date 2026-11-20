@@ -8,7 +8,7 @@ import { newRoomCode, type PeerInfo } from "./lanSync";
 export interface TrustedDevice extends PeerInfo { code: string; pairedAt: string; lastSyncAt?: string }
 export type SyncTransport = "wifi" | "internet" | "file";
 
-const devicesKey = "listva-trusted-devices";
+const devicesKey = "kanbonk-trusted-devices";
 
 export function readTrustedDevices(): TrustedDevice[] {
   try {
@@ -28,11 +28,13 @@ export function trustDevice(devices: TrustedDevice[], peer: PeerInfo, code: stri
   return [...devices.filter((item) => item.deviceId !== peer.deviceId), entry];
 }
 
-function key(code: string): Uint8Array {
-  return sha256(new TextEncoder().encode(`listva-key:${code.trim().toLowerCase()}`));
+function key(code: string, prefix = "kanbonk"): Uint8Array {
+  return sha256(new TextEncoder().encode(`${prefix}-key:${code.trim().toLowerCase()}`));
 }
 
-const bundleMagic = "LISTVA-SYNC-1";
+const bundleMagic = "KANBONK-SYNC-1";
+// Bundles made before the rename carry this header and use the "listva" key prefix.
+const legacyBundleMagic = "LISTVA-SYNC-1";
 
 /** Encrypted sync package (state + local files) for Bluetooth/USB/messenger transfer between trusted devices. */
 export async function createSyncBundle(state: AppState, code: string, sender: PeerInfo, read: (id: string) => Promise<Blob | undefined>): Promise<Blob> {
@@ -49,13 +51,14 @@ export async function createSyncBundle(state: AppState, code: string, sender: Pe
 }
 
 export async function openSyncBundle(data: Uint8Array, codes: string[]): Promise<{ state: AppState; sender?: PeerInfo; files: Array<{ id: string; blob: Blob }>; code: string }> {
-  const magic = strToU8(bundleMagic);
-  if (data.length < magic.length + 24 || strFromU8(data.slice(0, magic.length)) !== bundleMagic) throw new Error("The file is not a Kanbonk sync bundle.");
-  const nonce = data.slice(magic.length, magic.length + 24);
-  const sealed = data.slice(magic.length + 24);
+  const header = [bundleMagic, legacyBundleMagic].find((magic) => data.length >= magic.length + 24 && strFromU8(data.slice(0, magic.length)) === magic);
+  if (!header) throw new Error("The file is not a Kanbonk sync bundle.");
+  const prefix = header === legacyBundleMagic ? "listva" : "kanbonk";
+  const nonce = data.slice(header.length, header.length + 24);
+  const sealed = data.slice(header.length + 24);
   for (const code of codes) {
     let plain: Uint8Array;
-    try { plain = xchacha20poly1305(key(code), nonce).decrypt(sealed); }
+    try { plain = xchacha20poly1305(key(code, prefix), nonce).decrypt(sealed); }
     catch { continue; }
     const entries = unzipSync(plain);
     const state: unknown = JSON.parse(strFromU8(entries["state.json"]));
@@ -73,7 +76,7 @@ export async function openSyncBundle(data: Uint8Array, codes: string[]): Promise
 /** Same-device sync between tabs/windows sharing this browser profile's IndexedDB. */
 export function tabChannel(onChanged: () => void): { notify: () => void; close: () => void } {
   if (typeof BroadcastChannel !== "function") return { notify: () => {}, close: () => {} };
-  const channel = new BroadcastChannel("listva-state");
+  const channel = new BroadcastChannel("kanbonk-state");
   const tab = Math.random().toString(36).slice(2);
   channel.onmessage = (event) => { if (event.data?.type === "saved" && event.data.tab !== tab) onChanged(); };
   return { notify: () => channel.postMessage({ type: "saved", tab }), close: () => channel.close() };

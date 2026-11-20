@@ -4,7 +4,7 @@
 // its `name`. In Cargo.lock each package block lists `name` immediately
 // followed by `version`, so we anchor on that adjacency and leave every
 // dependency's pinned version untouched.
-const NAME = "listva"; // the Rust crate keeps its original name (see docs/data-model.md)
+const NAME = "kanbonk";
 const ENTRY = new RegExp(`(name = "${NAME}"\\r?\\nversion = ")[^"]*(")`);
 
 module.exports.readVersion = function (contents) {

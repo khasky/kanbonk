@@ -1,4 +1,4 @@
-package app.listva.local
+package com.khasky.kanbonk
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge

@@ -28,13 +28,13 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
   const actions: Record<string, unknown>[] = [];
   for (const card of cards) {
     const created = cardCreatedAt(state, card);
-    if (created) actions.push({ id: `${card.id}-create`, type: "createCard", date: created, memberCreator: { id: "listva", fullName: "Kanbonk" }, data: { card: { id: card.id, name: card.name, shortLink: card.id }, list: { id: card.listId, name: listName.get(card.listId) }, board: { id: board.id, name: board.name } } });
-    for (const comment of card.comments) actions.push({ id: comment.id, type: "commentCard", date: comment.createdAt, memberCreator: { id: comment.authorDeviceId ?? "listva", fullName: comment.author }, data: { text: comment.text, card: { id: card.id, name: card.name, shortLink: card.id }, list: { id: card.listId, name: listName.get(card.listId) }, board: { id: board.id, name: board.name } } });
+    if (created) actions.push({ id: `${card.id}-create`, type: "createCard", date: created, memberCreator: { id: "kanbonk", fullName: "Kanbonk" }, data: { card: { id: card.id, name: card.name, shortLink: card.id }, list: { id: card.listId, name: listName.get(card.listId) }, board: { id: board.id, name: board.name } } });
+    for (const comment of card.comments) actions.push({ id: comment.id, type: "commentCard", date: comment.createdAt, memberCreator: { id: comment.authorDeviceId ?? "kanbonk", fullName: comment.author }, data: { text: comment.text, card: { id: card.id, name: card.name, shortLink: card.id }, list: { id: card.listId, name: listName.get(card.listId) }, board: { id: board.id, name: board.name } } });
   }
   actions.sort((a, b) => String(b.date).localeCompare(String(a.date)));
   return {
     id: board.id, name: board.name, desc: board.description, closed: Boolean(board.archived), idOrganization: board.workspaceId,
-    listvaOrganizationName: state.workspaces.find((item) => item.id === board.workspaceId)?.name,
+    kanbonkOrganizationName: state.workspaces.find((item) => item.id === board.workspaceId)?.name,
     starred: board.starred, shortLink: board.id, url: `https://trello.com/b/${board.id}`,
     prefs: { backgroundColor: board.background },
     labels: labels.map(label),

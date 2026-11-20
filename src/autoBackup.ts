@@ -49,7 +49,7 @@ export function folderBackupSupported(): boolean {
 
 export async function chooseBackupFolder(): Promise<string> {
   const picker = (window as unknown as { showDirectoryPicker: (options: { mode: "readwrite"; id: string }) => Promise<DirectoryHandle> }).showDirectoryPicker;
-  const handle = await picker({ mode: "readwrite", id: "listva-backups" });
+  const handle = await picker({ mode: "readwrite", id: "kanbonk-backups" });
   await saveSetting("backup-folder", handle);
   return handle.name;
 }

@@ -21,7 +21,7 @@ export function cardExport(state: AppState, card: Card): Record<string, unknown>
   const name = <T extends { id: string; name: string }>(items: T[], id?: string) => items.find((item) => item.id === id)?.name;
   const members = state.boards.find((item) => item.id === card.boardId)?.members ?? [];
   return {
-    format: "listva-card-1",
+    format: "kanbonk-card-1",
     exportedAt: new Date().toISOString(),
     board: name(state.boards, card.boardId),
     list: name(state.lists, card.listId),

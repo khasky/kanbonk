@@ -11,8 +11,12 @@ interface BackupFile {
   hash?: string;
 }
 
+const manifestName = "kanbonk-backup.json";
+// Backups made before the rename use these names; they are still restored.
+const legacyManifestName = "listva-backup.json";
+
 interface BackupManifest {
-  format: "listva-backup";
+  format: "kanbonk-backup" | "listva-backup";
   version: 1 | 2;
   id: string;
   parts: number;
@@ -82,11 +86,11 @@ export async function* createBackupParts(state: AppState, read = loadAttachment,
   }
   const groups = groupFiles(files, maxBytes);
   const backupId = newId();
-  const manifest: BackupManifest = { format: "listva-backup", version: 2, id: backupId, parts: groups.length, state, files, unavailable };
+  const manifest: BackupManifest = { format: "kanbonk-backup", version: 2, id: backupId, parts: groups.length, state, files, unavailable };
   const stamp = new Date().toISOString().slice(0, 10);
   for (let index = 0; index < groups.length; index++) {
     const entries: Record<string, Uint8Array> = { "backup-id.txt": strToU8(backupId) };
-    if (index === 0) entries["listva-backup.json"] = strToU8(JSON.stringify(manifest));
+    if (index === 0) entries[manifestName] = strToU8(JSON.stringify(manifest));
     for (const file of groups[index]) {
       const blob = await read(file.id);
       if (!blob || blob.size !== file.size || blob.type !== file.type) throw new Error(`File ${file.id} changed during export. Create the backup again.`);
@@ -100,7 +104,7 @@ export async function* createBackupParts(state: AppState, read = loadAttachment,
 }
 
 function readManifest(raw: unknown): BackupManifest {
-  if (!isRecord(raw) || raw.format !== "listva-backup" || raw.version !== 1 && raw.version !== 2 || typeof raw.id !== "string" || !Number.isInteger(raw.parts) || (raw.parts as number) < 1 || !Array.isArray(raw.files) || !isRecord(raw.state)) throw new Error("The archive is not a Kanbonk backup.");
+  if (!isRecord(raw) || raw.format !== "kanbonk-backup" && raw.format !== "listva-backup" || raw.version !== 1 && raw.version !== 2 || typeof raw.id !== "string" || !Number.isInteger(raw.parts) || (raw.parts as number) < 1 || !Array.isArray(raw.files) || !isRecord(raw.state)) throw new Error("The archive is not a Kanbonk backup.");
   const state = raw.state;
   if (!validState(state)) throw new Error("The state in the backup is corrupted.");
   const files = raw.files;
@@ -131,13 +135,14 @@ export async function restoreBackup(parts: File[], current: AppState, read = loa
     const id = entries["backup-id.txt"] ? strFromU8(entries["backup-id.txt"]) : "";
     if (!id || (backupId && id !== backupId)) throw new Error("The selected ZIP files belong to different backups.");
     backupId = id;
-    if (entries["listva-backup.json"]) {
+    const manifestEntry = entries[manifestName] ?? entries[legacyManifestName];
+    if (manifestEntry) {
       if (manifest) throw new Error("The backup contains several manifests.");
-      try { manifest = readManifest(JSON.parse(strFromU8(entries["listva-backup.json"]))); }
+      try { manifest = readManifest(JSON.parse(strFromU8(manifestEntry))); }
       catch (cause) { throw new Error(`Could not read the manifest: ${String(cause)}`); }
     }
     for (const [path, data] of Object.entries(entries)) {
-      if (path === "backup-id.txt" || path === "listva-backup.json") continue;
+      if (path === "backup-id.txt" || path === manifestName || path === legacyManifestName) continue;
       const fileId = path.match(/^files\/([a-z0-9-]+)$/i)?.[1];
       if (!fileId || found.has(fileId)) throw new Error(`Invalid or duplicate file in ZIP: ${path}`);
       found.set(fileId, { size: data.length, hash: await hash(data) });

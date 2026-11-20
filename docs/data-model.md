@@ -73,15 +73,15 @@ Revision IDs use 12 characters. Older data with UUIDs keeps working: IDs are opa
 
 ## Storage
 
-The project was previously called Listva. Persisted identifiers keep that name so existing data and device pairings survive: the IndexedDB database `listva`, `localStorage` keys `listva-*`, the backup format `listva-backup`, the sync bundle header `LISTVA-SYNC-1`, the key and room derivation prefixes, the inbox IDs, the Trello bridge fields `listvaComments*`, and the app identifier `app.listva.local`. Changing any of them needs a migration.
+The project was previously called Listva, and data written under that name is migrated by [`src/legacy.ts`](../src/legacy.ts) and [`src/storage.ts`](../src/storage.ts): on start the IndexedDB database `listva` is copied into `kanbonk` and deleted, and `localStorage` keys `listva-*` move to `kanbonk-*`. The inbox and personal workspace IDs `listva-*` are renamed to `kanbonk-*` everywhere they are referenced (entities, revisions, heads, tombstones) when the state is loaded and in every incoming state, so backups, sync bundles (header `LISTVA-SYNC-1`, key prefix `listva-key:`) and Trello helper exports (`listva*` fields) made before the rename are still read. Live sync uses the new room and key prefixes, so a device has to run the renamed version to pair. The desktop app's identifier changed from `app.listva.local` to `com.khasky.kanbonk`; on Windows the first start copies the old WebView profile ([`src-tauri/src/lib.rs`](../src-tauri/src/lib.rs)). On Android the new identifier is a separate app: move data with a backup or sync.
 
 | Where | What |
 |---|---|
-| IndexedDB `listva`, store `app` | The `AppState` |
+| IndexedDB `kanbonk`, store `app` | The `AppState` |
 | store `attachments` | File bytes by attachment/background/sticker ID |
 | store `backups` | Automatic snapshots (JSON) and their metadata |
 | store `settings` | Backup folder handle and similar settings |
-| `localStorage` | Device ID (`listva-device-id`), author name, trusted devices, chosen sync transport, UI preferences (panels, filters, dismissed reminders, ignored duplicates) |
+| `localStorage` | Device ID (`kanbonk-device-id`), author name, trusted devices, chosen sync transport, UI preferences (panels, filters, dismissed reminders, ignored duplicates) |
 
 Each origin has its own storage: the web app on `localhost:1420`, the web app on `192.168.1.10:4174`, the extension and each native app are separate devices from Kanbonk's point of view and sync like any other devices.
 

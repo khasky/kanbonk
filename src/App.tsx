@@ -37,7 +37,7 @@ import "./activity.css";
 import "./App.css";
 import "./pages.css";
 
-const personalWorkspaceId = "listva-personal-workspace";
+const personalWorkspaceId = "kanbonk-personal-workspace";
 
 function LocalRoomControls({ serverUrl, roomCode, onServerChange, onCodeChange, onConnect }: { serverUrl: string; roomCode: string; onServerChange: (value: string) => void; onCodeChange: (value: string) => void; onConnect: () => void }) {
   return <section className="local-sync">
@@ -82,7 +82,7 @@ function NameEditor({ value, label, className, onCommit }: { value: string; labe
 }
 
 const boardColors = ["#147d86", "#0c66e4", "#5e4db2", "#a54800", "#216e4e"];
-const plannerViewId = "listva-planner";
+const plannerViewId = "kanbonk-planner";
 const coverColors = ["#4bce97", "#f5cd47", "#fea362", "#f87168", "#9f8fef", "#579dff", "#6cc3e0", "#94c748", "#e774bb", "#626f86"];
 const stickerChoices = [{ symbol: "⭐", name: "Star" }, { symbol: "✅", name: "Done" }, { symbol: "🎉", name: "Party" }, { symbol: "🚀", name: "Rocket" }, { symbol: "🔥", name: "Fire" }, { symbol: "💡", name: "Idea" }];
 const reminderOptions = [{ minutes: 0, label: "At due time" }, { minutes: 5, label: "5 minutes before" }, { minutes: 10, label: "10 minutes before" }, { minutes: 15, label: "15 minutes before" }, { minutes: 60, label: "1 hour before" }, { minutes: 120, label: "2 hours before" }, { minutes: 1440, label: "1 day before" }, { minutes: 2880, label: "2 days before" }, { minutes: 10080, label: "1 week before" }];
@@ -98,7 +98,7 @@ function counted(count: number, one: string, many: string): string {
 
 function readBoardFilters(): Record<string, BoardFilter> {
   try {
-    const saved: unknown = JSON.parse(localStorage.getItem("listva-board-filters") ?? "{}");
+    const saved: unknown = JSON.parse(localStorage.getItem("kanbonk-board-filters") ?? "{}");
     if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
     return Object.fromEntries(Object.entries(saved).filter(([, value]) => {
       if (!value || typeof value !== "object" || Array.isArray(value)) return false;
@@ -110,7 +110,7 @@ function readBoardFilters(): Record<string, BoardFilter> {
 
 function readDismissedReminders(): Record<string, string> {
   try {
-    const saved: unknown = JSON.parse(localStorage.getItem("listva-dismissed-reminders") ?? "{}");
+    const saved: unknown = JSON.parse(localStorage.getItem("kanbonk-dismissed-reminders") ?? "{}");
     return saved && typeof saved === "object" && !Array.isArray(saved) ? Object.fromEntries(Object.entries(saved).filter(([, value]) => typeof value === "string")) : {};
   } catch { return {}; }
 }
@@ -121,7 +121,7 @@ type PanelVisibility = Record<PanelName, boolean>;
 
 function readPanelWidths(): PanelWidths {
   try {
-    const saved = JSON.parse(localStorage.getItem("listva-panel-widths") ?? "{}");
+    const saved = JSON.parse(localStorage.getItem("kanbonk-panel-widths") ?? "{}");
     return {
       inbox: Number.isFinite(saved.inbox) ? Math.min(720, Math.max(220, saved.inbox)) : 300,
       planner: Number.isFinite(saved.planner) ? Math.min(720, Math.max(220, saved.planner)) : 400,
@@ -200,9 +200,9 @@ function App() {
   const [notice, setNotice] = useState("");
   useEffect(() => { if (!notice) return; const timer = window.setTimeout(() => setNotice(""), 8000); return () => window.clearTimeout(timer); }, [notice]);
   const [dedupeOpen, setDedupeOpen] = useState(false);
-  const [dedupeIgnored, setDedupeIgnored] = useState<Set<string>>(() => { try { return new Set(JSON.parse(localStorage.getItem("listva-dedupe-ignored") ?? "[]")); } catch { return new Set(); } });
+  const [dedupeIgnored, setDedupeIgnored] = useState<Set<string>>(() => { try { return new Set(JSON.parse(localStorage.getItem("kanbonk-dedupe-ignored") ?? "[]")); } catch { return new Set(); } });
   const [trustedDevices, setTrustedDevices] = useState<TrustedDevice[]>(readTrustedDevices);
-  const [syncTransport, setSyncTransport] = useState<SyncTransport>(() => { const saved = localStorage.getItem("listva-sync-transport"); return saved === "internet" || saved === "file" ? saved : "wifi"; });
+  const [syncTransport, setSyncTransport] = useState<SyncTransport>(() => { const saved = localStorage.getItem("kanbonk-sync-transport"); return saved === "internet" || saved === "file" ? saved : "wifi"; });
   const [bundleCode, setBundleCode] = useState("");
   const queue = useRef(Promise.resolve());
   const localDeviceId = useRef(deviceId());
@@ -245,18 +245,18 @@ function App() {
     setPanelWidths((current) => ({ ...current, [panel]: event.key === "Home" ? 220 : event.key === "End" ? panelWidthLimit : Math.min(panelWidthLimit, Math.max(220, Math.min(current[panel], panelWidthLimit) + (event.key === "ArrowRight" ? 20 : -20))) }));
   }
 
-  useEffect(() => { localStorage.setItem("listva-panel-widths", JSON.stringify(panelWidths)); }, [panelWidths]);
-  useEffect(() => { if (ready) localStorage.setItem("listva-open-panels", JSON.stringify(visiblePanels)); }, [visiblePanels, ready]);
+  useEffect(() => { localStorage.setItem("kanbonk-panel-widths", JSON.stringify(panelWidths)); }, [panelWidths]);
+  useEffect(() => { if (ready) localStorage.setItem("kanbonk-open-panels", JSON.stringify(visiblePanels)); }, [visiblePanels, ready]);
 
   useEffect(() => {
     loadState().then((loaded) => {
       loaded = ensureInbox(loaded, localDeviceId.current);
       setState(loaded);
-      const savedPanel = localStorage.getItem("listva-active-panel");
+      const savedPanel = localStorage.getItem("kanbonk-active-panel");
       const initialPanel = savedPanel === "inbox" || savedPanel === "planner" ? savedPanel : null;
       setActivePanel(initialPanel);
       try {
-        const stored = JSON.parse(localStorage.getItem("listva-open-panels") ?? "null");
+        const stored = JSON.parse(localStorage.getItem("kanbonk-open-panels") ?? "null");
         setVisiblePanels(stored && typeof stored.inbox === "boolean" && typeof stored.planner === "boolean" ? stored : { inbox: initialPanel === "inbox", planner: initialPanel === "planner" });
       } catch { setVisiblePanels({ inbox: initialPanel === "inbox", planner: initialPanel === "planner" }); }
       setReady(true);
@@ -325,14 +325,14 @@ function App() {
   useEffect(() => {
     if (!ready) return;
     try {
-      if (activePanel) localStorage.setItem("listva-active-panel", activePanel);
-      else localStorage.removeItem("listva-active-panel");
+      if (activePanel) localStorage.setItem("kanbonk-active-panel", activePanel);
+      else localStorage.removeItem("kanbonk-active-panel");
     } catch (cause) { setError(`Could not save the selected section: ${String(cause)}`); }
   }, [activePanel, ready]);
 
 
   useEffect(() => {
-    try { localStorage.setItem("listva-board-filters", JSON.stringify(boardFilters)); }
+    try { localStorage.setItem("kanbonk-board-filters", JSON.stringify(boardFilters)); }
     catch (cause) { setError(`Could not save the board filter: ${String(cause)}`); }
   }, [boardFilters]);
 
@@ -348,7 +348,7 @@ function App() {
   }, [ready, now, state.boards, state.cards]);
 
   useEffect(() => {
-    try { localStorage.setItem("listva-dismissed-reminders", JSON.stringify(dismissedReminders)); }
+    try { localStorage.setItem("kanbonk-dismissed-reminders", JSON.stringify(dismissedReminders)); }
     catch (cause) { setError(`Could not save reminders: ${String(cause)}`); }
   }, [dismissedReminders]);
 
@@ -898,9 +898,9 @@ function App() {
       }
       const fallbackWorkspaceId = defaultWorkspaceId ?? personalWorkspaceId;
       const bridgeAvailable = await trelloBridgeAvailable();
-      const source = raw as { id?: unknown; actions?: unknown; listvaCommentsComplete?: unknown };
-      if (bridgeAvailable && source && typeof source.id === "string" && Array.isArray(source.actions) && source.actions.length >= 1000 && source.listvaCommentsComplete !== true) {
-        try { raw = { ...source, listvaComments: await downloadTrelloComments(source.id), listvaCommentsComplete: true }; }
+      const source = raw as { id?: unknown; actions?: unknown; kanbonkCommentsComplete?: unknown };
+      if (bridgeAvailable && source && typeof source.id === "string" && Array.isArray(source.actions) && source.actions.length >= 1000 && source.kanbonkCommentsComplete !== true) {
+        try { raw = { ...source, kanbonkComments: await downloadTrelloComments(source.id), kanbonkCommentsComplete: true }; }
         catch { /* The JSON warning reports that older comments may be missing. */ }
       }
       const result = parseTrelloBoard(raw, fallbackWorkspaceId);
@@ -1106,7 +1106,7 @@ function App() {
     </div>
     {card && !cardAsPage && cardDialog}
     {pendingDelete && <DeleteDialog kind={pendingDelete.kind} name={pendingDelete.name} impact={pendingDelete.impact} onConfirm={confirmDelete} onCancel={() => setPendingDelete(null)} />}
-    {dedupeOpen && <DedupeDialog state={state} ignored={dedupeIgnored} onClose={() => setDedupeOpen(false)} onOpen={(item) => { setDedupeOpen(false); setCardId(item.id); }} onIgnore={(pair) => setDedupeIgnored((current) => { const next = new Set(current); next.add(pairKey(pair.a.id, pair.b.id)); localStorage.setItem("listva-dedupe-ignored", JSON.stringify([...next])); return next; })} onMerge={(keepId, dropId) => { setState((current) => mergeDuplicate(current, keepId, dropId, localDeviceId.current)); setNotice("Cards merged; the duplicate was moved to trash."); }} />}
+    {dedupeOpen && <DedupeDialog state={state} ignored={dedupeIgnored} onClose={() => setDedupeOpen(false)} onOpen={(item) => { setDedupeOpen(false); setCardId(item.id); }} onIgnore={(pair) => setDedupeIgnored((current) => { const next = new Set(current); next.add(pairKey(pair.a.id, pair.b.id)); localStorage.setItem("kanbonk-dedupe-ignored", JSON.stringify([...next])); return next; })} onMerge={(keepId, dropId) => { setState((current) => mergeDuplicate(current, keepId, dropId, localDeviceId.current)); setNotice("Cards merged; the duplicate was moved to trash."); }} />}
     {boardAboutOpen && board && <div className="dialog-backdrop" onMouseDown={() => setBoardAboutOpen(false)}><section className="side-panel board-about" role="dialog" aria-modal="true" aria-label="Board description" onMouseDown={(event) => event.stopPropagation()}><header><h2>About this board</h2><button onClick={() => setBoardAboutOpen(false)} aria-label="Close board description"><Icon name="close" /></button></header><p>{board.name}</p><label>Description<textarea value={boardDescriptionDraft} onChange={(event) => setBoardDescriptionDraft(event.target.value)} placeholder="Add a board description…" /></label><div className="panel-actions"><button onClick={() => setBoardAboutOpen(false)}>Cancel</button><button className="primary-button" onClick={saveBoardDescription} disabled={boardDescriptionDraft === board.description}>Save</button></div></section></div>}    {closedBoardsOpen && <div className="dialog-backdrop" onMouseDown={() => setClosedBoardsOpen(false)}><section className="side-panel" role="dialog" aria-modal="true" aria-label="Closed boards" onMouseDown={(event) => event.stopPropagation()}><header><h2>Closed boards</h2><button onClick={() => setClosedBoardsOpen(false)} aria-label="Close"><Icon name="close" /></button></header>{closedBoards.length ? closedBoards.map((item) => <div className="panel-row" key={item.id}><span><strong>{item.name}</strong><small>{state.workspaces.find((workspace) => workspace.id === item.workspaceId)?.name}</small></span><button onClick={() => restoreClosedBoard(item.id)}>Restore</button></div>) : <p>No closed boards.</p>}</section></div>}
     {activityBoardId && <BoardActivity state={state} boardId={activityBoardId} onClose={() => setActivityBoardId(null)} onOpenCard={(item) => { setBoardId(item.boardId); setCardId(item.id); }} />}
     {remindersOpen && <div className="dialog-backdrop" onMouseDown={() => setRemindersOpen(false)}><section className="side-panel" role="dialog" aria-modal="true" aria-label="Reminders" onMouseDown={(event) => event.stopPropagation()}><header><h2>Reminders</h2><button onClick={() => setRemindersOpen(false)} aria-label="Close reminders"><Icon name="close" /></button></header>{reminders.length ? reminders.map((item) => <div className="panel-row reminder-row" key={item.id}><button onClick={() => { if (item.boardId === inboxBoardId) showPanel("inbox"); else showBoard(item.boardId); setCardId(item.id); setRemindersOpen(false); }}>{item.name}<small>{new Date(item.dueAt!).toLocaleString("en-US")}</small></button><button onClick={() => setDismissedReminders((current) => ({ ...current, [item.id]: reminderSignature(item) }))} aria-label={`Dismiss reminder ${item.name}`}>Dismiss</button></div>) : <p>No new reminders.</p>}</section></div>}
@@ -1114,8 +1114,8 @@ function App() {
     {panel && <div className="dialog-backdrop" onMouseDown={() => setPanel(null)}><section className="side-panel" role="dialog" aria-modal="true" aria-label={panel === "archive" ? "Archive" : "Version history"} onMouseDown={(event) => event.stopPropagation()}><header><h2>{panel === "archive" ? "Archive" : "Version history"}</h2><button onClick={() => setPanel(null)} aria-label="Close"><Icon name="close" /></button></header>{panel === "archive" ? <>{state.cards.filter((item) => item.boardId === (archiveBoardId ?? boardId) && item.archived).map((item) => <div className="panel-row" key={item.id}>{item.name}<button onClick={() => updateCard(item.id, (current) => ({ ...current, archived: false }))}>Restore</button></div>)}{state.lists.filter((item) => item.boardId === (archiveBoardId ?? boardId) && item.archived).map((item) => <div className="panel-row" key={item.id}>{item.name}<button onClick={() => updateList(item.id, (current) => ({ ...current, archived: false }))}>Restore</button></div>)}</> : <><p>The last 30 versions of each item are kept.</p>{state.revisions.filter((item) => item.entityId === (card?.id ?? boardId)).slice().reverse().map((revision) => <div className="panel-row" key={revision.id}><span><strong>{revision.snapshot.name}</strong><small>{new Date(revision.createdAt).toLocaleString()}</small></span><button onClick={() => restore(revision)}>Restore</button></div>)}</>}</section></div>}
     {aiOpen && <AiSettingsDialog settings={aiSettings} onClose={() => setAiOpen(false)} onSave={(next) => { saveAiSettings(next); setAiSettings(next); setAiOpen(false); }} />}
     {syncOpen && <div className="dialog-backdrop" onMouseDown={() => setSyncOpen(false)}><section className="creation-dialog sync-dialog" role="dialog" aria-modal="true" aria-label="Device sync" onMouseDown={(event) => event.stopPropagation()}><h2>Device sync</h2>
-      <label>Sync method<select value={syncTransport} onChange={(event) => { const value = event.target.value as SyncTransport; setSyncTransport(value); localStorage.setItem("listva-sync-transport", value); }}><option value="wifi">Wi-Fi / local network</option><option value="internet">Internet: direct P2P connection (WebRTC)</option><option value="file">File: Bluetooth / USB / messenger</option></select></label>
-      <p className="hint">Tabs and windows in this browser sync automatically. For the desktop app and a browser on the same computer, run <code>npm run serve:lan</code> and connect to <button className="link-button" onClick={() => setSyncServerUrl("http://127.0.0.1:4173")}>http://127.0.0.1:4173</button>.</p>
+      <label>Sync method<select value={syncTransport} onChange={(event) => { const value = event.target.value as SyncTransport; setSyncTransport(value); localStorage.setItem("kanbonk-sync-transport", value); }}><option value="wifi">Wi-Fi / local network</option><option value="internet">Internet: direct P2P connection (WebRTC)</option><option value="file">File: Bluetooth / USB / messenger</option></select></label>
+      <p className="hint">Tabs and windows in this browser sync automatically. For the desktop app and a browser on the same computer, run <code>pnpm serve:lan</code> and connect to <button className="link-button" onClick={() => setSyncServerUrl("http://127.0.0.1:4173")}>http://127.0.0.1:4173</button>.</p>
       {trustedDevices.length > 0 && <section className="trusted-devices"><h3>Trusted devices</h3>{trustedDevices.map((device) => <div className="panel-row" key={device.deviceId}><span><strong>{device.name}</strong><small>{device.deviceId.slice(0, 8)} · added {new Date(device.pairedAt).toLocaleDateString("en-US")}{device.lastSyncAt ? ` · synced ${new Date(device.lastSyncAt).toLocaleString("en-US")}` : ""}</small></span><span className="row-actions">{syncTransport === "wifi" && <button onClick={() => setSyncRoomCode(device.code)}>Pairing code</button>}{syncTransport === "file" && <button onClick={() => void shareSyncBundle(device.code)}>Send package</button>}<button onClick={() => { if (confirm(`Remove “${device.name}” from trusted devices?`)) setTrustedDevices((current) => { const next = current.filter((item) => item.deviceId !== device.deviceId); saveTrustedDevices(next); return next; }); }}>Delete</button></span></div>)}</section>}
       {syncTransport === "file" && <section className="local-sync"><h3>Sync package</h3><p>An encrypted file with your data and attachments. Send it via Bluetooth (the Share menu on your phone), USB or a messenger; only a device that knows the pairing code can open it.</p><label>Pairing code (for a new device)<input value={bundleCode} onChange={(event) => setBundleCode(event.target.value)} spellCheck={false} autoComplete="off" /></label><div><button onClick={() => setBundleCode(newRoomCode())}>Create code</button><button className="primary-button" disabled={!/^[a-f0-9]{32}$/.test(bundleCode.trim().toLowerCase())} onClick={() => void shareSyncBundle(bundleCode.trim().toLowerCase())}>Send package with code</button></div><label>Open received package<input type="file" accept=".kanbonk-sync,application/octet-stream" onChange={(event) => { void openBundle(event.target.files?.[0] ?? null); event.target.value = ""; }} /></label></section>}
       {syncTransport === "wifi" && <LocalRoomControls serverUrl={syncServerUrl} roomCode={syncRoomCode} onServerChange={setSyncServerUrl} onCodeChange={setSyncRoomCode} onConnect={connectLocalRoom} />}{syncTransport !== "file" && <><p>{syncTransport === "internet" ? "Direct connection over the internet: devices exchange an invitation and a response through any channel (messenger, email). Data flows directly and is encrypted (DTLS); the public STUN server only sees network addresses, not data. Only someone you sent the invitation to can connect, and only after you confirm trust." : "If both browsers support WebRTC, you can connect directly over the local network. Exchange an invitation and a response."}</p><button className="primary-button" onClick={createSyncOffer}>Create invitation</button><label>Invitation: send it to the second device or paste the one you received<textarea value={syncSignal} onChange={(event) => setSyncSignal(event.target.value)} /></label><button onClick={acceptSyncOffer} disabled={!syncSignal}>Accept invitation</button><label>Response: send it to the first device or paste the one you received<textarea value={syncResponse} onChange={(event) => setSyncResponse(event.target.value)} /></label><button onClick={acceptSyncAnswer} disabled={!syncResponse}>Connect with response</button></>}<button onClick={() => { try { syncRef.current?.syncNow(); } catch (cause) { setSyncStatus(String(cause)); } }}>Sync now</button>{syncStatus && <p className="import-report" role="status">{syncStatus}</p>}{syncConflicts.map((conflict) => <div className="sync-conflict" key={`${conflict.kind}-${conflict.id}`}><strong>Conflict: {conflict.local.name}</strong><small>Choose a version of this item.</small><div><button onClick={() => { setState((current) => chooseConflict(current, conflict, "local", localDeviceId.current)); setSyncConflicts((current) => current.filter((item) => item !== conflict)); setSyncStatus("Version chosen. Syncing…"); }}>My version</button><button onClick={() => { setState((current) => chooseConflict(current, conflict, "remote", localDeviceId.current)); setSyncConflicts((current) => current.filter((item) => item !== conflict)); setSyncStatus("Version chosen. Syncing…"); }}>Other device's version</button></div></div>)}<div><button onClick={() => setSyncOpen(false)}>Close</button></div></section></div>}

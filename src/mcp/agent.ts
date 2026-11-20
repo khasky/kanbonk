@@ -6,6 +6,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprot
 import { emptyState, type AppState } from "../model";
 import { mergeStates } from "../sync";
 import { validState } from "../backup";
+import { migrateLegacyState } from "../legacy";
 import { LanSync, type PeerInfo } from "../lanSync";
 import { runTool, ToolError, tools } from "./tools";
 
@@ -27,7 +28,7 @@ export interface AgentOptions {
 
 export async function createAgent(options: AgentOptions) {
   const loaded = await options.store.load();
-  let state: AppState = loaded && validState(loaded as unknown as Record<string, unknown>) ? loaded : emptyState();
+  let state: AppState = loaded && validState(loaded as unknown as Record<string, unknown>) ? migrateLegacyState(loaded) : emptyState();
   let queue = Promise.resolve();
   let session: LanSync | undefined;
   let status = options.sync ? "connecting" : "sync not configured (set KANBONK_SYNC_URL and KANBONK_SYNC_CODE)";

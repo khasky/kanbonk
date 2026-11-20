@@ -120,14 +120,21 @@ export interface ImportResult {
   warnings: string[];
 }
 
+/** Exports saved by the Trello helper before the rename carry its fields as listva*. */
+function legacyTrelloFields(source: TrelloRecord): TrelloRecord {
+  return "listvaComments" in source || "listvaCommentsComplete" in source || "listvaOrganizationName" in source
+    ? { ...source, kanbonkComments: source.kanbonkComments ?? source.listvaComments, kanbonkCommentsComplete: source.kanbonkCommentsComplete ?? source.listvaCommentsComplete, kanbonkOrganizationName: source.kanbonkOrganizationName ?? source.listvaOrganizationName }
+    : source;
+}
+
 export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResult {
-  const source = object(raw);
+  const source = legacyTrelloFields(object(raw));
   if (!string(source.id) || !string(source.name) || !Array.isArray(source.lists) || !Array.isArray(source.cards)) {
     throw new Error("The file does not look like a Trello board JSON export.");
   }
   const boardId = newId();
   const organizationId = string(source.idOrganization);
-  const organizationName = string(source.listvaOrganizationName) || string(object(source.organization).displayName);
+  const organizationName = string(source.kanbonkOrganizationName) || string(object(source.organization).displayName);
   const organization = organizationId ? { id: organizationId, name: organizationName || undefined } : undefined;
   const prefs = object(source.prefs);
   const board: Board = { id: boardId, workspaceId, name: string(source.name), description: string(source.desc), background: string(prefs.backgroundColor) || "#147d86", sourceTrelloId: string(source.id), starred: Boolean(source.starred), archived: Boolean(source.closed) };
@@ -167,8 +174,8 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
     checklistsByCard.set(cardId, [...(checklistsByCard.get(cardId) || []), checklist]);
   }
   const commentsByCard = new Map<string, Comment[]>();
-  const completeComments = source.listvaCommentsComplete === true && Array.isArray(source.listvaComments);
-  for (const action of array(completeComments ? source.listvaComments : source.actions)) {
+  const completeComments = source.kanbonkCommentsComplete === true && Array.isArray(source.kanbonkComments);
+  for (const action of array(completeComments ? source.kanbonkComments : source.actions)) {
     if (action.type !== "commentCard") continue;
     const data = object(action.data);
     const cardId = string(object(data.card).id);
@@ -204,7 +211,7 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
   });
   const cardsByTrelloId = new Map(cards.map((card) => [card.sourceTrelloId, card]));
   const actions = new Map<string, TrelloRecord>();
-  for (const action of [...array(source.actions), ...(completeComments ? array(source.listvaComments) : [])]) {
+  for (const action of [...array(source.actions), ...(completeComments ? array(source.kanbonkComments) : [])]) {
     const data = object(action.data);
     const key = string(action.id) || `${string(action.type)}:${string(action.date)}:${string(object(data.card).id)}:${string(data.text)}`;
     actions.set(key, action);

@@ -5,7 +5,7 @@ import { build } from "vite";
 
 const outDir = "dist-extension";
 const copyExtensionFiles = {
-  name: "listva-extension-files",
+  name: "kanbonk-extension-files",
   closeBundle() {
     cpSync("extension", outDir, { recursive: true });
     mkdirSync(`${outDir}/icons`, { recursive: true });

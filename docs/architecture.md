@@ -56,7 +56,7 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 1. On start, `loadState()` reads the state from the `app` store in IndexedDB and registers all known IDs so new IDs never collide with them.
 2. The UI holds the **full state** (`fullState`) and derives the **visible state** with `visibleState()`, which hides trashed items. Components render the visible state; trash pages and sync use the full state.
 3. A user action calls a domain function inside `setState`. The function returns a new state with new revisions.
-4. An effect writes the full state back to IndexedDB through a serialized queue and notifies other tabs over `BroadcastChannel("listva-state")`. Other tabs reload and merge.
+4. An effect writes the full state back to IndexedDB through a serialized queue and notifies other tabs over `BroadcastChannel("kanbonk-state")`. Other tabs reload and merge.
 5. Active sync sessions push the new state to connected devices (see [sync.md](sync.md)).
 
 ## Routing

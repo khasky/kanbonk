@@ -3,9 +3,9 @@
 ## Automated tests
 
 ```sh
-npm test         # Vitest, all files in tests/
-npm run build    # TypeScript type check and production build
-npm run test:load  # browser load test, see Performance below
+pnpm test         # Vitest, all files in tests/
+pnpm build    # TypeScript type check and production build
+ppnpm test:load  # browser load test, see Performance below
 ```
 
 Vitest runs two projects, configured in `vitest.config.ts`: `unit` runs every file in parallel, then `perf` runs `heavyBoard.test.ts` alone. Time budgets measure wall-clock time, and measured while other test files compete for the CPU they would report the machine's load instead of the code's speed.
@@ -37,8 +37,8 @@ Test data is synthetic. Never commit real board exports.
 `scripts/load-test.mjs` generates a board with 5000 cards, imports it through the UI in Chromium and measures how the interface responds, once on a desktop viewport and once on a phone viewport with 4x CPU throttling. It exits with an error when a measurement is over budget.
 
 ```sh
-npm run build && npm run preview -- --port 4174 --strictPort   # in another terminal
-npm run test:load      # needs playwright-core and Chrome/Edge; set PLAYWRIGHT_CORE and CHROME_PATH if they are not found
+pnpm build && pnpm preview --port 4174 --strictPort   # in another terminal
+ppnpm test:load      # needs playwright-core and Chrome/Edge; set PLAYWRIGHT_CORE and CHROME_PATH if they are not found
 ```
 
 | Measurement (ms) | Desktop budget | Desktop | Phone (4x CPU) budget | Phone (4x CPU) |
@@ -57,7 +57,7 @@ Card tiles in the DOM: 197 on desktop and 77 on the phone, out of 5000.
 
 Every browser origin and profile is a separate device for Kanbonk, so two devices can run on one machine:
 
-1. `npm run build` and `node server.mjs 127.0.0.1 4174`.
+1. `pnpm build` and `node server.mjs 127.0.0.1 4174`.
 2. Open `http://127.0.0.1:4174` in two different browser profiles (or one normal and one private window).
 3. Connect both through **⋯ → Sync** and try edits, offline edits on both sides (conflicts) and attachments.
 
@@ -69,7 +69,7 @@ Last verification: November 2026.
 
 | Area | Result |
 |---|---|
-| Unit tests | 194 of 194 pass; `npm run build` passes |
+| Unit tests | 200 of 201 pass, 1 skipped; `pnpm build` passes |
 | Card features (Playwright, Chromium) | Clone below the original, sub-cards and parent hint, Markdown comments, share (QR, link, JSON, PNG, print layout), full-card color with readable text, custom label and board colors, assignee button only with a team |
 | Calendar editing (Chromium) | Drag a card to another day, resize its due date, × with confirmation |
 | Offline queue (Chromium, two devices) | Relay stopped, edits on one device show **Offline · N queued**, relay restarted, both devices reconnect on their own and the change arrives |
