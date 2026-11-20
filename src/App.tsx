@@ -53,7 +53,16 @@ import {
   writeAutoBackup,
 } from "./autoBackup";
 import { SettingsDialog } from "./SettingsDialog";
+import { AuthorDialog } from "./dialogs/AuthorDialog";
 import { BackupDialog } from "./dialogs/BackupDialog";
+import { type BoardCopyOptions, BoardCopyDialog } from "./dialogs/BoardCopyDialog";
+import { CloneCardDialog } from "./dialogs/CloneCardDialog";
+import { CreationDialog } from "./dialogs/CreationDialog";
+import { ArchivePanel } from "./panels/ArchivePanel";
+import { BoardAboutPanel } from "./panels/BoardAboutPanel";
+import { ClosedBoardsPanel } from "./panels/ClosedBoardsPanel";
+import { HistoryPanel } from "./panels/HistoryPanel";
+import { RemindersPanel } from "./panels/RemindersPanel";
 import { SyncDialog } from "./dialogs/SyncDialog";
 import { useDeviceSync } from "./hooks/useDeviceSync";
 import { ImportDialog } from "./dialogs/ImportDialog";
@@ -152,19 +161,11 @@ function App() {
   const [archiveBoardId, setArchiveBoardId] = useState<string | null>(null);
   const [boardAboutOpen, setBoardAboutOpen] = useState(false);
   const [closedBoardsOpen, setClosedBoardsOpen] = useState(false);
-  const [boardCopy, setBoardCopy] = useState<{
-    name: string;
-    workspaceId: string;
-    keepCards: boolean;
-    keepTemplates: boolean;
-  } | null>(null);
-  const [boardDescriptionDraft, setBoardDescriptionDraft] = useState("");
+  const [boardCopy, setBoardCopy] = useState<BoardCopyOptions | null>(null);
   const [creation, setCreation] = useState<{ kind: "workspace" | "board"; workspaceId?: string } | null>(null);
-  const [creationName, setCreationName] = useState("");
   const [importing, setImporting] = useState(false);
   const [localAuthor, setLocalAuthor] = useState(readLocalAuthor);
   const [authorDialogOpen, setAuthorDialogOpen] = useState(false);
-  const [authorDraft, setAuthorDraft] = useState("");
   const boardMenu = useRef<HTMLDetailsElement>(null);
   const [backupOpen, setBackupOpen] = useState(false);
   const [backupConflicts, setBackupConflicts] = useState<SyncConflict[]>([]);
@@ -613,11 +614,11 @@ function App() {
     setBoardId(created.id);
   }
 
-  function submitBoardCopy() {
-    if (!board || !boardCopy?.name.trim()) return;
+  function submitBoardCopy(options: BoardCopyOptions) {
+    if (!board || !options.name.trim()) return;
     const id = newId();
     setState((current) => {
-      const copied = copyBoard(current, board.id, boardCopy, id);
+      const copied = copyBoard(current, board.id, options, id);
       return recordRevisions(
         copied.state,
         [
@@ -637,7 +638,6 @@ function App() {
 
   function openCreation(kind: "workspace" | "board", workspaceId?: string) {
     setCreation({ kind, workspaceId });
-    setCreationName("");
   }
 
   function togglePanel(target: "inbox" | "planner") {
@@ -668,9 +668,8 @@ function App() {
     setPanel("archive");
   }
 
-  function submitCreation() {
-    const name = creationName.trim();
-    if (!creation || !name) return;
+  function submitCreation(name: string) {
+    if (!creation) return;
     if (creation.kind === "workspace") createWorkspace(name);
     else createBoard(name, creation.workspaceId);
     setCreation(null);
@@ -690,13 +689,11 @@ function App() {
 
   function openBoardAbout() {
     if (!board) return;
-    setBoardDescriptionDraft(board.description);
     setBoardAboutOpen(true);
   }
 
-  function saveBoardDescription() {
-    if (board && boardDescriptionDraft !== board.description)
-      updateBoard((item) => ({ ...item, description: boardDescriptionDraft }));
+  function saveBoardDescription(description: string) {
+    if (board && description !== board.description) updateBoard((item) => ({ ...item, description }));
     setBoardAboutOpen(false);
   }
 
@@ -1532,7 +1529,6 @@ function App() {
             <button onClick={() => navigate(trashHref())}>Trash</button>
             <button
               onClick={() => {
-                setAuthorDraft(localAuthor);
                 setAuthorDialogOpen(true);
               }}
             >
@@ -2137,26 +2133,12 @@ function App() {
       </div>
       {card && !cardAsPage && cardDialog}
       {cloneSource && (
-        <div className="dialog-backdrop" onMouseDown={() => setCloneRequest(undefined)}>
-          <section
-            className="creation-dialog delete-dialog"
-            role="alertdialog"
-            aria-modal="true"
-            aria-label="Clone card"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <h2>Clone card “{cloneSource.name}”?</h2>
-            <p>The copy “{cloneCardName(state, cloneSource.id)}” will be added right below it in the same list.</p>
-            <div>
-              <button type="button" onClick={() => setCloneRequest(undefined)}>
-                Cancel
-              </button>
-              <button type="button" className="primary-button" autoFocus onClick={confirmClone}>
-                Clone
-              </button>
-            </div>
-          </section>
-        </div>
+        <CloneCardDialog
+          name={cloneSource.name}
+          copyName={cloneCardName(state, cloneSource.id)}
+          onConfirm={confirmClone}
+          onCancel={() => setCloneRequest(undefined)}
+        />
       )}
       {pendingDelete && (
         <DeleteDialog
@@ -2191,72 +2173,15 @@ function App() {
         />
       )}
       {boardAboutOpen && board && (
-        <div className="dialog-backdrop" onMouseDown={() => setBoardAboutOpen(false)}>
-          <section
-            className="side-panel board-about"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Board description"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <header>
-              <h2>About this board</h2>
-              <button onClick={() => setBoardAboutOpen(false)} aria-label="Close board description">
-                <Icon name="close" />
-              </button>
-            </header>
-            <p>{board.name}</p>
-            <label>
-              Description
-              <textarea
-                value={boardDescriptionDraft}
-                onChange={(event) => setBoardDescriptionDraft(event.target.value)}
-                placeholder="Add a board description…"
-              />
-            </label>
-            <div className="panel-actions">
-              <button onClick={() => setBoardAboutOpen(false)}>Cancel</button>
-              <button
-                className="primary-button"
-                onClick={saveBoardDescription}
-                disabled={boardDescriptionDraft === board.description}
-              >
-                Save
-              </button>
-            </div>
-          </section>
-        </div>
-      )}{" "}
+        <BoardAboutPanel board={board} onSave={saveBoardDescription} onClose={() => setBoardAboutOpen(false)} />
+      )}
       {closedBoardsOpen && (
-        <div className="dialog-backdrop" onMouseDown={() => setClosedBoardsOpen(false)}>
-          <section
-            className="side-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Closed boards"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <header>
-              <h2>Closed boards</h2>
-              <button onClick={() => setClosedBoardsOpen(false)} aria-label="Close">
-                <Icon name="close" />
-              </button>
-            </header>
-            {closedBoards.length ? (
-              closedBoards.map((item) => (
-                <div className="panel-row" key={item.id}>
-                  <span>
-                    <strong>{item.name}</strong>
-                    <small>{state.workspaces.find((workspace) => workspace.id === item.workspaceId)?.name}</small>
-                  </span>
-                  <button onClick={() => restoreClosedBoard(item.id)}>Restore</button>
-                </div>
-              ))
-            ) : (
-              <p>No closed boards.</p>
-            )}
-          </section>
-        </div>
+        <ClosedBoardsPanel
+          boards={closedBoards}
+          workspaces={state.workspaces}
+          onRestore={restoreClosedBoard}
+          onClose={() => setClosedBoardsOpen(false)}
+        />
       )}
       {activityBoardId && (
         <BoardActivity
@@ -2270,49 +2195,17 @@ function App() {
         />
       )}
       {remindersOpen && (
-        <div className="dialog-backdrop" onMouseDown={() => setRemindersOpen(false)}>
-          <section
-            className="side-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Reminders"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <header>
-              <h2>Reminders</h2>
-              <button onClick={() => setRemindersOpen(false)} aria-label="Close reminders">
-                <Icon name="close" />
-              </button>
-            </header>
-            {reminders.length ? (
-              reminders.map((item) => (
-                <div className="panel-row reminder-row" key={item.id}>
-                  <button
-                    onClick={() => {
-                      if (item.boardId === inboxBoardId) showPanel("inbox");
-                      else showBoard(item.boardId);
-                      setCardId(item.id);
-                      setRemindersOpen(false);
-                    }}
-                  >
-                    {item.name}
-                    <small>{new Date(item.dueAt!).toLocaleString("en-US")}</small>
-                  </button>
-                  <button
-                    onClick={() =>
-                      setDismissedReminders((current) => ({ ...current, [item.id]: reminderSignature(item) }))
-                    }
-                    aria-label={`Dismiss reminder ${item.name}`}
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              ))
-            ) : (
-              <p>No new reminders.</p>
-            )}
-          </section>
-        </div>
+        <RemindersPanel
+          reminders={reminders}
+          onOpen={(item) => {
+            if (item.boardId === inboxBoardId) showPanel("inbox");
+            else showBoard(item.boardId);
+            setCardId(item.id);
+            setRemindersOpen(false);
+          }}
+          onDismiss={(item) => setDismissedReminders((current) => ({ ...current, [item.id]: reminderSignature(item) }))}
+          onClose={() => setRemindersOpen(false)}
+        />
       )}
       {automationBoardId && state.boards.some((item) => item.id === automationBoardId && !item.archived) && (
         <AutomationPanel
@@ -2326,64 +2219,21 @@ function App() {
           onRemove={(ruleId) => removeAutomationRule(automationBoardId, ruleId)}
         />
       )}
-      {panel && (
-        <div className="dialog-backdrop" onMouseDown={() => setPanel(null)}>
-          <section
-            className="side-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-label={panel === "archive" ? "Archive" : "Version history"}
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <header>
-              <h2>{panel === "archive" ? "Archive" : "Version history"}</h2>
-              <button onClick={() => setPanel(null)} aria-label="Close">
-                <Icon name="close" />
-              </button>
-            </header>
-            {panel === "archive" ? (
-              <>
-                {state.cards
-                  .filter((item) => item.boardId === (archiveBoardId ?? boardId) && item.archived)
-                  .map((item) => (
-                    <div className="panel-row" key={item.id}>
-                      {item.name}
-                      <button onClick={() => updateCard(item.id, (current) => ({ ...current, archived: false }))}>
-                        Restore
-                      </button>
-                    </div>
-                  ))}
-                {state.lists
-                  .filter((item) => item.boardId === (archiveBoardId ?? boardId) && item.archived)
-                  .map((item) => (
-                    <div className="panel-row" key={item.id}>
-                      {item.name}
-                      <button onClick={() => updateList(item.id, (current) => ({ ...current, archived: false }))}>
-                        Restore
-                      </button>
-                    </div>
-                  ))}
-              </>
-            ) : (
-              <>
-                <p>The last 30 versions of each item are kept.</p>
-                {state.revisions
-                  .filter((item) => item.entityId === (card?.id ?? boardId))
-                  .slice()
-                  .reverse()
-                  .map((revision) => (
-                    <div className="panel-row" key={revision.id}>
-                      <span>
-                        <strong>{revision.snapshot.name}</strong>
-                        <small>{new Date(revision.createdAt).toLocaleString()}</small>
-                      </span>
-                      <button onClick={() => restore(revision)}>Restore</button>
-                    </div>
-                  ))}
-              </>
-            )}
-          </section>
-        </div>
+      {panel === "archive" && (
+        <ArchivePanel
+          cards={state.cards.filter((item) => item.boardId === (archiveBoardId ?? boardId) && item.archived)}
+          lists={state.lists.filter((item) => item.boardId === (archiveBoardId ?? boardId) && item.archived)}
+          onRestoreCard={(id) => updateCard(id, (current) => ({ ...current, archived: false }))}
+          onRestoreList={(id) => updateList(id, (current) => ({ ...current, archived: false }))}
+          onClose={() => setPanel(null)}
+        />
+      )}
+      {panel === "history" && (
+        <HistoryPanel
+          revisions={state.revisions.filter((item) => item.entityId === (card?.id ?? boardId))}
+          onRestore={restore}
+          onClose={() => setPanel(null)}
+        />
       )}
       {settingsOpen && <SettingsDialog getState={() => stateRef.current} onClose={() => setSettingsOpen(false)} />}
       {aiOpen && (
@@ -2423,41 +2273,14 @@ function App() {
         />
       )}
       {authorDialogOpen && (
-        <div className="dialog-backdrop" onMouseDown={() => setAuthorDialogOpen(false)}>
-          <form
-            className="creation-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label="My name"
-            onMouseDown={(event) => event.stopPropagation()}
-            onSubmit={(event) => {
-              event.preventDefault();
-              setLocalAuthor(saveLocalAuthor(authorDraft));
-              setAuthorDialogOpen(false);
-            }}
-          >
-            <h2>My name</h2>
-            <p>Your name is stored only on this device and shown on new comments.</p>
-            <label>
-              Name
-              <input
-                autoFocus
-                value={authorDraft}
-                onChange={(event) => setAuthorDraft(event.target.value)}
-                maxLength={60}
-                required
-              />
-            </label>
-            <div>
-              <button type="button" onClick={() => setAuthorDialogOpen(false)}>
-                Cancel
-              </button>
-              <button className="primary-button" disabled={!authorDraft.trim()}>
-                Save
-              </button>
-            </div>
-          </form>
-        </div>
+        <AuthorDialog
+          name={localAuthor}
+          onSave={(name) => {
+            setLocalAuthor(saveLocalAuthor(name));
+            setAuthorDialogOpen(false);
+          }}
+          onClose={() => setAuthorDialogOpen(false)}
+        />
       )}
       {importing && (
         <ImportDialog
@@ -2471,107 +2294,14 @@ function App() {
         />
       )}
       {boardCopy && (
-        <div className="dialog-backdrop" onMouseDown={() => setBoardCopy(null)}>
-          <form
-            className="creation-dialog board-copy-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Copy board"
-            onMouseDown={(event) => event.stopPropagation()}
-            onSubmit={(event) => {
-              event.preventDefault();
-              submitBoardCopy();
-            }}
-          >
-            <h2>Copy board</h2>
-            <label>
-              Title
-              <input
-                autoFocus
-                value={boardCopy.name}
-                onChange={(event) => setBoardCopy({ ...boardCopy, name: event.target.value })}
-                required
-                maxLength={120}
-              />
-            </label>
-            <label>
-              Workspace
-              <select
-                value={boardCopy.workspaceId}
-                onChange={(event) => setBoardCopy({ ...boardCopy, workspaceId: event.target.value })}
-              >
-                {state.workspaces
-                  .filter((item) => item.id !== inboxWorkspaceId && !item.archived)
-                  .map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
-            </label>
-            <label className="copy-option">
-              <input
-                type="checkbox"
-                checked={boardCopy.keepCards}
-                onChange={(event) => setBoardCopy({ ...boardCopy, keepCards: event.target.checked })}
-              />
-              Keep cards
-            </label>
-            <label className="copy-option">
-              <input
-                type="checkbox"
-                checked={boardCopy.keepTemplates}
-                onChange={(event) => setBoardCopy({ ...boardCopy, keepTemplates: event.target.checked })}
-              />
-              Keep card templates
-            </label>
-            <p>Comments, members and archived cards are not copied.</p>
-            <div>
-              <button type="button" onClick={() => setBoardCopy(null)}>
-                Cancel
-              </button>
-              <button className="primary-button" type="submit">
-                Create copy
-              </button>
-            </div>
-          </form>
-        </div>
-      )}{" "}
-      {creation && (
-        <div className="dialog-backdrop" onMouseDown={() => setCreation(null)}>
-          <form
-            className="creation-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label={creation.kind === "board" ? "Create board" : "Create workspace"}
-            onMouseDown={(event) => event.stopPropagation()}
-            onSubmit={(event) => {
-              event.preventDefault();
-              submitCreation();
-            }}
-          >
-            <h2>{creation.kind === "board" ? "Create board" : "Create workspace"}</h2>
-            <label>
-              Title
-              <input
-                autoFocus
-                value={creationName}
-                onChange={(event) => setCreationName(event.target.value)}
-                required
-                maxLength={120}
-              />
-            </label>
-            <div>
-              <button type="button" onClick={() => setCreation(null)}>
-                Cancel
-              </button>
-              <button className="primary-button" type="submit">
-                Create
-              </button>
-            </div>
-          </form>
-        </div>
+        <BoardCopyDialog
+          initial={boardCopy}
+          workspaces={state.workspaces.filter((item) => item.id !== inboxWorkspaceId && !item.archived)}
+          onCopy={submitBoardCopy}
+          onClose={() => setBoardCopy(null)}
+        />
       )}
+      {creation && <CreationDialog kind={creation.kind} onCreate={submitCreation} onClose={() => setCreation(null)} />}
     </div>
   );
 }
