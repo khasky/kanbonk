@@ -63,7 +63,7 @@ export function AppHeader({
           navigate("/");
         }}
       >
-        <img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />
+        <img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" />
         <strong>Kanbonk</strong>
       </a>
       <select
