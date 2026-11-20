@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
   deviceId,
   listSnapshots,
@@ -114,18 +114,13 @@ import { CardDialog } from "./card/CardDialog";
 import { AppHeader, type AppMenuActions, plannerViewId } from "./layout/AppHeader";
 import { SearchResults } from "./layout/SearchResults";
 import { Sidebar } from "./layout/Sidebar";
+import { PanelSlot } from "./layout/PanelSlot";
+import { usePanelLayout } from "./hooks/usePanelLayout";
 import { InboxView } from "./panels/InboxView";
 import { PlannerView } from "./panels/PlannerView";
 import { Icon } from "./ui/Icon";
 import { NameEditor } from "./ui/NameEditor";
-import {
-  readBoardFilters,
-  readDismissedReminders,
-  readPanelWidths,
-  type PanelName,
-  type PanelVisibility,
-  type PanelWidths,
-} from "./uiPreferences";
+import { readBoardFilters, readDismissedReminders, type PanelName } from "./uiPreferences";
 import "./MarkdownText.css";
 import "./activity.css";
 import "./App.css";
@@ -143,10 +138,6 @@ function App() {
   const cardAsPage = route.page === "card" && !route.background;
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
-  const [activePanel, setActivePanel] = useState<"inbox" | "planner" | null>(null);
-  const [visiblePanels, setVisiblePanels] = useState<PanelVisibility>({ inbox: false, planner: false });
-  const [panelWidths, setPanelWidths] = useState<PanelWidths>(readPanelWidths);
-  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
   const [search, setSearch] = useState("");
   const [boardFilters, setBoardFilters] = useState<Record<string, BoardFilter>>(readBoardFilters);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -218,87 +209,15 @@ function App() {
     onFilesChanged: () => setFileVersion((current) => current + 1),
     onError: setError,
   });
-  const wideLayout = viewportWidth >= 1500;
-  const shownPanels: PanelName[] = wideLayout
-    ? (["inbox", "planner"] as const).filter((name) => visiblePanels[name])
-    : activePanel && visiblePanels[activePanel]
-      ? [activePanel]
-      : [];
-  const panelWidthLimit = Math.max(
-    220,
-    Math.min(720, shownPanels.length === 2 ? Math.floor((viewportWidth - 776) / 2) : viewportWidth - 580),
-  );
-
-  useEffect(() => {
-    const update = () => setViewportWidth(window.innerWidth);
-    window.addEventListener("resize", update);
-    update();
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
-  function resizePanelStart(event: ReactPointerEvent<HTMLDivElement>, panel: PanelName) {
-    event.currentTarget.setPointerCapture(event.pointerId);
-    const startX = event.clientX;
-    const startWidth = Math.min(panelWidths[panel], panelWidthLimit);
-    const handle = event.currentTarget;
-    function move(pointer: PointerEvent) {
-      setPanelWidths((current) => ({
-        ...current,
-        [panel]: Math.min(panelWidthLimit, Math.max(220, startWidth + pointer.clientX - startX)),
-      }));
-    }
-    function stop() {
-      handle.removeEventListener("pointermove", move);
-      handle.removeEventListener("pointerup", stop);
-      handle.removeEventListener("pointercancel", stop);
-    }
-    handle.addEventListener("pointermove", move);
-    handle.addEventListener("pointerup", stop);
-    handle.addEventListener("pointercancel", stop);
-  }
-
-  function resizePanelKey(event: React.KeyboardEvent<HTMLDivElement>, panel: PanelName) {
-    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-    event.preventDefault();
-    setPanelWidths((current) => ({
-      ...current,
-      [panel]:
-        event.key === "Home"
-          ? 220
-          : event.key === "End"
-            ? panelWidthLimit
-            : Math.min(
-                panelWidthLimit,
-                Math.max(220, Math.min(current[panel], panelWidthLimit) + (event.key === "ArrowRight" ? 20 : -20)),
-              ),
-    }));
-  }
-
-  useEffect(() => {
-    localStorage.setItem("kanbonk-panel-widths", JSON.stringify(panelWidths));
-  }, [panelWidths]);
-  useEffect(() => {
-    if (ready) localStorage.setItem("kanbonk-open-panels", JSON.stringify(visiblePanels));
-  }, [visiblePanels, ready]);
+  const panels = usePanelLayout({ ready, onError: setError });
+  const { shownPanels } = panels;
 
   useEffect(() => {
     loadState()
       .then((loaded) => {
         loaded = ensureInbox(loaded, localDeviceId.current);
         setState(loaded);
-        const savedPanel = localStorage.getItem("kanbonk-active-panel");
-        const initialPanel = savedPanel === "inbox" || savedPanel === "planner" ? savedPanel : null;
-        setActivePanel(initialPanel);
-        try {
-          const stored = JSON.parse(localStorage.getItem("kanbonk-open-panels") ?? "null");
-          setVisiblePanels(
-            stored && typeof stored.inbox === "boolean" && typeof stored.planner === "boolean"
-              ? stored
-              : { inbox: initialPanel === "inbox", planner: initialPanel === "planner" },
-          );
-        } catch {
-          setVisiblePanels({ inbox: initialPanel === "inbox", planner: initialPanel === "planner" });
-        }
+        panels.restore();
         setReady(true);
       })
       .catch((cause) => setError(`Could not open local data: ${String(cause)}`));
@@ -351,16 +270,6 @@ function App() {
       document.removeEventListener("visibilitychange", hidden);
     };
   }, [ready]);
-
-  useEffect(() => {
-    if (!ready) return;
-    try {
-      if (activePanel) localStorage.setItem("kanbonk-active-panel", activePanel);
-      else localStorage.removeItem("kanbonk-active-panel");
-    } catch (cause) {
-      setError(`Could not save the selected section: ${String(cause)}`);
-    }
-  }, [activePanel, ready]);
 
   useEffect(() => {
     try {
@@ -629,42 +538,29 @@ function App() {
     setCreation({ kind, workspaceId });
   }
 
-  function togglePanel(target: "inbox" | "planner") {
-    if (!wideLayout && activePanel !== target) {
-      showPanel(target);
-      setCardId(null);
-      return;
-    }
-    const opening = !visiblePanels[target];
-    const other = target === "inbox" ? "planner" : "inbox";
-    setVisiblePanels((current) => ({ ...current, [target]: opening }));
-    setActivePanel(opening ? target : visiblePanels[other] && wideLayout ? other : null);
+  function togglePanel(target: PanelName) {
+    panels.toggle(target);
     setCardId(null);
-  }
-
-  function showPanel(target: PanelName) {
-    setVisiblePanels((current) => ({ ...current, [target]: true }));
-    setActivePanel(target);
   }
 
   function showBoard(target: string) {
     setBoardId(target);
-    setActivePanel(null);
+    panels.deactivate();
   }
 
   /** Shows a card over its board, or over the Inbox panel when it is an inbox card. */
   function openCardInPlace(item: Card) {
-    if (item.boardId === inboxBoardId) showPanel("inbox");
+    if (item.boardId === inboxBoardId) panels.show("inbox");
     else showBoard(item.boardId);
     setCardId(item.id);
   }
 
   /** Handles the mobile board picker, which also lists the Inbox and Planner panels. */
   function pickBoard(value: string) {
-    if (value === inboxBoardId) showPanel("inbox");
-    else if (value === plannerViewId) showPanel("planner");
+    if (value === inboxBoardId) panels.show("inbox");
+    else if (value === plannerViewId) panels.show("planner");
     else {
-      setActivePanel(null);
+      panels.deactivate();
       setBoardId(value || null);
     }
     setCardId(null);
@@ -1062,7 +958,7 @@ function App() {
           : transferred.cards;
       return recordRevision({ ...transferred, cards }, "card", targetId, localDeviceId.current);
     });
-    if (targetList.boardId === inboxBoardId) showPanel("inbox");
+    if (targetList.boardId === inboxBoardId) panels.show("inbox");
     else showBoard(targetList.boardId);
     setCardId(targetId);
   }
@@ -1339,11 +1235,7 @@ function App() {
         void addStickerImage(card, file);
       }}
       onDownload={downloadAttachment}
-      onNavigateCard={(target) => {
-        if (target.boardId === inboxBoardId) showPanel("inbox");
-        else showBoard(target.boardId);
-        setCardId(target.id);
-      }}
+      onNavigateCard={openCardInPlace}
       onTransfer={(targetListId, copy) => moveOrCopyCard(card.id, targetListId, copy)}
       onArchive={() => {
         if (confirm(`Archive card “${card.name}”?`)) {
@@ -1531,35 +1423,18 @@ function App() {
           navigate={navigate}
         />
         {shownPanels.map((name) => (
-          <div className="panel-slot" key={name}>
-            <aside
-              className={name === "planner" ? "aux-panel planner-panel" : "aux-panel inbox-panel"}
-              style={{ width: Math.min(panelWidths[name], panelWidthLimit) }}
-            >
-              {name === "inbox" ? (
-                <InboxView
-                  state={state}
-                  onCreate={createInboxCard}
-                  onOpen={setCardId}
-                  onOpenArchive={() => openArchive(inboxBoardId)}
-                />
-              ) : (
-                <PlannerView state={state} onOpen={openCardInPlace} />
-              )}
-            </aside>
-            <div
-              className="panel-resizer"
-              role="separator"
-              tabIndex={0}
-              aria-label={`Resize panel ${name === "inbox" ? "Inbox" : "Planner"}`}
-              aria-orientation="vertical"
-              aria-valuemin={220}
-              aria-valuemax={panelWidthLimit}
-              aria-valuenow={Math.min(panelWidths[name], panelWidthLimit)}
-              onPointerDown={(event) => resizePanelStart(event, name)}
-              onKeyDown={(event) => resizePanelKey(event, name)}
-            />
-          </div>
+          <PanelSlot key={name} name={name} layout={panels}>
+            {name === "inbox" ? (
+              <InboxView
+                state={state}
+                onCreate={createInboxCard}
+                onOpen={setCardId}
+                onOpenArchive={() => openArchive(inboxBoardId)}
+              />
+            ) : (
+              <PlannerView state={state} onOpen={openCardInPlace} />
+            )}
+          </PanelSlot>
         ))}
         <main
           className="main-area"
@@ -2009,9 +1884,7 @@ function App() {
         <RemindersPanel
           reminders={reminders}
           onOpen={(item) => {
-            if (item.boardId === inboxBoardId) showPanel("inbox");
-            else showBoard(item.boardId);
-            setCardId(item.id);
+            openCardInPlace(item);
             setRemindersOpen(false);
           }}
           onDismiss={(item) => setDismissedReminders((current) => ({ ...current, [item.id]: reminderSignature(item) }))}
