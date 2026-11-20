@@ -32,7 +32,7 @@ import { DocView } from "./DocView";
 import { AiPanel, AiSettingsDialog, type ProposedCard } from "./AiPanel";
 import { readAiSettings, saveAiSettings, type AiSettings } from "./ai";
 
-import { saveFile, shareFile } from "./platform";
+import { saveFile } from "./platform";
 import { assignListToZone, createZone, deleteZone, moveListToList, moveZone, updateZone, zoneRuns } from "./zones";
 import {
   BoardCalendar,
@@ -54,24 +54,15 @@ import {
 } from "./autoBackup";
 import { SettingsDialog } from "./SettingsDialog";
 import { BackupDialog } from "./dialogs/BackupDialog";
+import { SyncDialog } from "./dialogs/SyncDialog";
+import { useDeviceSync } from "./hooks/useDeviceSync";
 import { ImportDialog } from "./dialogs/ImportDialog";
 import { ensurePersonalWorkspace, personalWorkspaceId } from "./workspaces";
-import {
-  createSyncBundle,
-  openSyncBundle,
-  readTrustedDevices,
-  saveTrustedDevices,
-  tabChannel,
-  trustDevice,
-  type SyncTransport,
-  type TrustedDevice,
-} from "./devices";
 import {
   cloneCard,
   cloneCardName,
   createSubCard,
   type Member,
-  rememberStateIds,
   recordRevisions,
   convertChecklistItem,
   copyBoard,
@@ -82,7 +73,6 @@ import {
   emptyState,
   filterBoardCards,
   linkDependency,
-  markMediaLocal,
   newId,
   positionBefore,
   recordRevision,
@@ -100,8 +90,7 @@ import {
   type Card,
   type Revision,
 } from "./model";
-import { LanSync, newRoomCode } from "./lanSync";
-import { chooseConflict, mergeStates, type SyncConflict } from "./sync";
+import { chooseConflict, type SyncConflict } from "./sync";
 
 import { applyCardButton, applyDueRules, applyMoveRules } from "./automation";
 import { dueReminders, reminderSignature } from "./reminders";
@@ -114,7 +103,6 @@ import { CardTile, type TileActions } from "./board/CardTile";
 import { ListCards } from "./board/ListCards";
 import { TemplateComposer } from "./board/TemplateComposer";
 import { CardDialog } from "./card/CardDialog";
-import { LocalRoomControls } from "./dialogs/LocalRoomControls";
 import { InboxView } from "./panels/InboxView";
 import { PlannerView } from "./panels/PlannerView";
 import { Icon } from "./ui/Icon";
@@ -183,21 +171,8 @@ function App() {
   const [syncOpen, setSyncOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [aiSettings, setAiSettings] = useState<AiSettings | null>(readAiSettings);
-  const [syncSignal, setSyncSignal] = useState("");
-  const [syncResponse, setSyncResponse] = useState("");
-  const [syncRoomCode, setSyncRoomCode] = useState("");
-  const [syncServerUrl, setSyncServerUrl] = useState(() =>
-    /^https?:$/.test(window.location.protocol) ? window.location.origin : "",
-  );
-  const [syncStatus, setSyncStatus] = useState("");
-  const [online, setOnline] = useState(() => navigator.onLine !== false);
-  const reconnectTimer = useRef<number | undefined>(undefined);
-  const reconnectDelay = useRef(5000);
-  const lastLan = useRef<{ url: string; code: string } | null>(null);
-  const [syncConflicts, setSyncConflicts] = useState<SyncConflict[]>([]);
   const [fileVersion, setFileVersion] = useState(0);
   const [backgroundImage, setBackgroundImage] = useState<{ id: string; url: string } | null>(null);
-  const tabs = useRef<{ notify: () => void; close: () => void } | null>(null);
   const [snapshots, setSnapshots] = useState<SnapshotMeta[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const autoBackupRunning = useRef(false);
@@ -227,18 +202,20 @@ function App() {
       return new Set();
     }
   });
-  const [trustedDevices, setTrustedDevices] = useState<TrustedDevice[]>(readTrustedDevices);
-  const [syncTransport, setSyncTransport] = useState<SyncTransport>(() => {
-    const saved = localStorage.getItem("kanbonk-sync-transport");
-    return saved === "internet" || saved === "file" ? saved : "wifi";
-  });
-  const [bundleCode, setBundleCode] = useState("");
   const queue = useRef(Promise.resolve());
   const localDeviceId = useRef(deviceId());
-  const syncRef = useRef<LanSync | null>(null);
   const stateRef = useRef(fullState);
-  const sentHeads = useRef("");
   stateRef.current = fullState;
+  const sync = useDeviceSync({
+    ready,
+    state: fullState,
+    stateRef,
+    setState,
+    deviceId: localDeviceId.current,
+    authorName: localAuthor,
+    onFilesChanged: () => setFileVersion((current) => current + 1),
+    onError: setError,
+  });
   const wideLayout = viewportWidth >= 1500;
   const shownPanels: PanelName[] = wideLayout
     ? (["inbox", "planner"] as const).filter((name) => visiblePanels[name])
@@ -329,66 +306,9 @@ function App() {
     if (!ready) return;
     queue.current = queue.current
       .then(() => saveState(fullState))
-      .then(() => tabs.current?.notify())
+      .then(() => sync.notifyTabs())
       .catch((cause) => setError(`Could not save changes: ${String(cause)}`));
   }, [fullState, ready]);
-
-  useEffect(() => {
-    if (!ready) return;
-    const heads = JSON.stringify(fullState.heads);
-    if (heads === sentHeads.current) return;
-    sentHeads.current = heads;
-    const timer = window.setTimeout(() => {
-      void syncRef.current?.syncIfConnected();
-    }, 250);
-    return () => window.clearTimeout(timer);
-  }, [fullState.heads, ready]);
-
-  useEffect(() => {
-    const update = () => {
-      setOnline(navigator.onLine !== false);
-      if (navigator.onLine !== false && reconnectTimer.current !== undefined && lastLan.current) {
-        try {
-          syncSession(lastLan.current);
-        } catch (cause) {
-          setSyncStatus(String(cause));
-        }
-      }
-    };
-    window.addEventListener("online", update);
-    window.addEventListener("offline", update);
-    return () => {
-      window.removeEventListener("online", update);
-      window.removeEventListener("offline", update);
-    };
-  });
-
-  // Same-device sync: other tabs/windows of this browser profile announce saves; merge what they stored.
-  useEffect(() => {
-    if (!ready) return;
-    const channel = tabChannel(() => {
-      void loadState()
-        .then((stored) => {
-          const current = stateRef.current;
-          const merged = mergeStates(current, stored);
-          if (
-            JSON.stringify(merged.state.heads) === JSON.stringify(current.heads) &&
-            JSON.stringify(merged.state.tombstones ?? {}) === JSON.stringify(current.tombstones ?? {})
-          )
-            return;
-          rememberStateIds(merged.state);
-          stateRef.current = merged.state;
-          setState(merged.state);
-          if (merged.conflicts.length) setSyncConflicts(merged.conflicts);
-        })
-        .catch((cause) => setError(`Could not get changes from another tab: ${String(cause)}`));
-    });
-    tabs.current = channel;
-    return () => {
-      channel.close();
-      tabs.current = null;
-    };
-  }, [ready]);
 
   // Automatic backups: local snapshots every 10 minutes (and when the page is hidden) plus full ZIP backups on the schedule from Settings.
   useEffect(() => {
@@ -653,64 +573,6 @@ function App() {
     saveFile(new Blob([content], { type }), name).catch((cause) =>
       setError(`Could not save “${name}”: ${String(cause)}`),
     );
-  }
-
-  function rememberTrust(peer: { deviceId: string; name: string }, code: string) {
-    setTrustedDevices((current) => {
-      const next = trustDevice(current, peer, code);
-      saveTrustedDevices(next);
-      return next;
-    });
-  }
-
-  async function shareSyncBundle(code: string) {
-    try {
-      const blob = await createSyncBundle(
-        stateRef.current,
-        code,
-        { deviceId: localDeviceId.current, name: localAuthor },
-        loadAttachment,
-      );
-      const file = new File([blob], `kanbonk-sync-${new Date().toISOString().slice(0, 10)}.kanbonk-sync`, {
-        type: "application/octet-stream",
-      });
-      const result = await shareFile(file);
-      setSyncStatus(
-        result === "shared"
-          ? "Package sent via the system Share menu (Bluetooth, Nearby Share, etc.)."
-          : result === "cancelled"
-            ? "Package saving canceled."
-            : "Package saved. Transfer the file via Bluetooth, USB or any other way and open it on a trusted device.",
-      );
-    } catch (cause) {
-      setSyncStatus(`Could not create package: ${String(cause)}`);
-    }
-  }
-
-  async function openBundle(file: File | null) {
-    if (!file) return;
-    try {
-      const codes = [...trustedDevices.map((item) => item.code), bundleCode.trim().toLowerCase()].filter(Boolean);
-      const opened = await openSyncBundle(new Uint8Array(await file.arrayBuffer()), codes);
-      if (opened.sender?.deviceId === localDeviceId.current) {
-        setSyncStatus("This package was created on this device. Open it on another one.");
-        return;
-      }
-      if (opened.sender && !trustedDevices.some((item) => item.deviceId === opened.sender!.deviceId)) {
-        if (!confirm(`Add “${opened.sender.name}” to trusted devices and accept the data?`)) return;
-      }
-      if (opened.sender) rememberTrust(opened.sender, opened.code);
-      for (const item of opened.files) if (!(await loadAttachment(item.id))) await saveAttachment(item.id, item.blob);
-      const merged = mergeStates(stateRef.current, opened.state);
-      rememberStateIds(merged.state);
-      stateRef.current = merged.state;
-      setState(opened.files.reduce((current, item) => markMediaLocal(current, item.id), merged.state));
-      setFileVersion((current) => current + 1);
-      setSyncConflicts(merged.conflicts);
-      setSyncStatus(`Package accepted. Files: ${opened.files.length}, conflicts: ${merged.conflicts.length}.`);
-    } catch (cause) {
-      setSyncStatus(String(cause instanceof Error ? cause.message : cause));
-    }
   }
 
   async function refreshBackupInfo() {
@@ -1452,127 +1314,9 @@ function App() {
     setImporting(true);
   }
 
-  function markSynced(deviceId: string) {
-    const now = new Date().toISOString();
-    setTrustedDevices((current) => {
-      if (!current.some((item) => item.deviceId === deviceId)) return current;
-      const next = current.map((item) => (item.deviceId === deviceId ? { ...item, lastSyncAt: now } : item));
-      saveTrustedDevices(next);
-      return next;
-    });
-  }
-
-  function syncSession(local?: { url: string; code: string }): LanSync {
-    syncRef.current?.close();
-    window.clearTimeout(reconnectTimer.current);
-    reconnectTimer.current = undefined;
-    lastLan.current = local ?? null;
-    const pairCode = local?.code.trim().toLowerCase() ?? "";
-    const session = new LanSync(
-      {
-        trust: {
-          self: { deviceId: localDeviceId.current, name: localAuthor },
-          isTrusted: (peer) => readTrustedDevices().some((item) => item.deviceId === peer.deviceId),
-          onPeer: async (peer) => {
-            const accepted = confirm(
-              `New device “${peer.name}” (${peer.deviceId.slice(0, 8)}) wants to sync. Add it to trusted devices?`,
-            );
-            if (accepted) rememberTrust(peer, pairCode);
-            return accepted;
-          },
-        },
-        getState: () => stateRef.current,
-        onState: async (remote) => {
-          const merged = mergeStates(stateRef.current, remote);
-          rememberStateIds(merged.state);
-          if (session.peer && pairCode) rememberTrust(session.peer, pairCode);
-          stateRef.current = merged.state;
-          setState(merged.state);
-          setSyncConflicts(merged.conflicts);
-          setSyncStatus(merged.conflicts.length ? `Conflicts found: ${merged.conflicts.length}` : "Data received");
-          reconnectDelay.current = 5000;
-          if (session.peer) markSynced(session.peer.deviceId);
-          await session.requestFiles(merged.state);
-        },
-        onFile: (id) => {
-          if (stateRef.current.boards.some((item) => item.backgroundImageId === id))
-            setFileVersion((current) => current + 1);
-          setState((current) => markMediaLocal(current, id));
-        },
-        onStatus: setSyncStatus,
-        onSent: () => {
-          if (session.peer) markSynced(session.peer.deviceId);
-        },
-        // Offline queue: changes keep accumulating locally; when the relay connection drops, reconnect with backoff
-        // and the full-state exchange on reconnect delivers everything made in the meantime.
-        onClosed: () => {
-          if (!local || syncRef.current !== session) return;
-          const delay = reconnectDelay.current;
-          reconnectDelay.current = Math.min(delay * 2, 60_000);
-          setSyncStatus(
-            `Connection lost. Changes are saved on this device; reconnecting in ${Math.round(delay / 1000)} s…`,
-          );
-          reconnectTimer.current = window.setTimeout(() => {
-            if (syncRef.current === session && navigator.onLine !== false) {
-              try {
-                syncSession(local);
-              } catch (cause) {
-                setSyncStatus(String(cause));
-              }
-            }
-          }, delay);
-        },
-      },
-      local,
-      { internet: syncTransport === "internet" },
-    );
-    syncRef.current = session;
-    return session;
-  }
-
-  async function createSyncOffer() {
-    try {
-      setSyncSignal(await syncSession().createOffer());
-      setSyncStatus("Send the invitation to the second device and paste its response.");
-    } catch (cause) {
-      setSyncStatus(`Could not create the invitation: ${String(cause)}`);
-    }
-  }
-
-  async function acceptSyncOffer() {
-    try {
-      setSyncResponse(await syncSession().acceptOffer(syncSignal));
-      setSyncStatus("Send the response to the first device.");
-    } catch (cause) {
-      setSyncStatus(`Could not accept the invitation: ${String(cause)}`);
-    }
-  }
-
-  async function acceptSyncAnswer() {
-    try {
-      await syncRef.current?.acceptAnswer(syncResponse);
-      setSyncStatus("Waiting for connection…");
-    } catch (cause) {
-      setSyncStatus(`Could not accept the response: ${String(cause)}`);
-    }
-  }
-
-  function connectLocalRoom() {
-    try {
-      const server = new URL(syncServerUrl);
-      if (server.protocol !== "http:" && server.protocol !== "https:")
-        throw new Error("Enter the HTTP address of the local Kanbonk server.");
-      server.protocol = server.protocol === "https:" ? "wss:" : "ws:";
-      syncSession({ url: server.href, code: syncRoomCode });
-      setSyncStatus("Connecting to the local server…");
-    } catch (cause) {
-      setSyncStatus(`Could not connect: ${String(cause)}`);
-    }
-  }
-
   const team: Member[] = [
     { id: localDeviceId.current, name: localAuthor || "This device" },
-    ...trustedDevices.map((device) => ({ id: device.deviceId, name: device.name })),
+    ...sync.trustedDevices.map((device) => ({ id: device.deviceId, name: device.name })),
   ];
   const cardDialog = card ? (
     <CardDialog
@@ -1682,26 +1426,6 @@ function App() {
         )
         .slice(0, 10)
     : [];
-  const lastSyncAt = trustedDevices.reduce(
-    (latest, item) => (item.lastSyncAt && item.lastSyncAt > latest ? item.lastSyncAt : latest),
-    "",
-  );
-  // Offline queue size: local revisions newer than the last exchange with any trusted device.
-  const pendingChanges = useMemo(
-    () =>
-      trustedDevices.length
-        ? fullState.revisions.filter((item) => item.deviceId === localDeviceId.current && item.createdAt > lastSyncAt)
-            .length
-        : 0,
-    [fullState.revisions, trustedDevices.length, lastSyncAt],
-  );
-  const syncBadge = !trustedDevices.length
-    ? "Local"
-    : !online
-      ? `Offline${pendingChanges ? ` · ${pendingChanges} queued` : ""}`
-      : pendingChanges
-        ? `Unsent: ${pendingChanges}`
-        : "Synced";
   const trashCount = useMemo(
     () =>
       [fullState.workspaces, fullState.boards, fullState.lists, fullState.cards].reduce(
@@ -1843,11 +1567,11 @@ function App() {
           🗑 Trash{trashCount ? ` (${trashCount})` : ""}
         </a>
         <button
-          className={`local-badge ${pendingChanges ? "pending" : ""} ${online ? "" : "offline"}`}
+          className={`local-badge ${sync.pendingChanges ? "pending" : ""} ${sync.online ? "" : "offline"}`}
           onClick={() => setSyncOpen(true)}
           title="Sync with trusted devices"
         >
-          {syncBadge}
+          {sync.badge}
         </button>
       </header>
       {search.trim() && (
@@ -2673,197 +2397,7 @@ function App() {
           }}
         />
       )}
-      {syncOpen && (
-        <div className="dialog-backdrop" onMouseDown={() => setSyncOpen(false)}>
-          <section
-            className="creation-dialog sync-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Device sync"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <h2>Device sync</h2>
-            <label>
-              Sync method
-              <select
-                value={syncTransport}
-                onChange={(event) => {
-                  const value = event.target.value as SyncTransport;
-                  setSyncTransport(value);
-                  localStorage.setItem("kanbonk-sync-transport", value);
-                }}
-              >
-                <option value="wifi">Wi-Fi / local network</option>
-                <option value="internet">Internet: direct P2P connection (WebRTC)</option>
-                <option value="file">File: Bluetooth / USB / messenger</option>
-              </select>
-            </label>
-            <p className="hint">
-              Tabs and windows in this browser sync automatically. For the desktop app and a browser on the same
-              computer, run <code>pnpm serve:lan</code> and connect to{" "}
-              <button className="link-button" onClick={() => setSyncServerUrl("http://127.0.0.1:4173")}>
-                http://127.0.0.1:4173
-              </button>
-              .
-            </p>
-            {trustedDevices.length > 0 && (
-              <section className="trusted-devices">
-                <h3>Trusted devices</h3>
-                {trustedDevices.map((device) => (
-                  <div className="panel-row" key={device.deviceId}>
-                    <span>
-                      <strong>{device.name}</strong>
-                      <small>
-                        {device.deviceId.slice(0, 8)} · added {new Date(device.pairedAt).toLocaleDateString("en-US")}
-                        {device.lastSyncAt ? ` · synced ${new Date(device.lastSyncAt).toLocaleString("en-US")}` : ""}
-                      </small>
-                    </span>
-                    <span className="row-actions">
-                      {syncTransport === "wifi" && (
-                        <button onClick={() => setSyncRoomCode(device.code)}>Pairing code</button>
-                      )}
-                      {syncTransport === "file" && (
-                        <button onClick={() => void shareSyncBundle(device.code)}>Send package</button>
-                      )}
-                      <button
-                        onClick={() => {
-                          if (confirm(`Remove “${device.name}” from trusted devices?`))
-                            setTrustedDevices((current) => {
-                              const next = current.filter((item) => item.deviceId !== device.deviceId);
-                              saveTrustedDevices(next);
-                              return next;
-                            });
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </span>
-                  </div>
-                ))}
-              </section>
-            )}
-            {syncTransport === "file" && (
-              <section className="local-sync">
-                <h3>Sync package</h3>
-                <p>
-                  An encrypted file with your data and attachments. Send it via Bluetooth (the Share menu on your
-                  phone), USB or a messenger; only a device that knows the pairing code can open it.
-                </p>
-                <label>
-                  Pairing code (for a new device)
-                  <input
-                    value={bundleCode}
-                    onChange={(event) => setBundleCode(event.target.value)}
-                    spellCheck={false}
-                    autoComplete="off"
-                  />
-                </label>
-                <div>
-                  <button onClick={() => setBundleCode(newRoomCode())}>Create code</button>
-                  <button
-                    className="primary-button"
-                    disabled={!/^[a-f0-9]{32}$/.test(bundleCode.trim().toLowerCase())}
-                    onClick={() => void shareSyncBundle(bundleCode.trim().toLowerCase())}
-                  >
-                    Send package with code
-                  </button>
-                </div>
-                <label>
-                  Open received package
-                  <input
-                    type="file"
-                    accept=".kanbonk-sync,application/octet-stream"
-                    onChange={(event) => {
-                      void openBundle(event.target.files?.[0] ?? null);
-                      event.target.value = "";
-                    }}
-                  />
-                </label>
-              </section>
-            )}
-            {syncTransport === "wifi" && (
-              <LocalRoomControls
-                serverUrl={syncServerUrl}
-                roomCode={syncRoomCode}
-                onServerChange={setSyncServerUrl}
-                onCodeChange={setSyncRoomCode}
-                onConnect={connectLocalRoom}
-              />
-            )}
-            {syncTransport !== "file" && (
-              <>
-                <p>
-                  {syncTransport === "internet"
-                    ? "Direct connection over the internet: devices exchange an invitation and a response through any channel (messenger, email). Data flows directly and is encrypted (DTLS); the public STUN server only sees network addresses, not data. Only someone you sent the invitation to can connect, and only after you confirm trust."
-                    : "If both browsers support WebRTC, you can connect directly over the local network. Exchange an invitation and a response."}
-                </p>
-                <button className="primary-button" onClick={createSyncOffer}>
-                  Create invitation
-                </button>
-                <label>
-                  Invitation: send it to the second device or paste the one you received
-                  <textarea value={syncSignal} onChange={(event) => setSyncSignal(event.target.value)} />
-                </label>
-                <button onClick={acceptSyncOffer} disabled={!syncSignal}>
-                  Accept invitation
-                </button>
-                <label>
-                  Response: send it to the first device or paste the one you received
-                  <textarea value={syncResponse} onChange={(event) => setSyncResponse(event.target.value)} />
-                </label>
-                <button onClick={acceptSyncAnswer} disabled={!syncResponse}>
-                  Connect with response
-                </button>
-              </>
-            )}
-            <button
-              onClick={() => {
-                try {
-                  syncRef.current?.syncNow();
-                } catch (cause) {
-                  setSyncStatus(String(cause));
-                }
-              }}
-            >
-              Sync now
-            </button>
-            {syncStatus && (
-              <p className="import-report" role="status">
-                {syncStatus}
-              </p>
-            )}
-            {syncConflicts.map((conflict) => (
-              <div className="sync-conflict" key={`${conflict.kind}-${conflict.id}`}>
-                <strong>Conflict: {conflict.local.name}</strong>
-                <small>Choose a version of this item.</small>
-                <div>
-                  <button
-                    onClick={() => {
-                      setState((current) => chooseConflict(current, conflict, "local", localDeviceId.current));
-                      setSyncConflicts((current) => current.filter((item) => item !== conflict));
-                      setSyncStatus("Version chosen. Syncing…");
-                    }}
-                  >
-                    My version
-                  </button>
-                  <button
-                    onClick={() => {
-                      setState((current) => chooseConflict(current, conflict, "remote", localDeviceId.current));
-                      setSyncConflicts((current) => current.filter((item) => item !== conflict));
-                      setSyncStatus("Version chosen. Syncing…");
-                    }}
-                  >
-                    Other device's version
-                  </button>
-                </div>
-              </div>
-            ))}
-            <div>
-              <button onClick={() => setSyncOpen(false)}>Close</button>
-            </div>
-          </section>
-        </div>
-      )}
+      {syncOpen && <SyncDialog sync={sync} onClose={() => setSyncOpen(false)} />}
       {backupOpen && (
         <BackupDialog
           getState={() => stateRef.current}
