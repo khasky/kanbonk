@@ -3,7 +3,6 @@ import {
   deviceId,
   listSnapshots,
   loadAttachment,
-  loadSnapshot,
   loadState,
   readLocalAuthor,
   saveAttachment,
@@ -54,6 +53,7 @@ import {
   writeAutoBackup,
 } from "./autoBackup";
 import { SettingsDialog } from "./SettingsDialog";
+import { BackupDialog } from "./dialogs/BackupDialog";
 import { ImportDialog } from "./dialogs/ImportDialog";
 import { ensurePersonalWorkspace, personalWorkspaceId } from "./workspaces";
 import {
@@ -103,7 +103,6 @@ import {
 import { LanSync, newRoomCode } from "./lanSync";
 import { chooseConflict, mergeStates, type SyncConflict } from "./sync";
 
-import { createBackupParts, restoreBackup } from "./backup";
 import { applyCardButton, applyDueRules, applyMoveRules } from "./automation";
 import { dueReminders, reminderSignature } from "./reminders";
 import { applyDueRecurrence } from "./repeatingDue";
@@ -180,9 +179,6 @@ function App() {
   const [authorDraft, setAuthorDraft] = useState("");
   const boardMenu = useRef<HTMLDetailsElement>(null);
   const [backupOpen, setBackupOpen] = useState(false);
-  const [backupFiles, setBackupFiles] = useState<File[]>([]);
-  const [backupBusy, setBackupBusy] = useState(false);
-  const [backupReport, setBackupReport] = useState("");
   const [backupConflicts, setBackupConflicts] = useState<SyncConflict[]>([]);
   const [syncOpen, setSyncOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
@@ -719,28 +715,6 @@ function App() {
 
   async function refreshBackupInfo() {
     setSnapshots((await listSnapshots()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
-  }
-
-  async function restoreSnapshot(meta: SnapshotMeta) {
-    if (
-      !confirm(
-        `Restore all data to the state from ${new Date(meta.createdAt).toLocaleString("en-US")}? The current state will be saved as a separate backup first.`,
-      )
-    )
-      return;
-    try {
-      await autoSnapshot(stateRef.current);
-      const snapshot = await loadSnapshot(meta.id);
-      if (!snapshot) throw new Error("Backup not found.");
-      rememberStateIds(snapshot);
-      stateRef.current = snapshot;
-      setState(snapshot);
-      setFileVersion((current) => current + 1);
-      setBackupReport("Data restored from the automatic backup.");
-      await refreshBackupInfo();
-    } catch (cause) {
-      setBackupReport(`Restore failed: ${String(cause)}`);
-    }
   }
 
   function createWorkspace(name: string) {
@@ -1469,51 +1443,6 @@ function App() {
       );
   }
 
-  async function exportBackup() {
-    setBackupBusy(true);
-    setBackupReport("");
-    try {
-      await queue.current;
-      let count = 0;
-      let unavailable = 0;
-      for await (const part of createBackupParts(stateRef.current)) {
-        if (!(await saveFile(part.blob, part.name))) {
-          setBackupReport(`Saving canceled after ${count} parts.`);
-          return;
-        }
-        count++;
-        unavailable = part.unavailable;
-        setBackupReport(`Downloaded ${count} of ${part.total} parts.`);
-      }
-      setBackupReport(
-        `Backup downloaded: ${count} ZIP files.${unavailable ? ` Missing attachments: ${unavailable}; fetch them from Trello first.` : ""}`,
-      );
-    } catch (cause) {
-      setBackupReport(`Backup failed: ${String(cause)}`);
-    } finally {
-      setBackupBusy(false);
-    }
-  }
-
-  async function importBackup() {
-    setBackupBusy(true);
-    setBackupReport("");
-    try {
-      const restored = await restoreBackup(backupFiles, stateRef.current);
-      stateRef.current = restored.state;
-      setState(restored.state);
-      setFileVersion((current) => current + 1);
-      setBackupConflicts(restored.conflicts);
-      setBackupReport(
-        `Files restored: ${restored.files}. Conflicts: ${restored.conflicts.length}.${restored.unavailable ? ` Attachments missing from the original backup: ${restored.unavailable}.` : ""}`,
-      );
-    } catch (cause) {
-      setBackupReport(`Restore failed: ${String(cause)}`);
-    } finally {
-      setBackupBusy(false);
-    }
-  }
-
   function restore(revision: Revision) {
     setState((current) => restoreRevision(current, revision, localDeviceId.current));
     setPanel(null);
@@ -1866,7 +1795,6 @@ function App() {
             <button onClick={openImport}>Import from Trello</button>
             <button
               onClick={() => {
-                setBackupReport("");
                 setBackupOpen(true);
                 void refreshBackupInfo();
               }}
@@ -2937,113 +2865,28 @@ function App() {
         </div>
       )}
       {backupOpen && (
-        <div
-          className="dialog-backdrop"
-          onMouseDown={() => {
-            if (!backupBusy) setBackupOpen(false);
+        <BackupDialog
+          getState={() => stateRef.current}
+          beforeExport={() => queue.current}
+          onRestored={(restored) => {
+            stateRef.current = restored;
+            setState(restored);
+            setFileVersion((current) => current + 1);
           }}
-        >
-          <section
-            className="creation-dialog import-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Backup"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <h2>Backup</h2>
-            <p>
-              Save all boards and available local files to ZIP. To restore, select all parts of one backup at once.
-              Existing data is kept; conflicting changes will ask you to choose a version.
-            </p>
-            <button className="primary-button" onClick={exportBackup} disabled={backupBusy}>
-              {backupBusy ? "Please wait…" : "Download backup"}
-            </button>
-            <label>
-              Backup ZIP parts
-              <input
-                type="file"
-                accept=".zip,application/zip"
-                multiple
-                onChange={(event) => setBackupFiles(Array.from(event.target.files ?? []))}
-              />
-            </label>
-            <button onClick={importBackup} disabled={backupBusy || !backupFiles.length}>
-              Restore from ZIP
-            </button>
-            <section className="auto-backups">
-              <h3>Snapshots</h3>
-              <p>
-                Every 10 minutes, if anything changed, a snapshot of all data is saved inside the app (the last 20, plus
-                one per day for 30 days). Full backups with files outside the app are set up in{" "}
-                <button
-                  type="button"
-                  className="link-button"
-                  onClick={() => {
-                    setBackupOpen(false);
-                    setSettingsOpen(true);
-                  }}
-                >
-                  Settings
-                </button>
-                .
-              </p>
-              <button onClick={() => void autoSnapshot(stateRef.current).then(refreshBackupInfo)}>
-                Create snapshot now
-              </button>
-              {snapshots.length ? (
-                <div className="snapshot-list">
-                  {snapshots.map((meta) => (
-                    <div className="panel-row" key={meta.id}>
-                      <span>
-                        <strong>{new Date(meta.createdAt).toLocaleString("en-US")}</strong>
-                        <small>
-                          boards: {meta.boards}, cards: {meta.cards}, {Math.round(meta.size / 1024)} KB
-                        </small>
-                      </span>
-                      <button onClick={() => void restoreSnapshot(meta)}>Restore</button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No snapshots yet.</p>
-              )}
-            </section>
-            {backupReport && (
-              <p className="import-report" role="status">
-                {backupReport}
-              </p>
-            )}
-            {backupConflicts.map((conflict) => (
-              <div className="sync-conflict" key={`${conflict.kind}-${conflict.id}`}>
-                <strong>Conflict: {conflict.local.name}</strong>
-                <small>Choose a version of this item.</small>
-                <div>
-                  <button
-                    onClick={() => {
-                      setState((current) => chooseConflict(current, conflict, "local", localDeviceId.current));
-                      setBackupConflicts((current) => current.filter((item) => item !== conflict));
-                    }}
-                  >
-                    Current version
-                  </button>
-                  <button
-                    onClick={() => {
-                      setState((current) => chooseConflict(current, conflict, "remote", localDeviceId.current));
-                      setBackupConflicts((current) => current.filter((item) => item !== conflict));
-                    }}
-                  >
-                    Backup version
-                  </button>
-                </div>
-              </div>
-            ))}
-            <div>
-              <button onClick={() => setBackupOpen(false)} disabled={backupBusy}>
-                Close
-              </button>
-            </div>
-          </section>
-        </div>
+          snapshots={snapshots}
+          onRefreshSnapshots={refreshBackupInfo}
+          conflicts={backupConflicts}
+          onConflictsFound={setBackupConflicts}
+          onChooseConflict={(conflict, version) => {
+            setState((current) => chooseConflict(current, conflict, version, localDeviceId.current));
+            setBackupConflicts((current) => current.filter((item) => item !== conflict));
+          }}
+          onOpenSettings={() => {
+            setBackupOpen(false);
+            setSettingsOpen(true);
+          }}
+          onClose={() => setBackupOpen(false)}
+        />
       )}
       {authorDialogOpen && (
         <div className="dialog-backdrop" onMouseDown={() => setAuthorDialogOpen(false)}>
