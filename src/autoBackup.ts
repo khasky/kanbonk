@@ -144,7 +144,7 @@ export async function writeAutoBackup(
   now = new Date(),
 ): Promise<string> {
   const target = await destination(settings, interactive);
-  const stamp = now.toISOString().slice(0, 19).replace(/:/g, "-") + "Z";
+  const stamp = `${now.toISOString().slice(0, 19).replace(/:/g, "-")}Z`;
   let written = 0;
   for await (const part of createBackupParts(state)) {
     await target.write(`kanbonk-auto-${stamp}-${part.index}of${part.total}.zip`, part.blob);

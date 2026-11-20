@@ -3888,7 +3888,7 @@ function AutomationPanel({
             <div className="panel-row" key={rule.id}>
               <span>
                 {rule.trigger === "button"
-                  ? "Button “" + rule.name + "”"
+                  ? `Button “${rule.name}”`
                   : rule.trigger === "due"
                     ? (
                         {
@@ -5756,7 +5756,7 @@ function CardStickers({ card }: { card: Card }) {
     });
     return () => {
       active = false;
-      urls.forEach((url) => URL.revokeObjectURL(url));
+      for (const url of urls) URL.revokeObjectURL(url);
     };
   }, [imageKey, card]);
   if (!card.stickers?.length) return null;

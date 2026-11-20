@@ -30,7 +30,7 @@ export function MarkdownText({
                 {children}
               </a>
             ) : (
-              <>{children}</>
+              children
             );
           },
           img: ({ alt, src }) => <span className="markdown-image">Image: {alt || src || "untitled"}</span>,
