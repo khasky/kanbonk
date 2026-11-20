@@ -30,7 +30,7 @@
         "noArrayIndexKey": "off"
       },
       "security": {
-        // The only use renders Markdown that is sanitized before insertion.
+        // The only use inserts the QR code SVG that share.ts generates from the card link.
         "noDangerouslySetInnerHtml": "off"
       },
       "correctness": {
