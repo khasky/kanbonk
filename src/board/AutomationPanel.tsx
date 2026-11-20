@@ -1,6 +1,6 @@
+import { SidePanel } from "../ui/Modal";
 import { useState } from "react";
 import type { AppState, AutomationRule, Board } from "../model";
-import { Icon } from "../ui/Icon";
 
 export function AutomationPanel({
   board,
@@ -37,139 +37,131 @@ export function AutomationPanel({
         ? "archive"
         : `add label “${labels.find((item) => item.id === rule.labelId)?.name ?? "unavailable"}”`;
   return (
-    <div className="dialog-backdrop" onMouseDown={onClose}>
-      <section
-        className="side-panel automation-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Board automation"
-        onMouseDown={(event) => event.stopPropagation()}
+    <SidePanel
+      title="Automation"
+      label="Board automation"
+      className="automation-panel"
+      closeLabel="Close automation"
+      onClose={onClose}
+    >
+      <p>
+        Rules run when a card is moved to a list, when a due date arrives, or when a card button is pressed. Due dates
+        are checked while the app is open and on the next launch.
+      </p>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          onAdd(listId, action, labelId, trigger, name, leadMinutes);
+          if (trigger === "button") setName("");
+        }}
       >
-        <header>
-          <h2>Automation</h2>
-          <button onClick={onClose} aria-label="Close automation">
-            <Icon name="close" />
-          </button>
-        </header>
-        <p>
-          Rules run when a card is moved to a list, when a due date arrives, or when a card button is pressed. Due dates
-          are checked while the app is open and on the next launch.
-        </p>
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            onAdd(listId, action, labelId, trigger, name, leadMinutes);
-            if (trigger === "button") setName("");
-          }}
-        >
+        <label>
+          Type
+          <select value={trigger} onChange={(event) => setTrigger(event.target.value as "move" | "button" | "due")}>
+            <option value="move">Moved to list</option>
+            <option value="due">Due date arrives</option>
+            <option value="button">Card button</option>
+          </select>
+        </label>
+        {trigger === "move" ? (
           <label>
-            Type
-            <select value={trigger} onChange={(event) => setTrigger(event.target.value as "move" | "button" | "due")}>
-              <option value="move">Moved to list</option>
-              <option value="due">Due date arrives</option>
-              <option value="button">Card button</option>
+            List
+            <select value={listId} onChange={(event) => setListId(event.target.value)}>
+              {lists.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
             </select>
           </label>
-          {trigger === "move" ? (
-            <label>
-              List
-              <select value={listId} onChange={(event) => setListId(event.target.value)}>
-                {lists.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : trigger === "button" ? (
-            <label>
-              Button name
-              <input
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                maxLength={60}
-                placeholder="For example, Finish"
-              />
-            </label>
-          ) : null}
-          {trigger === "due" && (
-            <label>
-              When
-              <select value={leadMinutes} onChange={(event) => setLeadMinutes(Number(event.target.value))}>
-                <option value={0}>At due time</option>
-                <option value={60}>1 hour before</option>
-                <option value={1440}>1 day before</option>
-                <option value={10080}>1 week before</option>
-              </select>
-            </label>
-          )}
+        ) : trigger === "button" ? (
           <label>
-            Action
-            <select value={action} onChange={(event) => setAction(event.target.value as AutomationRule["action"])}>
-              <option value="complete">Mark complete</option>
-              <option value="archive">Archive</option>
-              <option value="add-label">Add label</option>
+            Button name
+            <input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              maxLength={60}
+              placeholder="For example, Finish"
+            />
+          </label>
+        ) : null}
+        {trigger === "due" && (
+          <label>
+            When
+            <select value={leadMinutes} onChange={(event) => setLeadMinutes(Number(event.target.value))}>
+              <option value={0}>At due time</option>
+              <option value={60}>1 hour before</option>
+              <option value={1440}>1 day before</option>
+              <option value={10080}>1 week before</option>
             </select>
           </label>
-          {action === "add-label" && (
-            <label>
-              Label
-              <select value={labelId} onChange={(event) => setLabelId(event.target.value)}>
-                {labels.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          <button
-            className="primary-button"
-            type="submit"
-            disabled={
-              (trigger === "move" && !listId) ||
-              (trigger === "button" && !name.trim()) ||
-              (action === "add-label" && !labelId)
-            }
-          >
-            Add rule
-          </button>
-          {action === "add-label" && !labels.length && <small>Create a label on the board first.</small>}
-        </form>
-        <h3>Board rules</h3>
-        {(board.automationRules ?? []).length ? (
-          board.automationRules!.map((rule) => (
-            <div className="panel-row" key={rule.id}>
-              <span>
-                {rule.trigger === "button"
-                  ? `Button “${rule.name}”`
-                  : rule.trigger === "due"
-                    ? (
-                        {
-                          0: "At due time",
-                          60: "1 hour before due",
-                          1440: "1 day before due",
-                          10080: "1 week before due",
-                        } as Record<number, string>
-                      )[rule.leadMinutes ?? 0]
-                    : "When moved to “" +
-                      (state.lists.find((item) => item.id === rule.listId)?.name ?? "list unavailable") +
-                      "”"}{" "}
-                — {actionText(rule)}
-              </span>
-              <button
-                onClick={() => {
-                  if (confirm("Delete rule?")) onRemove(rule.id);
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          ))
-        ) : (
-          <p>No rules yet.</p>
         )}
-      </section>
-    </div>
+        <label>
+          Action
+          <select value={action} onChange={(event) => setAction(event.target.value as AutomationRule["action"])}>
+            <option value="complete">Mark complete</option>
+            <option value="archive">Archive</option>
+            <option value="add-label">Add label</option>
+          </select>
+        </label>
+        {action === "add-label" && (
+          <label>
+            Label
+            <select value={labelId} onChange={(event) => setLabelId(event.target.value)}>
+              {labels.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        <button
+          className="primary-button"
+          type="submit"
+          disabled={
+            (trigger === "move" && !listId) ||
+            (trigger === "button" && !name.trim()) ||
+            (action === "add-label" && !labelId)
+          }
+        >
+          Add rule
+        </button>
+        {action === "add-label" && !labels.length && <small>Create a label on the board first.</small>}
+      </form>
+      <h3>Board rules</h3>
+      {(board.automationRules ?? []).length ? (
+        board.automationRules!.map((rule) => (
+          <div className="panel-row" key={rule.id}>
+            <span>
+              {rule.trigger === "button"
+                ? `Button “${rule.name}”`
+                : rule.trigger === "due"
+                  ? (
+                      {
+                        0: "At due time",
+                        60: "1 hour before due",
+                        1440: "1 day before due",
+                        10080: "1 week before due",
+                      } as Record<number, string>
+                    )[rule.leadMinutes ?? 0]
+                  : "When moved to “" +
+                    (state.lists.find((item) => item.id === rule.listId)?.name ?? "list unavailable") +
+                    "”"}{" "}
+              — {actionText(rule)}
+            </span>
+            <button
+              onClick={() => {
+                if (confirm("Delete rule?")) onRemove(rule.id);
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        ))
+      ) : (
+        <p>No rules yet.</p>
+      )}
+    </SidePanel>
   );
 }

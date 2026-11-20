@@ -1,3 +1,4 @@
+import { Modal } from "./ui/Modal";
 import { ColorInput } from "./ColorInput";
 import { useMemo, useState } from "react";
 import type { AppState, Card, Zone } from "./model";
@@ -244,49 +245,41 @@ export function DeleteDialog({
 }) {
   const cards = impact.cardIds.length - (kind === "card" ? 1 : 0);
   return (
-    <div className="dialog-backdrop" onMouseDown={onCancel}>
-      <section
-        className="creation-dialog delete-dialog"
-        role="alertdialog"
-        aria-modal="true"
-        aria-label="Move to trash"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <h2>
-          Delete {kindOne[kind]} “{name}”?
-        </h2>
-        <p>
-          It will be moved to the trash{cards > 0 ? ` along with ${cards} ${cards === 1 ? "card" : "cards"}` : ""}. You
-          can restore it from the Trash page for {trashRetentionDays} days.
-        </p>
-        {impact.dependents.length > 0 && (
-          <div className="dependency-warning" role="alert">
-            <strong>Dependent cards ({impact.dependents.length}):</strong>
-            <ul>
-              {impact.dependents.slice(0, 8).map(({ dependent, prerequisite }) => (
-                <li key={`${dependent.id}-${prerequisite.id}`}>
-                  “{dependent.name}” depends on “{prerequisite.name}”
-                </li>
-              ))}
-            </ul>
-            {impact.dependents.length > 8 && <small>and {impact.dependents.length - 8} more</small>}
-          </div>
-        )}
-        <div>
-          <button type="button" onClick={onCancel}>
-            Cancel
-          </button>
-          {impact.dependents.length > 0 && (
-            <button type="button" onClick={() => onConfirm(true)}>
-              Delete with dependents
-            </button>
-          )}
-          <button type="button" className="primary-button danger" autoFocus onClick={() => onConfirm(false)}>
-            {impact.dependents.length ? "Delete, keep dependents" : "Delete"}
-          </button>
+    <Modal label="Move to trash" className="creation-dialog delete-dialog" role="alertdialog" onDismiss={onCancel}>
+      <h2>
+        Delete {kindOne[kind]} “{name}”?
+      </h2>
+      <p>
+        It will be moved to the trash{cards > 0 ? ` along with ${cards} ${cards === 1 ? "card" : "cards"}` : ""}. You
+        can restore it from the Trash page for {trashRetentionDays} days.
+      </p>
+      {impact.dependents.length > 0 && (
+        <div className="dependency-warning" role="alert">
+          <strong>Dependent cards ({impact.dependents.length}):</strong>
+          <ul>
+            {impact.dependents.slice(0, 8).map(({ dependent, prerequisite }) => (
+              <li key={`${dependent.id}-${prerequisite.id}`}>
+                “{dependent.name}” depends on “{prerequisite.name}”
+              </li>
+            ))}
+          </ul>
+          {impact.dependents.length > 8 && <small>and {impact.dependents.length - 8} more</small>}
         </div>
-      </section>
-    </div>
+      )}
+      <div>
+        <button type="button" onClick={onCancel}>
+          Cancel
+        </button>
+        {impact.dependents.length > 0 && (
+          <button type="button" onClick={() => onConfirm(true)}>
+            Delete with dependents
+          </button>
+        )}
+        <button type="button" className="primary-button danger" autoFocus onClick={() => onConfirm(false)}>
+          {impact.dependents.length ? "Delete, keep dependents" : "Delete"}
+        </button>
+      </div>
+    </Modal>
   );
 }
 
@@ -608,62 +601,54 @@ export function DedupeDialog({
   const where = (card: Card) =>
     `${state.boards.find((board) => board.id === card.boardId)?.name ?? ""} / ${state.lists.find((list) => list.id === card.listId)?.name ?? ""}`;
   return (
-    <div className="dialog-backdrop" onMouseDown={onClose}>
-      <section
-        className="side-panel dedupe-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Find duplicates"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <header>
-          <h2>Duplicates across boards</h2>
-          <button onClick={onClose} aria-label="Close">
-            ×
-          </button>
-        </header>
-        <p className="hint">
-          Text similarity (word stems, n-grams, TF-IDF) is computed locally; no data leaves this device.
-        </p>
-        <label>
-          Similarity threshold: {Math.round(threshold * 100)}%
-          <input
-            type="range"
-            min={0.3}
-            max={0.95}
-            step={0.05}
-            value={threshold}
-            onChange={(event) => setThreshold(Number(event.target.value))}
-          />
-        </label>
-        <label className="copy-option">
-          <input type="checkbox" checked={sameBoard} onChange={(event) => setSameBoard(event.target.checked)} />
-          Also search within the same board
-        </label>
-        <p>Pairs found: {pairs.length}</p>
-        {pairs.slice(0, 100).map((pair) => (
-          <div className="dedupe-pair" key={pairKey(pair.a.id, pair.b.id)}>
-            <strong>{Math.round(pair.score * 100)}%</strong>
-            {[pair.a, pair.b].map((card) => (
-              <button key={card.id} className="dedupe-card" onClick={() => onOpen(card)}>
-                <span>{card.name}</span>
-                <small>{where(card)}</small>
-              </button>
-            ))}
-            <div className="row-actions">
-              <button
-                onClick={() => onMerge(pair.a.id, pair.b.id)}
-                title="Move the second card’s comments, checklists and attachments into the first, and the second card to the trash"
-              >
-                Merge into first
-              </button>
-              <button onClick={() => onMerge(pair.b.id, pair.a.id)}>Merge into second</button>
-              <button onClick={() => onIgnore(pair)}>Not a duplicate</button>
-            </div>
+    <Modal label="Find duplicates" className="side-panel dedupe-panel" onDismiss={onClose}>
+      <header>
+        <h2>Duplicates across boards</h2>
+        <button onClick={onClose} aria-label="Close">
+          ×
+        </button>
+      </header>
+      <p className="hint">
+        Text similarity (word stems, n-grams, TF-IDF) is computed locally; no data leaves this device.
+      </p>
+      <label>
+        Similarity threshold: {Math.round(threshold * 100)}%
+        <input
+          type="range"
+          min={0.3}
+          max={0.95}
+          step={0.05}
+          value={threshold}
+          onChange={(event) => setThreshold(Number(event.target.value))}
+        />
+      </label>
+      <label className="copy-option">
+        <input type="checkbox" checked={sameBoard} onChange={(event) => setSameBoard(event.target.checked)} />
+        Also search within the same board
+      </label>
+      <p>Pairs found: {pairs.length}</p>
+      {pairs.slice(0, 100).map((pair) => (
+        <div className="dedupe-pair" key={pairKey(pair.a.id, pair.b.id)}>
+          <strong>{Math.round(pair.score * 100)}%</strong>
+          {[pair.a, pair.b].map((card) => (
+            <button key={card.id} className="dedupe-card" onClick={() => onOpen(card)}>
+              <span>{card.name}</span>
+              <small>{where(card)}</small>
+            </button>
+          ))}
+          <div className="row-actions">
+            <button
+              onClick={() => onMerge(pair.a.id, pair.b.id)}
+              title="Move the second card’s comments, checklists and attachments into the first, and the second card to the trash"
+            >
+              Merge into first
+            </button>
+            <button onClick={() => onMerge(pair.b.id, pair.a.id)}>Merge into second</button>
+            <button onClick={() => onIgnore(pair)}>Not a duplicate</button>
           </div>
-        ))}
-      </section>
-    </div>
+        </div>
+      ))}
+    </Modal>
   );
 }
 
