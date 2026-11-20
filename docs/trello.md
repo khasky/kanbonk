@@ -2,7 +2,7 @@
 
 Kanbonk reads Trello's JSON export, ZIP archives with attachments and Trello's CSV, and writes boards back as Trello-shaped JSON or CSV.
 
-Code: [`src/importTrello.ts`](../src/importTrello.ts) (JSON and ZIP import), [`src/trelloFormats.ts`](../src/trelloFormats.ts) (JSON/CSV export, CSV import), [`src/trelloBridge.ts`](../src/trelloBridge.ts) and [`trello-import-extension/`](../trello-import-extension) (board export and attachment download).
+Code: [`src/trello/import/`](../src/trello/import/) (JSON and ZIP import), [`src/trello/formats.ts`](../src/trello/formats.ts) (JSON/CSV export, CSV import), [`src/trello/bridge.ts`](../src/trello/bridge.ts) and [`trello-import-extension/`](../trello-import-extension) (board export and attachment download).
 
 ## Import
 

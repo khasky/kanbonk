@@ -14,6 +14,8 @@
     "formatter": { "quoteStyle": "double", "semicolons": "always", "trailingCommas": "all" }
   },
   "linter": {
+    // Playwright rules apply to the e2e tests only (see overrides); in src they misread a describe() helper.
+    "domains": { "playwright": "none" },
     "rules": {
       "preset": "recommended",
       // Rules below are off because satisfying them changes behavior or markup, not just style.
@@ -34,8 +36,8 @@
         "noDangerouslySetInnerHtml": "off"
       },
       "correctness": {
-        // Reported, not enforced: adding a dependency can change when an effect runs.
-        "useExhaustiveDependencies": "warn"
+        // Effects that re-run on a trigger they don't read say so with a biome-ignore comment.
+        "useExhaustiveDependencies": "error"
       }
     }
   },
@@ -50,6 +52,15 @@
       "linter": {
         "rules": { "style": { "noDescendingSpecificity": "off" }, "complexity": { "noImportantStyles": "off" } }
       }
+    },
+    {
+      "includes": ["e2e/**"],
+      "linter": { "domains": { "playwright": "recommended" } }
+    },
+    {
+      // Compares ISO date strings; Math.max would turn them into NaN.
+      "includes": ["src/sync.ts"],
+      "linter": { "rules": { "complexity": { "useMathMinMax": "off" } } }
     }
   ],
   "assist": { "actions": { "source": { "organizeImports": "off" } } }

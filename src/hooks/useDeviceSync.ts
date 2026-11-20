@@ -1,4 +1,13 @@
-import { type Dispatch, type RefObject, type SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type Dispatch,
+  type RefObject,
+  type SetStateAction,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   createSyncBundle,
   openSyncBundle,
@@ -295,25 +304,26 @@ export function useDeviceSync({
   });
 
   // Same-device sync: other tabs/windows of this browser profile announce saves; merge what they stored.
+  const mergeFromOtherTab = useEffectEvent(() => {
+    void loadState()
+      .then((stored) => {
+        const current = stateRef.current;
+        const merged = mergeStates(current, stored);
+        if (
+          JSON.stringify(merged.state.heads) === JSON.stringify(current.heads) &&
+          JSON.stringify(merged.state.tombstones ?? {}) === JSON.stringify(current.tombstones ?? {})
+        )
+          return;
+        rememberStateIds(merged.state);
+        stateRef.current = merged.state;
+        setState(merged.state);
+        if (merged.conflicts.length) setConflicts(merged.conflicts);
+      })
+      .catch((cause) => onError(`Could not get changes from another tab: ${String(cause)}`));
+  });
   useEffect(() => {
     if (!ready) return;
-    const channel = tabChannel(() => {
-      void loadState()
-        .then((stored) => {
-          const current = stateRef.current;
-          const merged = mergeStates(current, stored);
-          if (
-            JSON.stringify(merged.state.heads) === JSON.stringify(current.heads) &&
-            JSON.stringify(merged.state.tombstones ?? {}) === JSON.stringify(current.tombstones ?? {})
-          )
-            return;
-          rememberStateIds(merged.state);
-          stateRef.current = merged.state;
-          setState(merged.state);
-          if (merged.conflicts.length) setConflicts(merged.conflicts);
-        })
-        .catch((cause) => onError(`Could not get changes from another tab: ${String(cause)}`));
-    });
+    const channel = tabChannel(() => mergeFromOtherTab());
     tabs.current = channel;
     return () => {
       channel.close();

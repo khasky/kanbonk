@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Card } from "./model";
+import type { Card } from "../model";
 /** Search box over many cards; shows only the best few matches so huge boards stay fast. */
 export function CardPicker({
   candidates,

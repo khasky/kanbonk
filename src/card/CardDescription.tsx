@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { MarkdownEditor } from "../MarkdownEditor";
-import { MarkdownText } from "../MarkdownText";
+import { MarkdownEditor } from "../ui/MarkdownEditor";
+import { MarkdownText } from "../ui/MarkdownText";
 import type { Card } from "../model";
 
 /** The card description as Markdown; a double click or the Edit button opens the editor. */

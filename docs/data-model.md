@@ -1,6 +1,6 @@
 # Data model
 
-All types live in [`src/model.ts`](../src/model.ts). The whole database of a device is one `AppState` object.
+All types live in [`src/model/types.ts`](../src/model/types.ts). The whole database of a device is one `AppState` object.
 
 ```ts
 interface AppState {

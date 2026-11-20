@@ -1,7 +1,7 @@
-import { newId, type AppState, type Board, type BoardList, type Card, type Label } from "./model";
-import { trelloLabelColors } from "./labels";
-import { cardCreatedAt } from "./calendar";
-import type { ImportResult } from "./importTrello";
+import { newId, type AppState, type Board, type BoardList, type Card, type Label } from "../model/index";
+import { trelloLabelColors } from "../labels";
+import { cardCreatedAt } from "../calendar";
+import type { ImportResult } from "./import";
 
 const colorNames = new Map(Object.entries(trelloLabelColors).map(([name, color]) => [color.toLowerCase(), name]));
 

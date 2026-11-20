@@ -1,6 +1,6 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { Card } from "./model";
+import type { Card } from "../model";
 
 export function MarkdownText({
   text,

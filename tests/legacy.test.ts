@@ -8,7 +8,7 @@ import { emptyState, recordRevision, type AppState } from "../src/model";
 import { mergeStates } from "../src/sync";
 import { openSyncBundle } from "../src/devices";
 import { createBackupParts, restoreBackup } from "../src/backup";
-import { parseTrelloBoard } from "../src/importTrello";
+import { parseTrelloBoard } from "../src/trello/import";
 
 /** A state with an inbox card, as written by the app before the rename. */
 function legacyState(): AppState {

@@ -28,19 +28,20 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 
 | Module | Responsibility |
 |---|---|
-| `main.tsx`, `App.tsx` | Bootstrapping; `App` holds the state, applies changes and decides which page, panel and dialog is shown |
+| `main.tsx`, `App.tsx` | Bootstrapping; `App` holds the state and decides which page, panel and dialog is shown; the changes themselves live in hooks |
 | `layout/` | The app frame: top bar with the app menu, global search results, sidebar, resizable side panel slot |
 | `board/` | The board view: toolbar and menu, filter, list column, card tile, calendar, zone frame, automation and activity panels |
 | `card/` | The card dialog and its sections: dates, description, checklists, labels, members, links, sharing, comments |
 | `dialogs/` | Modal dialogs: Trello import, backup, sync, create, copy board, clone card, delete, duplicates, author name |
 | `panels/` | Side panels: Inbox, Planner, reminders, archive, history, board description, closed boards |
 | `pages/` | Pages in the main area: home, workspace, trash, not-found |
-| `hooks/` | State that lives beside `App`: device sync, panel layout, automatic backups |
+| `hooks/` | Logic that lives beside `App`: changes to cards (`useCardActions`), boards and lists (`useBoardActions`), the trash, device sync, panel layout, automatic backups |
+| `card/CardActionsContext.ts` | Gives the card dialog and its sections the card actions without passing them through props |
 | `ui/` | Shared building blocks: `Modal`, `SidePanel`, icons, inline name editor, elapsed time |
 | `format.ts`, `uiPreferences.ts`, `workspaces.ts` | Date and count formatting, UI preferences in localStorage, the personal workspace |
 | `router.ts` | History API router: routes, links, modal-over-page cards |
 | `platform.ts` | Platform detection, saving and sharing files, hash routing in the extension |
-| `model.ts` | Types, short IDs, revisions, search, list and card operations, dependencies, copying |
+| `model/` | Types (`types.ts`), short IDs, revisions, search and filters, card and list operations, dependencies, copying, media references; `model/index.ts` re-exports all of it |
 | `trash.ts` | Soft delete, restore chains, purge, tombstones, the visible state |
 | `zones.ts` | Grouping lists into zones, zone drag and drop |
 | `calendar.ts` | Calendar ranges, card placement, lane layout for multi-day cards |
@@ -50,14 +51,14 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 | `devices.ts` | Trusted devices, encrypted file bundles, the tab channel |
 | `storage.ts` | IndexedDB access: state, attachments, snapshots, settings; device ID |
 | `backup.ts`, `autoBackup.ts`, `SettingsDialog.tsx` | ZIP backups, state validation, automatic snapshots and scheduled full backups with their settings |
-| `importTrello.ts`, `trelloFormats.ts`, `trelloBridge.ts` | Trello JSON/ZIP/CSV import, Trello JSON/CSV export, the Trello import extension client |
+| `trello/import/`, `trello/formats.ts`, `trello/bridge.ts` | Trello JSON/ZIP import (parsing, ZIP reading, attachments), JSON/CSV export and CSV import, the Trello import extension client |
 | `automation.ts`, `reminders.ts`, `repeatingDue.ts` | Board rules, due reminders, repeating due dates |
 | `inbox.ts`, `links.ts`, `activity.ts`, `labels.ts` | Personal inbox, links between cards, activity feed, label colors |
 | `MarkdownEditor.tsx`, `htmlToMarkdown.ts`, `MarkdownText.tsx` | Visual Markdown editing and rendering |
 | `ColorInput.tsx`, `CardPicker.tsx`, `share.ts` | Color picker with presets, searchable card chooser, card print/PNG/JSON/link/QR |
 | `boardDoc.ts`, `DocView.tsx` | The board document: card links, backlinks, live project summary |
 | `ai.ts`, `AiPanel.tsx` | AI providers (bring your own key), inbox triage and documents with citations |
-| `mcp/tools.ts`, `mcp/agent.ts` | MCP tools and the headless agent device; the Node entry is `mcp/kanbonk-mcp.mjs` |
+| `mcp/tools/`, `mcp/agent.ts` | MCP tool schemas (`definitions.ts`) and their implementation (`run.ts`), the headless agent device; the Node entry is `mcp/kanbonk-mcp.mjs` |
 
 ## State flow
 

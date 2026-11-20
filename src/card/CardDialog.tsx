@@ -9,6 +9,7 @@ import { Icon } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
 import { AttachmentRow } from "./AttachmentRow";
 import { ChecklistSection } from "./ChecklistSection";
+import { useCardActionsContext } from "./CardActionsContext";
 import { CardActivity } from "./CardActivity";
 import { CardDates } from "./CardDates";
 import { CardDescription } from "./CardDescription";
@@ -32,25 +33,12 @@ export function CardDialog({
   asPage,
   onDelete,
   onClose,
-  onChange,
-  onAttach,
-  onAddStickerImage,
-  onDownload,
   onNavigateCard,
   onTransfer,
   onArchive,
   onHistory,
-  onRunAutomation,
-  onAddMember,
-  onAddLabel,
-  onEditLabel,
-  onDeleteLabel,
-  onAddDependency,
-  onRemoveDependency,
-  onConvertChecklistItem,
   team,
   onClone,
-  onCreateSubCard,
   onOpenDoc,
 }: {
   card: Card;
@@ -61,27 +49,31 @@ export function CardDialog({
   asPage?: boolean;
   onDelete: () => void;
   onClose: () => void;
-  onChange: (change: (card: Card) => Card) => void;
-  onAttach: (files: FileList | null) => void;
-  onAddStickerImage: (file: File | null) => void;
-  onDownload: (id: string, name: string) => void;
   onNavigateCard: (target: Card) => void;
   onTransfer: (targetListId: string, copy: boolean) => void;
   onArchive: () => void;
   onHistory: () => void;
-  onRunAutomation: (ruleId: string) => void;
-  onAddMember: (member: Member) => void;
-  onAddLabel: (name: string, color: string) => void;
-  onEditLabel: (id: string, name: string, color: string) => void;
-  onDeleteLabel: (id: string) => void;
-  onAddDependency: (targetId: string) => void;
-  onRemoveDependency: (dependentId: string, prerequisiteId: string) => void;
-  onConvertChecklistItem: (checklistId: string, itemId: string) => void;
   team: Member[];
   onClone: () => void;
-  onCreateSubCard: (name: string) => void;
   onOpenDoc: () => void;
 }) {
+  const actions = useCardActionsContext();
+  const onChange = (change: (card: Card) => Card) => actions.updateCard(card.id, change);
+  const onAttach = (files: FileList | null) => actions.attachFiles(card, files);
+  const onAddStickerImage = (file: File | null) => {
+    void actions.addStickerImage(card, file);
+  };
+  const onDownload = actions.downloadAttachment;
+  const onRunAutomation = (ruleId: string) => actions.runCardButton(card.id, ruleId);
+  const onAddMember = (member: Member) => actions.addMember(card, member);
+  const onAddLabel = (name: string, color: string) => actions.addLabel(card, name, color);
+  const onEditLabel = (id: string, name: string, color: string) => actions.editLabel(card.boardId, id, name, color);
+  const onDeleteLabel = actions.removeLabel;
+  const onAddDependency = (targetId: string) => actions.addDependency(card.id, targetId);
+  const onRemoveDependency = actions.removeDependency;
+  const onConvertChecklistItem = (checklistId: string, itemId: string) =>
+    actions.convertItem(card.id, checklistId, itemId);
+  const onCreateSubCard = (name: string) => actions.addSubCard(card.id, name);
   const [showShare, setShowShare] = useState(false);
   const [showLabels, setShowLabels] = useState(false);
   const [showMembers, setShowMembers] = useState(false);

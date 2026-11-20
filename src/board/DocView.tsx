@@ -1,10 +1,10 @@
 import { useMemo, useState, type ReactNode } from "react";
-import type { AppState, Board, Card } from "./model";
-import { MarkdownEditor } from "./MarkdownEditor";
-import { MarkdownText } from "./MarkdownText";
-import { CardPicker } from "./CardPicker";
-import { cardRef, projectSummary, withSummarySnapshot } from "./boardDoc";
-import { kanbonkCardForUrl } from "./links";
+import type { AppState, Board, Card } from "../model";
+import { MarkdownEditor } from "../ui/MarkdownEditor";
+import { MarkdownText } from "../ui/MarkdownText";
+import { CardPicker } from "../ui/CardPicker";
+import { cardRef, projectSummary, withSummarySnapshot } from "../boardDoc";
+import { kanbonkCardForUrl } from "../links";
 
 /**
  * Board + document twin: the project document next to a live, linked summary of the board, so the "why" and the

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { CardPicker } from "../CardPicker";
+import { CardPicker } from "../ui/CardPicker";
 import { type AppState, type Card, isCardAvailable } from "../model";
 
 /** Picks a card that this card depends on. */

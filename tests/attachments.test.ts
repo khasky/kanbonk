@@ -4,7 +4,7 @@ import { emptyState, type Card } from "../src/model";
 
 vi.mock("../src/storage", () => ({ saveAttachment: vi.fn() }));
 
-import { restoreExistingAttachments } from "../src/importTrello";
+import { restoreExistingAttachments } from "../src/trello/import";
 
 it("matches attachments by Trello ID when filenames repeat", async () => {
   const card: Card = {

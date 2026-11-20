@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { htmlToMarkdown, type MdNode } from "./htmlToMarkdown";
+import { htmlToMarkdown, type MdNode } from "../htmlToMarkdown";
 
 function markdownToHtml(text: string): string {
   return renderToStaticMarkup(
@@ -64,12 +64,15 @@ export function MarkdownEditor({
   const [source, setSource] = useState(false);
   const [markdown, setMarkdown] = useState(value);
 
-  useEffect(() => {
-    if (!source && editor.current) {
+  // Re-render the visual editor only when switching modes; typing must not reset the caret.
+  const showVisual = useEffectEvent(() => {
+    if (editor.current) {
       editor.current.innerHTML = markdownToHtml(markdown);
       editor.current.focus();
     }
-    // Re-render only when switching modes; typing must not reset the caret.
+  });
+  useEffect(() => {
+    if (!source) showVisual();
   }, [source]);
 
   const current = () => (source || !editor.current ? markdown : htmlToMarkdown(editor.current as unknown as MdNode));

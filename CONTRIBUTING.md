@@ -14,7 +14,8 @@ Thanks for helping. This guide covers how to set up the project, what a good cha
 ```sh
 pnpm install
 pnpm dev          # web app at http://localhost:1420
-pnpm test             # unit tests (Vitest)
+pnpm test         # unit tests (Vitest)
+pnpm test:e2e     # browser tests (Playwright), see docs/testing.md
 pnpm build        # type check (tsc) and production build
 ```
 
@@ -26,6 +27,7 @@ Native builds (Windows, Android) and the browser extension are described in [doc
 |---|---|
 | `src/` | The shared React app and all domain logic |
 | `tests/` | Vitest unit tests, one file per module or feature |
+| `e2e/` | Playwright tests that drive the web app in a browser |
 | `extension/` | Manifest and service worker of the Kanbonk browser extension |
 | `trello-import-extension/` | Browser extension that exports a Trello board with its files for import |
 | `src-tauri/` | Tauri shell for desktop and mobile |
@@ -39,7 +41,7 @@ Native builds (Windows, Android) and the browser extension are described in [doc
 
 1. Fork the repository and create a branch from `main`, named after the commit type it carries: `feat/…`, `fix/…`, `docs/…`, `refactor/…`, `perf/…`, `ci/…`, `chore/…`. One branch, one change.
 2. Keep domain logic in pure functions in its own module (`src/zones.ts` and `src/trash.ts` are good examples) and cover it with a test in `tests/`.
-3. Run `pnpm lint`, `pnpm test` and `pnpm build`. All must pass.
+3. Run `pnpm lint`, `pnpm test`, `pnpm test:e2e` and `pnpm build`. All must pass; CI runs the same checks on every pull request.
 4. If your change affects behavior across devices, check it with two browser profiles syncing over `pnpm serve:lan` (see [docs/testing.md](docs/testing.md)).
 5. Update the documentation in `docs/` when behavior or formats change.
 

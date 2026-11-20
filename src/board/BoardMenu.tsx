@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { ColorInput } from "../ColorInput";
+import { ColorInput } from "../ui/ColorInput";
 
 /** Background presets offered in the board menu; the first one is the default for new boards. */
 export const boardColors = ["#147d86", "#0c66e4", "#5e4db2", "#a54800", "#216e4e"];

@@ -8,8 +8,8 @@ import {
   searchCards,
   type AppState,
 } from "../src/model";
-import { addImportedBoardWithRevisions, parseTrelloBoard } from "../src/importTrello";
-import { exportTrelloCsv, exportTrelloJson, parseTrelloCsv } from "../src/trelloFormats";
+import { addImportedBoardWithRevisions, parseTrelloBoard } from "../src/trello/import";
+import { exportTrelloCsv, exportTrelloJson, parseTrelloCsv } from "../src/trello/formats";
 import { mergeStates } from "../src/sync";
 import { validState } from "../src/backup";
 import { findDuplicates } from "../src/dedupe";

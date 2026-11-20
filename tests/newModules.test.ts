@@ -11,8 +11,8 @@ import {
   startOfWeek,
 } from "../src/calendar";
 import { boardHref, parseRoute, trashHref } from "../src/router";
-import { exportTrelloCsv, exportTrelloJson, parseCsv, parseTrelloCsv } from "../src/trelloFormats";
-import { parseTrelloBoard } from "../src/importTrello";
+import { exportTrelloCsv, exportTrelloJson, parseCsv, parseTrelloCsv } from "../src/trello/formats";
+import { parseTrelloBoard } from "../src/trello/import";
 import { findDuplicates, mergeDuplicate, stems } from "../src/dedupe";
 import { htmlToMarkdown, type MdNode } from "../src/htmlToMarkdown";
 import { createSyncBundle, openSyncBundle, trustDevice } from "../src/devices";
