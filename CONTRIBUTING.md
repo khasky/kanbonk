@@ -39,13 +39,15 @@ Native builds (Windows, Android) and the browser extension are described in [doc
 
 1. Fork the repository and create a branch from `main`, named after the commit type it carries: `feat/…`, `fix/…`, `docs/…`, `refactor/…`, `perf/…`, `ci/…`, `chore/…`. One branch, one change.
 2. Keep domain logic in pure functions in its own module (`src/zones.ts` and `src/trash.ts` are good examples) and cover it with a test in `tests/`.
-3. Run `pnpm test` and `pnpm build`. Both must pass.
+3. Run `pnpm lint`, `pnpm test` and `pnpm build`. All must pass.
 4. If your change affects behavior across devices, check it with two browser profiles syncing over `pnpm serve:lan` (see [docs/testing.md](docs/testing.md)).
 5. Update the documentation in `docs/` when behavior or formats change.
 
 ## Code style
 
 - TypeScript in strict mode; `tsc` must report no errors, including unused locals.
+- [Biome](https://biomejs.dev/) formats and lints the code: `pnpm format` rewrites files, `pnpm lint` checks them. Rules that are off in `biome.jsonc` carry a comment explaining why.
+- One component per file, grouped by area (`src/board/`, `src/card/`, `src/dialogs/` …); state that is not about rendering goes into a hook in `src/hooks/`. Build dialogs on `Modal` and `SidePanel` from `src/ui/Modal.tsx`.
 - Prefer native platform features (`<input type="date">`, CSS) over new code or dependencies.
 - Comments explain *why*, not *what*.
 - The UI text is English; keep new strings consistent with the surrounding UI.
