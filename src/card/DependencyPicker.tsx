@@ -1,0 +1,35 @@
+import { useMemo } from "react";
+import { CardPicker } from "../CardPicker";
+import { type AppState, type Card, isCardAvailable } from "../model";
+
+/** Picks a card that this card depends on. */
+export function DependencyPicker({
+  card,
+  state,
+  onAddDependency,
+  onClose,
+}: {
+  card: Card;
+  state: AppState;
+  onAddDependency: (targetId: string) => void;
+  onClose: () => void;
+}) {
+  const availableDependencies = useMemo(
+    () => state.cards.filter((item) => item.id !== card.id && isCardAvailable(state, item)),
+    [state, card.id],
+  );
+  return (
+    <section className="transfer-picker dependency-picker" aria-label="Add dependency">
+      <strong>Depends on card</strong>
+      <CardPicker
+        label="Dependency card"
+        candidates={availableDependencies}
+        describe={(item) => `${state.boards.find((board) => board.id === item.boardId)?.name ?? ""} / ${item.name}`}
+        onPick={(item) => {
+          onAddDependency(item.id);
+          onClose();
+        }}
+      />
+    </section>
+  );
+}
