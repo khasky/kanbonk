@@ -30,16 +30,14 @@ import { readAiSettings, saveAiSettings, type AiSettings } from "./ai";
 
 import { saveFile } from "./platform";
 import { assignListToZone, createZone, deleteZone, moveListToList, moveZone, updateZone, zoneRuns } from "./zones";
-import {
-  BoardCalendar,
-  DedupeDialog,
-  DeleteDialog,
-  HomePage,
-  MissingPage,
-  TrashPage,
-  WorkspacePage,
-  ZoneFrame,
-} from "./pages";
+import { BoardCalendar } from "./board/BoardCalendar";
+import { ZoneFrame } from "./board/ZoneFrame";
+import { DedupeDialog } from "./dialogs/DedupeDialog";
+import { DeleteDialog } from "./dialogs/DeleteDialog";
+import { HomePage } from "./pages/HomePage";
+import { MissingPage } from "./pages/MissingPage";
+import { TrashPage } from "./pages/TrashPage";
+import { WorkspacePage } from "./pages/WorkspacePage";
 import { SettingsDialog } from "./SettingsDialog";
 import { AuthorDialog } from "./dialogs/AuthorDialog";
 import { BackupDialog } from "./dialogs/BackupDialog";
