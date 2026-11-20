@@ -1,13 +1,28 @@
 function allowedSender(sender) {
   try {
     const url = new URL(sender.url);
-    return url.protocol === "http:" && ["localhost", "127.0.0.1"].includes(url.hostname) && ["1420", "4173"].includes(url.port);
-  } catch { return false; }
+    return (
+      url.protocol === "http:" &&
+      ["localhost", "127.0.0.1"].includes(url.hostname) &&
+      ["1420", "4173"].includes(url.port)
+    );
+  } catch {
+    return false;
+  }
 }
 
 function attachmentUrl(value) {
   const url = new URL(value);
-  if (url.protocol !== "https:" || url.hostname !== "trello.com" || url.username || url.password || url.search || url.hash || !/^\/1\/cards\/[^/]+\/attachments\/[^/]+\/download\/[^/]+/.test(url.pathname)) throw new Error("Invalid Trello attachment URL.");
+  if (
+    url.protocol !== "https:" ||
+    url.hostname !== "trello.com" ||
+    url.username ||
+    url.password ||
+    url.search ||
+    url.hash ||
+    !/^\/1\/cards\/[^/]+\/attachments\/[^/]+\/download\/[^/]+/.test(url.pathname)
+  )
+    throw new Error("Invalid Trello attachment URL.");
   return url.href;
 }
 
@@ -20,7 +35,9 @@ async function fromTrelloTab(message) {
       const reply = await chrome.tabs.sendMessage(tab.id, message);
       if (reply?.ok) return reply;
       lastError = reply;
-    } catch (error) { lastError = { ok: false, error: String(error) }; }
+    } catch (error) {
+      lastError = { ok: false, error: String(error) };
+    }
   }
   return lastError ?? { ok: false, error: "The Trello tab did not respond; reload it." };
 }
@@ -30,7 +47,8 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
   (async () => {
     if (message?.type === "probe") return fromTrelloTab({ type: "probe" });
     if (message?.type === "comments") {
-      if (!/^[a-f0-9]{24}$/i.test(message.boardId ?? "") || message.before && !/^[a-f0-9]{24}$/i.test(message.before)) throw new Error("Invalid Trello history identifier.");
+      if (!/^[a-f0-9]{24}$/i.test(message.boardId ?? "") || (message.before && !/^[a-f0-9]{24}$/i.test(message.before)))
+        throw new Error("Invalid Trello history identifier.");
       return fromTrelloTab({ type: "comments", boardId: message.boardId, before: message.before ?? "" });
     }
     if (message?.type !== "download") throw new Error("Unknown request.");

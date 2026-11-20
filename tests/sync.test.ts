@@ -3,13 +3,30 @@ import { deleteLabel, emptyState, linkDependency, recordRevision, restoreRevisio
 import { relatedCards } from "../src/links";
 import { chooseConflict, mergeStates } from "../src/sync";
 
-const original = { id: "card-1", boardId: "board-1", listId: "list-1", name: "Original", description: "", position: 1, labelIds: [], completed: false, checklists: [], comments: [], attachments: [] };
+const original = {
+  id: "card-1",
+  boardId: "board-1",
+  listId: "list-1",
+  name: "Original",
+  description: "",
+  position: 1,
+  labelIds: [],
+  completed: false,
+  checklists: [],
+  comments: [],
+  attachments: [],
+};
 
 describe("LAN version merge", () => {
   it("keeps a deleted label deleted after synchronization and removes it from cards", () => {
     const label = { id: "label-1", boardId: "board-1", name: "Delete me", color: "#f00" };
     const card = { ...original, labelIds: [label.id] };
-    const initial = recordRevision(recordRevision({ ...emptyState(), labels: [label], cards: [card] }, "label", label.id, "device-1"), "card", card.id, "device-1");
+    const initial = recordRevision(
+      recordRevision({ ...emptyState(), labels: [label], cards: [card] }, "label", label.id, "device-1"),
+      "card",
+      card.id,
+      "device-1",
+    );
     const deleted = deleteLabel(initial, label.id, "device-1");
     expect(deleted.labels[0].deleted).toBe(true);
     expect(deleted.cards[0].labelIds).toEqual([]);
@@ -35,13 +52,23 @@ describe("LAN version merge", () => {
     expect(resolved.labels[0].color).toBe("#00f");
     expect(mergeStates(local, resolved).conflicts).toHaveLength(0);
     expect(mergeStates(remote, resolved).conflicts).toHaveLength(0);
-    const later = recordRevision({ ...resolved, labels: [{ ...resolved.labels[0], name: "Later" }] }, "label", label.id, "device-1");
+    const later = recordRevision(
+      { ...resolved, labels: [{ ...resolved.labels[0], name: "Later" }] },
+      "label",
+      label.id,
+      "device-1",
+    );
     expect(mergeStates(remote, later).state.labels[0].name).toBe("Later");
   });
 
   it("takes a causally newer remote version", () => {
     const initial = recordRevision({ ...emptyState(), cards: [original] }, "card", original.id, "device-1");
-    const remote = recordRevision({ ...initial, cards: [{ ...original, name: "New", stickers: ["⭐"] }] }, "card", original.id, "device-2");
+    const remote = recordRevision(
+      { ...initial, cards: [{ ...original, name: "New", stickers: ["⭐"] }] },
+      "card",
+      original.id,
+      "device-2",
+    );
     const merged = mergeStates(initial, remote);
     expect(merged.conflicts).toHaveLength(0);
     expect(merged.state.cards[0].name).toBe("New");
@@ -51,8 +78,19 @@ describe("LAN version merge", () => {
 
   it("keeps the originating device's comment author after synchronization", () => {
     const initial = recordRevision({ ...emptyState(), cards: [original] }, "card", original.id, "device-1");
-    const comment = { id: "comment-1", author: "Member device-2", authorDeviceId: "device-2", text: "Done", createdAt: "2026-11-15T10:00:00.000Z" };
-    const remote = recordRevision({ ...initial, cards: [{ ...original, comments: [comment] }] }, "card", original.id, "device-2");
+    const comment = {
+      id: "comment-1",
+      author: "Member device-2",
+      authorDeviceId: "device-2",
+      text: "Done",
+      createdAt: "2026-11-15T10:00:00.000Z",
+    };
+    const remote = recordRevision(
+      { ...initial, cards: [{ ...original, comments: [comment] }] },
+      "card",
+      original.id,
+      "device-2",
+    );
     const merged = mergeStates(initial, remote);
     expect(merged.conflicts).toHaveLength(0);
     expect(merged.state.cards[0].comments).toEqual([comment]);
@@ -61,7 +99,14 @@ describe("LAN version merge", () => {
 
   it("transfers both sides of a local card dependency through version merge", () => {
     const prerequisite = { ...structuredClone(original), id: "card-2", name: "Prerequisite" };
-    const base = { ...emptyState(), boards: [{ id: "board-1", workspaceId: "workspace", name: "Board", description: "", background: "#fff", starred: false }], lists: [{ id: "list-1", boardId: "board-1", name: "Tasks", position: 1 }], cards: [original, prerequisite] };
+    const base = {
+      ...emptyState(),
+      boards: [
+        { id: "board-1", workspaceId: "workspace", name: "Board", description: "", background: "#fff", starred: false },
+      ],
+      lists: [{ id: "list-1", boardId: "board-1", name: "Tasks", position: 1 }],
+      cards: [original, prerequisite],
+    };
     const initial = recordRevision(recordRevision(base, "card", "card-1", "device-1"), "card", "card-2", "device-1");
     const linked = linkDependency(initial, "card-1", "card-2");
     const remote = recordRevision(recordRevision(linked, "card", "card-1", "device-2"), "card", "card-2", "device-2");
@@ -84,7 +129,12 @@ describe("LAN version merge", () => {
     const repeated = mergeStates(left.state, right.state);
     expect(repeated.state.heads[`card:${original.id}`]).toBe(left.state.heads[`card:${original.id}`]);
     expect(repeated.state.revisions).toHaveLength(left.state.revisions.length);
-    const later = recordRevision({ ...left.state, cards: [{ ...same, name: "Later" }] }, "card", original.id, "device-1");
+    const later = recordRevision(
+      { ...left.state, cards: [{ ...same, name: "Later" }] },
+      "card",
+      original.id,
+      "device-1",
+    );
     const merged = mergeStates(right.state, later);
     expect(merged.conflicts).toHaveLength(0);
     expect(merged.state.cards[0].name).toBe("Later");
@@ -94,7 +144,12 @@ describe("LAN version merge", () => {
     const initial = recordRevision({ ...emptyState(), cards: [original] }, "card", original.id, "device-1");
     let remote = initial;
     for (let index = 0; index < 35; index++) {
-      remote = recordRevision({ ...remote, cards: [{ ...original, name: `Version ${index}` }] }, "card", original.id, "device-2");
+      remote = recordRevision(
+        { ...remote, cards: [{ ...original, name: `Version ${index}` }] },
+        "card",
+        original.id,
+        "device-2",
+      );
     }
     const merged = mergeStates(initial, remote);
     expect(merged.conflicts).toHaveLength(0);
@@ -104,8 +159,18 @@ describe("LAN version merge", () => {
 
   it("surfaces divergent edits and resolves them into a common revision", () => {
     const initial = recordRevision({ ...emptyState(), cards: [original] }, "card", original.id, "device-1");
-    const local = recordRevision({ ...initial, cards: [{ ...original, name: "Local" }] }, "card", original.id, "device-1");
-    const remote = recordRevision({ ...initial, cards: [{ ...original, name: "Remote" }] }, "card", original.id, "device-2");
+    const local = recordRevision(
+      { ...initial, cards: [{ ...original, name: "Local" }] },
+      "card",
+      original.id,
+      "device-1",
+    );
+    const remote = recordRevision(
+      { ...initial, cards: [{ ...original, name: "Remote" }] },
+      "card",
+      original.id,
+      "device-2",
+    );
     const merged = mergeStates(local, remote);
     expect(merged.conflicts).toHaveLength(1);
     expect(merged.state.cards[0].name).toBe("Local");
@@ -119,8 +184,18 @@ describe("LAN version merge", () => {
     let local = initial;
     let remote = initial;
     for (let index = 0; index < 35; index++) {
-      local = recordRevision({ ...local, cards: [{ ...original, name: `Local ${index}` }] }, "card", original.id, "device-1");
-      remote = recordRevision({ ...remote, cards: [{ ...original, name: `Remote ${index}` }] }, "card", original.id, "device-2");
+      local = recordRevision(
+        { ...local, cards: [{ ...original, name: `Local ${index}` }] },
+        "card",
+        original.id,
+        "device-1",
+      );
+      remote = recordRevision(
+        { ...remote, cards: [{ ...original, name: `Remote ${index}` }] },
+        "card",
+        original.id,
+        "device-2",
+      );
     }
     const merged = mergeStates(local, remote);
     expect(merged.conflicts).toHaveLength(1);

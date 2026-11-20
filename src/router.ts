@@ -12,9 +12,16 @@ export type Route =
   | { page: "card"; id: string; background?: Route }
   | { page: "not-found" };
 
-interface HistoryState { backgroundHref?: string }
+interface HistoryState {
+  backgroundHref?: string;
+}
 
-const trashKinds: Record<string, TrashKind> = { workspaces: "workspace", boards: "board", lists: "list", cards: "card" };
+const trashKinds: Record<string, TrashKind> = {
+  workspaces: "workspace",
+  boards: "board",
+  lists: "list",
+  cards: "card",
+};
 
 export function parseRoute(pathname: string, search = "", state?: HistoryState | null): Route {
   const params = new URLSearchParams(search);
@@ -25,11 +32,20 @@ export function parseRoute(pathname: string, search = "", state?: HistoryState |
   if (parts.length >= 2 && parts[0] === "b") {
     const scale = params.get("scale");
     const date = params.get("date") ?? undefined;
-    return { page: "board", id: parts[1], view: params.get("view") === "calendar" ? "calendar" : params.get("view") === "doc" ? "doc" : "lists", scale: scale === "week" || scale === "year" ? scale : "month", date: date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined };
+    return {
+      page: "board",
+      id: parts[1],
+      view: params.get("view") === "calendar" ? "calendar" : params.get("view") === "doc" ? "doc" : "lists",
+      scale: scale === "week" || scale === "year" ? scale : "month",
+      date: date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined,
+    };
   }
   if (parts.length >= 2 && parts[0] === "c") {
     const href = state?.backgroundHref;
-    const background = href && !href.startsWith("/c/") ? parseRoute(new URL(href, "http://x").pathname, new URL(href, "http://x").search) : undefined;
+    const background =
+      href && !href.startsWith("/c/")
+        ? parseRoute(new URL(href, "http://x").pathname, new URL(href, "http://x").search)
+        : undefined;
     return { page: "card", id: parts[1], background };
   }
   return { page: "not-found" };
@@ -42,7 +58,10 @@ export function trashHref(kind?: TrashKind): string {
   return type ? `/trash?type=${type}` : "/trash";
 }
 
-export function boardHref(id: string, options: { view?: BoardView; scale?: CalendarScale; date?: string } = {}): string {
+export function boardHref(
+  id: string,
+  options: { view?: BoardView; scale?: CalendarScale; date?: string } = {},
+): string {
   const params = new URLSearchParams();
   if (options.view === "doc") params.set("view", "doc");
   if (options.view === "calendar") {
@@ -69,7 +88,11 @@ function currentRoute(): Route {
   return parseRoute(url.pathname, url.search, window.history.state as HistoryState | null);
 }
 
-export function useRoute(): { route: Route; navigate: (href: string, options?: { replace?: boolean; modal?: boolean }) => void; back: () => void } {
+export function useRoute(): {
+  route: Route;
+  navigate: (href: string, options?: { replace?: boolean; modal?: boolean }) => void;
+  back: () => void;
+} {
   const [route, setRoute] = useState<Route>(currentRoute);
   useEffect(() => {
     const update = () => setRoute(currentRoute());
@@ -80,7 +103,9 @@ export function useRoute(): { route: Route; navigate: (href: string, options?: {
   const navigate = useCallback((href: string, options: { replace?: boolean; modal?: boolean } = {}) => {
     const here = currentHref();
     const previous = window.history.state as HistoryState | null;
-    const state: HistoryState = options.modal ? { backgroundHref: here.startsWith("/c/") ? previous?.backgroundHref : here } : {};
+    const state: HistoryState = options.modal
+      ? { backgroundHref: here.startsWith("/c/") ? previous?.backgroundHref : here }
+      : {};
     if (href === here && !options.modal) return;
     if (options.replace) window.history.replaceState(state, "", linkHref(href));
     else window.history.pushState(state, "", linkHref(href));

@@ -4,7 +4,12 @@ import { applyDueRecurrence } from "./repeatingDue";
 function applyAction(state: AppState, boardId: string, card: Card, rule: AutomationRule): Card {
   if (rule.action === "complete") return card.completed ? card : { ...card, completed: true };
   if (rule.action === "archive") return card.archived ? card : { ...card, archived: true };
-  if (rule.action === "add-label" && rule.labelId && state.labels.some((label) => label.id === rule.labelId && label.boardId === boardId && !label.deleted) && !card.labelIds.includes(rule.labelId)) {
+  if (
+    rule.action === "add-label" &&
+    rule.labelId &&
+    state.labels.some((label) => label.id === rule.labelId && label.boardId === boardId && !label.deleted) &&
+    !card.labelIds.includes(rule.labelId)
+  ) {
     return { ...card, labelIds: [...card.labelIds, rule.labelId] };
   }
   return card;
@@ -15,7 +20,9 @@ export function applyMoveRules(state: AppState, before: Card, after: Card): Card
   const board = state.boards.find((item) => item.id === after.boardId && !item.archived);
   const list = state.lists.find((item) => item.id === after.listId && item.boardId === board?.id && !item.archived);
   if (!board || !list) return after;
-  return (board.automationRules ?? []).filter((rule) => (rule.trigger === undefined || rule.trigger === "move") && rule.listId === list.id).reduce((card, rule) => applyAction(state, board.id, card, rule), after);
+  return (board.automationRules ?? [])
+    .filter((rule) => (rule.trigger === undefined || rule.trigger === "move") && rule.listId === list.id)
+    .reduce((card, rule) => applyAction(state, board.id, card, rule), after);
 }
 
 export function applyDueRules(state: AppState, now: number, deviceId: string): AppState {
@@ -34,11 +41,19 @@ export function applyDueRules(state: AppState, now: number, deviceId: string): A
     for (const rule of rules) {
       const key = `${rule.id}:${original.dueAt}`;
       if (card.automationRunKeys?.includes(key)) continue;
-      card = { ...applyAction(state, original.boardId, card, rule), automationRunKeys: [...card.automationRunKeys ?? [], key] };
+      card = {
+        ...applyAction(state, original.boardId, card, rule),
+        automationRunKeys: [...(card.automationRunKeys ?? []), key],
+      };
     }
     if (card === original) continue;
     card = applyDueRecurrence(original, card);
-    next = recordRevision({ ...next, cards: next.cards.map((item) => item.id === card.id ? card : item) }, "card", card.id, deviceId);
+    next = recordRevision(
+      { ...next, cards: next.cards.map((item) => (item.id === card.id ? card : item)) },
+      "card",
+      card.id,
+      deviceId,
+    );
   }
   return next;
 }

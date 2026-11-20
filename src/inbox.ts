@@ -7,10 +7,23 @@ export const inboxWorkspaceId = "kanbonk-inbox-workspace";
 export function ensureInbox(state: AppState, deviceId: string): AppState {
   let next = state;
   if (!next.workspaces.some((workspace) => workspace.id === inboxWorkspaceId)) {
-    next = recordRevision({ ...next, workspaces: [...next.workspaces, { id: inboxWorkspaceId, name: "Inbox" }] }, "workspace", inboxWorkspaceId, deviceId);
+    next = recordRevision(
+      { ...next, workspaces: [...next.workspaces, { id: inboxWorkspaceId, name: "Inbox" }] },
+      "workspace",
+      inboxWorkspaceId,
+      deviceId,
+    );
   }
   if (!next.boards.some((board) => board.id === inboxBoardId)) {
-    const board: Board = { id: inboxBoardId, workspaceId: inboxWorkspaceId, name: "Inbox", description: "Personal notes and tasks", background: "#f7f8f9", members: [], starred: false };
+    const board: Board = {
+      id: inboxBoardId,
+      workspaceId: inboxWorkspaceId,
+      name: "Inbox",
+      description: "Personal notes and tasks",
+      background: "#f7f8f9",
+      members: [],
+      starred: false,
+    };
     next = recordRevision({ ...next, boards: [...next.boards, board] }, "board", inboxBoardId, deviceId);
   }
   if (!next.lists.some((list) => list.id === inboxListId)) {

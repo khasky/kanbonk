@@ -4,10 +4,31 @@ import { emptyState, type AppState, type Card } from "../src/model";
 
 const now = Date.parse("2026-11-15T12:00:00.000Z");
 const dueAt = "2026-11-15T13:00:00.000Z";
-const card: Card = { id: "card", boardId: "board", listId: "list", name: "Task", description: "", position: 1, labelIds: [], dueAt, dueReminderMinutes: 60, completed: false, checklists: [], comments: [], attachments: [] };
+const card: Card = {
+  id: "card",
+  boardId: "board",
+  listId: "list",
+  name: "Task",
+  description: "",
+  position: 1,
+  labelIds: [],
+  dueAt,
+  dueReminderMinutes: 60,
+  completed: false,
+  checklists: [],
+  comments: [],
+  attachments: [],
+};
 
 function fixture(): AppState {
-  return { ...emptyState(), boards: [{ id: "board", workspaceId: "workspace", name: "Board", description: "", background: "#fff", starred: false }], lists: [{ id: "list", boardId: "board", name: "List", position: 1 }], cards: [card] };
+  return {
+    ...emptyState(),
+    boards: [
+      { id: "board", workspaceId: "workspace", name: "Board", description: "", background: "#fff", starred: false },
+    ],
+    lists: [{ id: "list", boardId: "board", name: "List", position: 1 }],
+    cards: [card],
+  };
 }
 
 describe("local due reminders", () => {

@@ -3,7 +3,21 @@ import { calendarItems, dayKey, previewItem, rescheduleCard } from "../src/calen
 import { emptyState, type Card } from "../src/model";
 
 const at = (y: number, m: number, d: number, h = 9) => new Date(y, m - 1, d, h).toISOString();
-const card = (extra: Partial<Card>): Card => ({ id: "c", boardId: "b", listId: "l", name: "c", description: "", position: 1, labelIds: [], completed: false, checklists: [], comments: [], attachments: [], createdAt: at(2026, 11, 2, 8), ...extra });
+const card = (extra: Partial<Card>): Card => ({
+  id: "c",
+  boardId: "b",
+  listId: "l",
+  name: "c",
+  description: "",
+  position: 1,
+  labelIds: [],
+  completed: false,
+  checklists: [],
+  comments: [],
+  attachments: [],
+  createdAt: at(2026, 11, 2, 8),
+  ...extra,
+});
 const item = (extra: Partial<Card>) => calendarItems(emptyState(), [card(extra)])[0];
 const day = (iso?: string) => iso && dayKey(new Date(iso));
 

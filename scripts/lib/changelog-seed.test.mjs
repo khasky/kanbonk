@@ -13,9 +13,7 @@ describe("isSeedOnly", () => {
   });
 
   it("keeps a changelog that already carries a release heading", () => {
-    expect(
-      isSeedOnly(`${seed}\n## 1.0.0 (2026-08-27)\n\n### Features\n\n* first thing\n`),
-    ).toBe(false);
+    expect(isSeedOnly(`${seed}\n## 1.0.0 (2026-08-27)\n\n### Features\n\n* first thing\n`)).toBe(false);
   });
 
   it("keeps the anchor form standard-version used to write", () => {

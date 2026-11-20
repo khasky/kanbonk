@@ -1,20 +1,37 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { strToU8, zipSync } from "fflate";
-import { addImportedBoard, parseTrelloBoard, restoreExistingAttachments, restoreTrelloAttachments } from "../src/importTrello";
+import {
+  addImportedBoard,
+  parseTrelloBoard,
+  restoreExistingAttachments,
+  restoreTrelloAttachments,
+} from "../src/importTrello";
 import { emptyState } from "../src/model";
 import { saveAttachment } from "../src/storage";
 
 vi.mock("../src/storage", () => ({ saveAttachment: vi.fn() }));
 
-const board = { id: "trello-board", name: "Background", lists: [], cards: [], prefs: { backgroundImage: "https://example.com/background.png" } };
-const zip = () => new File([new Uint8Array(zipSync({ "background/trello-board/background.png": strToU8("image bytes") }))], "background.zip");
+const board = {
+  id: "trello-board",
+  name: "Background",
+  lists: [],
+  cards: [],
+  prefs: { backgroundImage: "https://example.com/background.png" },
+};
+const zip = () =>
+  new File(
+    [new Uint8Array(zipSync({ "background/trello-board/background.png": strToU8("image bytes") }))],
+    "background.zip",
+  );
 
 describe("Trello board background import", () => {
   afterEach(() => vi.resetAllMocks());
 
   it("restores a board background from the initial ZIP", async () => {
     const saved = new Map<string, Blob>();
-    vi.mocked(saveAttachment).mockImplementation(async (id, blob) => { saved.set(id, blob); });
+    vi.mocked(saveAttachment).mockImplementation(async (id, blob) => {
+      saved.set(id, blob);
+    });
     const result = parseTrelloBoard(board, "workspace");
     await restoreTrelloAttachments(result, zip());
     expect(result.board.backgroundImageId).toBeTruthy();
@@ -25,7 +42,9 @@ describe("Trello board background import", () => {
 
   it("restores the background from a later ZIP batch", async () => {
     const saved = new Map<string, Blob>();
-    vi.mocked(saveAttachment).mockImplementation(async (id, blob) => { saved.set(id, blob); });
+    vi.mocked(saveAttachment).mockImplementation(async (id, blob) => {
+      saved.set(id, blob);
+    });
     const result = parseTrelloBoard(board, "workspace");
     await restoreTrelloAttachments(result);
     expect(result.board.backgroundImageId).toBeUndefined();
@@ -37,18 +56,46 @@ describe("Trello board background import", () => {
 
   it("preserves the MIME type of an SVG background", async () => {
     const saved = new Map<string, Blob>();
-    vi.mocked(saveAttachment).mockImplementation(async (id, blob) => { saved.set(id, blob); });
-    const archive = new File([new Uint8Array(zipSync({ "background/trello-board/background.svg": strToU8("<svg></svg>") }))], "background.zip");
+    vi.mocked(saveAttachment).mockImplementation(async (id, blob) => {
+      saved.set(id, blob);
+    });
+    const archive = new File(
+      [new Uint8Array(zipSync({ "background/trello-board/background.svg": strToU8("<svg></svg>") }))],
+      "background.zip",
+    );
     const result = parseTrelloBoard(board, "workspace");
     await restoreTrelloAttachments(result, archive);
     expect(saved.get(result.board.backgroundImageId!)?.type).toBe("image/svg+xml");
   });
 
   it("does not replace an attachment that is already stored locally", async () => {
-    const source = { id: "trello-board", name: "Files", lists: [{ id: "trello-list", name: "List" }], cards: [{ id: "trello-card", idList: "trello-list", name: "Card", attachments: [{ id: "trello-file", name: "file.txt", mimeType: "text/plain", bytes: 8, url: "https://trello.com/attachments/trello-file/file.txt" }] }] };
+    const source = {
+      id: "trello-board",
+      name: "Files",
+      lists: [{ id: "trello-list", name: "List" }],
+      cards: [
+        {
+          id: "trello-card",
+          idList: "trello-list",
+          name: "Card",
+          attachments: [
+            {
+              id: "trello-file",
+              name: "file.txt",
+              mimeType: "text/plain",
+              bytes: 8,
+              url: "https://trello.com/attachments/trello-file/file.txt",
+            },
+          ],
+        },
+      ],
+    };
     const result = parseTrelloBoard(source, "workspace");
     result.cards[0].attachments[0].status = "local";
-    const archive = new File([new Uint8Array(zipSync({ "attachments/trello-file/file.txt": strToU8("replacement") }))], "later.zip");
+    const archive = new File(
+      [new Uint8Array(zipSync({ "attachments/trello-file/file.txt": strToU8("replacement") }))],
+      "later.zip",
+    );
 
     const restored = await restoreExistingAttachments(addImportedBoard(emptyState(), result), archive);
 

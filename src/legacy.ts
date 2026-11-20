@@ -24,33 +24,41 @@ function renameId(value: string): string {
 function renameDeep(value: unknown): unknown {
   if (typeof value === "string") return renameId(value);
   if (Array.isArray(value)) return value.map(renameDeep);
-  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [renameId(key), renameDeep(item)]));
+  if (value && typeof value === "object")
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [renameId(key), renameDeep(item)]));
   return value;
 }
 
 function hasLegacyIds(state: AppState): boolean {
   const legacy = (id: string) => renameId(id) !== id;
-  return [state.workspaces, state.boards, state.lists].some((items) => items.some((item) => legacy(item.id)))
-    || state.revisions.some((revision) => legacy(revision.entityId))
-    || Object.keys(state.heads ?? {}).some(legacy)
-    || Object.keys(state.tombstones ?? {}).some(legacy);
+  return (
+    [state.workspaces, state.boards, state.lists].some((items) => items.some((item) => legacy(item.id))) ||
+    state.revisions.some((revision) => legacy(revision.entityId)) ||
+    Object.keys(state.heads ?? {}).some(legacy) ||
+    Object.keys(state.tombstones ?? {}).some(legacy)
+  );
 }
 
 /** Returns the state with legacy entity IDs renamed everywhere they are referenced; the same object when there are none. */
 export function migrateLegacyState<T extends AppState>(state: T): T {
-  return hasLegacyIds(state) ? renameDeep(state) as T : state;
+  return hasLegacyIds(state) ? (renameDeep(state) as T) : state;
 }
 
 /** Moves "listva-*" keys to "kanbonk-*", renaming entity IDs inside the values; an existing new key wins. */
 export function migrateLegacyStorage(storage: Storage = localStorage): void {
-  const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index)).filter((key): key is string => key?.startsWith(legacyPrefix) === true);
+  const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index)).filter(
+    (key): key is string => key?.startsWith(legacyPrefix) === true,
+  );
   for (const key of keys) {
     const target = `kanbonk-${key.slice(legacyPrefix.length)}`;
     const value = storage.getItem(key);
     if (value !== null && storage.getItem(target) === null) {
       let renamed: string;
-      try { renamed = JSON.stringify(renameDeep(JSON.parse(value))); }
-      catch { renamed = renameId(value); }
+      try {
+        renamed = JSON.stringify(renameDeep(JSON.parse(value)));
+      } catch {
+        renamed = renameId(value);
+      }
       storage.setItem(target, renamed);
     }
     storage.removeItem(key);

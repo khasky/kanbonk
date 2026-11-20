@@ -2,7 +2,13 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { newId, type AppState } from "./model";
 import { createBackupParts } from "./backup";
 import { listSnapshots, loadSetting, saveSetting, saveSnapshot, type SnapshotMeta } from "./storage";
-import { defaultBackupDestination, folderDestination, platform, type BackupDestination, type BackupFolder } from "./platform";
+import {
+  defaultBackupDestination,
+  folderDestination,
+  platform,
+  type BackupDestination,
+  type BackupFolder,
+} from "./platform";
 
 export const autoBackupIntervalMs = 10 * 60 * 1000;
 const recentKept = 20;
@@ -24,7 +30,9 @@ export function retainSnapshots(metas: SnapshotMeta[]): SnapshotMeta[] {
 }
 
 function stateHash(json: string): string {
-  return Array.from(sha256(new TextEncoder().encode(json)).slice(0, 16), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return Array.from(sha256(new TextEncoder().encode(json)).slice(0, 16), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
 }
 
 /** Stores a local snapshot when the data changed since the newest one. Returns the new snapshot or undefined. */
@@ -34,24 +42,40 @@ export async function autoSnapshot(state: AppState, now = new Date()): Promise<S
   const metas = await listSnapshots();
   const newest = [...metas].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
   if (newest?.hash === hash) return undefined;
-  const meta: SnapshotMeta = { id: newId(), createdAt: now.toISOString(), hash, size: json.length, cards: state.cards.length, boards: state.boards.length };
+  const meta: SnapshotMeta = {
+    id: newId(),
+    createdAt: now.toISOString(),
+    hash,
+    size: json.length,
+    cards: state.cards.length,
+    boards: state.boards.length,
+  };
   await saveSnapshot(meta, json, retainSnapshots([...metas, meta]));
   return meta;
 }
 
 export type BackupFrequency = "6h" | "day" | "week" | "off";
-export interface AutoBackupSettings { frequency: BackupFrequency; keep: number; target: "default" | "folder" }
+export interface AutoBackupSettings {
+  frequency: BackupFrequency;
+  keep: number;
+  target: "default" | "folder";
+}
 export const defaultAutoBackup: AutoBackupSettings = { frequency: "day", keep: 7, target: "default" };
-const periods: Record<Exclude<BackupFrequency, "off">, number> = { "6h": 6 * 3600_000, day: 24 * 3600_000, week: 7 * 24 * 3600_000 };
+const periods: Record<Exclude<BackupFrequency, "off">, number> = {
+  "6h": 6 * 3600_000,
+  day: 24 * 3600_000,
+  week: 7 * 24 * 3600_000,
+};
 
 export async function loadAutoBackupSettings(): Promise<AutoBackupSettings> {
   const saved = await loadSetting<Partial<AutoBackupSettings>>("auto-backup");
   // Before these settings existed, choosing a folder was the way to turn on daily backups.
-  const target = saved?.target ?? (await backupFolder() ? "folder" : "default");
+  const target = saved?.target ?? ((await backupFolder()) ? "folder" : "default");
   // A web page can only add a new download each time, so there backups start only once the user asks for them.
   const unasked = platform === "web" && target === "default" ? "off" : defaultAutoBackup.frequency;
   const frequency = saved?.frequency && saved.frequency in { ...periods, off: 0 } ? saved.frequency : unasked;
-  const keep = Number.isInteger(saved?.keep) && saved!.keep! >= 1 && saved!.keep! <= 100 ? saved!.keep! : defaultAutoBackup.keep;
+  const keep =
+    Number.isInteger(saved?.keep) && saved!.keep! >= 1 && saved!.keep! <= 100 ? saved!.keep! : defaultAutoBackup.keep;
   return { frequency, keep, target };
 }
 
@@ -63,7 +87,9 @@ export async function backupFolder(): Promise<BackupFolder | undefined> {
   const saved = await loadSetting<BackupFolder | FileSystemDirectoryHandle>("backup-folder");
   if (!saved) return undefined;
   // Earlier versions stored the directory handle itself.
-  return saved.kind === "handle" || saved.kind === "path" ? saved as BackupFolder : { kind: "handle", handle: saved as FileSystemDirectoryHandle };
+  return saved.kind === "handle" || saved.kind === "path"
+    ? (saved as BackupFolder)
+    : { kind: "handle", handle: saved as FileSystemDirectoryHandle };
 }
 
 export async function setBackupFolder(folder: BackupFolder | undefined): Promise<void> {
@@ -111,7 +137,12 @@ async function destination(settings: AutoBackupSettings, interactive: boolean): 
 }
 
 /** Writes a full ZIP backup (data and files) and deletes backups beyond the newest `keep`. Returns a short report. */
-export async function writeAutoBackup(state: AppState, settings: AutoBackupSettings, interactive = false, now = new Date()): Promise<string> {
+export async function writeAutoBackup(
+  state: AppState,
+  settings: AutoBackupSettings,
+  interactive = false,
+  now = new Date(),
+): Promise<string> {
   const target = await destination(settings, interactive);
   const stamp = now.toISOString().slice(0, 19).replace(/:/g, "-") + "Z";
   let written = 0;
@@ -122,7 +153,10 @@ export async function writeAutoBackup(state: AppState, settings: AutoBackupSetti
   await saveSetting("backup-folder-last", now.toISOString());
   let removed = 0;
   if (target.list && target.remove) {
-    for (const name of backupsToDelete(await target.list(), settings.keep)) { await target.remove(name); removed++; }
+    for (const name of backupsToDelete(await target.list(), settings.keep)) {
+      await target.remove(name);
+      removed++;
+    }
   }
   return `${target.label}: ${written} ZIP${removed ? `, ${removed} older ${removed === 1 ? "file" : "files"} deleted` : ""}.`;
 }

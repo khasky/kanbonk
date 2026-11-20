@@ -20,7 +20,12 @@ await mkdir(files, { recursive: true });
 const log = (message) => process.stderr.write(`[kanbonk-mcp] ${message}\n`);
 
 async function readJson(path) {
-  try { return JSON.parse(await readFile(path, "utf8")); } catch (cause) { if (cause.code === "ENOENT") return undefined; throw cause; }
+  try {
+    return JSON.parse(await readFile(path, "utf8"));
+  } catch (cause) {
+    if (cause.code === "ENOENT") return undefined;
+    throw cause;
+  }
 }
 /** Write to a temp file and rename, so a crash never leaves a half-written state. */
 async function writeJson(path, value) {
@@ -31,11 +36,17 @@ async function writeJson(path, value) {
 const devicePath = join(dir, "device.json");
 const device = (await readJson(devicePath)) ?? { deviceId: randomUUID() };
 await writeJson(devicePath, device);
-const safeId = (id) => { if (!/^[A-Za-z0-9_-]+$/.test(id)) throw new Error(`bad file id ${id}`); return id; };
+const safeId = (id) => {
+  if (!/^[A-Za-z0-9_-]+$/.test(id)) throw new Error(`bad file id ${id}`);
+  return id;
+};
 
 const agent = await createAgent({
   self: { deviceId: device.deviceId, name: process.env.KANBONK_DEVICE_NAME || "AI agent (MCP)" },
-  sync: process.env.KANBONK_SYNC_URL && process.env.KANBONK_SYNC_CODE ? { url: process.env.KANBONK_SYNC_URL, code: process.env.KANBONK_SYNC_CODE } : undefined,
+  sync:
+    process.env.KANBONK_SYNC_URL && process.env.KANBONK_SYNC_CODE
+      ? { url: process.env.KANBONK_SYNC_URL, code: process.env.KANBONK_SYNC_CODE }
+      : undefined,
   log,
   store: {
     load: () => readJson(join(dir, "state.json")),
@@ -44,7 +55,10 @@ const agent = await createAgent({
       try {
         const meta = (await readJson(join(files, `${safeId(id)}.json`))) ?? {};
         return new Blob([await readFile(join(files, safeId(id)))], { type: meta.type ?? "application/octet-stream" });
-      } catch (cause) { if (cause.code === "ENOENT") return undefined; throw cause; }
+      } catch (cause) {
+        if (cause.code === "ENOENT") return undefined;
+        throw cause;
+      }
     },
     saveFile: async (id, blob) => {
       await writeFile(join(files, safeId(id)), new Uint8Array(await blob.arrayBuffer()));
@@ -54,6 +68,9 @@ const agent = await createAgent({
 });
 log(`data in ${dir}`);
 await agent.server.connect(new StdioServerTransport());
-const stop = () => { agent.close(); process.exit(0); };
+const stop = () => {
+  agent.close();
+  process.exit(0);
+};
 process.on("SIGINT", stop);
 process.on("SIGTERM", stop);

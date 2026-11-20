@@ -17,7 +17,7 @@ function addDays(date: Date, days: number): Date {
 }
 
 function dayIndex(date: Date): number {
-  return Math.round((Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())) / dayMs);
+  return Math.round(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / dayMs);
 }
 
 /** Monday-based start of week. */
@@ -28,27 +28,54 @@ export function startOfWeek(date: Date): Date {
 /** Creation time: explicit field, else the timestamp encoded in a Trello id, else the first local revision. */
 export function cardCreatedAt(state: AppState, card: Card): string | undefined {
   if (card.createdAt) return card.createdAt;
-  if (card.sourceTrelloId && /^[a-f0-9]{24}$/.test(card.sourceTrelloId)) return new Date(parseInt(card.sourceTrelloId.slice(0, 8), 16) * 1000).toISOString();
+  if (card.sourceTrelloId && /^[a-f0-9]{24}$/.test(card.sourceTrelloId))
+    return new Date(parseInt(card.sourceTrelloId.slice(0, 8), 16) * 1000).toISOString();
   return state.revisions.find((revision) => revision.entityKind === "card" && revision.entityId === card.id)?.createdAt;
 }
 
-export interface CalendarItem { card: Card; start: Date; end: Date }
+export interface CalendarItem {
+  card: Card;
+  start: Date;
+  end: Date;
+}
 
 /** A card spans from its start date (or creation date) to its due date when the due date is later. */
 export function calendarItems(state: AppState, cards: Card[]): CalendarItem[] {
-  return cards.flatMap((card) => {
-    const startSource = card.startAt ?? cardCreatedAt(state, card);
-    if (!startSource || !Number.isFinite(Date.parse(startSource))) return [];
-    const startTime = new Date(startSource);
-    const start = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate());
-    const dueTime = card.dueAt ? new Date(card.dueAt) : undefined;
-    const due = dueTime && Number.isFinite(dueTime.getTime()) ? new Date(dueTime.getFullYear(), dueTime.getMonth(), dueTime.getDate()) : undefined;
-    return [{ card, start, end: due && due > start ? due : start }];
-  }).sort((a, b) => a.start.getTime() - b.start.getTime() || (b.end.getTime() - b.start.getTime()) - (a.end.getTime() - a.start.getTime()) || a.card.position - b.card.position);
+  return cards
+    .flatMap((card) => {
+      const startSource = card.startAt ?? cardCreatedAt(state, card);
+      if (!startSource || !Number.isFinite(Date.parse(startSource))) return [];
+      const startTime = new Date(startSource);
+      const start = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate());
+      const dueTime = card.dueAt ? new Date(card.dueAt) : undefined;
+      const due =
+        dueTime && Number.isFinite(dueTime.getTime())
+          ? new Date(dueTime.getFullYear(), dueTime.getMonth(), dueTime.getDate())
+          : undefined;
+      return [{ card, start, end: due && due > start ? due : start }];
+    })
+    .sort(
+      (a, b) =>
+        a.start.getTime() - b.start.getTime() ||
+        b.end.getTime() - b.start.getTime() - (a.end.getTime() - a.start.getTime()) ||
+        a.card.position - b.card.position,
+    );
 }
 
-export interface WeekSegment { item: CalendarItem; column: number; span: number; lane: number; continuesBefore: boolean; continuesAfter: boolean }
-export interface WeekRow { start: Date; days: Date[]; segments: WeekSegment[]; lanes: number }
+export interface WeekSegment {
+  item: CalendarItem;
+  column: number;
+  span: number;
+  lane: number;
+  continuesBefore: boolean;
+  continuesAfter: boolean;
+}
+export interface WeekRow {
+  start: Date;
+  days: Date[];
+  segments: WeekSegment[];
+  lanes: number;
+}
 
 /** Lays out items crossing one week as bars, packing them into the lowest free lane. */
 export function layoutWeek(weekStart: Date, items: CalendarItem[]): WeekRow {
@@ -64,17 +91,33 @@ export function layoutWeek(weekStart: Date, items: CalendarItem[]): WeekRow {
     const column = Math.max(from, first) - first;
     const endColumn = Math.min(to, last) - first;
     let lane = laneEnds.findIndex((end) => end < column);
-    if (lane < 0) { lane = laneEnds.length; laneEnds.push(endColumn); }
-    else laneEnds[lane] = endColumn;
-    segments.push({ item, column, span: endColumn - column + 1, lane, continuesBefore: from < first, continuesAfter: to > last });
+    if (lane < 0) {
+      lane = laneEnds.length;
+      laneEnds.push(endColumn);
+    } else laneEnds[lane] = endColumn;
+    segments.push({
+      item,
+      column,
+      span: endColumn - column + 1,
+      lane,
+      continuesBefore: from < first,
+      continuesAfter: to > last,
+    });
   }
   return { start: weekStart, days, segments, lanes: laneEnds.length };
 }
 
 export function calendarRange(scale: CalendarScale, anchor: Date): { from: Date; to: Date } {
-  if (scale === "week") { const from = startOfWeek(anchor); return { from, to: addDays(from, 6) }; }
-  if (scale === "year") return { from: new Date(anchor.getFullYear(), 0, 1), to: new Date(anchor.getFullYear(), 11, 31) };
-  return { from: new Date(anchor.getFullYear(), anchor.getMonth(), 1), to: new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0) };
+  if (scale === "week") {
+    const from = startOfWeek(anchor);
+    return { from, to: addDays(from, 6) };
+  }
+  if (scale === "year")
+    return { from: new Date(anchor.getFullYear(), 0, 1), to: new Date(anchor.getFullYear(), 11, 31) };
+  return {
+    from: new Date(anchor.getFullYear(), anchor.getMonth(), 1),
+    to: new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0),
+  };
 }
 
 export function monthWeeks(anchor: Date, items: CalendarItem[]): WeekRow[] {
@@ -107,28 +150,53 @@ export function daysBetween(from: Date, to: Date): number {
 /** Shifts an ISO time by whole local days, keeping the time of day. */
 function shiftIso(iso: string, days: number): string {
   const date = new Date(iso);
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()).toISOString();
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() + days,
+    date.getHours(),
+    date.getMinutes(),
+    date.getSeconds(),
+    date.getMilliseconds(),
+  ).toISOString();
 }
 
 /** Day `day` at the time of day of `time` (noon when there is none). */
 function atDay(day: Date, time?: string): string {
   const source = time ? new Date(time) : undefined;
-  return new Date(day.getFullYear(), day.getMonth(), day.getDate(), source ? source.getHours() : 12, source ? source.getMinutes() : 0).toISOString();
+  return new Date(
+    day.getFullYear(),
+    day.getMonth(),
+    day.getDate(),
+    source ? source.getHours() : 12,
+    source ? source.getMinutes() : 0,
+  ).toISOString();
 }
 
 /**
  * New start/due after dragging a calendar bar by `delta` days: "move" shifts both ends, "start"/"end" resize one end.
  * A card without a start date gets one (its displayed start is the creation date); the range never inverts.
  */
-export function rescheduleCard(item: CalendarItem, mode: CalendarDrag, delta: number): { startAt?: string; dueAt?: string } {
+export function rescheduleCard(
+  item: CalendarItem,
+  mode: CalendarDrag,
+  delta: number,
+): { startAt?: string; dueAt?: string } {
   const { card } = item;
   const startAt = card.startAt ?? atDay(item.start);
-  if (mode === "move") return { startAt: shiftIso(startAt, delta), dueAt: card.dueAt ? shiftIso(card.dueAt, delta) : undefined };
+  if (mode === "move")
+    return { startAt: shiftIso(startAt, delta), dueAt: card.dueAt ? shiftIso(card.dueAt, delta) : undefined };
   const span = daysBetween(item.start, item.end);
   if (mode === "start") return { startAt: shiftIso(startAt, Math.min(delta, span)), dueAt: card.dueAt };
   const newSpan = Math.max(0, span + delta);
   if (!card.dueAt && newSpan === 0) return { startAt: card.startAt, dueAt: undefined };
-  return { startAt: card.startAt, dueAt: atDay(new Date(item.start.getFullYear(), item.start.getMonth(), item.start.getDate() + newSpan), card.dueAt ?? startAt) };
+  return {
+    startAt: card.startAt,
+    dueAt: atDay(
+      new Date(item.start.getFullYear(), item.start.getMonth(), item.start.getDate() + newSpan),
+      card.dueAt ?? startAt,
+    ),
+  };
 }
 
 /** The item as it would look after `rescheduleCard`, for a live preview while dragging. */
