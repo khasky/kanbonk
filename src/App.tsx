@@ -1,14 +1,12 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
   deviceId,
-  listSnapshots,
   loadAttachment,
   loadState,
   readLocalAuthor,
   saveAttachment,
   saveLocalAuthor,
   saveState,
-  type SnapshotMeta,
 } from "./storage";
 import { boardHref, trashHref, useRoute, type CalendarScale, type Route } from "./router";
 import {
@@ -44,14 +42,6 @@ import {
   WorkspacePage,
   ZoneFrame,
 } from "./pages";
-import {
-  autoBackupIntervalMs,
-  autoSnapshot,
-  backupDue,
-  lastAutoBackup,
-  loadAutoBackupSettings,
-  writeAutoBackup,
-} from "./autoBackup";
 import { SettingsDialog } from "./SettingsDialog";
 import { AuthorDialog } from "./dialogs/AuthorDialog";
 import { BackupDialog } from "./dialogs/BackupDialog";
@@ -115,6 +105,7 @@ import { AppHeader, type AppMenuActions, plannerViewId } from "./layout/AppHeade
 import { SearchResults } from "./layout/SearchResults";
 import { Sidebar } from "./layout/Sidebar";
 import { PanelSlot } from "./layout/PanelSlot";
+import { useAutoBackup } from "./hooks/useAutoBackup";
 import { usePanelLayout } from "./hooks/usePanelLayout";
 import { InboxView } from "./panels/InboxView";
 import { PlannerView } from "./panels/PlannerView";
@@ -166,10 +157,7 @@ function App() {
   const [aiSettings, setAiSettings] = useState<AiSettings | null>(readAiSettings);
   const [fileVersion, setFileVersion] = useState(0);
   const [backgroundImage, setBackgroundImage] = useState<{ id: string; url: string } | null>(null);
-  const [snapshots, setSnapshots] = useState<SnapshotMeta[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const autoBackupRunning = useRef(false);
-  const autoBackupError = useRef("");
   const [pendingDelete, setPendingDelete] = useState<{
     kind: TrashKind;
     id: string;
@@ -231,45 +219,7 @@ function App() {
       .catch((cause) => setError(`Could not save changes: ${String(cause)}`));
   }, [fullState, ready]);
 
-  // Automatic backups: local snapshots every 10 minutes (and when the page is hidden) plus full ZIP backups on the schedule from Settings.
-  useEffect(() => {
-    if (!ready) return;
-    const run = () => {
-      void autoSnapshot(stateRef.current)
-        .then((meta) => {
-          if (meta) setSnapshots((current) => [meta, ...current]);
-        })
-        .catch((cause) => setError(`Automatic backup was not created: ${String(cause)}`));
-      if (autoBackupRunning.current) return;
-      autoBackupRunning.current = true;
-      void (async () => {
-        const settings = await loadAutoBackupSettings();
-        if (!backupDue(settings, await lastAutoBackup())) return;
-        await writeAutoBackup(stateRef.current, settings);
-        autoBackupError.current = "";
-      })()
-        .catch((cause) => {
-          // A failing backup is reported once per distinct reason, not every 10 minutes.
-          const message = String(cause instanceof Error ? cause.message : cause);
-          if (message !== autoBackupError.current) setError(`Automatic backup failed: ${message} Check ⋯ → Settings.`);
-          autoBackupError.current = message;
-        })
-        .finally(() => {
-          autoBackupRunning.current = false;
-        });
-    };
-    const first = window.setTimeout(run, 30_000);
-    const interval = window.setInterval(run, autoBackupIntervalMs);
-    const hidden = () => {
-      if (document.visibilityState === "hidden") void autoSnapshot(stateRef.current);
-    };
-    document.addEventListener("visibilitychange", hidden);
-    return () => {
-      window.clearTimeout(first);
-      window.clearInterval(interval);
-      document.removeEventListener("visibilitychange", hidden);
-    };
-  }, [ready]);
+  const { snapshots, refreshSnapshots } = useAutoBackup({ ready, stateRef, onError: setError });
 
   useEffect(() => {
     try {
@@ -472,10 +422,6 @@ function App() {
     saveFile(new Blob([content], { type }), name).catch((cause) =>
       setError(`Could not save “${name}”: ${String(cause)}`),
     );
-  }
-
-  async function refreshBackupInfo() {
-    setSnapshots((await listSnapshots()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
   }
 
   function createWorkspace(name: string) {
@@ -1327,7 +1273,7 @@ function App() {
     onImport: openImport,
     onBackup: () => {
       setBackupOpen(true);
-      void refreshBackupInfo();
+      void refreshSnapshots();
     },
     onSettings: () => setSettingsOpen(true),
     onSync: () => setSyncOpen(true),
@@ -1942,7 +1888,7 @@ function App() {
             setFileVersion((current) => current + 1);
           }}
           snapshots={snapshots}
-          onRefreshSnapshots={refreshBackupInfo}
+          onRefreshSnapshots={refreshSnapshots}
           conflicts={backupConflicts}
           onConflictsFound={setBackupConflicts}
           onChooseConflict={(conflict, version) => {

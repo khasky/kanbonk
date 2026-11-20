@@ -1,4 +1,4 @@
-import { type KeyboardEvent, type PointerEvent as ReactPointerEvent, useEffect, useState } from "react";
+import { type KeyboardEvent, type PointerEvent as ReactPointerEvent, useEffect, useEffectEvent, useState } from "react";
 import { type PanelName, type PanelVisibility, type PanelWidths, readPanelWidths } from "../uiPreferences";
 
 const minWidth = 220;
@@ -14,6 +14,7 @@ export function usePanelLayout({ ready, onError }: { ready: boolean; onError: (m
   const [visiblePanels, setVisiblePanels] = useState<PanelVisibility>({ inbox: false, planner: false });
   const [panelWidths, setPanelWidths] = useState<PanelWidths>(readPanelWidths);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const reportError = useEffectEvent(onError);
 
   const wideLayout = viewportWidth >= wideLayoutWidth;
   const shownPanels: PanelName[] = wideLayout
@@ -45,7 +46,7 @@ export function usePanelLayout({ ready, onError }: { ready: boolean; onError: (m
       if (activePanel) localStorage.setItem("kanbonk-active-panel", activePanel);
       else localStorage.removeItem("kanbonk-active-panel");
     } catch (cause) {
-      onError(`Could not save the selected section: ${String(cause)}`);
+      reportError(`Could not save the selected section: ${String(cause)}`);
     }
   }, [activePanel, ready]);
 
