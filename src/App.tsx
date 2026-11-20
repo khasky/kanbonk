@@ -24,7 +24,7 @@ import {
   type TrashKind,
 } from "./trash";
 
-import { exportTrelloCsv, exportTrelloJson, parseTrelloCsv } from "./trelloFormats";
+import { exportTrelloCsv, exportTrelloJson } from "./trelloFormats";
 import { mergeDuplicate, pairKey } from "./dedupe";
 
 import { ColorInput } from "./ColorInput";
@@ -54,6 +54,8 @@ import {
   writeAutoBackup,
 } from "./autoBackup";
 import { SettingsDialog } from "./SettingsDialog";
+import { ImportDialog } from "./dialogs/ImportDialog";
+import { ensurePersonalWorkspace, personalWorkspaceId } from "./workspaces";
 import {
   createSyncBundle,
   openSyncBundle,
@@ -98,14 +100,6 @@ import {
   type Card,
   type Revision,
 } from "./model";
-import {
-  addImportedBoardWithRevisions,
-  parseTrelloBoard,
-  prepareTrelloWorkspace,
-  readTrelloExport,
-  restoreExistingAttachments,
-  restoreTrelloAttachments,
-} from "./importTrello";
 import { LanSync, newRoomCode } from "./lanSync";
 import { chooseConflict, mergeStates, type SyncConflict } from "./sync";
 
@@ -114,7 +108,6 @@ import { applyCardButton, applyDueRules, applyMoveRules } from "./automation";
 import { dueReminders, reminderSignature } from "./reminders";
 import { applyDueRecurrence } from "./repeatingDue";
 import { ensureInbox, inboxBoardId, inboxListId, inboxWorkspaceId } from "./inbox";
-import { downloadTrelloAttachment, downloadTrelloComments, trelloBridgeAvailable } from "./trelloBridge";
 
 import { AutomationPanel } from "./board/AutomationPanel";
 import { BoardActivity } from "./board/BoardActivity";
@@ -123,10 +116,8 @@ import { ListCards } from "./board/ListCards";
 import { TemplateComposer } from "./board/TemplateComposer";
 import { CardDialog } from "./card/CardDialog";
 import { LocalRoomControls } from "./dialogs/LocalRoomControls";
-import { counted } from "./format";
 import { InboxView } from "./panels/InboxView";
 import { PlannerView } from "./panels/PlannerView";
-import { ElapsedTime } from "./ui/ElapsedTime";
 import { Icon } from "./ui/Icon";
 import { NameEditor } from "./ui/NameEditor";
 import {
@@ -141,8 +132,6 @@ import "./MarkdownText.css";
 import "./activity.css";
 import "./App.css";
 import "./pages.css";
-
-const personalWorkspaceId = "kanbonk-personal-workspace";
 
 const boardColors = ["#147d86", "#0c66e4", "#5e4db2", "#a54800", "#216e4e"];
 const plannerViewId = "kanbonk-planner";
@@ -189,11 +178,7 @@ function App() {
   const [localAuthor, setLocalAuthor] = useState(readLocalAuthor);
   const [authorDialogOpen, setAuthorDialogOpen] = useState(false);
   const [authorDraft, setAuthorDraft] = useState("");
-  const [importFiles, setImportFiles] = useState<File[]>([]);
-  const [importBusy, setImportBusy] = useState(false);
   const boardMenu = useRef<HTMLDetailsElement>(null);
-  const [importTime, setImportTime] = useState<{ start: number; end?: number }>();
-  const [importReport, setImportReport] = useState("");
   const [backupOpen, setBackupOpen] = useState(false);
   const [backupFiles, setBackupFiles] = useState<File[]>([]);
   const [backupBusy, setBackupBusy] = useState(false);
@@ -785,18 +770,7 @@ function App() {
       starred: false,
     };
     setState((current) => {
-      let next = current;
-      if (
-        targetWorkspaceId === personalWorkspaceId &&
-        !next.workspaces.some((item) => item.id === personalWorkspaceId)
-      ) {
-        next = recordRevision(
-          { ...next, workspaces: [...next.workspaces, { id: personalWorkspaceId, name: "Personal" }] },
-          "workspace",
-          personalWorkspaceId,
-          localDeviceId.current,
-        );
-      }
+      const next = ensurePersonalWorkspace(current, targetWorkspaceId, localDeviceId.current);
       if (!next.workspaces.some((item) => item.id === targetWorkspaceId && !item.archived)) return current;
       return recordRevision({ ...next, boards: [...next.boards, created] }, "board", created.id, localDeviceId.current);
     });
@@ -1546,139 +1520,7 @@ function App() {
   }
 
   function openImport() {
-    setImportFiles([]);
-    setImportReport("");
-    setImportTime(undefined);
     setImporting(true);
-  }
-
-  async function importBoard() {
-    if (!importFiles.length) return;
-    setImportBusy(true);
-    setImportTime({ start: Date.now() });
-    setImportReport("");
-    try {
-      const zips = importFiles.filter((file) => file.name.toLowerCase().endsWith(".zip"));
-      const boardFiles = importFiles.filter((file) => !zips.includes(file));
-      if (boardFiles.length > 1) throw new Error("Choose one board JSON or CSV.");
-      const importJson = boardFiles[0];
-      if (importJson?.name.toLowerCase().endsWith(".csv")) {
-        const workspaceId = defaultWorkspaceId ?? personalWorkspaceId;
-        const result = parseTrelloCsv(await importJson.text(), workspaceId, importJson.name.replace(/\.csv$/i, ""));
-        setState((current) => {
-          let next = current;
-          if (workspaceId === personalWorkspaceId && !next.workspaces.some((item) => item.id === personalWorkspaceId))
-            next = recordRevision(
-              { ...next, workspaces: [...next.workspaces, { id: personalWorkspaceId, name: "Personal" }] },
-              "workspace",
-              personalWorkspaceId,
-              localDeviceId.current,
-            );
-          return addImportedBoardWithRevisions(next, result, localDeviceId.current);
-        });
-        setBoardId(result.board.id);
-        setImportReport(
-          `Imported from CSV: ${counted(result.lists.length, "list", "lists")}, ${counted(result.cards.length, "card", "cards")}. ${result.warnings.join(" ")}`,
-        );
-        return;
-      }
-      const exported = zips.length ? await readTrelloExport(zips) : { json: undefined, boardId: "" };
-      let raw = importJson ? JSON.parse(await importJson.text()) : exported.json;
-      if (!raw)
-        throw new Error(
-          "The chosen ZIP files contain no board JSON. Choose all parts of the export, or add the board JSON.",
-        );
-      if (importJson && exported.boardId && exported.boardId !== (raw as { id?: string }).id)
-        throw new Error("The JSON and the ZIP files belong to different Trello boards.");
-      const fallbackWorkspaceId = defaultWorkspaceId ?? personalWorkspaceId;
-      const bridgeAvailable = await trelloBridgeAvailable();
-      const source = raw as { id?: unknown; actions?: unknown; kanbonkCommentsComplete?: unknown };
-      if (
-        bridgeAvailable &&
-        source &&
-        typeof source.id === "string" &&
-        Array.isArray(source.actions) &&
-        source.actions.length >= 1000 &&
-        source.kanbonkCommentsComplete !== true
-      ) {
-        try {
-          raw = { ...source, kanbonkComments: await downloadTrelloComments(source.id), kanbonkCommentsComplete: true };
-        } catch {
-          /* The JSON warning reports that older comments may be missing. */
-        }
-      }
-      const result = parseTrelloBoard(raw, fallbackWorkspaceId);
-      const directDownload = result.attachments.length > 0 && bridgeAvailable;
-      const warnings = await restoreTrelloAttachments(
-        result,
-        zips,
-        directDownload ? downloadTrelloAttachment : undefined,
-      );
-      setState((current) => {
-        let next = current;
-        const prepared = prepareTrelloWorkspace(next, result.organization, fallbackWorkspaceId);
-        next = prepared.state;
-        result.board.workspaceId = prepared.workspaceId;
-        if (prepared.changedWorkspaceId)
-          next = recordRevision(next, "workspace", prepared.changedWorkspaceId, localDeviceId.current);
-        if (
-          prepared.workspaceId === personalWorkspaceId &&
-          !next.workspaces.some((item) => item.id === personalWorkspaceId)
-        ) {
-          next = recordRevision(
-            { ...next, workspaces: [...next.workspaces, { id: personalWorkspaceId, name: "Personal" }] },
-            "workspace",
-            personalWorkspaceId,
-            localDeviceId.current,
-          );
-        }
-        return addImportedBoardWithRevisions(next, result, localDeviceId.current);
-      });
-      if (!result.board.archived) setBoardId(result.board.id);
-      const missingAttachments = warnings.filter((item) => item.startsWith("Could not download attachment"));
-      const missingStickers = warnings.filter((item) => item.startsWith("Could not download sticker"));
-      const unavailable = warnings.length
-        ? `Attachments not fetched: ${missingAttachments.length}. Stickers: ${missingStickers.length}. ${warnings.slice(0, 3).join(" ")}${missingAttachments.length && !zips.length && !directDownload ? " Export the board with the Kanbonk Trello Import extension and choose its ZIP files." : ""}`
-        : "";
-      setImportReport(
-        `Imported: ${counted(result.lists.length, "list", "lists")}, ${counted(result.cards.length, "card", "cards")}, ${counted(result.attachments.length - missingAttachments.length, "attachment", "attachments")}, ${counted(result.stickers.length - missingStickers.length, "sticker", "stickers")}. ${[...result.warnings.filter((item) => !item.startsWith("Attachments need") && !item.startsWith("Trello sticker images need")), unavailable, result.board.archived ? "The board is closed in Trello; you can find it under “Closed boards”." : ""].filter(Boolean).join(" ")}`,
-      );
-    } catch (cause) {
-      setImportReport(`Import failed: ${String(cause)}`);
-    } finally {
-      setImportBusy(false);
-      setImportTime((time) => time && { ...time, end: Date.now() });
-    }
-  }
-
-  async function addMissingAttachments() {
-    const zips = importFiles.filter((file) => file.name.toLowerCase().endsWith(".zip"));
-    if (!zips.length) return;
-    setImportBusy(true);
-    setImportTime({ start: Date.now() });
-    setImportReport("");
-    try {
-      const restored = await restoreExistingAttachments(state, zips);
-      setState(() => {
-        return recordRevisions(
-          restored.state,
-          [
-            ...restored.changedBoards.map((id) => ({ kind: "board" as const, id })),
-            ...restored.changedCards.map((id) => ({ kind: "card" as const, id })),
-          ],
-          localDeviceId.current,
-        );
-      });
-      if (restored.restoredBackgrounds || restored.restoredStickers) setFileVersion((current) => current + 1);
-      setImportReport(
-        `Attachments restored: ${restored.restored}. Stickers: ${restored.restoredStickers}. Board backgrounds: ${restored.restoredBackgrounds}.`,
-      );
-    } catch (cause) {
-      setImportReport(`ZIP error: ${String(cause)}`);
-    } finally {
-      setImportBusy(false);
-      setImportTime((time) => time && { ...time, end: Date.now() });
-    }
   }
 
   function markSynced(deviceId: string) {
@@ -3241,64 +3083,15 @@ function App() {
         </div>
       )}
       {importing && (
-        <div
-          className="dialog-backdrop"
-          onMouseDown={() => {
-            if (!importBusy) setImporting(false);
-          }}
-        >
-          <section
-            className="creation-dialog import-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Import from Trello"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <h2>Import from Trello</h2>
-            <p>
-              To move a board with all its files, install the Kanbonk Trello Import extension: open chrome://extensions
-              or edge://extensions, turn on Developer mode, choose Load unpacked and select the trello-import-extension
-              folder of the project. Then open the board in Trello and press <strong>Export board</strong> in the
-              Kanbonk panel. The board arrives as ZIP parts of about 100 MB.
-            </p>
-            <p>
-              Choose all the parts here at once. A board JSON or CSV exported from Trello also works; attachments are
-              then fetched through the extension while a Trello tab is open.
-            </p>
-            <label>
-              Files from Trello
-              <input
-                type="file"
-                multiple
-                accept=".zip,application/zip,.json,application/json,.csv,text/csv"
-                disabled={importBusy}
-                onChange={(event) => setImportFiles(Array.from(event.target.files ?? []))}
-              />
-            </label>
-            {importFiles.length > 1 && <p className="hint">{counted(importFiles.length, "file", "files")} chosen.</p>}
-            {importTime && <ElapsedTime {...importTime} />}
-            {importReport && (
-              <p className="import-report" role="status">
-                {importReport}
-              </p>
-            )}
-            <div>
-              <button onClick={() => setImporting(false)} disabled={importBusy}>
-                Close
-              </button>
-              <button
-                onClick={addMissingAttachments}
-                disabled={importBusy || !importFiles.some((file) => file.name.toLowerCase().endsWith(".zip"))}
-                title="Fill missing files of a board imported earlier"
-              >
-                Add files to imported board
-              </button>
-              <button className="primary-button" onClick={importBoard} disabled={importBusy || !importFiles.length}>
-                {importBusy ? "Importing…" : "Import"}
-              </button>
-            </div>
-          </section>
-        </div>
+        <ImportDialog
+          state={state}
+          setState={setState}
+          defaultWorkspaceId={defaultWorkspaceId}
+          deviceId={localDeviceId.current}
+          onBoardImported={setBoardId}
+          onFilesRestored={() => setFileVersion((current) => current + 1)}
+          onClose={() => setImporting(false)}
+        />
       )}
       {boardCopy && (
         <div className="dialog-backdrop" onMouseDown={() => setBoardCopy(null)}>
