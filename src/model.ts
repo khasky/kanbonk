@@ -330,14 +330,24 @@ export function transferCard(state: AppState, cardId: string, targetListId: stri
   return { state: { ...state, labels, cards: copy ? [...state.cards, transferred] : state.cards.map((card) => card.id === cardId ? transferred : card) }, cardId: transferred.id };
 }
 
-/** Copies a card as "<name> - Clone" right below the original in the same list. */
+/** "<name> - Clone", with one more " - Clone" for each card of the board that already has the name. */
+export function cloneCardName(state: AppState, cardId: string): string {
+  const source = state.cards.find((card) => card.id === cardId);
+  if (!source) throw new Error("Card not found.");
+  const taken = new Set(state.cards.filter((card) => card.boardId === source.boardId).map((card) => card.name));
+  let name = `${source.name} - Clone`;
+  while (taken.has(name)) name += " - Clone";
+  return name;
+}
+
+/** Copies a card under the name from `cloneCardName` right below the original in the same list. */
 export function cloneCard(state: AppState, cardId: string, copyId = newId()): { state: AppState; cardId: string } {
   const source = state.cards.find((card) => card.id === cardId);
   if (!source) throw new Error("Card not found.");
   const copied = transferCard(state, cardId, source.listId, true, copyId).state;
   const next = copied.cards.filter((card) => card.listId === source.listId && card.id !== copyId && !card.archived && card.position > source.position).sort((a, b) => a.position - b.position)[0];
   const position = next ? (source.position + next.position) / 2 : source.position + 1;
-  return { state: { ...copied, cards: copied.cards.map((card) => card.id === copyId ? { ...card, name: `${source.name} - Clone`, position } : card) }, cardId: copyId };
+  return { state: { ...copied, cards: copied.cards.map((card) => card.id === copyId ? { ...card, name: cloneCardName(state, cardId), position } : card) }, cardId: copyId };
 }
 
 /** Creates a sub-card in the parent's list, below the parent and its existing sub-cards. */

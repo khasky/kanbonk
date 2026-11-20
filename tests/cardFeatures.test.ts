@@ -26,6 +26,12 @@ it("clones a card right below the original with a Clone suffix", () => {
   expect(clone.checklists[0].items[0].checked).toBe(true);
 });
 
+it("adds one more Clone suffix each time the same card is cloned again", () => {
+  let state = sample();
+  for (const id of ["c1", "c2", "c3"]) state = cloneCard(state, "a", id).state;
+  expect(["c1", "c2", "c3"].map((id) => state.cards.find((item) => item.id === id)!.name)).toEqual(["a - Clone", "a - Clone - Clone", "a - Clone - Clone - Clone"]);
+});
+
 it("lists sub-cards and excludes descendants from parent candidates", () => {
   const state = sample();
   expect(subCards(state, "a").map((item) => item.id)).toEqual(["child"]);
