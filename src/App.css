@@ -16,7 +16,6 @@
 
 .list-sort{width:32px;flex:none;border:0;background:transparent;color:#44546f;border-radius:4px;padding:5px 2px;cursor:pointer}.list-sort:hover{background:#dfe1e6}
 
-.helper-code{display:block;width:100%;height:160px;resize:vertical;font:12px/1.4 monospace;margin:10px 0;border:1px solid #dfe1e6;border-radius:4px;padding:8px}
 
 .list-drag-handle{flex:none;cursor:grab;color:#626f86;user-select:none;padding:4px 1px}.list-drag-handle:active{cursor:grabbing}
 

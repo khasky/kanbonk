@@ -80,9 +80,22 @@ async function downloadTrelloSticker(urlValue: string): Promise<Blob> {
   return blob;
 }
 
+/** Written into every part by the Kanbonk Trello Import extension. */
+const exportManifestName = "kanbonk-export.json";
+const exportReportNames = new Set([exportManifestName, "failed-files.txt", "failed-attachments.txt"]);
+
+interface ExportManifest { exportId: string; boardId: string; part: number; parts?: number }
+
+function exportManifest(files: Record<string, Uint8Array>): ExportManifest | undefined {
+  if (!files[exportManifestName]) return undefined;
+  const value = object(JSON.parse(strFromU8(files[exportManifestName])));
+  if (value.format !== "kanbonk-trello-export" || !string(value.exportId) || !string(value.boardId) || !Number.isSafeInteger(value.part) || (value.parts !== undefined && !Number.isSafeInteger(value.parts))) throw new Error("The export part has an invalid manifest.");
+  return { exportId: string(value.exportId), boardId: string(value.boardId), part: value.part as number, parts: value.parts as number | undefined };
+}
+
 function attachmentEntries(files: Record<string, Uint8Array>): Array<[string, Uint8Array]> {
   return Object.entries(files).filter(([path, data]) => {
-    if (path.endsWith("/") || path.startsWith("background/") || path.startsWith("stickers/")) return false;
+    if (path.endsWith("/") || path.startsWith("background/") || path.startsWith("stickers/") || exportReportNames.has(path)) return false;
     if (path.startsWith("attachments/")) return true;
     if (!path.toLowerCase().endsWith(".json")) return true;
     try {
@@ -252,51 +265,93 @@ export function prepareTrelloWorkspace(state: AppState, organization: ImportResu
   return { state: { ...state, workspaces: [...state.workspaces, workspace] }, workspaceId: workspace.id, changedWorkspaceId: workspace.id };
 }
 
-export async function restoreTrelloAttachments(result: ImportResult, zipFile?: File, download?: (url: string) => Promise<Blob>): Promise<string[]> {
+async function readZip(zipFile: File, filter?: (path: string) => boolean): Promise<Record<string, Uint8Array>> {
+  try { return unzipSync(new Uint8Array(await zipFile.arrayBuffer()), filter ? { filter: (file) => filter(file.name) } : undefined); }
+  catch { throw new Error(`Could not read the ZIP “${zipFile.name}”.`); }
+}
+
+const zipList = (zipFiles?: File | File[]) => zipFiles === undefined ? [] : Array.isArray(zipFiles) ? zipFiles : [zipFiles];
+
+/**
+ * Reads the board JSON and the part manifests of the chosen ZIPs without unpacking the files in them.
+ * Parts made by the extension must come from one export and all be present; older ZIPs have no manifest.
+ */
+export async function readTrelloExport(zipFiles: File[]): Promise<{ json?: unknown; boardId: string }> {
+  const boards: unknown[] = [];
+  const manifests: ExportManifest[] = [];
+  for (const zipFile of zipFiles) {
+    const files = await readZip(zipFile, (path) => path.toLowerCase().endsWith(".json") && !/^(attachments|background|stickers)\//.test(path));
+    const manifest = exportManifest(files);
+    if (manifest) manifests.push(manifest);
+    for (const [, data] of boardJsonEntries(files)) boards.push(JSON.parse(strFromU8(data)));
+  }
+  if (boards.length > 1) throw new Error("The chosen ZIP files contain several board JSON files; choose the parts of one export.");
+  if (manifests.length) {
+    if (manifests.some((item) => item.exportId !== manifests[0].exportId)) throw new Error("The chosen ZIP files belong to different exports; choose the parts of one export.");
+    const parts = manifests.find((item) => item.parts)?.parts;
+    const present = new Set(manifests.map((item) => item.part));
+    const missing = parts ? Array.from({ length: parts }, (_, index) => index + 1).filter((part) => !present.has(part)) : [];
+    if (!parts) throw new Error("The last part of the export was not chosen.");
+    if (missing.length) throw new Error(`Not all parts of the export were chosen; missing: ${missing.join(", ")}.`);
+  }
+  return { json: boards[0], boardId: string(object(boards[0]).id) || manifests[0]?.boardId || "" };
+}
+
+/** Saves attachments, stickers and the background from the ZIP parts, one part in memory at a time; what is not in them is downloaded when possible. */
+export async function restoreTrelloAttachments(result: ImportResult, zipFiles?: File | File[], download?: (url: string) => Promise<Blob>): Promise<string[]> {
+  type PendingAttachment = ImportResult["attachments"][number];
+  type PendingSticker = ImportResult["stickers"][number];
   const warnings: string[] = [];
-  let files: Record<string, Uint8Array> = {};
-  if (zipFile) {
-    try { files = unzipSync(new Uint8Array(await zipFile.arrayBuffer())); }
-    catch { throw new Error("Could not read the ZIP with attachments."); }
+  const pendingAttachments = new Set(result.attachments);
+  const pendingStickers = new Set(result.stickers);
+  const savedAttachment = (attachment: PendingAttachment) => result.cards.find((item) => item.attachments.some((entry) => entry.id === attachment.id))?.attachments.find((entry) => entry.id === attachment.id);
+  async function keepAttachment(attachment: PendingAttachment, blob: Blob) {
+    const saved = savedAttachment(attachment);
+    if (saved?.size && blob.size !== saved.size) return;
+    await saveAttachment(attachment.id, blob);
+    if (saved) { saved.status = "local"; saved.size = blob.size; }
+    pendingAttachments.delete(attachment);
   }
-  const entries = attachmentEntries(files);
-  const background = backgroundEntry(files, result.board.sourceTrelloId ?? "");
-  if (background) {
-    const id = newId();
-    await saveAttachment(id, new Blob([new Uint8Array(background[1])], { type: backgroundMimeType(background[0]) }));
-    result.board.backgroundImageId = id;
-    result.warnings = result.warnings.filter((warning) => !warning.startsWith("Background image"));
-  }
-  for (const attachment of result.attachments) {
-    const uniqueName = result.attachments.filter((item) => item.name === attachment.name).length === 1;
-    const card = result.cards.find((item) => item.attachments.some((entry) => entry.id === attachment.id));
-    const saved = card?.attachments.find((entry) => entry.id === attachment.id);
-    const candidates = matchingZipEntries(entries, attachment.trelloId, attachment.name, uniqueName, saved?.size ?? 0);
-    let blob: Blob | undefined;
-    if (candidates.length === 1) blob = new Blob([new Uint8Array(candidates[0][1])], { type: attachment.mimeType });
-    else if (download) {
-      try { blob = await download(attachment.sourceUrl); }
-      catch { /* The attachment remains marked as missing. */ }
-    }
-    if (blob && saved?.size && blob.size !== saved.size) blob = undefined;
-    if (blob) {
-      await saveAttachment(attachment.id, blob);
-      if (saved) { saved.status = "local"; saved.size = blob.size; }
-    } else warnings.push(`Could not download attachment “${attachment.name}”.`);
-  }
-  for (const sticker of result.stickers) {
-    const matches = Object.entries(files).filter(([path]) => path.startsWith(`stickers/${sticker.trelloId}/`) && !path.endsWith("/"));
-    let blob: Blob | undefined;
-    if (matches.length === 1) blob = new Blob([new Uint8Array(matches[0][1])], { type: backgroundMimeType(matches[0][0]) });
-    else if (sticker.sourceUrl) {
-      try { blob = await downloadTrelloSticker(sticker.sourceUrl); }
-      catch { /* The sticker remains marked as missing. */ }
-    }
-    if (!blob) { warnings.push(`Could not download sticker “${sticker.name}”.`); continue; }
+  async function keepSticker(sticker: PendingSticker, blob: Blob) {
     await saveAttachment(sticker.id, blob);
     const card = result.cards.find((item) => item.stickers?.some((value) => typeof value !== "string" && value.imageId === sticker.id));
     const saved = card?.stickers?.find((value) => typeof value !== "string" && value.imageId === sticker.id);
     if (saved && typeof saved !== "string") saved.status = "local";
+    pendingStickers.delete(sticker);
+  }
+  for (const zipFile of zipList(zipFiles)) {
+    const files = await readZip(zipFile);
+    const entries = attachmentEntries(files);
+    const background = result.board.backgroundImageId ? undefined : backgroundEntry(files, result.board.sourceTrelloId ?? "");
+    if (background) {
+      const id = newId();
+      await saveAttachment(id, new Blob([new Uint8Array(background[1])], { type: backgroundMimeType(background[0]) }));
+      result.board.backgroundImageId = id;
+      result.warnings = result.warnings.filter((warning) => !warning.startsWith("Background image"));
+    }
+    for (const attachment of [...pendingAttachments]) {
+      const uniqueName = result.attachments.filter((item) => item.name === attachment.name).length === 1;
+      const candidates = matchingZipEntries(entries, attachment.trelloId, attachment.name, uniqueName, savedAttachment(attachment)?.size ?? 0);
+      if (candidates.length === 1) await keepAttachment(attachment, new Blob([new Uint8Array(candidates[0][1])], { type: attachment.mimeType }));
+    }
+    for (const sticker of [...pendingStickers]) {
+      const matches = Object.entries(files).filter(([path]) => path.startsWith(`stickers/${sticker.trelloId}/`) && !path.endsWith("/"));
+      if (matches.length === 1) await keepSticker(sticker, new Blob([new Uint8Array(matches[0][1])], { type: backgroundMimeType(matches[0][0]) }));
+    }
+  }
+  for (const attachment of [...pendingAttachments]) {
+    if (download) {
+      try { await keepAttachment(attachment, await download(attachment.sourceUrl)); }
+      catch { /* The attachment remains marked as missing. */ }
+    }
+    if (pendingAttachments.has(attachment)) warnings.push(`Could not download attachment “${attachment.name}”.`);
+  }
+  for (const sticker of [...pendingStickers]) {
+    if (sticker.sourceUrl) {
+      try { await keepSticker(sticker, await downloadTrelloSticker(sticker.sourceUrl)); }
+      catch { /* The sticker remains marked as missing. */ }
+    }
+    if (pendingStickers.has(sticker)) warnings.push(`Could not download sticker “${sticker.name}”.`);
   }
   return warnings;
 }
@@ -317,31 +372,33 @@ export function addImportedBoardWithRevisions(state: AppState, result: ImportRes
   return { ...next, activity: importedActivity };
 }
 
-export function parseTrelloZip(zipFile: Uint8Array): { json: unknown; attachments: Record<string, Uint8Array> } {
-  const files = unzipSync(zipFile);
-  const jsonFiles = boardJsonEntries(files);
-  if (jsonFiles.length !== 1) throw new Error("The ZIP must contain exactly one Trello board JSON file.");
-  return { json: JSON.parse(strFromU8(jsonFiles[0][1])), attachments: files };
-}
-
 function trelloBoardIdInZip(files: Record<string, Uint8Array>): string {
   const boardIds = boardJsonEntries(files).map(([, data]) => string(object(JSON.parse(strFromU8(data))).id));
   if (boardIds.length > 1) throw new Error("The ZIP contains several board JSON files.");
   return boardIds[0] ?? "";
 }
 
-export async function readTrelloZipBoardId(zipFile: File): Promise<string> {
-  let files: Record<string, Uint8Array>;
-  try { files = unzipSync(new Uint8Array(await zipFile.arrayBuffer())); }
-  catch { throw new Error("Could not read the ZIP with attachments."); }
-  return trelloBoardIdInZip(files);
+type RestoredAttachments = { state: AppState; restored: number; restoredStickers: number; restoredBackgrounds: number; changedCards: string[]; changedBoards: string[] };
+
+/** Fills missing attachments, stickers and backgrounds of imported boards from ZIP parts, one part in memory at a time. */
+export async function restoreExistingAttachments(state: AppState, zipFiles: File | File[]): Promise<RestoredAttachments> {
+  let total: RestoredAttachments = { state, restored: 0, restoredStickers: 0, restoredBackgrounds: 0, changedCards: [], changedBoards: [] };
+  for (const zipFile of zipList(zipFiles)) {
+    const part = await restoreFromZip(total.state, await readZip(zipFile));
+    total = {
+      state: part.state,
+      restored: total.restored + part.restored,
+      restoredStickers: total.restoredStickers + part.restoredStickers,
+      restoredBackgrounds: total.restoredBackgrounds + part.restoredBackgrounds,
+      changedCards: [...new Set([...total.changedCards, ...part.changedCards])],
+      changedBoards: [...new Set([...total.changedBoards, ...part.changedBoards])],
+    };
+  }
+  return total;
 }
 
-export async function restoreExistingAttachments(state: AppState, zipFile: File): Promise<{ state: AppState; restored: number; restoredStickers: number; restoredBackgrounds: number; changedCards: string[]; changedBoards: string[] }> {
-  let files: Record<string, Uint8Array>;
-  try { files = unzipSync(new Uint8Array(await zipFile.arrayBuffer())); }
-  catch { throw new Error("Could not read the ZIP with attachments."); }
-  const zipBoardId = trelloBoardIdInZip(files);
+async function restoreFromZip(state: AppState, files: Record<string, Uint8Array>): Promise<RestoredAttachments> {
+  const zipBoardId = trelloBoardIdInZip(files) || exportManifest(files)?.boardId || "";
   if (zipBoardId && !state.boards.some((board) => board.sourceTrelloId === zipBoardId)) throw new Error("The board from the ZIP was not found among imported boards.");
   const allowedBoardIds = new Set(state.boards.filter((board) => !zipBoardId || board.sourceTrelloId === zipBoardId).map((board) => board.id));
   const entries = attachmentEntries(files);

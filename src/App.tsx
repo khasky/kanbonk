@@ -19,7 +19,7 @@ import { BoardCalendar, DedupeDialog, DeleteDialog, HomePage, MissingPage, Trash
 import { autoBackupIntervalMs, autoSnapshot, backupFolderName, chooseBackupFolder, folderBackupSupported, forgetBackupFolder, lastFolderBackup, writeFolderBackup } from "./autoBackup";
 import { createSyncBundle, openSyncBundle, readTrustedDevices, saveTrustedDevices, tabChannel, trustDevice, type SyncTransport, type TrustedDevice } from "./devices";
 import { cloneCard, createSubCard, parentCandidates, subCards, type Label, type Member, rememberStateIds, recordRevisions, canEditComment, convertChecklistItem, copyBoard, copyList, createCardFromTemplate, deleteLabel, emptyBoardFilter, emptyState, filterBoardCards, isCardAvailable, linkDependency, markMediaLocal, moveChecklistItem, newId, positionBefore, recordRevision, restoreRevision, searchCards, sortListCards, transferCard, unlinkDependency, type AppState, type AutomationRule, type Board, type BoardFilter, type BoardList, type Zone, type Card, type Checklist, type Revision } from "./model";
-import { addImportedBoardWithRevisions, parseTrelloBoard, parseTrelloZip, prepareTrelloWorkspace, readTrelloZipBoardId, restoreExistingAttachments, restoreTrelloAttachments } from "./importTrello";
+import { addImportedBoardWithRevisions, parseTrelloBoard, prepareTrelloWorkspace, readTrelloExport, restoreExistingAttachments, restoreTrelloAttachments } from "./importTrello";
 import { LanSync, newRoomCode } from "./lanSync";
 import { chooseConflict, mergeStates, type SyncConflict } from "./sync";
 import { importedCardForUrl, relatedCards } from "./links";
@@ -167,11 +167,9 @@ function App() {
   const [localAuthor, setLocalAuthor] = useState(readLocalAuthor);
   const [authorDialogOpen, setAuthorDialogOpen] = useState(false);
   const [authorDraft, setAuthorDraft] = useState("");
-  const [importJson, setImportJson] = useState<File | null>(null);
-  const [importZip, setImportZip] = useState<File | null>(null);
+  const [importFiles, setImportFiles] = useState<File[]>([]);
   const [importBusy, setImportBusy] = useState(false);
   const [importReport, setImportReport] = useState("");
-  const [helperCode, setHelperCode] = useState("");
   const [backupOpen, setBackupOpen] = useState(false);
   const [backupFiles, setBackupFiles] = useState<File[]>([]);
   const [backupBusy, setBackupBusy] = useState(false);
@@ -867,18 +865,20 @@ function App() {
   }
 
   function openImport() {
-    setImportJson(null);
-    setImportZip(null);
+    setImportFiles([]);
     setImportReport("");
-    setHelperCode("");
     setImporting(true);
   }
 
   async function importBoard() {
-    if (!importJson && !importZip) return;
+    if (!importFiles.length) return;
     setImportBusy(true);
     setImportReport("");
     try {
+      const zips = importFiles.filter((file) => file.name.toLowerCase().endsWith(".zip"));
+      const boardFiles = importFiles.filter((file) => !zips.includes(file));
+      if (boardFiles.length > 1) throw new Error("Choose one board JSON or CSV.");
+      const importJson = boardFiles[0];
       if (importJson?.name.toLowerCase().endsWith(".csv")) {
         const workspaceId = defaultWorkspaceId ?? personalWorkspaceId;
         const result = parseTrelloCsv(await importJson.text(), workspaceId, importJson.name.replace(/\.csv$/i, ""));
@@ -891,11 +891,10 @@ function App() {
         setImportReport(`Imported from CSV: ${counted(result.lists.length, "list", "lists")}, ${counted(result.cards.length, "card", "cards")}. ${result.warnings.join(" ")}`);
         return;
       }
-      let raw = importJson ? JSON.parse(await importJson.text()) : parseTrelloZip(new Uint8Array(await importZip!.arrayBuffer())).json;
-      if (importJson && importZip) {
-        const zipBoardId = await readTrelloZipBoardId(importZip);
-        if (zipBoardId && zipBoardId !== (raw as { id?: string }).id) throw new Error("The JSON and ZIP belong to different Trello boards.");
-      }
+      const exported = zips.length ? await readTrelloExport(zips) : { json: undefined, boardId: "" };
+      let raw = importJson ? JSON.parse(await importJson.text()) : exported.json;
+      if (!raw) throw new Error("The chosen ZIP files contain no board JSON. Choose all parts of the export, or add the board JSON.");
+      if (importJson && exported.boardId && exported.boardId !== (raw as { id?: string }).id) throw new Error("The JSON and the ZIP files belong to different Trello boards.");
       const fallbackWorkspaceId = defaultWorkspaceId ?? personalWorkspaceId;
       const bridgeAvailable = await trelloBridgeAvailable();
       const source = raw as { id?: unknown; actions?: unknown; kanbonkCommentsComplete?: unknown };
@@ -905,7 +904,7 @@ function App() {
       }
       const result = parseTrelloBoard(raw, fallbackWorkspaceId);
       const directDownload = result.attachments.length > 0 && bridgeAvailable;
-      const warnings = await restoreTrelloAttachments(result, importZip ?? undefined, directDownload ? downloadTrelloAttachment : undefined);
+      const warnings = await restoreTrelloAttachments(result, zips, directDownload ? downloadTrelloAttachment : undefined);
       setState((current) => {
         let next = current;
         const prepared = prepareTrelloWorkspace(next, result.organization, fallbackWorkspaceId);
@@ -920,18 +919,19 @@ function App() {
       if (!result.board.archived) setBoardId(result.board.id);
       const missingAttachments = warnings.filter((item) => item.startsWith("Could not download attachment"));
       const missingStickers = warnings.filter((item) => item.startsWith("Could not download sticker"));
-      const unavailable = warnings.length ? `Attachments not fetched: ${missingAttachments.length}. Stickers: ${missingStickers.length}. ${warnings.slice(0, 3).join(" ")}${missingAttachments.length && !importZip && !directDownload ? " For direct download, check the Kanbonk Trello Import extension and an open, signed-in Trello tab, or add a ZIP." : ""}` : "";
+      const unavailable = warnings.length ? `Attachments not fetched: ${missingAttachments.length}. Stickers: ${missingStickers.length}. ${warnings.slice(0, 3).join(" ")}${missingAttachments.length && !zips.length && !directDownload ? " Export the board with the Kanbonk Trello Import extension and choose its ZIP files." : ""}` : "";
       setImportReport(`Imported: ${counted(result.lists.length, "list", "lists")}, ${counted(result.cards.length, "card", "cards")}, ${counted(result.attachments.length - missingAttachments.length, "attachment", "attachments")}, ${counted(result.stickers.length - missingStickers.length, "sticker", "stickers")}. ${[...result.warnings.filter((item) => !item.startsWith("Attachments need") && !item.startsWith("Trello sticker images need")), unavailable, result.board.archived ? "The board is closed in Trello; you can find it under “Closed boards”." : ""].filter(Boolean).join(" ")}`);
     } catch (cause) { setImportReport(`Import failed: ${String(cause)}`); }
     finally { setImportBusy(false); }
   }
 
   async function addMissingAttachments() {
-    if (!importZip) return;
+    const zips = importFiles.filter((file) => file.name.toLowerCase().endsWith(".zip"));
+    if (!zips.length) return;
     setImportBusy(true);
     setImportReport("");
     try {
-      const restored = await restoreExistingAttachments(state, importZip);
+      const restored = await restoreExistingAttachments(state, zips);
       setState(() => {
         return recordRevisions(restored.state, [...restored.changedBoards.map((id) => ({ kind: "board" as const, id })), ...restored.changedCards.map((id) => ({ kind: "card" as const, id }))], localDeviceId.current);
       });
@@ -939,24 +939,6 @@ function App() {
       setImportReport(`Attachments restored: ${restored.restored}. Stickers: ${restored.restoredStickers}. Board backgrounds: ${restored.restoredBackgrounds}.`);
     } catch (cause) { setImportReport(`ZIP error: ${String(cause)}`); }
     finally { setImportBusy(false); }
-  }
-
-  async function copyTrelloHelper() {
-    try {
-      const response = await fetch("/trello-helper.js");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const code = await response.text();
-      if (navigator.clipboard?.writeText) {
-        try {
-          await navigator.clipboard.writeText(code);
-          setHelperCode("");
-          setImportReport("Code copied. Open the Trello board, paste the code into the browser console and wait for the ZIP files. The first ZIP contains the board JSON.");
-          return;
-        } catch { /* Clipboard API may be denied on a local-network page. */ }
-      }
-      setHelperCode(code);
-      setImportReport("Select the code below and copy it manually, then paste it into the console on the Trello board page.");
-    } catch (cause) { setImportReport(`Could not copy the helper: ${String(cause)}`); }
   }
 
   function markSynced(deviceId: string) {
@@ -1127,7 +1109,7 @@ function App() {
         {snapshots.length ? <div className="snapshot-list">{snapshots.map((meta) => <div className="panel-row" key={meta.id}><span><strong>{new Date(meta.createdAt).toLocaleString("en-US")}</strong><small>boards: {meta.boards}, cards: {meta.cards}, {Math.round(meta.size / 1024)} KB</small></span><button onClick={() => void restoreSnapshot(meta)}>Restore</button></div>)}</div> : <p>No snapshots yet.</p>}
       </section>{backupReport && <p className="import-report" role="status">{backupReport}</p>}{backupConflicts.map((conflict) => <div className="sync-conflict" key={`${conflict.kind}-${conflict.id}`}><strong>Conflict: {conflict.local.name}</strong><small>Choose a version of this item.</small><div><button onClick={() => { setState((current) => chooseConflict(current, conflict, "local", localDeviceId.current)); setBackupConflicts((current) => current.filter((item) => item !== conflict)); }}>Current version</button><button onClick={() => { setState((current) => chooseConflict(current, conflict, "remote", localDeviceId.current)); setBackupConflicts((current) => current.filter((item) => item !== conflict)); }}>Backup version</button></div></div>)}<div><button onClick={() => setBackupOpen(false)} disabled={backupBusy}>Close</button></div></section></div>}
     {authorDialogOpen && <div className="dialog-backdrop" onMouseDown={() => setAuthorDialogOpen(false)}><form className="creation-dialog" role="dialog" aria-modal="true" aria-label="My name" onMouseDown={(event) => event.stopPropagation()} onSubmit={(event) => { event.preventDefault(); setLocalAuthor(saveLocalAuthor(authorDraft)); setAuthorDialogOpen(false); }}><h2>My name</h2><p>Your name is stored only on this device and shown on new comments.</p><label>Name<input autoFocus value={authorDraft} onChange={(event) => setAuthorDraft(event.target.value)} maxLength={60} required /></label><div><button type="button" onClick={() => setAuthorDialogOpen(false)}>Cancel</button><button className="primary-button" disabled={!authorDraft.trim()}>Save</button></div></form></div>}
-    {importing && <div className="dialog-backdrop" onMouseDown={() => setImporting(false)}><section className="creation-dialog import-dialog" role="dialog" aria-modal="true" aria-label="Import from Trello" onMouseDown={(event) => event.stopPropagation()}><h2>Import from Trello</h2><p>Choose the board JSON. If the Kanbonk Trello Import extension is installed in Chrome and a Trello tab is open in the same profile, attachments and the full comment history download directly when Kanbonk is opened via localhost. The extension is in the project's trello-bridge folder; load it via chrome://extensions as an unpacked extension.</p><p>You can also choose a ZIP with attachments. To get it from a signed-in Trello, copy the helper and run it in the browser console on the board page.</p><button onClick={copyTrelloHelper}>Copy Trello helper</button><label>Board JSON or CSV<input type="file" accept=".json,application/json,.csv,text/csv" onChange={(event) => setImportJson(event.target.files?.[0] ?? null)} /></label><label>ZIP with attachments<input type="file" accept=".zip,application/zip" onChange={(event) => setImportZip(event.target.files?.[0] ?? null)} /></label>{importReport && <p className="import-report" role="status">{importReport}</p>}{helperCode && <textarea className="helper-code" aria-label="Trello helper code" readOnly value={helperCode} onFocus={(event) => event.target.select()} />}<div><button onClick={() => setImporting(false)}>Close</button><button onClick={addMissingAttachments} disabled={importBusy || !importZip}>Load attachments from ZIP</button><button className="primary-button" onClick={importBoard} disabled={importBusy || (!importJson && !importZip)}>{importBusy ? "Importing…" : "Import"}</button></div></section></div>}
+    {importing && <div className="dialog-backdrop" onMouseDown={() => setImporting(false)}><section className="creation-dialog import-dialog" role="dialog" aria-modal="true" aria-label="Import from Trello" onMouseDown={(event) => event.stopPropagation()}><h2>Import from Trello</h2><p>To move a board with all its files, install the Kanbonk Trello Import extension: open chrome://extensions or edge://extensions, turn on Developer mode, choose Load unpacked and select the trello-import-extension folder of the project. Then open the board in Trello and press <strong>Export board</strong> in the Kanbonk panel. The board arrives as ZIP parts of about 100 MB.</p><p>Choose all the parts here at once. A board JSON or CSV exported from Trello also works; attachments are then fetched through the extension while a Trello tab is open.</p><label>Files from Trello<input type="file" multiple accept=".zip,application/zip,.json,application/json,.csv,text/csv" onChange={(event) => setImportFiles(Array.from(event.target.files ?? []))} /></label>{importFiles.length > 1 && <p className="hint">{counted(importFiles.length, "file", "files")} chosen.</p>}{importReport && <p className="import-report" role="status">{importReport}</p>}<div><button onClick={() => setImporting(false)}>Close</button><button onClick={addMissingAttachments} disabled={importBusy || !importFiles.some((file) => file.name.toLowerCase().endsWith(".zip"))} title="Fill missing files of a board imported earlier">Add files to imported board</button><button className="primary-button" onClick={importBoard} disabled={importBusy || !importFiles.length}>{importBusy ? "Importing…" : "Import"}</button></div></section></div>}
     {boardCopy && <div className="dialog-backdrop" onMouseDown={() => setBoardCopy(null)}><form className="creation-dialog board-copy-dialog" role="dialog" aria-modal="true" aria-label="Copy board" onMouseDown={(event) => event.stopPropagation()} onSubmit={(event) => { event.preventDefault(); submitBoardCopy(); }}><h2>Copy board</h2><label>Title<input autoFocus value={boardCopy.name} onChange={(event) => setBoardCopy({ ...boardCopy, name: event.target.value })} required maxLength={120} /></label><label>Workspace<select value={boardCopy.workspaceId} onChange={(event) => setBoardCopy({ ...boardCopy, workspaceId: event.target.value })}>{state.workspaces.filter((item) => item.id !== inboxWorkspaceId && !item.archived).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label className="copy-option"><input type="checkbox" checked={boardCopy.keepCards} onChange={(event) => setBoardCopy({ ...boardCopy, keepCards: event.target.checked })} />Keep cards</label><label className="copy-option"><input type="checkbox" checked={boardCopy.keepTemplates} onChange={(event) => setBoardCopy({ ...boardCopy, keepTemplates: event.target.checked })} />Keep card templates</label><p>Comments, members and archived cards are not copied.</p><div><button type="button" onClick={() => setBoardCopy(null)}>Cancel</button><button className="primary-button" type="submit">Create copy</button></div></form></div>}    {creation && <div className="dialog-backdrop" onMouseDown={() => setCreation(null)}><form className="creation-dialog" role="dialog" aria-modal="true" aria-label={creation.kind === "board" ? "Create board" : "Create workspace"} onMouseDown={(event) => event.stopPropagation()} onSubmit={(event) => { event.preventDefault(); submitCreation(); }}><h2>{creation.kind === "board" ? "Create board" : "Create workspace"}</h2><label>Title<input autoFocus value={creationName} onChange={(event) => setCreationName(event.target.value)} required maxLength={120} /></label><div><button type="button" onClick={() => setCreation(null)}>Cancel</button><button className="primary-button" type="submit">Create</button></div></form></div>}
   </div>;
 }

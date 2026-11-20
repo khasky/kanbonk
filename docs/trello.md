@@ -2,17 +2,17 @@
 
 Kanbonk reads Trello's JSON export, ZIP archives with attachments and Trello's CSV, and writes boards back as Trello-shaped JSON or CSV.
 
-Code: [`src/importTrello.ts`](../src/importTrello.ts) (JSON and ZIP import), [`src/trelloFormats.ts`](../src/trelloFormats.ts) (JSON/CSV export, CSV import), [`src/trelloBridge.ts`](../src/trelloBridge.ts) and [`trello-bridge/`](../trello-bridge) (attachment download helper).
+Code: [`src/importTrello.ts`](../src/importTrello.ts) (JSON and ZIP import), [`src/trelloFormats.ts`](../src/trelloFormats.ts) (JSON/CSV export, CSV import), [`src/trelloBridge.ts`](../src/trelloBridge.ts) and [`trello-import-extension/`](../trello-import-extension) (board export and attachment download).
 
 ## Import
 
-Open **⋯ → Import from Trello** and pick a file.
+Open **⋯ → Import from Trello** and choose the files; several ZIP parts and a JSON can be chosen at once.
 
 | Input | How to get it in Trello | What Kanbonk imports |
 |---|---|---|
 | JSON | Board menu → Print, export and share → Export as JSON | Everything in the JSON (see below); attachments as "missing" until their files arrive |
-| ZIP with JSON and files | Made by the Kanbonk helper (below) or by hand | JSON plus attachment bytes |
-| Extra ZIP parts | **Load attachments from ZIP** after an import | Attachment bytes for an existing import |
+| ZIP parts with JSON and files | **Export board** in the Kanbonk Trello Import extension (below), or by hand | JSON plus attachment, sticker and background bytes |
+| More ZIP parts later | **Add files to imported board** | Missing files of a board imported earlier |
 | CSV | Board menu → Print, export and share → Export as CSV (Trello Premium) | Lists and cards with names, descriptions, labels, members, start and due dates |
 
 From JSON Kanbonk restores boards, lists, cards, descriptions, labels with all 30 Trello colors, members, start and due dates, checklists, comments and the `actions` log, card templates, covers, sticker metadata and attachment links. Closed Trello boards stay closed. Card creation times come from the timestamp inside the 24-hex Trello ID or from the `createCard` action and drive the calendar view.
@@ -23,16 +23,25 @@ Boards from one Trello workspace land in one Kanbonk workspace, matched by the T
 
 ### Limits of Trello's JSON
 
-- [A board JSON export contains only the latest 1000 actions](https://support.atlassian.com/trello/docs/exporting-data-from-trello/). Older activity and comments may be missing; Kanbonk warns about it. The helper and the bridge extension fetch the full comment history page by page.
+- [A board JSON export contains only the latest 1000 actions](https://support.atlassian.com/trello/docs/exporting-data-from-trello/). Older activity and comments may be missing; Kanbonk warns about it. The extension fetches the full comment history page by page.
 - Attachments uploaded to Trello are only links in the JSON and need an authorized Trello session to download.
 
 ### Getting attachments
 
-Pick whichever works for you:
+**Kanbonk Trello Import extension (Chrome, Edge).** Open `chrome://extensions` or `edge://extensions`, turn on **Developer mode**, choose **Load unpacked** and select [`trello-import-extension/`](../trello-import-extension). Sign in to Trello in the same browser profile.
 
-1. **Helper script.** In the import dialog press **Copy Trello helper**, open the board in Trello, paste the code into the browser console and wait. It downloads ZIP parts: the first contains `board.json`, the others contain batches of files. Import the first ZIP, then add the rest with **Load attachments from ZIP**.
-2. **Bridge extension (Chrome).** Load [`trello-bridge/`](../trello-bridge) as an unpacked extension, sign in to Trello in the same profile and keep a Trello tab open. When you import JSON into Kanbonk opened from `http://localhost` or `http://127.0.0.1`, attachments and the full comment history are fetched through that tab. The extension can only read `trello.com` and only accepts requests from local Kanbonk pages, so it does not work from the Kanbonk extension or the native apps.
-3. **Your own ZIP.** Put files under paths that contain the Trello attachment ID. A board background can go to `background/<Trello board ID>/<file>`.
+1. Open the board in Trello. A **Kanbonk export** panel appears in the lower right corner.
+2. Press **Export board**. The panel shows the progress: board data, comments, then files with their count and size. **Cancel** stops the export.
+3. The board is saved to the downloads folder as `<board> - Kanbonk export - part N.zip`, the last one marked `(last)`. Allow the site to download multiple files if the browser asks.
+4. In Kanbonk choose all the parts at once in **⋯ → Import from Trello** and press **Import**.
+
+Each part holds files up to about 100 MB in total; a larger file gets a part of its own. Part 1 contains `board.json` with the full comment history, the workspace name and stickers. Every part contains `kanbonk-export.json` with the export ID and the part number, and the last part also states the number of parts, so Kanbonk refuses an incomplete or mixed selection and names the missing parts. Files that could not be downloaded are listed in the panel and in `failed-files.txt` of the last part. Kanbonk reads the parts one at a time, so a large export does not have to fit in memory at once.
+
+The same extension also lets Kanbonk opened from `http://localhost:1420` or `http://127.0.0.1:4173` fetch attachments and the full comment history while a Trello tab is open, when you import a plain board JSON. It can only read `trello.com` and only accepts these requests from local Kanbonk pages, so this path does not work from the Kanbonk extension or the native apps; use the ZIP parts there.
+
+**Your own ZIP.** Put files under paths that contain the Trello attachment ID. A board background can go to `background/<Trello board ID>/<file>`.
+
+ZIP parts made by the console helper of earlier versions (`<board>-1.zip`, `<board>-2.zip`, …) are imported the same way: choose all of them at once.
 
 Attachments are matched by Trello ID in the ZIP path; a match by file name is accepted only when the name is unique and the size matches the JSON. Each attachment shows its status: local, missing or link.
 

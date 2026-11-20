@@ -123,7 +123,7 @@ The design and its limits are described in [docs/sync.md](docs/sync.md).
 | [AI and the board document](docs/ai.md) | Project document, AI providers, privacy, inbox triage, citations |
 | [MCP server](docs/mcp.md) | Connecting AI agents, tools, security |
 | [Backups](docs/backups.md) | Automatic snapshots, folder backups, ZIP backup format |
-| [Trello import and export](docs/trello.md) | JSON, ZIP and CSV formats, the bridge extension for attachments |
+| [Trello import and export](docs/trello.md) | JSON, ZIP and CSV formats, the Trello import extension |
 | [Platforms](docs/platforms.md) | Building and developing for web, extension, Windows, Android |
 | [Testing](docs/testing.md) | Automated tests, what has been verified, manual device checklist |
 

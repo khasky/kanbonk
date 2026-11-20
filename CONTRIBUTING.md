@@ -27,7 +27,7 @@ Native builds (Windows, Android) and the browser extension are described in [doc
 | `src/` | The shared React app and all domain logic |
 | `tests/` | Vitest unit tests, one file per module or feature |
 | `extension/` | Manifest and service worker of the Kanbonk browser extension |
-| `trello-bridge/` | Optional helper extension for downloading Trello attachments |
+| `trello-import-extension/` | Browser extension that exports a Trello board with its files for import |
 | `src-tauri/` | Tauri shell for desktop and mobile |
 | `server.mjs` | LAN server: serves `dist/` and relays encrypted sync packets |
 | `scripts/` | Build scripts |

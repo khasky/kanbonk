@@ -7,7 +7,7 @@ import { downloadTrelloAttachment, downloadTrelloComments, trelloBridgeAvailable
 afterEach(() => vi.unstubAllGlobals());
 
 it("matches the browser extension ID and receives a downloaded file", async () => {
-  const manifest = JSON.parse(readFileSync(fileURLToPath(new URL("../trello-bridge/manifest.json", import.meta.url)), "utf8"));
+  const manifest = JSON.parse(readFileSync(fileURLToPath(new URL("../trello-import-extension/manifest.json", import.meta.url)), "utf8"));
   const digest = createHash("sha256").update(Buffer.from(manifest.key, "base64")).digest().subarray(0, 16);
   const expectedId = Array.from(digest, (byte) => String.fromCharCode(97 + (byte >> 4), 97 + (byte & 15))).join("");
   const sendMessage = vi.fn((_id: string, message: { type: string; offset?: number }, callback: (reply: unknown) => void) => {

@@ -42,7 +42,7 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 | `devices.ts` | Trusted devices, encrypted file bundles, the tab channel |
 | `storage.ts` | IndexedDB access: state, attachments, snapshots, settings; device ID |
 | `backup.ts`, `autoBackup.ts` | ZIP backups, state validation, automatic snapshots and folder backups |
-| `importTrello.ts`, `trelloFormats.ts`, `trelloBridge.ts` | Trello JSON/ZIP/CSV import, Trello JSON/CSV export, the bridge extension client |
+| `importTrello.ts`, `trelloFormats.ts`, `trelloBridge.ts` | Trello JSON/ZIP/CSV import, Trello JSON/CSV export, the Trello import extension client |
 | `automation.ts`, `reminders.ts`, `repeatingDue.ts` | Board rules, due reminders, repeating due dates |
 | `inbox.ts`, `links.ts`, `activity.ts`, `labels.ts` | Personal inbox, links between cards, activity feed, label colors |
 | `MarkdownEditor.tsx`, `htmlToMarkdown.ts`, `MarkdownText.tsx` | Visual Markdown editing and rendering |

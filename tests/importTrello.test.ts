@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { strToU8, zipSync } from "fflate";
-import { addImportedBoardWithRevisions, parseTrelloBoard, parseTrelloZip, prepareTrelloWorkspace, readTrelloZipBoardId, restoreExistingAttachments, restoreTrelloAttachments } from "../src/importTrello";
+import { addImportedBoardWithRevisions, parseTrelloBoard, prepareTrelloWorkspace, readTrelloExport, restoreExistingAttachments, restoreTrelloAttachments } from "../src/importTrello";
 import { loadAttachment, saveAttachment } from "../src/storage";
 import { addImportedBoard } from "../src/importTrello";
 import { emptyState } from "../src/model";
@@ -140,11 +140,9 @@ describe("Trello import", () => {
     expect(() => parseTrelloBoard({ name: "Not an export" }, "workspace-1")).toThrow("does not look like");
   });
 
-  it("reads a board JSON from a ZIP", () => {
-    const zip = zipSync({ "board.json": strToU8(JSON.stringify(fixture)), "attachments/note.txt": strToU8("example") });
-    const parsed = parseTrelloZip(zip);
-    expect((parsed.json as typeof fixture).name).toBe("Trello import");
-    expect(parsed.attachments["attachments/note.txt"]).toBeDefined();
+  it("reads a board JSON from a ZIP", async () => {
+    const zip = new File([new Uint8Array(zipSync({ "board.json": strToU8(JSON.stringify(fixture)), "attachments/note.txt": strToU8("example") }))], "board.zip");
+    expect(((await readTrelloExport([zip])).json as typeof fixture).name).toBe("Trello import");
   });
 
   it("imports a JSON attachment that is itself a Trello board export", async () => {
@@ -154,9 +152,9 @@ describe("Trello import", () => {
       "board.json": strToU8(JSON.stringify(source)),
       "attachments/trello-attachment-1/snapshot.json": strToU8(attachedBoard),
     }))], "board.zip");
-    const parsed = parseTrelloZip(new Uint8Array(await archive.arrayBuffer()));
+    const parsed = await readTrelloExport([archive]);
     expect((parsed.json as typeof fixture).id).toBe(fixture.id);
-    expect(await readTrelloZipBoardId(archive)).toBe(fixture.id);
+    expect(parsed.boardId).toBe(fixture.id);
     const imported = parseTrelloBoard(parsed.json, "workspace-1");
     expect(await restoreTrelloAttachments(imported, archive)).toEqual([]);
     expect(imported.cards[0].attachments[0].status).toBe("local");
@@ -202,8 +200,8 @@ describe("Trello import", () => {
   it("identifies the board inside a ZIP before combining it with another JSON", async () => {
     const withBoard = new File([new Uint8Array(zipSync({ "board.json": strToU8(JSON.stringify(fixture)) }))], "board.zip");
     const mediaOnly = new File([new Uint8Array(zipSync({ "attachments/file.txt": strToU8("file") }))], "media.zip");
-    expect(await readTrelloZipBoardId(withBoard)).toBe(fixture.id);
-    expect(await readTrelloZipBoardId(mediaOnly)).toBe("");
+    expect((await readTrelloExport([withBoard])).boardId).toBe(fixture.id);
+    expect((await readTrelloExport([mediaOnly])).boardId).toBe("");
   });
 
   it("does not attach a ZIP file to a different imported board with the same filename", async () => {

@@ -20,7 +20,7 @@ Vitest runs two projects, configured in `vitest.config.ts`: `unit` runs every fi
 | `zones.test.ts` | Zones: grouping, contiguity, list and zone drag and drop, removal, sync, backup validation |
 | `newModules.test.ts` | Router, calendar layout, Trello JSON/CSV round trip, dedupe, HTML to Markdown, file bundles, snapshot retention |
 | `backup.test.ts` | Backup parts, manifests, hashes, restore checks |
-| `importTrello.test.ts`, `trelloBackground.test.ts`, `trelloBridge.test.ts`, `trelloExtension.test.ts`, `trelloHelper.test.ts` | Trello JSON and ZIP import, backgrounds, the bridge extension and the console helper |
+| `importTrello.test.ts`, `trelloBackground.test.ts`, `trelloBridge.test.ts`, `trelloExtension.test.ts`, `trelloExport.test.ts` | Trello JSON and ZIP import, backgrounds, the import extension: board export in ZIP parts and attachment relay |
 | `automation.test.ts`, `reminders.test.ts`, `repeatingDue.test.ts` | Board rules, reminders, repeating due dates |
 | `cardFeatures.test.ts`, `calendarDrag.test.ts` | Clone, sub-cards and their trash chains, readable text on colored cards; calendar move and resize |
 | `boardDoc.test.ts`, `ai.test.ts` | Board document links and summary; AI requests for Claude, OpenAI and compatible servers (network stubbed), citation checks |
