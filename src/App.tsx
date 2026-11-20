@@ -24,8 +24,6 @@ import {
 import { exportTrelloCsv, exportTrelloJson } from "./trelloFormats";
 import { mergeDuplicate, pairKey } from "./dedupe";
 
-import { ColorInput } from "./ColorInput";
-
 import { DocView } from "./DocView";
 import { AiPanel, AiSettingsDialog, type ProposedCard } from "./AiPanel";
 import { readAiSettings, saveAiSettings, type AiSettings } from "./ai";
@@ -96,6 +94,9 @@ import { applyDueRecurrence } from "./repeatingDue";
 import { ensureInbox, inboxBoardId, inboxListId, inboxWorkspaceId } from "./inbox";
 
 import { AutomationPanel } from "./board/AutomationPanel";
+import { activeFilterCount, BoardFilterPanel } from "./board/BoardFilterPanel";
+import { boardColors } from "./board/BoardMenu";
+import { BoardToolbar } from "./board/BoardToolbar";
 import { BoardActivity } from "./board/BoardActivity";
 import { CardTile, type TileActions } from "./board/CardTile";
 import { ListCards } from "./board/ListCards";
@@ -117,7 +118,6 @@ import "./activity.css";
 import "./App.css";
 import "./pages.css";
 
-const boardColors = ["#147d86", "#0c66e4", "#5e4db2", "#a54800", "#216e4e"];
 function App() {
   const [fullState, setState] = useState<AppState>(emptyState);
   const state = useMemo(() => visibleState(fullState), [fullState]);
@@ -149,7 +149,6 @@ function App() {
   const [importing, setImporting] = useState(false);
   const [localAuthor, setLocalAuthor] = useState(readLocalAuthor);
   const [authorDialogOpen, setAuthorDialogOpen] = useState(false);
-  const boardMenu = useRef<HTMLDetailsElement>(null);
   const [backupOpen, setBackupOpen] = useState(false);
   const [backupConflicts, setBackupConflicts] = useState<SyncConflict[]>([]);
   const [syncOpen, setSyncOpen] = useState(false);
@@ -306,12 +305,7 @@ function App() {
   const closedBoards = state.boards.filter((item) => item.archived);
   const reminders = useMemo(() => dueReminders(state, now, dismissedReminders), [state, now, dismissedReminders]);
   const boardTemplates = state.cards.filter((item) => item.boardId === boardId && item.isTemplate);
-  const filterCount =
-    Number(Boolean(boardFilter.keyword.trim())) +
-    Number(Boolean(boardFilter.labelId)) +
-    Number(Boolean(boardFilter.memberId)) +
-    Number(boardFilter.status !== "all") +
-    Number(boardFilter.due !== "any");
+  const filterCount = activeFilterCount(boardFilter);
 
   function updateFilter(change: Partial<BoardFilter>) {
     if (!boardId) return;
@@ -1396,225 +1390,48 @@ function App() {
         >
           {board ? (
             <>
-              <div className="board-toolbar">
-                <NameEditor
-                  key={board.id}
-                  className="board-title"
-                  label="Board title"
-                  value={board.name}
-                  onCommit={(name) => updateBoard((item) => ({ ...item, name }))}
-                />
-                <button
-                  className={`toolbar-button ${board.starred ? "is-starred" : ""}`}
-                  onClick={() => updateBoard((item) => ({ ...item, starred: !item.starred }))}
-                  aria-label={board.starred ? "Remove from favorites" : "Add to favorites"}
-                >
-                  <Icon name="star" />
-                </button>
-                <button className="toolbar-button" onClick={openBoardAbout} aria-label="Board description">
-                  <Icon name="info" /> Description
-                </button>
-                <div className="segmented view-switch" role="tablist" aria-label="Board view">
-                  <button
-                    role="tab"
-                    aria-selected={page.page === "board" && page.view === "lists"}
-                    onClick={() => navigate(boardHref(board.id))}
-                  >
-                    Lists
-                  </button>
-                  <button
-                    role="tab"
-                    aria-selected={page.page === "board" && page.view === "calendar"}
-                    onClick={() =>
-                      navigate(
-                        boardHref(board.id, { view: "calendar", scale: page.page === "board" ? page.scale : "month" }),
-                      )
-                    }
-                  >
-                    Calendar
-                  </button>
-                  <button
-                    role="tab"
-                    aria-selected={page.page === "board" && page.view === "doc"}
-                    onClick={() => navigate(boardHref(board.id, { view: "doc" }))}
-                  >
-                    Doc
-                  </button>
-                </div>
-                <span className="toolbar-spacer" />
-                <input
-                  type="search"
-                  className="board-search"
-                  value={boardFilter.keyword}
-                  onChange={(event) => updateFilter({ keyword: event.target.value })}
-                  placeholder="Search this board"
-                  aria-label="Search cards on this board"
-                />
-                <button
-                  className="toolbar-button"
-                  aria-expanded={filterOpen}
-                  aria-label={filterCount ? `Board filter, active: ${filterCount}` : "Board filter"}
-                  onClick={() => setFilterOpen((current) => !current)}
-                >
-                  <Icon name="search" /> Filter{filterCount ? ` (${filterCount})` : ""}
-                </button>
-                <details
-                  ref={boardMenu}
-                  className="board-more"
-                  onBlur={(event) => {
-                    if (
-                      (event.target as Element).getAttribute("type") !== "color" &&
-                      !event.currentTarget.contains(event.relatedTarget)
-                    )
-                      event.currentTarget.open = false;
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Escape") {
-                      event.currentTarget.open = false;
-                      event.currentTarget.querySelector("summary")?.focus();
-                    }
-                  }}
-                >
-                  <summary className="toolbar-button" aria-label="Board menu" title="Board menu">
-                    ⋯
-                  </summary>
-                  <div
-                    className="board-more-menu"
-                    onClick={(event) => {
-                      if ((event.target as HTMLElement).closest("button"))
-                        (event.currentTarget.parentElement as HTMLDetailsElement).open = false;
-                    }}
-                  >
-                    <button onClick={() => openArchive(board.id)}>Archive</button>
-                    <button onClick={closeBoard}>Close board</button>
-                    <button
-                      onClick={() =>
-                        setBoardCopy({
-                          name: `${board.name} (copy)`,
-                          workspaceId: board.workspaceId,
-                          keepCards: true,
-                          keepTemplates: true,
-                        })
-                      }
-                    >
-                      Copy board
-                    </button>
-                    <button onClick={() => setAutomationBoardId(board.id)}>Automation</button>
-                    <button onClick={() => setActivityBoardId(board.id)}>Activity</button>
-                    <button onClick={() => setPanel("history")}>History</button>
-                    <button
-                      onClick={() => exportBoard("trello-json")}
-                      title="Trello JSON export format, without attachment files"
-                    >
-                      Export JSON (Trello)
-                    </button>
-                    <button onClick={() => exportBoard("csv")} title="Trello CSV export columns">
-                      Export CSV (Trello)
-                    </button>
-                    <button onClick={() => requestDelete("board", board.id)}>Move board to trash</button>
-                    <label className="background-upload">
-                      Background from file
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(event) => {
-                          void uploadBoardBackground(event.target.files?.[0] ?? null);
-                          event.target.value = "";
-                        }}
-                      />
-                    </label>
-                    <label className="board-color-option">
-                      Background color
-                      <ColorInput
-                        value={/^#[\da-f]{6}$/i.test(board.background) ? board.background : "#0c66e4"}
-                        presets={boardColors}
-                        label="Board background color"
-                        onCommit={(background) => {
-                          updateBoard((item) => ({ ...item, background, backgroundImageId: undefined }));
-                          if (boardMenu.current) boardMenu.current.open = false;
-                        }}
-                      />
-                    </label>
-                  </div>
-                </details>
-              </div>
+              <BoardToolbar
+                board={board}
+                view={page.page === "board" ? page.view : undefined}
+                scale={page.page === "board" ? page.scale : "month"}
+                navigate={navigate}
+                onUpdate={updateBoard}
+                onOpenAbout={openBoardAbout}
+                keyword={boardFilter.keyword}
+                onKeyword={(keyword) => updateFilter({ keyword })}
+                filterCount={filterCount}
+                filterOpen={filterOpen}
+                onToggleFilter={() => setFilterOpen((current) => !current)}
+                menu={{
+                  onArchive: () => openArchive(board.id),
+                  onClose: closeBoard,
+                  onCopy: () =>
+                    setBoardCopy({
+                      name: `${board.name} (copy)`,
+                      workspaceId: board.workspaceId,
+                      keepCards: true,
+                      keepTemplates: true,
+                    }),
+                  onAutomation: () => setAutomationBoardId(board.id),
+                  onActivity: () => setActivityBoardId(board.id),
+                  onHistory: () => setPanel("history"),
+                  onExport: exportBoard,
+                  onTrash: () => requestDelete("board", board.id),
+                  onBackgroundFile: (file) => void uploadBoardBackground(file),
+                  onBackgroundColor: (background) =>
+                    updateBoard((item) => ({ ...item, background, backgroundImageId: undefined })),
+                }}
+              />
               {filterOpen && (
-                <section className="board-filter" aria-label="Board filter">
-                  <div className="section-title">
-                    <strong>Board filter</strong>
-                    <button onClick={() => setFilterOpen(false)} aria-label="Close filter">
-                      <Icon name="close" />
-                    </button>
-                  </div>
-                  <label>
-                    Text
-                    <input
-                      type="search"
-                      value={boardFilter.keyword}
-                      onChange={(event) => updateFilter({ keyword: event.target.value })}
-                      placeholder="Title or content"
-                    />
-                  </label>
-                  <label>
-                    Label
-                    <select
-                      value={boardFilter.labelId}
-                      onChange={(event) => updateFilter({ labelId: event.target.value })}
-                    >
-                      <option value="">All labels</option>
-                      {state.labels
-                        .filter((item) => item.boardId === board.id && !item.deleted)
-                        .map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.name || item.color}
-                          </option>
-                        ))}
-                    </select>
-                  </label>
-                  <label>
-                    Member
-                    <select
-                      value={boardFilter.memberId ?? ""}
-                      onChange={(event) => updateFilter({ memberId: event.target.value })}
-                    >
-                      <option value="">All members</option>
-                      {(board.members ?? []).map((member) => (
-                        <option key={member.id} value={member.id}>
-                          {member.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    Status
-                    <select
-                      value={boardFilter.status}
-                      onChange={(event) => updateFilter({ status: event.target.value as BoardFilter["status"] })}
-                    >
-                      <option value="all">All cards</option>
-                      <option value="complete">Completed</option>
-                      <option value="incomplete">Not completed</option>
-                    </select>
-                  </label>
-                  <label>
-                    Due date
-                    <select
-                      value={boardFilter.due}
-                      onChange={(event) => updateFilter({ due: event.target.value as BoardFilter["due"] })}
-                    >
-                      <option value="any">Any due date</option>
-                      <option value="overdue">Overdue</option>
-                      <option value="next-week">Next 7 days</option>
-                      <option value="none">No due date</option>
-                    </select>
-                  </label>
-                  <div className="filter-footer">
-                    <span>
-                      Showing {filteredCardIds.size} of {boardCardCount}
-                    </span>
-                    <button onClick={() => updateFilter(emptyBoardFilter())}>Reset</button>
-                  </div>
-                </section>
+                <BoardFilterPanel
+                  state={state}
+                  board={board}
+                  filter={boardFilter}
+                  shown={filteredCardIds.size}
+                  total={boardCardCount}
+                  onChange={updateFilter}
+                  onClose={() => setFilterOpen(false)}
+                />
               )}
               {page.page === "board" && page.view === "doc" ? (
                 <DocView
