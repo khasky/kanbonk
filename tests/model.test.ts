@@ -1,5 +1,21 @@
 import { describe, expect, it, vi } from "vitest";
-import { isShortId, rememberIds, canEditComment, emptyBoardFilter, emptyState, filterBoardCards, markMediaLocal, newId, positionBefore, recordRevision, reorderLists, restoreRevision, searchCards, sortListCards, type Card } from "../src/model";
+import {
+  isShortId,
+  rememberIds,
+  canEditComment,
+  emptyBoardFilter,
+  emptyState,
+  filterBoardCards,
+  markMediaLocal,
+  newId,
+  positionBefore,
+  recordRevision,
+  reorderLists,
+  restoreRevision,
+  searchCards,
+  sortListCards,
+  type Card,
+} from "../src/model";
 
 it("allows an author to edit their own comment while protecting synced and imported comments", () => {
   const own = { id: "comment", text: "Text", author: "Anna", authorDeviceId: "device-a", createdAt: "2026-01-01" };
@@ -15,13 +31,34 @@ it("creates 8-character URL-safe short ids without repeats, also without crypto.
   for (const id of ids) expect(isShortId(id)).toBe(true);
   rememberIds(["00000000"]);
   let call = 0;
-  vi.stubGlobal("crypto", { getRandomValues: (bytes: Uint8Array) => { bytes.fill(call++ < 1 ? 0 : 1); return bytes; } });
-  try { expect(newId()).toBe("11111111"); }
-  finally { vi.unstubAllGlobals(); }
+  vi.stubGlobal("crypto", {
+    getRandomValues: (bytes: Uint8Array) => {
+      bytes.fill(call++ < 1 ? 0 : 1);
+      return bytes;
+    },
+  });
+  try {
+    expect(newId()).toBe("11111111");
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });
 
 it("marks received attachments and sticker images as local", () => {
-  const card: Card = { id: "card", boardId: "board", listId: "list", name: "Media", description: "", position: 1, labelIds: [], completed: false, checklists: [], comments: [], attachments: [{ id: "file", name: "file.png", mimeType: "image/png", size: 3, status: "missing" }], stickers: [{ imageId: "sticker", name: "check", status: "missing" }] };
+  const card: Card = {
+    id: "card",
+    boardId: "board",
+    listId: "list",
+    name: "Media",
+    description: "",
+    position: 1,
+    labelIds: [],
+    completed: false,
+    checklists: [],
+    comments: [],
+    attachments: [{ id: "file", name: "file.png", mimeType: "image/png", size: 3, status: "missing" }],
+    stickers: [{ imageId: "sticker", name: "check", status: "missing" }],
+  };
   const original = { ...emptyState(), cards: [card] };
   expect(markMediaLocal(original, "unknown")).toBe(original);
   const withAttachment = markMediaLocal(original, "file");
@@ -35,7 +72,19 @@ it("marks received attachments and sticker images as local", () => {
 
 describe("entity versions", () => {
   it("keeps the latest 30 snapshots and restores an earlier card", () => {
-    const card = { id: "card-1", boardId: "board-1", listId: "list-1", name: "Original", description: "", position: 1, labelIds: [], completed: false, checklists: [], comments: [], attachments: [] };
+    const card = {
+      id: "card-1",
+      boardId: "board-1",
+      listId: "list-1",
+      name: "Original",
+      description: "",
+      position: 1,
+      labelIds: [],
+      completed: false,
+      checklists: [],
+      comments: [],
+      attachments: [],
+    };
     let state = { ...emptyState(), cards: [card] };
     state = recordRevision(state, "card", card.id, "device-1");
     const first = state.revisions[0];
@@ -52,17 +101,58 @@ describe("entity versions", () => {
 });
 
 it("records comments separately from card changes and includes a move on both boards", () => {
-  const card: Card = { id: "card", boardId: "board-a", listId: "list-a", name: "Note", description: "", position: 1, labelIds: [], completed: false, checklists: [], comments: [], attachments: [] };
+  const card: Card = {
+    id: "card",
+    boardId: "board-a",
+    listId: "list-a",
+    name: "Note",
+    description: "",
+    position: 1,
+    labelIds: [],
+    completed: false,
+    checklists: [],
+    comments: [],
+    attachments: [],
+  };
   const first = recordRevision({ ...emptyState(), cards: [card] }, "card", card.id, "device");
-  const commented = recordRevision({ ...first, cards: [{ ...card, comments: [{ id: "comment", text: "Hello", author: "Author", createdAt: "2026-01-01T00:00:00Z" }] }] }, "card", card.id, "device");
-  expect(commented.activity?.filter((item) => item.category === "comment").map((item) => item.summary)).toEqual(["Author: Hello"]);
+  const commented = recordRevision(
+    {
+      ...first,
+      cards: [
+        { ...card, comments: [{ id: "comment", text: "Hello", author: "Author", createdAt: "2026-01-01T00:00:00Z" }] },
+      ],
+    },
+    "card",
+    card.id,
+    "device",
+  );
+  expect(commented.activity?.filter((item) => item.category === "comment").map((item) => item.summary)).toEqual([
+    "Author: Hello",
+  ]);
   expect(commented.activity).toHaveLength(2);
-  const moved = recordRevision({ ...commented, cards: [{ ...commented.cards[0], boardId: "board-b", listId: "list-b" }] }, "card", card.id, "device");
+  const moved = recordRevision(
+    { ...commented, cards: [{ ...commented.cards[0], boardId: "board-b", listId: "list-b" }] },
+    "card",
+    card.id,
+    "device",
+  );
   expect(moved.activity?.at(-1)).toMatchObject({ boardId: "board-b", previousBoardId: "board-a" });
 });
 
 it("places a dragged card before the target in the same or another list", () => {
-  const card = (id: string, listId: string, position: number): Card => ({ id, boardId: "board", listId, position, name: id, description: "", labelIds: [], completed: false, checklists: [], comments: [], attachments: [] });
+  const card = (id: string, listId: string, position: number): Card => ({
+    id,
+    boardId: "board",
+    listId,
+    position,
+    name: id,
+    description: "",
+    labelIds: [],
+    completed: false,
+    checklists: [],
+    comments: [],
+    attachments: [],
+  });
   const cards = [card("a", "first", 1), card("b", "first", 2), card("c", "first", 3), card("d", "second", 10)];
   expect(positionBefore(cards, "c", cards[1])).toBe(1.5);
   expect(positionBefore(cards, "c", cards[0])).toBe(0);
@@ -70,12 +160,41 @@ it("places a dragged card before the target in the same or another list", () => 
 });
 
 it("sorts a whole list by name or due date without moving archived or other-list cards", () => {
-  const card = (id: string, name: string, position: number, dueAt?: string): Card => ({ id, boardId: "board", listId: "first", position, name, description: "", labelIds: [], completed: false, checklists: [], comments: [], attachments: [], dueAt });
-  const cards = [card("z", "Zebra", 1, "2026-12-02"), card("a", "Alpha", 2), card("b", "Beta", 3, "2026-12-01"), { ...card("hidden", "A", 4), archived: true }, { ...card("other", "A", 12), listId: "second" }];
+  const card = (id: string, name: string, position: number, dueAt?: string): Card => ({
+    id,
+    boardId: "board",
+    listId: "first",
+    position,
+    name,
+    description: "",
+    labelIds: [],
+    completed: false,
+    checklists: [],
+    comments: [],
+    attachments: [],
+    dueAt,
+  });
+  const cards = [
+    card("z", "Zebra", 1, "2026-12-02"),
+    card("a", "Alpha", 2),
+    card("b", "Beta", 3, "2026-12-01"),
+    { ...card("hidden", "A", 4), archived: true },
+    { ...card("other", "A", 12), listId: "second" },
+  ];
   const byName = sortListCards(cards, "first", "name");
-  expect(byName.filter((item) => item.listId === "first" && !item.archived).sort((a, b) => a.position - b.position).map((item) => item.id)).toEqual(["a", "b", "z"]);
+  expect(
+    byName
+      .filter((item) => item.listId === "first" && !item.archived)
+      .sort((a, b) => a.position - b.position)
+      .map((item) => item.id),
+  ).toEqual(["a", "b", "z"]);
   const byDue = sortListCards(cards, "first", "due");
-  expect(byDue.filter((item) => item.listId === "first" && !item.archived).sort((a, b) => a.position - b.position).map((item) => item.id)).toEqual(["b", "z", "a"]);
+  expect(
+    byDue
+      .filter((item) => item.listId === "first" && !item.archived)
+      .sort((a, b) => a.position - b.position)
+      .map((item) => item.id),
+  ).toEqual(["b", "z", "a"]);
   expect(byDue.find((item) => item.id === "hidden")?.position).toBe(4);
   expect(byDue.find((item) => item.id === "other")?.position).toBe(12);
 });
@@ -89,34 +208,140 @@ it("reorders active lists only within their board", () => {
     { id: "other", boardId: "other-board", name: "Other", position: 1 },
   ];
   const moved = reorderLists(lists, "first", "second", true);
-  expect(moved.filter((item) => item.boardId === "board" && !item.archived).sort((a, b) => a.position - b.position).map((item) => item.id)).toEqual(["second", "first", "third"]);
+  expect(
+    moved
+      .filter((item) => item.boardId === "board" && !item.archived)
+      .sort((a, b) => a.position - b.position)
+      .map((item) => item.id),
+  ).toEqual(["second", "first", "third"]);
   expect(moved.find((item) => item.id === "hidden")?.position).toBe(4);
   expect(reorderLists(lists, "first", "other")).toBe(lists);
 });
 
 it("searches across boards and card details while excluding archived cards", () => {
-  const card = (id: string, boardId: string): Card => ({ id, boardId, listId: "list", position: 1, name: id, description: "", labelIds: [], completed: false, checklists: [], comments: [], attachments: [] });
-  const first = { ...card("first", "board-a"), labelIds: ["label"], comments: [{ id: "comment", text: "Shared project", author: "You", createdAt: "2026-01-01" }] };
-  const second = { ...card("second", "board-b"), checklists: [{ id: "checklist", name: "Stages", items: [{ id: "item", name: "Shared project", checked: false }] }] };
+  const card = (id: string, boardId: string): Card => ({
+    id,
+    boardId,
+    listId: "list",
+    position: 1,
+    name: id,
+    description: "",
+    labelIds: [],
+    completed: false,
+    checklists: [],
+    comments: [],
+    attachments: [],
+  });
+  const first = {
+    ...card("first", "board-a"),
+    labelIds: ["label"],
+    comments: [{ id: "comment", text: "Shared project", author: "You", createdAt: "2026-01-01" }],
+  };
+  const second = {
+    ...card("second", "board-b"),
+    checklists: [{ id: "checklist", name: "Stages", items: [{ id: "item", name: "Shared project", checked: false }] }],
+  };
   const archived = { ...card("third", "board-b"), name: "Shared project", archived: true };
-  const boards = ["board-a", "board-b"].map((id) => ({ id, workspaceId: "workspace", name: id, description: "", background: "#fff", starred: false }));
-  const state = { ...emptyState(), boards, cards: [first, second, archived], labels: [{ id: "label", boardId: "board-a", name: "Important", color: "#f00" }] };
+  const boards = ["board-a", "board-b"].map((id) => ({
+    id,
+    workspaceId: "workspace",
+    name: id,
+    description: "",
+    background: "#fff",
+    starred: false,
+  }));
+  const state = {
+    ...emptyState(),
+    boards,
+    cards: [first, second, archived],
+    labels: [{ id: "label", boardId: "board-a", name: "Important", color: "#f00" }],
+  };
   expect(searchCards(state, "shared PROJECT").map((item) => item.id)).toEqual(["first", "second"]);
   expect(searchCards(state, "important").map((item) => item.id)).toEqual(["first"]);
 });
 
 it("combines words and quoted field phrases while allowing exclusions", () => {
-  const card = (id: string, name: string, description: string): Card => ({ id, boardId: "board", listId: "list", position: 1, name, description, labelIds: [], completed: false, checklists: [], comments: [], attachments: [] });
-  const state = { ...emptyState(), boards: [{ id: "board", workspaceId: "workspace", name: "Projects", description: "", background: "#fff", starred: false }], cards: [card("first", "Launch plan", "Shared project"), card("second", "Shared plan", "Internal project"), card("third", "Plan", "Shared archive of the project")] };
+  const card = (id: string, name: string, description: string): Card => ({
+    id,
+    boardId: "board",
+    listId: "list",
+    position: 1,
+    name,
+    description,
+    labelIds: [],
+    completed: false,
+    checklists: [],
+    comments: [],
+    attachments: [],
+  });
+  const state = {
+    ...emptyState(),
+    boards: [
+      { id: "board", workspaceId: "workspace", name: "Projects", description: "", background: "#fff", starred: false },
+    ],
+    cards: [
+      card("first", "Launch plan", "Shared project"),
+      card("second", "Shared plan", "Internal project"),
+      card("third", "Plan", "Shared archive of the project"),
+    ],
+  };
   expect(searchCards(state, "plan shared").map((item) => item.id)).toEqual(["first", "second", "third"]);
   expect(searchCards(state, 'description:"shared project"').map((item) => item.id)).toEqual(["first"]);
   expect(searchCards(state, "plan -name:shared").map((item) => item.id)).toEqual(["first", "third"]);
 });
 
 it("filters across boards by list, label, member and attachments", () => {
-  const base: Card = { id: "first", boardId: "board-a", listId: "list-a", position: 1, name: "Task", description: "", labelIds: ["label-a"], memberIds: ["member-a"], completed: false, checklists: [], comments: [], attachments: [{ id: "file", name: "photo.png", mimeType: "image/png", size: 1, status: "local" }] };
-  const state = { ...emptyState(), boards: [{ id: "board-a", workspaceId: "workspace", name: "Personal board", description: "", background: "#fff", starred: true, members: [{ id: "member-a", name: "Irina" }] }, { id: "board-b", workspaceId: "workspace", name: "Other board", description: "", background: "#fff", starred: false }], lists: [{ id: "list-a", boardId: "board-a", name: "In progress", position: 1 }, { id: "list-b", boardId: "board-b", name: "In progress", position: 1 }], labels: [{ id: "label-a", boardId: "board-a", name: "Important", color: "#f87168" }], cards: [base, { ...base, id: "second", boardId: "board-b", listId: "list-b", labelIds: [], memberIds: [], attachments: [] }] };
-  expect(searchCards(state, 'board:"personal board" list:"in progress" label:important @irina has:attachments is:starred').map((item) => item.id)).toEqual(["first"]);
+  const base: Card = {
+    id: "first",
+    boardId: "board-a",
+    listId: "list-a",
+    position: 1,
+    name: "Task",
+    description: "",
+    labelIds: ["label-a"],
+    memberIds: ["member-a"],
+    completed: false,
+    checklists: [],
+    comments: [],
+    attachments: [{ id: "file", name: "photo.png", mimeType: "image/png", size: 1, status: "local" }],
+  };
+  const state = {
+    ...emptyState(),
+    boards: [
+      {
+        id: "board-a",
+        workspaceId: "workspace",
+        name: "Personal board",
+        description: "",
+        background: "#fff",
+        starred: true,
+        members: [{ id: "member-a", name: "Irina" }],
+      },
+      {
+        id: "board-b",
+        workspaceId: "workspace",
+        name: "Other board",
+        description: "",
+        background: "#fff",
+        starred: false,
+      },
+    ],
+    lists: [
+      { id: "list-a", boardId: "board-a", name: "In progress", position: 1 },
+      { id: "list-b", boardId: "board-b", name: "In progress", position: 1 },
+    ],
+    labels: [{ id: "label-a", boardId: "board-a", name: "Important", color: "#f87168" }],
+    cards: [
+      base,
+      { ...base, id: "second", boardId: "board-b", listId: "list-b", labelIds: [], memberIds: [], attachments: [] },
+    ],
+  };
+  expect(
+    searchCards(
+      state,
+      'board:"personal board" list:"in progress" label:important @irina has:attachments is:starred',
+    ).map((item) => item.id),
+  ).toEqual(["first"]);
   expect(searchCards(state, "#red").map((item) => item.id)).toEqual(["first"]);
   expect(searchCards(state, "-has:attachments").map((item) => item.id)).toEqual(["second"]);
   expect(searchCards(state, "#red -has:attachments")).toEqual([]);
@@ -124,8 +349,31 @@ it("filters across boards by list, label, member and attachments", () => {
 });
 
 it("filters upcoming, overdue and completed due dates", () => {
-  const card = (id: string, dueAt: string, completed = false): Card => ({ id, boardId: "board", listId: "list", position: 1, name: id, description: "", labelIds: [], completed, dueAt, checklists: [], comments: [], attachments: [] });
-  const state = { ...emptyState(), boards: [{ id: "board", workspaceId: "workspace", name: "Deadlines", description: "", background: "#fff", starred: false }], cards: [card("late", "2025-12-31T00:00:00.000Z"), card("soon", "2026-01-03T00:00:00.000Z"), card("done", "2025-12-31T00:00:00.000Z", true)] };
+  const card = (id: string, dueAt: string, completed = false): Card => ({
+    id,
+    boardId: "board",
+    listId: "list",
+    position: 1,
+    name: id,
+    description: "",
+    labelIds: [],
+    completed,
+    dueAt,
+    checklists: [],
+    comments: [],
+    attachments: [],
+  });
+  const state = {
+    ...emptyState(),
+    boards: [
+      { id: "board", workspaceId: "workspace", name: "Deadlines", description: "", background: "#fff", starred: false },
+    ],
+    cards: [
+      card("late", "2025-12-31T00:00:00.000Z"),
+      card("soon", "2026-01-03T00:00:00.000Z"),
+      card("done", "2025-12-31T00:00:00.000Z", true),
+    ],
+  };
   const now = Date.parse("2026-01-01T00:00:00.000Z");
   expect(searchCards(state, "due:overdue", now).map((item) => item.id)).toEqual(["late"]);
   expect(searchCards(state, "due:week due:incomplete", now).map((item) => item.id)).toEqual(["soon"]);
@@ -133,11 +381,28 @@ it("filters upcoming, overdue and completed due dates", () => {
 });
 
 it("hides cards of archived lists from board filters and global search", () => {
-  const card = (id: string, listId: string): Card => ({ id, boardId: "board", listId, position: 1, name: "Shared request", description: "", labelIds: [], completed: false, checklists: [], comments: [], attachments: [] });
+  const card = (id: string, listId: string): Card => ({
+    id,
+    boardId: "board",
+    listId,
+    position: 1,
+    name: "Shared request",
+    description: "",
+    labelIds: [],
+    completed: false,
+    checklists: [],
+    comments: [],
+    attachments: [],
+  });
   const state = {
     ...emptyState(),
-    boards: [{ id: "board", workspaceId: "workspace", name: "Board", description: "", background: "#fff", starred: false }],
-    lists: [{ id: "active", boardId: "board", name: "Active", position: 1 }, { id: "archived", boardId: "board", name: "Archive", position: 2, archived: true }],
+    boards: [
+      { id: "board", workspaceId: "workspace", name: "Board", description: "", background: "#fff", starred: false },
+    ],
+    lists: [
+      { id: "active", boardId: "board", name: "Active", position: 1 },
+      { id: "archived", boardId: "board", name: "Archive", position: 2, archived: true },
+    ],
     cards: [card("visible", "active"), card("hidden", "archived")],
   };
   expect(searchCards(state, "Shared request").map((item) => item.id)).toEqual(["visible"]);
@@ -145,18 +410,54 @@ it("hides cards of archived lists from board filters and global search", () => {
 });
 
 it("filters cards inside one board by text, label, status and due date", () => {
-  const card = (id: string, boardId: string): Card => ({ id, boardId, listId: "list", position: 1, name: id, description: "", labelIds: [], completed: false, checklists: [], comments: [], attachments: [] });
-  const state = { ...emptyState(), cards: [
-    { ...card("soon", "board-a"), labelIds: ["red"], memberIds: ["member-1"], description: "Document", dueAt: "2026-01-03T00:00:00.000Z" },
-    { ...card("late", "board-a"), dueAt: "2025-12-31T00:00:00.000Z" },
-    { ...card("done", "board-a"), completed: true, dueAt: "2025-12-31T00:00:00.000Z" },
-    { ...card("other", "board-b"), labelIds: ["red"], dueAt: "2026-01-03T00:00:00.000Z" },
-    { ...card("hidden", "board-a"), archived: true },
-  ] };
+  const card = (id: string, boardId: string): Card => ({
+    id,
+    boardId,
+    listId: "list",
+    position: 1,
+    name: id,
+    description: "",
+    labelIds: [],
+    completed: false,
+    checklists: [],
+    comments: [],
+    attachments: [],
+  });
+  const state = {
+    ...emptyState(),
+    cards: [
+      {
+        ...card("soon", "board-a"),
+        labelIds: ["red"],
+        memberIds: ["member-1"],
+        description: "Document",
+        dueAt: "2026-01-03T00:00:00.000Z",
+      },
+      { ...card("late", "board-a"), dueAt: "2025-12-31T00:00:00.000Z" },
+      { ...card("done", "board-a"), completed: true, dueAt: "2025-12-31T00:00:00.000Z" },
+      { ...card("other", "board-b"), labelIds: ["red"], dueAt: "2026-01-03T00:00:00.000Z" },
+      { ...card("hidden", "board-a"), archived: true },
+    ],
+  };
   const now = Date.parse("2026-01-01T00:00:00.000Z");
-  expect(filterBoardCards(state, "board-a", emptyBoardFilter(), now).map((item) => item.id)).toEqual(["soon", "late", "done"]);
-  expect(filterBoardCards(state, "board-a", { keyword: "DOCUMENT", labelId: "red", status: "incomplete", due: "next-week" }, now).map((item) => item.id)).toEqual(["soon"]);
-  expect(filterBoardCards(state, "board-a", { ...emptyBoardFilter(), memberId: "member-1" }, now).map((item) => item.id)).toEqual(["soon"]);
-  expect(filterBoardCards(state, "board-a", { ...emptyBoardFilter(), due: "overdue" }, now).map((item) => item.id)).toEqual(["late"]);
+  expect(filterBoardCards(state, "board-a", emptyBoardFilter(), now).map((item) => item.id)).toEqual([
+    "soon",
+    "late",
+    "done",
+  ]);
+  expect(
+    filterBoardCards(
+      state,
+      "board-a",
+      { keyword: "DOCUMENT", labelId: "red", status: "incomplete", due: "next-week" },
+      now,
+    ).map((item) => item.id),
+  ).toEqual(["soon"]);
+  expect(
+    filterBoardCards(state, "board-a", { ...emptyBoardFilter(), memberId: "member-1" }, now).map((item) => item.id),
+  ).toEqual(["soon"]);
+  expect(
+    filterBoardCards(state, "board-a", { ...emptyBoardFilter(), due: "overdue" }, now).map((item) => item.id),
+  ).toEqual(["late"]);
   expect(filterBoardCards(state, "board-a", { ...emptyBoardFilter(), due: "none" }, now)).toHaveLength(0);
 });

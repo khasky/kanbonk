@@ -69,7 +69,9 @@
       parts.progress.hidden = false;
       parts.progress.max = Math.max(1, state.total);
       parts.progress.value = state.done;
-      const size = state.totalBytes ? `${megabytes(state.downloadedBytes)} of ${megabytes(state.totalBytes)}` : megabytes(state.downloadedBytes);
+      const size = state.totalBytes
+        ? `${megabytes(state.downloadedBytes)} of ${megabytes(state.totalBytes)}`
+        : megabytes(state.downloadedBytes);
       parts.status.textContent = `Files ${state.done} of ${state.total} · ${size}\nPart ${state.part}${state.current ? ` · ${state.current}` : ""}`;
     }
   }
@@ -90,7 +92,9 @@
   function list(title, items) {
     parts.details.hidden = !items.length;
     parts.details.querySelector("summary").textContent = title;
-    parts.details.querySelector("ul").replaceChildren(...items.map((text) => Object.assign(document.createElement("li"), { textContent: text })));
+    parts.details
+      .querySelector("ul")
+      .replaceChildren(...items.map((text) => Object.assign(document.createElement("li"), { textContent: text })));
   }
 
   async function start() {
@@ -104,9 +108,18 @@
     list("", []);
     window.addEventListener("beforeunload", warnOnLeave);
     try {
-      const result = await globalThis.kanbonkExportBoard({ fetch: (...args) => fetch(...args), shortLink, save, progress: show, signal: controller.signal });
+      const result = await globalThis.kanbonkExportBoard({
+        fetch: (...args) => fetch(...args),
+        shortLink,
+        save,
+        progress: show,
+        signal: controller.signal,
+      });
       parts.status.textContent = `Done: ${result.parts} ${result.parts === 1 ? "part" : "parts"}, ${result.files} of ${result.total} files.\nIn Kanbonk open ⋯ → Import from Trello and choose all the parts at once.`;
-      list(`Not exported: ${result.failures.length + result.warnings.length}`, [...result.failures, ...result.warnings]);
+      list(`Not exported: ${result.failures.length + result.warnings.length}`, [
+        ...result.failures,
+        ...result.warnings,
+      ]);
     } catch (error) {
       parts.status.textContent = String(error?.message ?? error);
       parts.status.classList.add("error");
@@ -119,7 +132,9 @@
     }
   }
 
-  function warnOnLeave(event) { event.preventDefault(); }
+  function warnOnLeave(event) {
+    event.preventDefault();
+  }
 
   // Trello is a single-page app: the panel follows navigation between boards and other pages.
   function sync() {

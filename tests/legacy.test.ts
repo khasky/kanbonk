@@ -13,8 +13,33 @@ import { parseTrelloBoard } from "../src/importTrello";
 /** A state with an inbox card, as written by the app before the rename. */
 function legacyState(): AppState {
   let state = ensureInbox(emptyState(), "device-a");
-  state = recordRevision({ ...state, cards: [{ id: "card-1", boardId: inboxBoardId, listId: inboxListId, name: "Note", description: "", position: 1, labelIds: [], completed: false, checklists: [], comments: [], attachments: [] }] }, "card", "card-1", "device-a");
-  state.tombstones = { "board:kanbonk-personal-workspace-board": "2026-01-01", "workspace:kanbonk-personal-workspace": "2026-01-01" };
+  state = recordRevision(
+    {
+      ...state,
+      cards: [
+        {
+          id: "card-1",
+          boardId: inboxBoardId,
+          listId: inboxListId,
+          name: "Note",
+          description: "",
+          position: 1,
+          labelIds: [],
+          completed: false,
+          checklists: [],
+          comments: [],
+          attachments: [],
+        },
+      ],
+    },
+    "card",
+    "card-1",
+    "device-a",
+  );
+  state.tombstones = {
+    "board:kanbonk-personal-workspace-board": "2026-01-01",
+    "workspace:kanbonk-personal-workspace": "2026-01-01",
+  };
   return JSON.parse(JSON.stringify(state).replaceAll("kanbonk-", "listva-")) as AppState;
 }
 
@@ -24,9 +49,17 @@ describe("legacy state", () => {
     expect(JSON.stringify(migrated)).not.toContain("listva-inbox");
     expect(migrated.cards[0]).toMatchObject({ boardId: inboxBoardId, listId: inboxListId });
     expect(migrated.boards[0].workspaceId).toBe(inboxWorkspaceId);
-    expect(migrated.revisions.map((item) => item.entityId)).toEqual([inboxWorkspaceId, inboxBoardId, inboxListId, "card-1"]);
+    expect(migrated.revisions.map((item) => item.entityId)).toEqual([
+      inboxWorkspaceId,
+      inboxBoardId,
+      inboxListId,
+      "card-1",
+    ]);
     expect(migrated.heads[`board:${inboxBoardId}`]).toBeDefined();
-    expect(migrated.tombstones).toEqual({ "board:listva-personal-workspace-board": "2026-01-01", "workspace:kanbonk-personal-workspace": "2026-01-01" });
+    expect(migrated.tombstones).toEqual({
+      "board:listva-personal-workspace-board": "2026-01-01",
+      "workspace:kanbonk-personal-workspace": "2026-01-01",
+    });
   });
 
   it("leaves a current state untouched", () => {
@@ -48,11 +81,17 @@ describe("legacy local storage", () => {
   function memoryStorage(entries: Record<string, string>): Storage {
     const values = new Map(Object.entries(entries));
     return {
-      get length() { return values.size; },
+      get length() {
+        return values.size;
+      },
       key: (index: number) => [...values.keys()][index] ?? null,
       getItem: (key: string) => values.get(key) ?? null,
-      setItem: (key: string, value: string) => { values.set(key, value); },
-      removeItem: (key: string) => { values.delete(key); },
+      setItem: (key: string, value: string) => {
+        values.set(key, value);
+      },
+      removeItem: (key: string) => {
+        values.delete(key);
+      },
       clear: () => values.clear(),
     };
   }
@@ -67,7 +106,10 @@ describe("legacy local storage", () => {
     });
     migrateLegacyStorage(storage);
     expect(storage.getItem("kanbonk-device-id")).toBe("0f8e-device");
-    expect(JSON.parse(storage.getItem("kanbonk-board-filters")!)).toEqual({ "kanbonk-inbox": { keyword: "x" }, "board-1": { keyword: "y" } });
+    expect(JSON.parse(storage.getItem("kanbonk-board-filters")!)).toEqual({
+      "kanbonk-inbox": { keyword: "x" },
+      "board-1": { keyword: "y" },
+    });
     expect(storage.getItem("kanbonk-author-name")).toBe("New name");
     expect(storage.getItem("other-key")).toBe("kept");
     expect(storage.length).toBe(4);
@@ -77,7 +119,10 @@ describe("legacy local storage", () => {
 describe("legacy files", () => {
   it("opens a sync bundle made before the rename and renames its IDs on merge", async () => {
     const code = "ab".repeat(16);
-    const plain = zipSync({ "state.json": strToU8(JSON.stringify(legacyState())), "sender.json": strToU8(JSON.stringify({ deviceId: "pc", name: "PC" })) });
+    const plain = zipSync({
+      "state.json": strToU8(JSON.stringify(legacyState())),
+      "sender.json": strToU8(JSON.stringify({ deviceId: "pc", name: "PC" })),
+    });
     const nonce = new Uint8Array(24).fill(7);
     const sealed = xchacha20poly1305(sha256(strToU8(`listva-key:${code}`)), nonce).encrypt(plain);
     const opened = await openSyncBundle(new Uint8Array([...strToU8("LISTVA-SYNC-1"), ...nonce, ...sealed]), [code]);
@@ -92,13 +137,34 @@ describe("legacy files", () => {
     const manifest = JSON.parse(strFromU8(entries["kanbonk-backup.json"]));
     delete entries["kanbonk-backup.json"];
     entries["listva-backup.json"] = strToU8(JSON.stringify({ ...manifest, format: "listva-backup" }));
-    const restored = await restoreBackup([new File([new Uint8Array(zipSync(entries))], parts[0].name)], emptyState(), async () => undefined, async () => {});
+    const restored = await restoreBackup(
+      [new File([new Uint8Array(zipSync(entries))], parts[0].name)],
+      emptyState(),
+      async () => undefined,
+      async () => {},
+    );
     expect(restored.state.cards[0]).toMatchObject({ boardId: inboxBoardId, listId: inboxListId });
   });
 
   it("reads Trello exports saved by the helper before the rename", () => {
-    const comment = { id: "a1", type: "commentCard", date: "2020-01-01T00:00:00.000Z", data: { card: { id: "c1" }, text: "Old comment" }, memberCreator: { fullName: "Author" } };
-    const source = { id: "b1", name: "Board", idOrganization: "org", listvaOrganizationName: "Team", lists: [{ id: "l1", name: "List" }], cards: [{ id: "c1", name: "Card", idList: "l1" }], actions: [], listvaCommentsComplete: true, listvaComments: [comment] };
+    const comment = {
+      id: "a1",
+      type: "commentCard",
+      date: "2020-01-01T00:00:00.000Z",
+      data: { card: { id: "c1" }, text: "Old comment" },
+      memberCreator: { fullName: "Author" },
+    };
+    const source = {
+      id: "b1",
+      name: "Board",
+      idOrganization: "org",
+      listvaOrganizationName: "Team",
+      lists: [{ id: "l1", name: "List" }],
+      cards: [{ id: "c1", name: "Card", idList: "l1" }],
+      actions: [],
+      listvaCommentsComplete: true,
+      listvaComments: [comment],
+    };
     const result = parseTrelloBoard(source, "personal");
     expect(result.organization?.name).toBe("Team");
     expect(result.cards[0].comments.map((item) => item.text)).toEqual(["Old comment"]);

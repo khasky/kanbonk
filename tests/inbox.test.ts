@@ -11,12 +11,19 @@ it("initializes the inbox before any personal workspace exists", () => {
 });
 
 it("creates one versioned personal inbox and leaves it unchanged on later loads", () => {
-  const state = recordRevision({ ...emptyState(), workspaces: [{ id: "personal", name: "Personal" }] }, "workspace", "personal", "device-a");
+  const state = recordRevision(
+    { ...emptyState(), workspaces: [{ id: "personal", name: "Personal" }] },
+    "workspace",
+    "personal",
+    "device-a",
+  );
   const initialized = ensureInbox(state, "device-a");
   expect(initialized.workspaces.find((item) => item.id === inboxWorkspaceId)?.name).toBe("Inbox");
   expect(initialized.boards.find((item) => item.id === inboxBoardId)?.workspaceId).toBe(inboxWorkspaceId);
   expect(initialized.lists.find((item) => item.id === inboxListId)?.boardId).toBe(inboxBoardId);
-  expect(initialized.revisions.filter((item) => [inboxWorkspaceId, inboxBoardId, inboxListId].includes(item.entityId))).toHaveLength(3);
+  expect(
+    initialized.revisions.filter((item) => [inboxWorkspaceId, inboxBoardId, inboxListId].includes(item.entityId)),
+  ).toHaveLength(3);
   expect(ensureInbox(initialized, "device-a")).toBe(initialized);
 });
 

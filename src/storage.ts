@@ -6,23 +6,31 @@ const legacyDatabaseName = "listva";
 
 // "app" comes last: the copy of a legacy database counts as finished once the state is in place.
 const storeNames = ["attachments", "backups", "settings", "app"] as const;
-type StoreName = typeof storeNames[number];
+type StoreName = (typeof storeNames)[number];
 
 /** Opens a database; with existingOnly, resolves undefined instead of creating a missing one. */
 function open(name: string, existingOnly = false): Promise<IDBDatabase | undefined> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(name, 2);
     request.onupgradeneeded = (event) => {
-      if (existingOnly && event.oldVersion === 0) { request.transaction?.abort(); return; }
-      for (const store of storeNames) if (!request.result.objectStoreNames.contains(store)) request.result.createObjectStore(store);
+      if (existingOnly && event.oldVersion === 0) {
+        request.transaction?.abort();
+        return;
+      }
+      for (const store of storeNames)
+        if (!request.result.objectStoreNames.contains(store)) request.result.createObjectStore(store);
     };
     request.onsuccess = () => resolve(request.result);
-    request.onerror = () => existingOnly && request.error?.name === "AbortError" ? resolve(undefined) : reject(request.error);
+    request.onerror = () =>
+      existingOnly && request.error?.name === "AbortError" ? resolve(undefined) : reject(request.error);
   });
 }
 
 function settle<T>(request: IDBRequest<T>): Promise<T> {
-  return new Promise((resolve, reject) => { request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
 }
 
 function put(database: IDBDatabase, store: StoreName, key: IDBValidKey, value: unknown): Promise<void> {
@@ -52,33 +60,58 @@ async function adoptLegacyDatabase(): Promise<void> {
     legacy.close();
     target.close();
   }
-  await new Promise<void>((resolve) => { const request = indexedDB.deleteDatabase(legacyDatabaseName); request.onsuccess = request.onerror = request.onblocked = () => resolve(); });
+  await new Promise<void>((resolve) => {
+    const request = indexedDB.deleteDatabase(legacyDatabaseName);
+    request.onsuccess = request.onerror = request.onblocked = () => resolve();
+  });
 }
 
 let adoption: Promise<void> | undefined;
 
 async function openDatabase(): Promise<IDBDatabase> {
   // A failed copy rejects every access, so the app never writes to the new database before the old data is in it.
-  await (adoption ??= adoptLegacyDatabase().catch((cause) => { adoption = undefined; throw cause; }));
+  await (adoption ??= adoptLegacyDatabase().catch((cause) => {
+    adoption = undefined;
+    throw cause;
+  }));
   return (await open(databaseName))!;
 }
 
-async function accessStore<T>(storeName: StoreName, mode: IDBTransactionMode, action: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+async function accessStore<T>(
+  storeName: StoreName,
+  mode: IDBTransactionMode,
+  action: (store: IDBObjectStore) => IDBRequest<T>,
+): Promise<T> {
   const database = await openDatabase();
   return new Promise((resolve, reject) => {
     const transaction = database.transaction(storeName, mode);
     const request = action(transaction.objectStore(storeName));
     let result: T;
-    request.onsuccess = () => { result = request.result; };
+    request.onsuccess = () => {
+      result = request.result;
+    };
     request.onerror = () => reject(request.error);
-    transaction.oncomplete = () => { database.close(); resolve(result); };
-    transaction.onerror = () => { database.close(); reject(transaction.error); };
+    transaction.oncomplete = () => {
+      database.close();
+      resolve(result);
+    };
+    transaction.onerror = () => {
+      database.close();
+      reject(transaction.error);
+    };
   });
 }
 
 export async function loadState(): Promise<AppState> {
   const state = await accessStore<AppState | undefined>("app", "readonly", (store) => store.get("state"));
-  const loaded = state ? migrateLegacyState({ ...state, activity: state.activity ?? [], heads: state.heads ?? {}, ancestry: ancestryFromRevisions(state.revisions, state.ancestry) }) : emptyState();
+  const loaded = state
+    ? migrateLegacyState({
+        ...state,
+        activity: state.activity ?? [],
+        heads: state.heads ?? {},
+        ancestry: ancestryFromRevisions(state.revisions, state.ancestry),
+      })
+    : emptyState();
   rememberStateIds(loaded);
   return loaded;
 }
@@ -117,7 +150,14 @@ export function saveLocalAuthor(value: string): string {
   return name;
 }
 
-export interface SnapshotMeta { id: string; createdAt: string; hash: string; size: number; cards: number; boards: number }
+export interface SnapshotMeta {
+  id: string;
+  createdAt: string;
+  hash: string;
+  size: number;
+  cards: number;
+  boards: number;
+}
 
 export async function listSnapshots(): Promise<SnapshotMeta[]> {
   const metas = await accessStore<SnapshotMeta[] | undefined>("backups", "readonly", (store) => store.get("index"));
@@ -138,8 +178,14 @@ export async function saveSnapshot(meta: SnapshotMeta, json: string, keep: Snaps
       store.put(json, `snapshot:${meta.id}`);
       store.put(keep, "index");
     };
-    transaction.oncomplete = () => { database.close(); resolve(); };
-    transaction.onerror = () => { database.close(); reject(transaction.error); };
+    transaction.oncomplete = () => {
+      database.close();
+      resolve();
+    };
+    transaction.onerror = () => {
+      database.close();
+      reject(transaction.error);
+    };
   });
 }
 

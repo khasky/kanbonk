@@ -23,10 +23,15 @@ interface SyncHandlers {
   };
 }
 
-export interface PeerInfo { deviceId: string; name: string }
+export interface PeerInfo {
+  deviceId: string;
+  name: string;
+}
 
 /** Public STUN only reveals network addresses for NAT traversal; the data channel itself stays end-to-end encrypted (DTLS). */
-export const internetIceServers: RTCIceServer[] = [{ urls: ["stun:stun.l.google.com:19302", "stun:stun.cloudflare.com:3478"] }];
+export const internetIceServers: RTCIceServer[] = [
+  { urls: ["stun:stun.l.google.com:19302", "stun:stun.cloudflare.com:3478"] },
+];
 
 interface Transfer {
   parts: string[];
@@ -41,7 +46,9 @@ async function connectionStep<T>(promise: Promise<T>): Promise<T> {
   try {
     return await Promise.race([
       promise,
-      new Promise<never>((_, reject) => { timeout = setTimeout(() => reject(new Error("Could not establish a connection within 20 seconds.")), 20000); }),
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error("Could not establish a connection within 20 seconds.")), 20000);
+      }),
     ]);
   } finally {
     if (timeout !== undefined) clearTimeout(timeout);
@@ -62,10 +69,18 @@ function bytes(value: string): Uint8Array {
 
 function isLocalAddress(hostname: string): boolean {
   const host = hostname.replace(/^\[|\]$/g, "").toLowerCase();
-  if (host === "localhost" || host === "::1" || host.endsWith(".local") || /^(fc|fd|fe[89ab])[a-f0-9:]*$/.test(host)) return true;
+  if (host === "localhost" || host === "::1" || host.endsWith(".local") || /^(fc|fd|fe[89ab])[a-f0-9:]*$/.test(host))
+    return true;
   const octets = host.split(".").map(Number);
-  return octets.length === 4 && octets.every((octet) => Number.isInteger(octet) && octet >= 0 && octet <= 255)
-    && (octets[0] === 10 || octets[0] === 127 || octets[0] === 192 && octets[1] === 168 || octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31 || octets[0] === 169 && octets[1] === 254);
+  return (
+    octets.length === 4 &&
+    octets.every((octet) => Number.isInteger(octet) && octet >= 0 && octet <= 255) &&
+    (octets[0] === 10 ||
+      octets[0] === 127 ||
+      (octets[0] === 192 && octets[1] === 168) ||
+      (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
+      (octets[0] === 169 && octets[1] === 254))
+  );
 }
 
 export function newRoomCode(): string {
@@ -83,7 +98,11 @@ export class LanSync {
   private closed = false;
   peer?: PeerInfo;
 
-  constructor(private handlers: SyncHandlers, local?: { url: string; code: string }, options: { internet?: boolean } = {}) {
+  constructor(
+    private handlers: SyncHandlers,
+    local?: { url: string; code: string },
+    options: { internet?: boolean } = {},
+  ) {
     this.peerTrusted = !handlers.trust;
     if (local) {
       const code = local.code.trim().toLowerCase();
@@ -92,14 +111,18 @@ export class LanSync {
       const room = hex(sha256(encoder.encode(`kanbonk-room:${code}`)));
       this.roomKey = sha256(encoder.encode(`kanbonk-key:${code}`));
       const url = new URL(local.url);
-      if (url.protocol !== "ws:" && url.protocol !== "wss:") throw new Error("Enter the address of the local Kanbonk server.");
+      if (url.protocol !== "ws:" && url.protocol !== "wss:")
+        throw new Error("Enter the address of the local Kanbonk server.");
       if (!isLocalAddress(url.hostname)) throw new Error("The sync server must be on the local network.");
       url.pathname = "/sync";
       url.search = `?room=${room}`;
       this.bindSocket(new WebSocket(url));
       return;
     }
-    if (typeof RTCPeerConnection !== "function") throw new Error("WebRTC is not available in this browser. Check your browser settings or open Kanbonk in another browser.");
+    if (typeof RTCPeerConnection !== "function")
+      throw new Error(
+        "WebRTC is not available in this browser. Check your browser settings or open Kanbonk in another browser.",
+      );
     const connection = new RTCPeerConnection({ iceServers: options.internet ? internetIceServers : [] });
     this.connection = connection;
     connection.ondatachannel = (event) => this.bindChannel(event.channel);
@@ -112,18 +135,30 @@ export class LanSync {
       this.handlers.onStatus("Devices connected. Transferring data…");
       void this.greet();
     };
-    channel.onmessage = (event) => { void this.receiveMessage(String(event.data)); };
-    channel.onclose = () => { this.handlers.onStatus("Connection closed"); if (!this.closed) this.handlers.onClosed?.(); };
+    channel.onmessage = (event) => {
+      void this.receiveMessage(String(event.data));
+    };
+    channel.onclose = () => {
+      this.handlers.onStatus("Connection closed");
+      if (!this.closed) this.handlers.onClosed?.();
+    };
   }
 
   private bindSocket(socket: WebSocket) {
     this.socket = socket;
     let opened = false;
-    socket.onopen = () => { opened = true; this.handlers.onStatus("Connected to the local server. Waiting for the other device…"); };
-    socket.onmessage = (event) => { void this.receiveMessage(String(event.data)); };
+    socket.onopen = () => {
+      opened = true;
+      this.handlers.onStatus("Connected to the local server. Waiting for the other device…");
+    };
+    socket.onmessage = (event) => {
+      void this.receiveMessage(String(event.data));
+    };
     socket.onerror = () => this.handlers.onStatus("Could not connect to the local server.");
     socket.onclose = () => {
-      this.handlers.onStatus(opened ? "Connection to the local server closed." : "The local server is unavailable or does not support sync.");
+      this.handlers.onStatus(
+        opened ? "Connection to the local server closed." : "The local server is unavailable or does not support sync.",
+      );
       if (!this.closed) this.handlers.onClosed?.();
     };
   }
@@ -131,10 +166,21 @@ export class LanSync {
   private async receiveMessage(message: string) {
     try {
       const envelope = JSON.parse(message);
-      if (this.socket && envelope.type === "peer-ready") { this.handlers.onStatus("Devices connected. Transferring data…"); await this.greet(); return; }
-      if (this.socket && envelope.type === "peer-left") { this.handlers.onStatus("The other device disconnected."); return; }
+      if (this.socket && envelope.type === "peer-ready") {
+        this.handlers.onStatus("Devices connected. Transferring data…");
+        await this.greet();
+        return;
+      }
+      if (this.socket && envelope.type === "peer-left") {
+        this.handlers.onStatus("The other device disconnected.");
+        return;
+      }
       const packet = this.roomKey
-        ? JSON.parse(new TextDecoder().decode(xchacha20poly1305(this.roomKey, bytes(envelope.nonce)).decrypt(bytes(envelope.data))))
+        ? JSON.parse(
+            new TextDecoder().decode(
+              xchacha20poly1305(this.roomKey, bytes(envelope.nonce)).decrypt(bytes(envelope.data)),
+            ),
+          )
         : envelope;
       await this.receive(packet);
     } catch (cause) {
@@ -201,8 +247,14 @@ export class LanSync {
             channel.removeEventListener("bufferedamountlow", onLow);
             channel.removeEventListener("close", onClose);
           };
-          const onLow = () => { clear(); resolve(); };
-          const onClose = () => { clear(); reject(new Error("The connection closed during transfer.")); };
+          const onLow = () => {
+            clear();
+            resolve();
+          };
+          const onClose = () => {
+            clear();
+            reject(new Error("The connection closed during transfer."));
+          };
           channel.addEventListener("bufferedamountlow", onLow);
           channel.addEventListener("close", onClose);
         });
@@ -210,7 +262,10 @@ export class LanSync {
       channel.send(JSON.stringify(packet));
     });
     this.outgoing = pending.catch((cause) => this.handlers.onStatus(`Transfer error: ${String(cause)}`));
-    return pending.then(() => true, () => false);
+    return pending.then(
+      () => true,
+      () => false,
+    );
   }
 
   private async greet() {
@@ -223,7 +278,7 @@ export class LanSync {
     if (!trust || typeof packet.deviceId !== "string" || typeof packet.name !== "string") return;
     const peer = { deviceId: packet.deviceId.slice(0, 64), name: packet.name.slice(0, 60) };
     this.peer = peer;
-    if (!trust.isTrusted(peer) && !await trust.onPeer(peer)) {
+    if (!trust.isTrusted(peer) && !(await trust.onPeer(peer))) {
       this.handlers.onStatus(`Device “${peer.name}” is not in Trusted devices. Connection closed.`);
       this.close();
       return;
@@ -240,27 +295,32 @@ export class LanSync {
     const size = 8000;
     const total = Math.ceil(payload.length / size);
     for (let index = 0; index < total; index++) {
-      if (!await this.send({ type: "state", id, index, total, data: payload.slice(index * size, (index + 1) * size) })) return;
+      if (
+        !(await this.send({ type: "state", id, index, total, data: payload.slice(index * size, (index + 1) * size) }))
+      )
+        return;
     }
     this.handlers.onSent?.();
   }
 
   syncNow() {
     if (!this.peerTrusted) throw new Error("The device has not been confirmed as trusted yet.");
-    if (this.socket ? this.socket.readyState !== WebSocket.OPEN : this.channel?.readyState !== "open") throw new Error("Connect the devices first.");
+    if (this.socket ? this.socket.readyState !== WebSocket.OPEN : this.channel?.readyState !== "open")
+      throw new Error("Connect the devices first.");
     void this.sendState();
     this.handlers.onStatus("Sending changes…");
   }
 
   async syncIfConnected(): Promise<void> {
     if (!this.peerTrusted) return;
-    if (this.socket ? this.socket.readyState === WebSocket.OPEN : this.channel?.readyState === "open") await this.sendState();
+    if (this.socket ? this.socket.readyState === WebSocket.OPEN : this.channel?.readyState === "open")
+      await this.sendState();
   }
 
   async requestFiles(state: AppState) {
     const missing: string[] = [];
     const { fileIds, missingIds } = mediaReferences(state);
-    for (const id of new Set([...fileIds, ...missingIds])) if (!await this.loadFile(id)) missing.push(id);
+    for (const id of new Set([...fileIds, ...missingIds])) if (!(await this.loadFile(id))) missing.push(id);
     if (missing.length) this.send({ type: "request-files", ids: missing });
   }
 
@@ -270,24 +330,38 @@ export class LanSync {
       if (!blob) continue;
       const size = 7000;
       const total = Math.max(1, Math.ceil(blob.size / size));
-      if (!await this.send({ type: "file-start", id, total, mimeType: blob.type })) return;
+      if (!(await this.send({ type: "file-start", id, total, mimeType: blob.type }))) return;
       for (let index = 0; index < total; index++) {
         const chunk = new Uint8Array(await blob.slice(index * size, (index + 1) * size).arrayBuffer());
-        if (!await this.send({ type: "file-part", id, index, data: btoa(String.fromCharCode(...chunk)) })) return;
+        if (!(await this.send({ type: "file-part", id, index, data: btoa(String.fromCharCode(...chunk)) }))) return;
       }
     }
   }
 
   private async receive(packet: Record<string, unknown>) {
-    if (packet.type === "hello") { await this.receiveHello(packet); return; }
+    if (packet.type === "hello") {
+      await this.receiveHello(packet);
+      return;
+    }
     // Data sent before this device confirmed trust is dropped; it is re-requested after confirmation.
     if (!this.peerTrusted) return;
-    if (packet.type === "request-state") { await this.sendState(); return; }
+    if (packet.type === "request-state") {
+      await this.sendState();
+      return;
+    }
     if (packet.type === "state") {
       const id = String(packet.id);
       const total = Number(packet.total);
       const index = Number(packet.index);
-      if (!Number.isSafeInteger(total) || total < 1 || !Number.isSafeInteger(index) || index < 0 || index >= total || typeof packet.data !== "string") throw new Error("Invalid state packet.");
+      if (
+        !Number.isSafeInteger(total) ||
+        total < 1 ||
+        !Number.isSafeInteger(index) ||
+        index < 0 ||
+        index >= total ||
+        typeof packet.data !== "string"
+      )
+        throw new Error("Invalid state packet.");
       const transfer = this.transfers.get(id) ?? { parts: [], total, mimeType: "", received: 0 };
       if (transfer.total !== total || transfer.chunks) throw new Error("Invalid sequence of state packets.");
       if (transfer.parts[index] === undefined) transfer.received = (transfer.received ?? 0) + 1;
@@ -296,14 +370,26 @@ export class LanSync {
       if (transfer.received === transfer.total) {
         this.transfers.delete(id);
         const remote: unknown = JSON.parse(transfer.parts.join(""));
-        if (!remote || typeof remote !== "object" || Array.isArray(remote) || !validState(remote as Record<string, unknown>)) throw new Error("Received an unsupported board state.");
+        if (
+          !remote ||
+          typeof remote !== "object" ||
+          Array.isArray(remote) ||
+          !validState(remote as Record<string, unknown>)
+        )
+          throw new Error("Received an unsupported board state.");
         await this.handlers.onState(remote as AppState);
       }
     } else if (packet.type === "request-files") {
       await this.sendFiles(packet.ids as string[]);
     } else if (packet.type === "file-start") {
       const total = Number(packet.total);
-      this.transfers.set(String(packet.id), { parts: [], total, mimeType: String(packet.mimeType), chunks: new Array(total), received: 0 });
+      this.transfers.set(String(packet.id), {
+        parts: [],
+        total,
+        mimeType: String(packet.mimeType),
+        chunks: new Array(total),
+        received: 0,
+      });
     } else if (packet.type === "file-part") {
       const id = String(packet.id);
       const transfer = this.transfers.get(id);
@@ -314,7 +400,13 @@ export class LanSync {
       transfer.chunks[index] = Uint8Array.from(atob(String(packet.data)), (character) => character.charCodeAt(0));
       if (transfer.received === transfer.total) {
         this.transfers.delete(id);
-        await (this.handlers.files?.save ?? saveAttachment)(id, new Blob(transfer.chunks.map((chunk) => new Uint8Array(chunk)), { type: transfer.mimeType }));
+        await (this.handlers.files?.save ?? saveAttachment)(
+          id,
+          new Blob(
+            transfer.chunks.map((chunk) => new Uint8Array(chunk)),
+            { type: transfer.mimeType },
+          ),
+        );
         this.handlers.onFile(id);
         this.handlers.onStatus("File received");
       }

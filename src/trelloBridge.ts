@@ -35,8 +35,11 @@ function request(message: unknown): Promise<BridgeReply> {
 }
 
 export async function trelloBridgeAvailable(): Promise<boolean> {
-  try { return (await request({ type: "probe" })).ok; }
-  catch { return false; }
+  try {
+    return (await request({ type: "probe" })).ok;
+  } catch {
+    return false;
+  }
 }
 
 export async function downloadTrelloComments(boardId: string): Promise<unknown[]> {
@@ -44,10 +47,12 @@ export async function downloadTrelloComments(boardId: string): Promise<unknown[]
   let before = "";
   while (true) {
     const reply = await request({ type: "comments", boardId, before });
-    if (!reply.ok || !Array.isArray(reply.actions) || reply.actions.length > 1000) throw new Error(reply.error ?? "The extension could not fetch comments.");
+    if (!reply.ok || !Array.isArray(reply.actions) || reply.actions.length > 1000)
+      throw new Error(reply.error ?? "The extension could not fetch comments.");
     actions.push(...reply.actions);
     if (reply.complete === true) return actions;
-    if (reply.actions.length !== 1000 || !reply.nextBefore || reply.nextBefore === before) throw new Error("Could not continue exporting Trello comments.");
+    if (reply.actions.length !== 1000 || !reply.nextBefore || reply.nextBefore === before)
+      throw new Error("Could not continue exporting Trello comments.");
     before = reply.nextBefore;
   }
 }
@@ -62,7 +67,15 @@ export async function downloadTrelloAttachment(url: string): Promise<Blob> {
     if (!reply.ok || !reply.data) throw new Error(reply.error ?? "The extension could not fetch the attachment.");
     const binary = atob(reply.data);
     const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-    if (!Number.isSafeInteger(reply.total) || !reply.total || reply.offset !== offset || offset + bytes.length > reply.total || (total !== undefined && reply.total !== total) || !bytes.length) throw new Error("Received an invalid chunk of a Trello attachment.");
+    if (
+      !Number.isSafeInteger(reply.total) ||
+      !reply.total ||
+      reply.offset !== offset ||
+      offset + bytes.length > reply.total ||
+      (total !== undefined && reply.total !== total) ||
+      !bytes.length
+    )
+      throw new Error("Received an invalid chunk of a Trello attachment.");
     total = reply.total;
     mimeType = reply.mimeType || mimeType;
     parts.push(bytes);

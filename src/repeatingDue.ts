@@ -20,13 +20,32 @@ export function nextDueDate(dueAt: string, repeat: NonNullable<Card["dueRepeat"]
   if (!Number.isFinite(due.getTime()) || !anchor) return undefined;
   const candidate = new Date(due);
   if (repeat.cadence === "daily") candidate.setDate(candidate.getDate() + 1);
-  else if (repeat.cadence === "weekly") candidate.setDate(candidate.getDate() + ((anchor.getDay() - candidate.getDay() + 6) % 7) + 1);
+  else if (repeat.cadence === "weekly")
+    candidate.setDate(candidate.getDate() + ((anchor.getDay() - candidate.getDay() + 6) % 7) + 1);
   else if (repeat.cadence === "monthly") {
-    const dateForMonth = (year: number, month: number) => new Date(year, month, Math.min(anchor.getDate(), daysInMonth(year, month)), due.getHours(), due.getMinutes(), due.getSeconds(), due.getMilliseconds());
+    const dateForMonth = (year: number, month: number) =>
+      new Date(
+        year,
+        month,
+        Math.min(anchor.getDate(), daysInMonth(year, month)),
+        due.getHours(),
+        due.getMinutes(),
+        due.getSeconds(),
+        due.getMilliseconds(),
+      );
     const currentMonth = dateForMonth(due.getFullYear(), due.getMonth());
     return (currentMonth > due ? currentMonth : dateForMonth(due.getFullYear(), due.getMonth() + 1)).toISOString();
   } else if (repeat.cadence === "yearly") {
-    const dateForYear = (year: number) => new Date(year, anchor.getMonth(), Math.min(anchor.getDate(), daysInMonth(year, anchor.getMonth())), due.getHours(), due.getMinutes(), due.getSeconds(), due.getMilliseconds());
+    const dateForYear = (year: number) =>
+      new Date(
+        year,
+        anchor.getMonth(),
+        Math.min(anchor.getDate(), daysInMonth(year, anchor.getMonth())),
+        due.getHours(),
+        due.getMinutes(),
+        due.getSeconds(),
+        due.getMilliseconds(),
+      );
     const currentYear = dateForYear(due.getFullYear());
     return (currentYear > due ? currentYear : dateForYear(due.getFullYear() + 1)).toISOString();
   } else return undefined;

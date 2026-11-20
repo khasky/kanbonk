@@ -2,8 +2,23 @@ import { describe, expect, it } from "vitest";
 import { applyDueRecurrence, nextDueDate } from "../src/repeatingDue";
 import type { Card } from "../src/model";
 
-const localDue = (year: number, month: number, day: number, hour = 9) => new Date(year, month - 1, day, hour).toISOString();
-const card: Card = { id: "card", boardId: "board", listId: "list", name: "Task", description: "", position: 1, labelIds: [], completed: false, checklists: [], comments: [], attachments: [], dueAt: localDue(2026, 3, 7), dueRepeat: { cadence: "daily", anchor: "2026-03-07" } };
+const localDue = (year: number, month: number, day: number, hour = 9) =>
+  new Date(year, month - 1, day, hour).toISOString();
+const card: Card = {
+  id: "card",
+  boardId: "board",
+  listId: "list",
+  name: "Task",
+  description: "",
+  position: 1,
+  labelIds: [],
+  completed: false,
+  checklists: [],
+  comments: [],
+  attachments: [],
+  dueAt: localDue(2026, 3, 7),
+  dueRepeat: { cadence: "daily", anchor: "2026-03-07" },
+};
 
 describe("repeating due dates", () => {
   it("keeps local time when a daily date crosses a clock change", () => {
@@ -22,8 +37,17 @@ describe("repeating due dates", () => {
   });
 
   it("resets completion and advances only on a new completion", () => {
-    expect(applyDueRecurrence(card, { ...card, completed: true })).toMatchObject({ completed: false, dueAt: localDue(2026, 3, 8) });
-    expect(applyDueRecurrence({ ...card, completed: true }, { ...card, completed: true })).toMatchObject({ completed: true, dueAt: card.dueAt });
-    expect(applyDueRecurrence(card, { ...card, name: "Edited" })).toMatchObject({ completed: false, dueAt: card.dueAt });
+    expect(applyDueRecurrence(card, { ...card, completed: true })).toMatchObject({
+      completed: false,
+      dueAt: localDue(2026, 3, 8),
+    });
+    expect(applyDueRecurrence({ ...card, completed: true }, { ...card, completed: true })).toMatchObject({
+      completed: true,
+      dueAt: card.dueAt,
+    });
+    expect(applyDueRecurrence(card, { ...card, name: "Edited" })).toMatchObject({
+      completed: false,
+      dueAt: card.dueAt,
+    });
   });
 });

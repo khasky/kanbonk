@@ -3,7 +3,14 @@
 (() => {
   const defaultPartLimit = 100 * 1024 * 1024;
   const maxImageBytes = 25 * 1024 * 1024;
-  const imageExtensions = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif", "image/avif": "avif", "image/svg+xml": "svg" };
+  const imageExtensions = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/webp": "webp",
+    "image/gif": "gif",
+    "image/avif": "avif",
+    "image/svg+xml": "svg",
+  };
   const encoder = new TextEncoder();
 
   const crcTable = Array.from({ length: 256 }, (_, index) => {
@@ -64,7 +71,11 @@
     return new Blob([...chunks, ...central, end], { type: "application/zip" });
   }
 
-  const safeName = (value, fallback) => String(value || fallback).replace(/[\\/:*?"<>|\u0000-\u001f]/g, "_").trim().slice(0, 120) || fallback;
+  const safeName = (value, fallback) =>
+    String(value || fallback)
+      .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "_")
+      .trim()
+      .slice(0, 120) || fallback;
 
   async function readJson(fetch, url) {
     const response = await fetch(url, { credentials: "include" });
@@ -89,16 +100,32 @@
    * file, and hands ZIP parts of about partLimit bytes to save(). A file larger than the limit gets a part of its own.
    * Every part carries kanbonk-export.json; the last one also states the number of parts and lists failed files.
    */
-  async function exportBoard({ fetch, shortLink, save, progress = () => {}, signal, partLimit = defaultPartLimit, now = () => new Date() }) {
-    const cancelled = () => { if (signal?.aborted) throw new Error("Export cancelled."); };
+  async function exportBoard({
+    fetch,
+    shortLink,
+    save,
+    progress = () => {},
+    signal,
+    partLimit = defaultPartLimit,
+    now = () => new Date(),
+  }) {
+    const cancelled = () => {
+      if (signal?.aborted) throw new Error("Export cancelled.");
+    };
     progress({ step: "board" });
     const board = await readJson(fetch, `/b/${encodeURIComponent(shortLink)}.json`);
     const warnings = [];
     if (board.idOrganization) {
       try {
-        const details = await readJson(fetch, `/1/boards/${encodeURIComponent(board.id)}?fields=idOrganization&organization=true&organization_fields=displayName`);
-        if (details.organization?.id === board.idOrganization && details.organization.displayName) board.kanbonkOrganizationName = details.organization.displayName;
-      } catch (error) { warnings.push(`Workspace name: ${String(error)}`); }
+        const details = await readJson(
+          fetch,
+          `/1/boards/${encodeURIComponent(board.id)}?fields=idOrganization&organization=true&organization_fields=displayName`,
+        );
+        if (details.organization?.id === board.idOrganization && details.organization.displayName)
+          board.kanbonkOrganizationName = details.organization.displayName;
+      } catch (error) {
+        warnings.push(`Workspace name: ${String(error)}`);
+      }
     }
     cancelled();
     progress({ step: "comments", count: 0 });
@@ -106,7 +133,10 @@
       const comments = [];
       let before = "";
       while (true) {
-        const page = await readJson(fetch, `/1/boards/${encodeURIComponent(board.id)}/actions?filter=commentCard&limit=1000${before ? `&before=${encodeURIComponent(before)}` : ""}`);
+        const page = await readJson(
+          fetch,
+          `/1/boards/${encodeURIComponent(board.id)}/actions?filter=commentCard&limit=1000${before ? `&before=${encodeURIComponent(before)}` : ""}`,
+        );
         if (!Array.isArray(page)) throw new Error("Invalid Trello response");
         comments.push(...page);
         progress({ step: "comments", count: comments.length });
@@ -118,24 +148,49 @@
       }
       board.kanbonkComments = comments;
       board.kanbonkCommentsComplete = true;
-    } catch (error) { warnings.push(`Comment history is limited to the last 1000 actions: ${String(error)}`); }
+    } catch (error) {
+      warnings.push(`Comment history is limited to the last 1000 actions: ${String(error)}`);
+    }
     cancelled();
     progress({ step: "stickers" });
     try {
-      const cards = await readJson(fetch, `/1/boards/${encodeURIComponent(board.id)}/cards?filter=all&fields=id&stickers=true&limit=1000`);
+      const cards = await readJson(
+        fetch,
+        `/1/boards/${encodeURIComponent(board.id)}/cards?filter=all&fields=id&stickers=true&limit=1000`,
+      );
       if (!Array.isArray(cards)) throw new Error("Invalid Trello response");
       const byId = new Map(cards.map((card) => [card.id, card.stickers]));
       for (const card of board.cards || []) {
-        if (!byId.has(card.id)) byId.set(card.id, await readJson(fetch, `/1/cards/${encodeURIComponent(card.id)}/stickers`));
+        if (!byId.has(card.id))
+          byId.set(card.id, await readJson(fetch, `/1/cards/${encodeURIComponent(card.id)}/stickers`));
         card.stickers = byId.get(card.id);
       }
-    } catch (error) { warnings.push(`Stickers: ${String(error)}`); }
+    } catch (error) {
+      warnings.push(`Stickers: ${String(error)}`);
+    }
 
     const files = [];
-    if (board.prefs?.backgroundImage) files.push({ kind: "background", label: "Board background", url: board.prefs.backgroundImage, bytes: 0 });
-    for (const sticker of (board.cards || []).flatMap((card) => card.stickers || [])) if (sticker.id && sticker.imageUrl) files.push({ kind: "sticker", label: `Sticker ${sticker.image || sticker.id}`, id: sticker.id, url: sticker.imageUrl, bytes: 0 });
+    if (board.prefs?.backgroundImage)
+      files.push({ kind: "background", label: "Board background", url: board.prefs.backgroundImage, bytes: 0 });
+    for (const sticker of (board.cards || []).flatMap((card) => card.stickers || []))
+      if (sticker.id && sticker.imageUrl)
+        files.push({
+          kind: "sticker",
+          label: `Sticker ${sticker.image || sticker.id}`,
+          id: sticker.id,
+          url: sticker.imageUrl,
+          bytes: 0,
+        });
     for (const attachment of (board.cards || []).flatMap((card) => card.attachments || [])) {
-      if (attachment.isUpload !== false && attachment.url) files.push({ kind: "attachment", label: attachment.name || attachment.id, id: attachment.id, name: attachment.name, url: attachment.url, bytes: Number(attachment.bytes) || 0 });
+      if (attachment.isUpload !== false && attachment.url)
+        files.push({
+          kind: "attachment",
+          label: attachment.name || attachment.id,
+          id: attachment.id,
+          name: attachment.name,
+          url: attachment.url,
+          bytes: Number(attachment.bytes) || 0,
+        });
     }
     const totalBytes = files.reduce((sum, file) => sum + file.bytes, 0);
 
@@ -149,10 +204,27 @@
     let downloadedBytes = 0;
 
     async function flush(last) {
-      const manifest = { format: "kanbonk-trello-export", version: 1, exportId, boardId: board.id, boardName: board.name, part, ...(last ? { parts: part } : {}), createdAt: now().toISOString() };
-      const report = last && failures.length ? [{ path: "failed-files.txt", data: encoder.encode(failures.join("\n")) }] : [];
+      const manifest = {
+        format: "kanbonk-trello-export",
+        version: 1,
+        exportId,
+        boardId: board.id,
+        boardName: board.name,
+        part,
+        ...(last ? { parts: part } : {}),
+        createdAt: now().toISOString(),
+      };
+      const report =
+        last && failures.length ? [{ path: "failed-files.txt", data: encoder.encode(failures.join("\n")) }] : [];
       progress({ step: "saving", part });
-      await save(zip([{ path: "kanbonk-export.json", data: encoder.encode(JSON.stringify(manifest, null, 2)) }, ...entries, ...report]), `${baseName} - part ${part}${last ? " (last)" : ""}.zip`);
+      await save(
+        zip([
+          { path: "kanbonk-export.json", data: encoder.encode(JSON.stringify(manifest, null, 2)) },
+          ...entries,
+          ...report,
+        ]),
+        `${baseName} - part ${part}${last ? " (last)" : ""}.zip`,
+      );
       part++;
       entries = [];
       partBytes = 0;
@@ -168,10 +240,14 @@
           if (url.protocol !== "https:" || url.hostname !== "trello.com") throw new Error("Invalid URL");
           const response = await fetch(url, { credentials: "include" });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          if (response.headers?.get("content-type")?.startsWith("text/html")) throw new Error("Trello returned a page instead of the file; sign in again");
-          entry = { path: `attachments/${file.id}/${safeName(file.name, "file")}`, data: new Uint8Array(await response.arrayBuffer()) };
+          if (response.headers?.get("content-type")?.startsWith("text/html"))
+            throw new Error("Trello returned a page instead of the file; sign in again");
+          entry = {
+            path: `attachments/${file.id}/${safeName(file.name, "file")}`,
+            data: new Uint8Array(await response.arrayBuffer()),
+          };
         } else if (file.kind === "sticker") {
-          const image = await readImage(fetch, file.url, (url) => url.hostname === "trello.com" ? "include" : "omit");
+          const image = await readImage(fetch, file.url, (url) => (url.hostname === "trello.com" ? "include" : "omit"));
           entry = { path: `stickers/${file.id}/image.${image.extension}`, data: image.data };
         } else {
           const image = await readImage(fetch, file.url, () => "omit");
@@ -189,7 +265,14 @@
     }
     progress({ step: "files", done, total: files.length, downloadedBytes, totalBytes, part });
     await flush(true);
-    return { parts: part - 1, files: files.length - failures.length, total: files.length, failures, warnings, boardName: board.name };
+    return {
+      parts: part - 1,
+      files: files.length - failures.length,
+      total: files.length,
+      failures,
+      warnings,
+      boardName: board.name,
+    };
   }
 
   globalThis.kanbonkExportBoard = exportBoard;

@@ -188,10 +188,21 @@ export interface BoardFilter {
   due: "any" | "overdue" | "next-week" | "none";
 }
 
-export const emptyBoardFilter = (): BoardFilter => ({ keyword: "", labelId: "", memberId: "", status: "all", due: "any" });
+export const emptyBoardFilter = (): BoardFilter => ({
+  keyword: "",
+  labelId: "",
+  memberId: "",
+  status: "all",
+  due: "any",
+});
 
 export function isCardAvailable(state: AppState, card?: Card): boolean {
-  return Boolean(card && !card.archived && state.boards.some((board) => board.id === card.boardId && !board.archived) && state.lists.some((list) => list.id === card.listId && !list.archived));
+  return Boolean(
+    card &&
+      !card.archived &&
+      state.boards.some((board) => board.id === card.boardId && !board.archived) &&
+      state.lists.some((list) => list.id === card.listId && !list.archived),
+  );
 }
 
 const cardTexts = new WeakMap<Card, string>();
@@ -200,7 +211,15 @@ const cardTexts = new WeakMap<Card, string>();
 export function cardText(card: Card): string {
   let text = cardTexts.get(card);
   if (text === undefined) {
-    text = [card.name, card.description, ...card.checklists.flatMap((list) => [list.name, ...list.items.map((item) => item.name)]), ...card.comments.map((comment) => comment.text), ...card.attachments.map((attachment) => attachment.name)].join("\n").toLocaleLowerCase();
+    text = [
+      card.name,
+      card.description,
+      ...card.checklists.flatMap((list) => [list.name, ...list.items.map((item) => item.name)]),
+      ...card.comments.map((comment) => comment.text),
+      ...card.attachments.map((attachment) => attachment.name),
+    ]
+      .join("\n")
+      .toLocaleLowerCase();
     cardTexts.set(card, text);
   }
   return text;
@@ -218,7 +237,8 @@ export function filterBoardCards(state: AppState, boardId: string, filter: Board
     const due = card.dueAt ? new Date(card.dueAt).getTime() : NaN;
     if (filter.due === "none" && card.dueAt) return false;
     if (filter.due === "overdue" && (card.completed || !(due < now))) return false;
-    if (filter.due === "next-week" && (card.completed || !(due >= now && due <= now + 7 * 24 * 60 * 60 * 1000))) return false;
+    if (filter.due === "next-week" && (card.completed || !(due >= now && due <= now + 7 * 24 * 60 * 60 * 1000)))
+      return false;
     if (!keyword) return true;
     return cardText(card).includes(keyword);
   });
@@ -245,7 +265,8 @@ export function rememberIds(ids: Iterable<string>): void {
 }
 
 export function rememberStateIds(state: AppState): void {
-  for (const collection of [state.workspaces, state.boards, state.lists, state.cards, state.labels, state.revisions]) rememberIds(collection.map((item) => item.id));
+  for (const collection of [state.workspaces, state.boards, state.lists, state.cards, state.labels, state.revisions])
+    rememberIds(collection.map((item) => item.id));
 }
 
 /** Trello-like short id: URL-safe base62, unbiased (rejection sampling), unique among ids known to this device. */
@@ -257,7 +278,10 @@ export function newId(length = 8): string {
         if (byte < 248 && id.length < length) id += idAlphabet[byte % 62];
       }
     }
-    if (!issuedIds.has(id)) { issuedIds.add(id); return id; }
+    if (!issuedIds.has(id)) {
+      issuedIds.add(id);
+      return id;
+    }
   }
 }
 
@@ -266,7 +290,9 @@ export function isShortId(value: string): boolean {
 }
 
 export function positionBefore(cards: Card[], movingId: string, target: Card): number {
-  const siblings = cards.filter((card) => card.listId === target.listId && card.id !== movingId && !card.archived).sort((a, b) => a.position - b.position);
+  const siblings = cards
+    .filter((card) => card.listId === target.listId && card.id !== movingId && !card.archived)
+    .sort((a, b) => a.position - b.position);
   const targetIndex = siblings.findIndex((card) => card.id === target.id);
   if (targetIndex < 1) return target.position - 1;
   return (siblings[targetIndex - 1].position + target.position) / 2;
@@ -276,22 +302,34 @@ export function reorderLists(lists: BoardList[], movingId: string, targetId: str
   const moving = lists.find((list) => list.id === movingId && !list.archived);
   const target = lists.find((list) => list.id === targetId && !list.archived);
   if (!moving || !target || moving.id === target.id || moving.boardId !== target.boardId) return lists;
-  const ordered = lists.filter((list) => list.boardId === moving.boardId && !list.archived && list.id !== movingId).sort((a, b) => a.position - b.position);
+  const ordered = lists
+    .filter((list) => list.boardId === moving.boardId && !list.archived && list.id !== movingId)
+    .sort((a, b) => a.position - b.position);
   const targetIndex = ordered.findIndex((list) => list.id === targetId);
   ordered.splice(targetIndex + Number(after), 0, moving);
   const positions = new Map(ordered.map((list, index) => [list.id, index + 1]));
-  return lists.map((list) => positions.has(list.id) ? { ...list, position: positions.get(list.id)! } : list);
+  return lists.map((list) => (positions.has(list.id) ? { ...list, position: positions.get(list.id)! } : list));
 }
 
 export function sortListCards(cards: Card[], listId: string, by: "name" | "due"): Card[] {
-  const sorted = cards.filter((card) => card.listId === listId && !card.archived).sort((a, b) => by === "name"
-    ? a.name.localeCompare(b.name)
-    : (a.dueAt ? Date.parse(a.dueAt) : Infinity) - (b.dueAt ? Date.parse(b.dueAt) : Infinity));
+  const sorted = cards
+    .filter((card) => card.listId === listId && !card.archived)
+    .sort((a, b) =>
+      by === "name"
+        ? a.name.localeCompare(b.name)
+        : (a.dueAt ? Date.parse(a.dueAt) : Infinity) - (b.dueAt ? Date.parse(b.dueAt) : Infinity),
+    );
   const positions = new Map(sorted.map((card, index) => [card.id, index + 1]));
-  return cards.map((card) => positions.has(card.id) ? { ...card, position: positions.get(card.id)! } : card);
+  return cards.map((card) => (positions.has(card.id) ? { ...card, position: positions.get(card.id)! } : card));
 }
 
-export function transferCard(state: AppState, cardId: string, targetListId: string, copy: boolean, copyId?: string): { state: AppState; cardId: string } {
+export function transferCard(
+  state: AppState,
+  cardId: string,
+  targetListId: string,
+  copy: boolean,
+  copyId?: string,
+): { state: AppState; cardId: string } {
   const source = state.cards.find((card) => card.id === cardId && !card.archived);
   const targetList = state.lists.find((list) => list.id === targetListId && !list.archived);
   const targetBoard = state.boards.find((board) => board.id === targetList?.boardId && !board.archived);
@@ -299,35 +337,76 @@ export function transferCard(state: AppState, cardId: string, targetListId: stri
 
   const crossBoard = source.boardId !== targetBoard.id;
   const labels = [...state.labels];
-  const labelIds = crossBoard ? source.labelIds.flatMap((id) => {
-    const sourceLabel = state.labels.find((label) => label.id === id && !label.deleted);
-    if (!sourceLabel) return [];
-    let targetLabel = labels.find((label) => label.boardId === targetBoard.id && !label.deleted && label.name === sourceLabel.name && label.color === sourceLabel.color);
-    if (!targetLabel) {
-      targetLabel = { ...sourceLabel, id: newId(), boardId: targetBoard.id };
-      labels.push(targetLabel);
-    }
-    return [targetLabel.id];
-  }) : [...source.labelIds];
+  const labelIds = crossBoard
+    ? source.labelIds.flatMap((id) => {
+        const sourceLabel = state.labels.find((label) => label.id === id && !label.deleted);
+        if (!sourceLabel) return [];
+        let targetLabel = labels.find(
+          (label) =>
+            label.boardId === targetBoard.id &&
+            !label.deleted &&
+            label.name === sourceLabel.name &&
+            label.color === sourceLabel.color,
+        );
+        if (!targetLabel) {
+          targetLabel = { ...sourceLabel, id: newId(), boardId: targetBoard.id };
+          labels.push(targetLabel);
+        }
+        return [targetLabel.id];
+      })
+    : [...source.labelIds];
 
   const sourceMembers = state.boards.find((board) => board.id === source.boardId)?.members ?? [];
-  const memberIds = crossBoard ? (source.memberIds ?? []).flatMap((id) => {
-    const member = sourceMembers.find((item) => item.id === id);
-    const targetMember = targetBoard.members?.find((item) => item.id === id || (member && item.name === member.name));
-    return targetMember ? [targetMember.id] : [];
-  }) : [...source.memberIds ?? []];
+  const memberIds = crossBoard
+    ? (source.memberIds ?? []).flatMap((id) => {
+        const member = sourceMembers.find((item) => item.id === id);
+        const targetMember = targetBoard.members?.find(
+          (item) => item.id === id || (member && item.name === member.name),
+        );
+        return targetMember ? [targetMember.id] : [];
+      })
+    : [...(source.memberIds ?? [])];
 
-  const position = Math.max(0, ...state.cards.filter((card) => card.listId === targetListId && (copy || card.id !== cardId) && !card.archived).map((card) => card.position)) + 1;
+  const position =
+    Math.max(
+      0,
+      ...state.cards
+        .filter((card) => card.listId === targetListId && (copy || card.id !== cardId) && !card.archived)
+        .map((card) => card.position),
+    ) + 1;
   const transferred: Card = {
-    ...structuredClone(source), id: copy ? copyId ?? newId() : source.id, boardId: targetBoard.id, listId: targetListId, position, labelIds, memberIds,
-    ...(copy ? {
-      createdAt: new Date().toISOString(), sourceTrelloId: undefined, sourceTrelloShortLink: undefined,
-      automationRunKeys: [],
-      checklists: source.checklists.map((list) => ({ ...structuredClone(list), id: newId(), items: list.items.map((item) => ({ ...item, id: newId() })) })),
-      comments: source.comments.map((comment) => ({ ...comment, id: newId() })),
-    } : {}),
+    ...structuredClone(source),
+    id: copy ? (copyId ?? newId()) : source.id,
+    boardId: targetBoard.id,
+    listId: targetListId,
+    position,
+    labelIds,
+    memberIds,
+    ...(copy
+      ? {
+          createdAt: new Date().toISOString(),
+          sourceTrelloId: undefined,
+          sourceTrelloShortLink: undefined,
+          automationRunKeys: [],
+          checklists: source.checklists.map((list) => ({
+            ...structuredClone(list),
+            id: newId(),
+            items: list.items.map((item) => ({ ...item, id: newId() })),
+          })),
+          comments: source.comments.map((comment) => ({ ...comment, id: newId() })),
+        }
+      : {}),
   };
-  return { state: { ...state, labels, cards: copy ? [...state.cards, transferred] : state.cards.map((card) => card.id === cardId ? transferred : card) }, cardId: transferred.id };
+  return {
+    state: {
+      ...state,
+      labels,
+      cards: copy
+        ? [...state.cards, transferred]
+        : state.cards.map((card) => (card.id === cardId ? transferred : card)),
+    },
+    cardId: transferred.id,
+  };
 }
 
 /** "<name> - Clone", with one more " - Clone" for each card of the board that already has the name. */
@@ -345,19 +424,55 @@ export function cloneCard(state: AppState, cardId: string, copyId = newId()): { 
   const source = state.cards.find((card) => card.id === cardId);
   if (!source) throw new Error("Card not found.");
   const copied = transferCard(state, cardId, source.listId, true, copyId).state;
-  const next = copied.cards.filter((card) => card.listId === source.listId && card.id !== copyId && !card.archived && card.position > source.position).sort((a, b) => a.position - b.position)[0];
+  const next = copied.cards
+    .filter(
+      (card) =>
+        card.listId === source.listId && card.id !== copyId && !card.archived && card.position > source.position,
+    )
+    .sort((a, b) => a.position - b.position)[0];
   const position = next ? (source.position + next.position) / 2 : source.position + 1;
-  return { state: { ...copied, cards: copied.cards.map((card) => card.id === copyId ? { ...card, name: cloneCardName(state, cardId), position } : card) }, cardId: copyId };
+  return {
+    state: {
+      ...copied,
+      cards: copied.cards.map((card) =>
+        card.id === copyId ? { ...card, name: cloneCardName(state, cardId), position } : card,
+      ),
+    },
+    cardId: copyId,
+  };
 }
 
 /** Creates a sub-card in the parent's list, below the parent and its existing sub-cards. */
-export function createSubCard(state: AppState, parentId: string, name: string, id = newId(), now = new Date().toISOString()): AppState {
+export function createSubCard(
+  state: AppState,
+  parentId: string,
+  name: string,
+  id = newId(),
+  now = new Date().toISOString(),
+): AppState {
   const parent = state.cards.find((card) => card.id === parentId);
   if (!parent) throw new Error("Card not found.");
   const siblings = state.cards.filter((card) => card.listId === parent.listId && !card.archived);
-  const after = Math.max(parent.position, ...siblings.filter((card) => card.parentCardId === parentId).map((card) => card.position));
+  const after = Math.max(
+    parent.position,
+    ...siblings.filter((card) => card.parentCardId === parentId).map((card) => card.position),
+  );
   const next = siblings.filter((card) => card.position > after).sort((a, b) => a.position - b.position)[0];
-  const created: Card = { id, boardId: parent.boardId, listId: parent.listId, name, description: "", createdAt: now, position: next ? (after + next.position) / 2 : after + 1, labelIds: [], completed: false, checklists: [], comments: [], attachments: [], parentCardId: parentId };
+  const created: Card = {
+    id,
+    boardId: parent.boardId,
+    listId: parent.listId,
+    name,
+    description: "",
+    createdAt: now,
+    position: next ? (after + next.position) / 2 : after + 1,
+    labelIds: [],
+    completed: false,
+    checklists: [],
+    comments: [],
+    attachments: [],
+    parentCardId: parentId,
+  };
   return { ...state, cards: [...state.cards, created] };
 }
 
@@ -369,26 +484,52 @@ export function subCards(state: AppState, cardId: string): Card[] {
 /** Cards that may become the parent of `cardId` without creating a cycle. */
 export function parentCandidates(state: AppState, cardId: string): Card[] {
   const blocked = new Set([cardId]);
-  for (let grew = true; grew;) {
+  for (let grew = true; grew; ) {
     grew = false;
-    for (const card of state.cards) if (card.parentCardId && blocked.has(card.parentCardId) && !blocked.has(card.id)) { blocked.add(card.id); grew = true; }
+    for (const card of state.cards)
+      if (card.parentCardId && blocked.has(card.parentCardId) && !blocked.has(card.id)) {
+        blocked.add(card.id);
+        grew = true;
+      }
   }
   return state.cards.filter((card) => !blocked.has(card.id) && !card.archived && !card.isTemplate);
 }
 
-export function createCardFromTemplate(state: AppState, templateId: string, targetListId: string, name: string, copyId = newId()): { state: AppState; cardId: string } {
+export function createCardFromTemplate(
+  state: AppState,
+  templateId: string,
+  targetListId: string,
+  name: string,
+  copyId = newId(),
+): { state: AppState; cardId: string } {
   const template = state.cards.find((card) => card.id === templateId && card.isTemplate);
   const target = state.lists.find((list) => list.id === targetListId && !list.archived);
-  if (!template || !target || template.boardId !== target.boardId) throw new Error("The template or target list is unavailable.");
-  const available = template.archived ? { ...state, cards: state.cards.map((card) => card.id === templateId ? { ...card, archived: false } : card) } : state;
+  if (!template || !target || template.boardId !== target.boardId)
+    throw new Error("The template or target list is unavailable.");
+  const available = template.archived
+    ? { ...state, cards: state.cards.map((card) => (card.id === templateId ? { ...card, archived: false } : card)) }
+    : state;
   const result = transferCard(available, templateId, targetListId, true, copyId);
   return {
     state: {
       ...result.state,
-      cards: result.state.cards.map((card) => card.id === templateId ? template : card.id === copyId ? {
-        ...card, name: name.trim() || template.name, isTemplate: false, archived: false,
-        startAt: undefined, dueAt: undefined, dueReminderMinutes: undefined, dueRepeat: undefined, comments: [],
-      } : card),
+      cards: result.state.cards.map((card) =>
+        card.id === templateId
+          ? template
+          : card.id === copyId
+            ? {
+                ...card,
+                name: name.trim() || template.name,
+                isTemplate: false,
+                archived: false,
+                startAt: undefined,
+                dueAt: undefined,
+                dueReminderMinutes: undefined,
+                dueRepeat: undefined,
+                comments: [],
+              }
+            : card,
+      ),
     },
     cardId: copyId,
   };
@@ -397,41 +538,102 @@ export function createCardFromTemplate(state: AppState, templateId: string, targ
 export function linkDependency(state: AppState, dependentId: string, prerequisiteId: string): AppState {
   const dependent = state.cards.find((card) => card.id === dependentId && !card.archived);
   const prerequisite = state.cards.find((card) => card.id === prerequisiteId && !card.archived);
-  if (!dependent || !prerequisite || dependentId === prerequisiteId || !isCardAvailable(state, dependent) || !isCardAvailable(state, prerequisite)) throw new Error("The cards for the dependency are unavailable.");
+  if (
+    !dependent ||
+    !prerequisite ||
+    dependentId === prerequisiteId ||
+    !isCardAvailable(state, dependent) ||
+    !isCardAvailable(state, prerequisite)
+  )
+    throw new Error("The cards for the dependency are unavailable.");
   const checklist = dependent.checklists.find((item) => item.name === "Dependencies");
-  if (checklist?.items.some((item) => item.linkedCardId === prerequisiteId) && prerequisite.attachments.some((item) => item.linkedCardId === dependentId)) return state;
-  const checklists = dependent.checklists.map((item) => item.id === checklist?.id && !item.items.some((entry) => entry.linkedCardId === prerequisiteId)
-    ? { ...item, items: [...item.items, { id: newId(), name: prerequisite.name, checked: false, linkedCardId: prerequisiteId }] }
-    : item);
-  if (!checklist) checklists.push({ id: newId(), name: "Dependencies", items: [{ id: newId(), name: prerequisite.name, checked: false, linkedCardId: prerequisiteId }] });
+  if (
+    checklist?.items.some((item) => item.linkedCardId === prerequisiteId) &&
+    prerequisite.attachments.some((item) => item.linkedCardId === dependentId)
+  )
+    return state;
+  const checklists = dependent.checklists.map((item) =>
+    item.id === checklist?.id && !item.items.some((entry) => entry.linkedCardId === prerequisiteId)
+      ? {
+          ...item,
+          items: [
+            ...item.items,
+            { id: newId(), name: prerequisite.name, checked: false, linkedCardId: prerequisiteId },
+          ],
+        }
+      : item,
+  );
+  if (!checklist)
+    checklists.push({
+      id: newId(),
+      name: "Dependencies",
+      items: [{ id: newId(), name: prerequisite.name, checked: false, linkedCardId: prerequisiteId }],
+    });
   const attachments = prerequisite.attachments.some((item) => item.linkedCardId === dependentId)
     ? prerequisite.attachments
-    : [...prerequisite.attachments, { id: newId(), name: dependent.name, mimeType: "text/uri-list", size: 0, status: "link" as const, linkedCardId: dependentId }];
-  return { ...state, cards: state.cards.map((card) => card.id === dependentId ? { ...card, checklists } : card.id === prerequisiteId ? { ...card, attachments } : card) };
+    : [
+        ...prerequisite.attachments,
+        {
+          id: newId(),
+          name: dependent.name,
+          mimeType: "text/uri-list",
+          size: 0,
+          status: "link" as const,
+          linkedCardId: dependentId,
+        },
+      ];
+  return {
+    ...state,
+    cards: state.cards.map((card) =>
+      card.id === dependentId ? { ...card, checklists } : card.id === prerequisiteId ? { ...card, attachments } : card,
+    ),
+  };
 }
 
 export function unlinkDependency(state: AppState, dependentId: string, prerequisiteId: string): AppState {
   const dependent = state.cards.find((card) => card.id === dependentId);
   const prerequisite = state.cards.find((card) => card.id === prerequisiteId);
-  const hasChecklistLink = dependent?.checklists.some((list) => list.items.some((item) => item.linkedCardId === prerequisiteId));
+  const hasChecklistLink = dependent?.checklists.some((list) =>
+    list.items.some((item) => item.linkedCardId === prerequisiteId),
+  );
   const hasAttachmentLink = prerequisite?.attachments.some((item) => item.linkedCardId === dependentId);
   if (!hasChecklistLink && !hasAttachmentLink) return state;
-  return { ...state, cards: state.cards.map((card) => card.id === dependentId && hasChecklistLink
-    ? { ...card, checklists: card.checklists.map((list) => ({ ...list, items: list.items.filter((item) => item.linkedCardId !== prerequisiteId) })) }
-    : card.id === prerequisiteId && hasAttachmentLink
-      ? { ...card, attachments: card.attachments.filter((item) => item.linkedCardId !== dependentId) }
-      : card) };
+  return {
+    ...state,
+    cards: state.cards.map((card) =>
+      card.id === dependentId && hasChecklistLink
+        ? {
+            ...card,
+            checklists: card.checklists.map((list) => ({
+              ...list,
+              items: list.items.filter((item) => item.linkedCardId !== prerequisiteId),
+            })),
+          }
+        : card.id === prerequisiteId && hasAttachmentLink
+          ? { ...card, attachments: card.attachments.filter((item) => item.linkedCardId !== dependentId) }
+          : card,
+    ),
+  };
 }
 
-export function copyList(state: AppState, listId: string, copyId = newId()): { state: AppState; listId: string; cardIds: string[] } {
+export function copyList(
+  state: AppState,
+  listId: string,
+  copyId = newId(),
+): { state: AppState; listId: string; cardIds: string[] } {
   const source = state.lists.find((list) => list.id === listId && !list.archived);
-  if (!source || !state.boards.some((board) => board.id === source.boardId && !board.archived)) throw new Error("The list cannot be copied.");
-  const following = state.lists.filter((list) => list.boardId === source.boardId && !list.archived && list.position > source.position).sort((a, b) => a.position - b.position)[0];
+  if (!source || !state.boards.some((board) => board.id === source.boardId && !board.archived))
+    throw new Error("The list cannot be copied.");
+  const following = state.lists
+    .filter((list) => list.boardId === source.boardId && !list.archived && list.position > source.position)
+    .sort((a, b) => a.position - b.position)[0];
   const position = following ? (source.position + following.position) / 2 : source.position + 1;
   const copied = { ...source, id: copyId, name: `${source.name} (copy)`, position };
   let next: AppState = { ...state, lists: [...state.lists, copied] };
   const cardIds: string[] = [];
-  for (const card of state.cards.filter((item) => item.listId === listId && !item.archived).sort((a, b) => a.position - b.position)) {
+  for (const card of state.cards
+    .filter((item) => item.listId === listId && !item.archived)
+    .sort((a, b) => a.position - b.position)) {
     const result = transferCard(next, card.id, copyId, true);
     next = result.state;
     cardIds.push(result.cardId);
@@ -439,27 +641,57 @@ export function copyList(state: AppState, listId: string, copyId = newId()): { s
   return { state: next, listId: copyId, cardIds };
 }
 
-export function copyBoard(state: AppState, sourceId: string, options: { name: string; workspaceId: string; keepCards: boolean; keepTemplates: boolean }, copyId = newId()): { state: AppState; boardId: string; listIds: string[]; cardIds: string[] } {
+export function copyBoard(
+  state: AppState,
+  sourceId: string,
+  options: { name: string; workspaceId: string; keepCards: boolean; keepTemplates: boolean },
+  copyId = newId(),
+): { state: AppState; boardId: string; listIds: string[]; cardIds: string[] } {
   const source = state.boards.find((board) => board.id === sourceId && !board.archived);
-  if (!source || !options.name.trim() || !state.workspaces.some((workspace) => workspace.id === options.workspaceId && !workspace.archived)) throw new Error("The board or workspace is unavailable.");
-  const board: Board = { ...structuredClone(source), id: copyId, workspaceId: options.workspaceId, name: options.name.trim(), sourceTrelloId: undefined, starred: false, members: [] };
+  if (
+    !source ||
+    !options.name.trim() ||
+    !state.workspaces.some((workspace) => workspace.id === options.workspaceId && !workspace.archived)
+  )
+    throw new Error("The board or workspace is unavailable.");
+  const board: Board = {
+    ...structuredClone(source),
+    id: copyId,
+    workspaceId: options.workspaceId,
+    name: options.name.trim(),
+    sourceTrelloId: undefined,
+    starred: false,
+    members: [],
+  };
   const listIds = new Map<string, string>();
-  const lists = state.lists.filter((list) => list.boardId === sourceId && !list.archived).map((list) => {
-    const id = newId();
-    listIds.set(list.id, id);
-    return { ...list, id, boardId: copyId };
-  });
+  const lists = state.lists
+    .filter((list) => list.boardId === sourceId && !list.archived)
+    .map((list) => {
+      const id = newId();
+      listIds.set(list.id, id);
+      return { ...list, id, boardId: copyId };
+    });
   const labelIds = new Map<string, string>();
-  const labels = state.labels.filter((label) => label.boardId === sourceId && !label.deleted).map((label) => {
-    const id = newId();
-    labelIds.set(label.id, id);
-    return { ...label, id, boardId: copyId };
-  });
+  const labels = state.labels
+    .filter((label) => label.boardId === sourceId && !label.deleted)
+    .map((label) => {
+      const id = newId();
+      labelIds.set(label.id, id);
+      return { ...label, id, boardId: copyId };
+    });
   board.automationRules = source.automationRules?.flatMap((rule) => {
     const listId = rule.trigger === "button" || rule.trigger === "due" ? "" : listIds.get(rule.listId);
     const labelId = rule.labelId ? labelIds.get(rule.labelId) : undefined;
-    if (listId === undefined || rule.action === "add-label" && !labelId) return [];
-    return [{ ...rule, id: newId(), listId, labelId, createdAt: rule.trigger === "due" ? new Date().toISOString() : rule.createdAt }];
+    if (listId === undefined || (rule.action === "add-label" && !labelId)) return [];
+    return [
+      {
+        ...rule,
+        id: newId(),
+        listId,
+        labelId,
+        createdAt: rule.trigger === "due" ? new Date().toISOString() : rule.createdAt,
+      },
+    ];
   });
   const sourceCards = state.cards.filter((card) => {
     if (card.boardId !== sourceId || card.archived || !listIds.has(card.listId)) return false;
@@ -468,16 +700,41 @@ export function copyBoard(state: AppState, sourceId: string, options: { name: st
   });
   const cardIds = new Map(sourceCards.map((card) => [card.id, newId()]));
   const cards = sourceCards.map((card) => ({
-    ...structuredClone(card), id: cardIds.get(card.id)!, boardId: copyId, listId: listIds.get(card.listId)!,
-    labelIds: card.labelIds.flatMap((id) => labelIds.has(id) ? [labelIds.get(id)!] : []),
-    memberIds: [], comments: [], sourceTrelloId: undefined, sourceTrelloShortLink: undefined,
+    ...structuredClone(card),
+    id: cardIds.get(card.id)!,
+    boardId: copyId,
+    listId: listIds.get(card.listId)!,
+    labelIds: card.labelIds.flatMap((id) => (labelIds.has(id) ? [labelIds.get(id)!] : [])),
+    memberIds: [],
+    comments: [],
+    sourceTrelloId: undefined,
+    sourceTrelloShortLink: undefined,
     automationRunKeys: [],
-    checklists: card.checklists.map((list) => ({ ...structuredClone(list), id: newId(), items: list.items.map((item) => ({ ...item, id: newId(), linkedCardId: item.linkedCardId ? cardIds.get(item.linkedCardId) ?? item.linkedCardId : undefined })) })),
-    attachments: card.attachments.map((item) => ({ ...item, linkedCardId: item.linkedCardId ? cardIds.get(item.linkedCardId) ?? item.linkedCardId : undefined })),
+    checklists: card.checklists.map((list) => ({
+      ...structuredClone(list),
+      id: newId(),
+      items: list.items.map((item) => ({
+        ...item,
+        id: newId(),
+        linkedCardId: item.linkedCardId ? (cardIds.get(item.linkedCardId) ?? item.linkedCardId) : undefined,
+      })),
+    })),
+    attachments: card.attachments.map((item) => ({
+      ...item,
+      linkedCardId: item.linkedCardId ? (cardIds.get(item.linkedCardId) ?? item.linkedCardId) : undefined,
+    })),
   }));
   return {
-    state: { ...state, boards: [...state.boards, board], lists: [...state.lists, ...lists], labels: [...state.labels, ...labels], cards: [...state.cards, ...cards] },
-    boardId: copyId, listIds: lists.map((list) => list.id), cardIds: cards.map((card) => card.id),
+    state: {
+      ...state,
+      boards: [...state.boards, board],
+      lists: [...state.lists, ...lists],
+      labels: [...state.labels, ...labels],
+      cards: [...state.cards, ...cards],
+    },
+    boardId: copyId,
+    listIds: lists.map((list) => list.id),
+    cardIds: cards.map((card) => card.id),
   };
 }
 
@@ -486,29 +743,82 @@ export function moveChecklistItem(card: Card, itemId: string, targetChecklistId:
   const target = card.checklists.find((list) => list.id === targetChecklistId);
   if (!source || !target || itemId === beforeItemId) return card;
   const item = source.items.find((entry) => entry.id === itemId)!;
-  const checklists = card.checklists.map((list) => ({ ...list, items: list.items.filter((entry) => entry.id !== itemId) }));
+  const checklists = card.checklists.map((list) => ({
+    ...list,
+    items: list.items.filter((entry) => entry.id !== itemId),
+  }));
   const destination = checklists.find((list) => list.id === targetChecklistId)!;
   const beforeIndex = beforeItemId ? destination.items.findIndex((entry) => entry.id === beforeItemId) : -1;
   destination.items.splice(beforeIndex < 0 ? destination.items.length : beforeIndex, 0, item);
   return { ...card, checklists };
 }
 
-export function convertChecklistItem(state: AppState, cardId: string, checklistId: string, itemId: string, newCardId = newId()): AppState {
+export function convertChecklistItem(
+  state: AppState,
+  cardId: string,
+  checklistId: string,
+  itemId: string,
+  newCardId = newId(),
+): AppState {
   const source = state.cards.find((card) => card.id === cardId);
   const item = source?.checklists.find((list) => list.id === checklistId)?.items.find((entry) => entry.id === itemId);
-  if (!source || !isCardAvailable(state, source) || !item || item.linkedCardId || !item.name.trim() || state.cards.some((card) => card.id === newCardId)) return state;
-  const following = state.cards.filter((card) => card.listId === source.listId && !card.archived && card.position > source.position).sort((a, b) => a.position - b.position)[0];
+  if (
+    !source ||
+    !isCardAvailable(state, source) ||
+    !item ||
+    item.linkedCardId ||
+    !item.name.trim() ||
+    state.cards.some((card) => card.id === newCardId)
+  )
+    return state;
+  const following = state.cards
+    .filter((card) => card.listId === source.listId && !card.archived && card.position > source.position)
+    .sort((a, b) => a.position - b.position)[0];
   const created: Card = {
-    id: newCardId, boardId: source.boardId, listId: source.listId, name: item.name.trim(), description: "",
+    id: newCardId,
+    boardId: source.boardId,
+    listId: source.listId,
+    name: item.name.trim(),
+    description: "",
     position: following ? (source.position + following.position) / 2 : source.position + 1,
-    createdAt: new Date().toISOString(), labelIds: [], completed: item.checked, checklists: [], comments: [], attachments: [],
+    createdAt: new Date().toISOString(),
+    labelIds: [],
+    completed: item.checked,
+    checklists: [],
+    comments: [],
+    attachments: [],
   };
-  return { ...state, cards: [...state.cards.map((card) => card.id === cardId
-    ? { ...card, checklists: card.checklists.map((list) => list.id === checklistId ? { ...list, items: list.items.filter((entry) => entry.id !== itemId) } : list) }
-    : card), created] };
+  return {
+    ...state,
+    cards: [
+      ...state.cards.map((card) =>
+        card.id === cardId
+          ? {
+              ...card,
+              checklists: card.checklists.map((list) =>
+                list.id === checklistId ? { ...list, items: list.items.filter((entry) => entry.id !== itemId) } : list,
+              ),
+            }
+          : card,
+      ),
+      created,
+    ],
+  };
 }
 
-const searchOperators = new Set(["board", "list", "label", "member", "name", "description", "checklist", "comment", "due", "has", "is"]);
+const searchOperators = new Set([
+  "board",
+  "list",
+  "label",
+  "member",
+  "name",
+  "description",
+  "checklist",
+  "comment",
+  "due",
+  "has",
+  "is",
+]);
 
 function searchTokens(query: string): Array<{ operator: string; value: string; negative: boolean }> {
   return (query.match(/(?:[^\s"]|"[^"]*")+/g) ?? []).map((raw) => {
@@ -516,32 +826,77 @@ function searchTokens(query: string): Array<{ operator: string; value: string; n
     const token = negative ? raw.slice(1) : raw;
     const separator = token.indexOf(":");
     const prefix = token.slice(0, separator).toLocaleLowerCase();
-    const operator = separator > 0 && searchOperators.has(prefix) ? prefix : token.startsWith("@") ? "member" : token.startsWith("#") ? "label" : "text";
-    const value = operator === "text" ? token : operator === "member" && token.startsWith("@") || operator === "label" && token.startsWith("#") ? token.slice(1) : token.slice(separator + 1);
+    const operator =
+      separator > 0 && searchOperators.has(prefix)
+        ? prefix
+        : token.startsWith("@")
+          ? "member"
+          : token.startsWith("#")
+            ? "label"
+            : "text";
+    const value =
+      operator === "text"
+        ? token
+        : (operator === "member" && token.startsWith("@")) || (operator === "label" && token.startsWith("#"))
+          ? token.slice(1)
+          : token.slice(separator + 1);
     return { operator, value: value.replace(/^"|"$/g, "").toLocaleLowerCase(), negative };
   });
 }
 
-function searchMatch(card: Card, operator: string, value: string, board: Board, list: BoardList | undefined, labels: Label[], now: number): boolean {
+function searchMatch(
+  card: Card,
+  operator: string,
+  value: string,
+  board: Board,
+  list: BoardList | undefined,
+  labels: Label[],
+  now: number,
+): boolean {
   const includes = (text: string) => text.toLocaleLowerCase().includes(value);
   if (!value) return false;
-  if (operator === "board") return includes(board.name) || value === board.id.toLocaleLowerCase() || value === board.sourceTrelloId?.toLocaleLowerCase();
+  if (operator === "board")
+    return (
+      includes(board.name) ||
+      value === board.id.toLocaleLowerCase() ||
+      value === board.sourceTrelloId?.toLocaleLowerCase()
+    );
   if (operator === "list") return Boolean(list && (includes(list.name) || value === list.id.toLocaleLowerCase()));
-  if (operator === "label") return labels.some((label) => includes(label.name) || label.color.toLocaleLowerCase() === value || label.color === trelloLabelColors[value]);
-  if (operator === "member") return (board.members ?? []).some((member) => card.memberIds?.includes(member.id) && includes(member.name));
+  if (operator === "label")
+    return labels.some(
+      (label) =>
+        includes(label.name) || label.color.toLocaleLowerCase() === value || label.color === trelloLabelColors[value],
+    );
+  if (operator === "member")
+    return (board.members ?? []).some((member) => card.memberIds?.includes(member.id) && includes(member.name));
   if (operator === "name") return includes(card.name);
   if (operator === "description") return includes(card.description);
-  if (operator === "checklist") return card.checklists.some((checklist) => includes(checklist.name) || checklist.items.some((item) => includes(item.name)));
+  if (operator === "checklist")
+    return card.checklists.some(
+      (checklist) => includes(checklist.name) || checklist.items.some((item) => includes(item.name)),
+    );
   if (operator === "comment") return card.comments.some((comment) => includes(comment.text));
-  if (operator === "has") return value === "attachments" ? card.attachments.length > 0 : value === "description" ? Boolean(card.description.trim()) : value === "cover" ? Boolean(card.cover) : value === "members" ? Boolean(card.memberIds?.length) : value === "stickers" ? Boolean(card.stickers?.length) : false;
-  if (operator === "is") return value === "open" || value === "starred" && board.starred;
+  if (operator === "has")
+    return value === "attachments"
+      ? card.attachments.length > 0
+      : value === "description"
+        ? Boolean(card.description.trim())
+        : value === "cover"
+          ? Boolean(card.cover)
+          : value === "members"
+            ? Boolean(card.memberIds?.length)
+            : value === "stickers"
+              ? Boolean(card.stickers?.length)
+              : false;
+  if (operator === "is") return value === "open" || (value === "starred" && board.starred);
   if (operator === "due") {
     if (value === "complete") return Boolean(card.dueAt && card.completed);
     if (value === "incomplete") return Boolean(card.dueAt && !card.completed);
     const due = Date.parse(card.dueAt ?? "");
     if (!Number.isFinite(due)) return false;
     if (value === "overdue") return !card.completed && due < now;
-    const days = value === "day" ? 1 : value === "week" ? 7 : value === "month" ? 30 : /^\d+$/.test(value) ? Number(value) : NaN;
+    const days =
+      value === "day" ? 1 : value === "week" ? 7 : value === "month" ? 30 : /^\d+$/.test(value) ? Number(value) : NaN;
     return Number.isFinite(days) && days >= 0 && due >= now && due <= now + days * 86400000;
   }
   return cardText(card).includes(value) || labels.some((label) => includes(label.name));
@@ -558,29 +913,38 @@ export function searchCards(state: AppState, query: string, now = Date.now()): C
     const list = lists.get(card.listId);
     if (card.archived || !board || list?.archived) return false;
     const cardLabels = card.labelIds.map((id) => labels.get(id)).filter((label): label is Label => Boolean(label));
-    return tokens.every(({ operator, value, negative }) => searchMatch(card, operator, value, board, list, cardLabels, now) !== negative);
+    return tokens.every(
+      ({ operator, value, negative }) => searchMatch(card, operator, value, board, list, cardLabels, now) !== negative,
+    );
   });
 }
 
-export function ancestryFromRevisions(revisions: Revision[], existing: Record<string, string[]> = {}): Record<string, string[]> {
+export function ancestryFromRevisions(
+  revisions: Revision[],
+  existing: Record<string, string[]> = {},
+): Record<string, string[]> {
   const ancestry = { ...existing };
-  for (const revision of revisions) ancestry[revision.id] ??= revision.parentIds ?? (revision.parentId ? [revision.parentId] : []);
+  for (const revision of revisions)
+    ancestry[revision.id] ??= revision.parentIds ?? (revision.parentId ? [revision.parentId] : []);
   return ancestry;
 }
 
 export function mediaReferences(state: AppState): { fileIds: string[]; missingIds: string[] } {
   const files = new Set<string>();
   const missing = new Set<string>();
-  const boardFiles = (board: Board) => { if (board.backgroundImageId) files.add(board.backgroundImageId); };
+  const boardFiles = (board: Board) => {
+    if (board.backgroundImageId) files.add(board.backgroundImageId);
+  };
   const cardFiles = (card: Card) => {
     for (const attachment of card.attachments) {
       if (attachment.status === "local") files.add(attachment.id);
       else if (attachment.status === "missing") missing.add(attachment.id);
     }
-    for (const sticker of card.stickers ?? []) if (typeof sticker !== "string") {
-      if (sticker.status === "missing") missing.add(sticker.imageId);
-      else files.add(sticker.imageId);
-    }
+    for (const sticker of card.stickers ?? [])
+      if (typeof sticker !== "string") {
+        if (sticker.status === "missing") missing.add(sticker.imageId);
+        else files.add(sticker.imageId);
+      }
   };
   state.boards.forEach(boardFiles);
   state.cards.forEach(cardFiles);
@@ -594,8 +958,14 @@ export function mediaReferences(state: AppState): { fileIds: string[]; missingId
 export function markMediaLocal(state: AppState, fileId: string): AppState {
   let changed = false;
   const cards = state.cards.map((card) => {
-    const attachments = card.attachments.map((attachment) => attachment.id === fileId && attachment.status !== "link" ? { ...attachment, status: "local" as const } : attachment);
-    const stickers = card.stickers?.map((sticker) => typeof sticker !== "string" && sticker.imageId === fileId ? { ...sticker, status: "local" as const } : sticker);
+    const attachments = card.attachments.map((attachment) =>
+      attachment.id === fileId && attachment.status !== "link"
+        ? { ...attachment, status: "local" as const }
+        : attachment,
+    );
+    const stickers = card.stickers?.map((sticker) =>
+      typeof sticker !== "string" && sticker.imageId === fileId ? { ...sticker, status: "local" as const } : sticker,
+    );
     const attachmentChanged = attachments.some((attachment, index) => attachment !== card.attachments[index]);
     const stickerChanged = stickers?.some((sticker, index) => sticker !== card.stickers?.[index]) ?? false;
     if (!attachmentChanged && !stickerChanged) return card;
@@ -612,13 +982,26 @@ export function recordRevision(state: AppState, kind: EntityKind, entityId: stri
 const revisionLimit = 30;
 
 /** Records revisions for many entities in one pass: linear in the state size however many entities change. */
-export function recordRevisions(state: AppState, refs: Array<{ kind: EntityKind; id: string }>, deviceId: string): AppState {
+export function recordRevisions(
+  state: AppState,
+  refs: Array<{ kind: EntityKind; id: string }>,
+  deviceId: string,
+): AppState {
   if (!refs.length) return state;
-  const collections: Record<EntityKind, Array<Workspace | Board | BoardList | Card | Label>> = { workspace: state.workspaces, board: state.boards, list: state.lists, label: state.labels, card: state.cards };
+  const collections: Record<EntityKind, Array<Workspace | Board | BoardList | Card | Label>> = {
+    workspace: state.workspaces,
+    board: state.boards,
+    list: state.lists,
+    label: state.labels,
+    card: state.cards,
+  };
   const lookups = new Map<EntityKind, Map<string, Workspace | Board | BoardList | Card | Label>>();
   const find = (kind: EntityKind, id: string) => {
     let lookup = lookups.get(kind);
-    if (!lookup) { lookup = new Map(collections[kind].map((item) => [item.id, item])); lookups.set(kind, lookup); }
+    if (!lookup) {
+      lookup = new Map(collections[kind].map((item) => [item.id, item]));
+      lookups.set(kind, lookup);
+    }
     return lookup.get(id);
   };
   const revisionById = new Map(state.revisions.map((item) => [item.id, item]));
@@ -639,8 +1022,12 @@ export function recordRevisions(state: AppState, refs: Array<{ kind: EntityKind;
     }
     const previous = parent ? revisionById.get(parent)?.snapshot : undefined;
     const revision: Revision = {
-      id: newId(12), parentIds: parent ? [parent] : [],
-      entityKind: kind, entityId, createdAt: new Date().toISOString(), deviceId,
+      id: newId(12),
+      parentIds: parent ? [parent] : [],
+      entityKind: kind,
+      entityId,
+      createdAt: new Date().toISOString(),
+      deviceId,
       snapshot: structuredClone(entity),
     };
     revisions.push(revision);
@@ -648,19 +1035,72 @@ export function recordRevisions(state: AppState, refs: Array<{ kind: EntityKind;
     ancestry[revision.id] = revision.parentIds ?? [];
     heads[key] = revision.id;
     touched.add(key);
-    const currentBoardId = kind === "board" ? entityId : kind === "workspace" ? undefined : (entity as BoardList | Card | Label).boardId;
-    const previousBoardId = kind === "board" ? entityId : kind === "workspace" ? undefined : (previous as BoardList | Card | Label | undefined)?.boardId;
+    const currentBoardId =
+      kind === "board" ? entityId : kind === "workspace" ? undefined : (entity as BoardList | Card | Label).boardId;
+    const previousBoardId =
+      kind === "board"
+        ? entityId
+        : kind === "workspace"
+          ? undefined
+          : (previous as BoardList | Card | Label | undefined)?.boardId;
     const name = entity.name;
-    const label = kind === "workspace" ? "Workspace" : kind === "board" ? "Board" : kind === "list" ? "List" : kind === "label" ? "Label" : "Card";
-    const oldCard = kind === "card" ? previous as Card | undefined : undefined;
-    const newCard = kind === "card" ? entity as Card : undefined;
+    const label =
+      kind === "workspace"
+        ? "Workspace"
+        : kind === "board"
+          ? "Board"
+          : kind === "list"
+            ? "List"
+            : kind === "label"
+              ? "Label"
+              : "Card";
+    const oldCard = kind === "card" ? (previous as Card | undefined) : undefined;
+    const newCard = kind === "card" ? (entity as Card) : undefined;
     const oldComments = new Set(oldCard?.comments.map((comment) => comment.id) ?? []);
     const addedComments = newCard?.comments.filter((comment) => !oldComments.has(comment.id)) ?? [];
-    const commentOnly = Boolean(oldCard && addedComments.length && JSON.stringify({ ...oldCard, comments: newCard?.comments }) === JSON.stringify(newCard));
-    const labelDeletionChanged = kind === "label" && Boolean((previous as Label | undefined)?.deleted) !== Boolean((entity as Label).deleted);
-    const summary = !previous ? `${label} “${name}” created` : previousBoardId && currentBoardId !== previousBoardId ? `${label} “${name}” moved to another board` : previous.name !== name ? `${label} renamed: “${name}”` : labelDeletionChanged ? `${label} “${name}” ${(entity as Label).deleted ? "deleted" : "restored"}` : (entity as Trashable).deletedAt !== (previous as Trashable).deletedAt ? `${label} “${name}” ${(entity as Trashable).deletedAt ? "moved to Trash" : "restored from Trash"}` : "archived" in previous && "archived" in entity && previous.archived !== entity.archived ? `${label} “${name}” ${entity.archived ? "archived" : "restored"}` : `${label} “${name}” changed`;
-    if (!commentOnly && currentBoardId) activity.push({ id: revision.id, entityKind: kind, entityId, boardId: currentBoardId, previousBoardId, createdAt: revision.createdAt, deviceId, summary, category: "change" });
-    for (const comment of addedComments) activity.push({ id: `comment:${comment.id}`, entityKind: kind, entityId, boardId: currentBoardId, createdAt: comment.createdAt, deviceId, summary: `${comment.author}: ${comment.text}`, category: "comment" });
+    const commentOnly = Boolean(
+      oldCard &&
+        addedComments.length &&
+        JSON.stringify({ ...oldCard, comments: newCard?.comments }) === JSON.stringify(newCard),
+    );
+    const labelDeletionChanged =
+      kind === "label" && Boolean((previous as Label | undefined)?.deleted) !== Boolean((entity as Label).deleted);
+    const summary = !previous
+      ? `${label} “${name}” created`
+      : previousBoardId && currentBoardId !== previousBoardId
+        ? `${label} “${name}” moved to another board`
+        : previous.name !== name
+          ? `${label} renamed: “${name}”`
+          : labelDeletionChanged
+            ? `${label} “${name}” ${(entity as Label).deleted ? "deleted" : "restored"}`
+            : (entity as Trashable).deletedAt !== (previous as Trashable).deletedAt
+              ? `${label} “${name}” ${(entity as Trashable).deletedAt ? "moved to Trash" : "restored from Trash"}`
+              : "archived" in previous && "archived" in entity && previous.archived !== entity.archived
+                ? `${label} “${name}” ${entity.archived ? "archived" : "restored"}`
+                : `${label} “${name}” changed`;
+    if (!commentOnly && currentBoardId)
+      activity.push({
+        id: revision.id,
+        entityKind: kind,
+        entityId,
+        boardId: currentBoardId,
+        previousBoardId,
+        createdAt: revision.createdAt,
+        deviceId,
+        summary,
+        category: "change",
+      });
+    for (const comment of addedComments)
+      activity.push({
+        id: `comment:${comment.id}`,
+        entityKind: kind,
+        entityId,
+        boardId: currentBoardId,
+        createdAt: comment.createdAt,
+        deviceId,
+        summary: `${comment.author}: ${comment.text}`,
+        category: "comment",
+      });
   }
   if (!touched.size) return state;
   // Keep the newest `revisionLimit` revisions of every entity that just got a new one.
@@ -669,14 +1109,18 @@ export function recordRevisions(state: AppState, refs: Array<{ kind: EntityKind;
     const key = `${item.entityKind}:${item.entityId}`;
     if (touched.has(key)) counts.set(key, (counts.get(key) ?? 0) + 1);
   }
-  const excess = new Map([...counts].filter(([, total]) => total > revisionLimit).map(([key, total]) => [key, total - revisionLimit]));
-  const kept = excess.size ? revisions.filter((item) => {
-    const key = `${item.entityKind}:${item.entityId}`;
-    const drop = excess.get(key);
-    if (!drop) return true;
-    excess.set(key, drop - 1);
-    return false;
-  }) : revisions;
+  const excess = new Map(
+    [...counts].filter(([, total]) => total > revisionLimit).map(([key, total]) => [key, total - revisionLimit]),
+  );
+  const kept = excess.size
+    ? revisions.filter((item) => {
+        const key = `${item.entityKind}:${item.entityId}`;
+        const drop = excess.get(key);
+        if (!drop) return true;
+        excess.set(key, drop - 1);
+        return false;
+      })
+    : revisions;
   return { ...state, revisions: kept, activity, heads, ancestry };
 }
 
@@ -684,15 +1128,36 @@ export function deleteLabel(state: AppState, labelId: string, deviceId: string):
   const label = state.labels.find((item) => item.id === labelId && !item.deleted);
   if (!label) return state;
   const affectedCards = state.cards.filter((card) => card.labelIds.includes(labelId));
-  let next = recordRevision({ ...state,
-    labels: state.labels.map((item) => item.id === labelId ? { ...item, deleted: true } : item),
-    cards: state.cards.map((card) => card.labelIds.includes(labelId) ? { ...card, labelIds: card.labelIds.filter((id) => id !== labelId) } : card),
-  }, "label", labelId, deviceId);
-  return recordRevisions(next, affectedCards.map((card) => ({ kind: "card" as const, id: card.id })), deviceId);
+  let next = recordRevision(
+    {
+      ...state,
+      labels: state.labels.map((item) => (item.id === labelId ? { ...item, deleted: true } : item)),
+      cards: state.cards.map((card) =>
+        card.labelIds.includes(labelId) ? { ...card, labelIds: card.labelIds.filter((id) => id !== labelId) } : card,
+      ),
+    },
+    "label",
+    labelId,
+    deviceId,
+  );
+  return recordRevisions(
+    next,
+    affectedCards.map((card) => ({ kind: "card" as const, id: card.id })),
+    deviceId,
+  );
 }
 
 export function restoreRevision(state: AppState, revision: Revision, deviceId: string): AppState {
-  const key = revision.entityKind === "workspace" ? "workspaces" : revision.entityKind === "board" ? "boards" : revision.entityKind === "list" ? "lists" : revision.entityKind === "label" ? "labels" : "cards";
+  const key =
+    revision.entityKind === "workspace"
+      ? "workspaces"
+      : revision.entityKind === "board"
+        ? "boards"
+        : revision.entityKind === "list"
+          ? "lists"
+          : revision.entityKind === "label"
+            ? "labels"
+            : "cards";
   const collection = state[key] as Array<{ id: string }>;
   const restored = collection.filter((item) => item.id !== revision.entityId);
   restored.push(structuredClone(revision.snapshot));

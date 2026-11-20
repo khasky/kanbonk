@@ -42,18 +42,158 @@ function hasIdName(value: unknown): value is Record<string, unknown> {
 }
 
 export function validState(state: Record<string, unknown>): boolean {
-  if (!["workspaces", "boards", "lists", "cards", "labels", "revisions"].every((key) => Array.isArray(state[key])) || !isRecord(state.heads)) return false;
+  if (
+    !["workspaces", "boards", "lists", "cards", "labels", "revisions"].every((key) => Array.isArray(state[key])) ||
+    !isRecord(state.heads)
+  )
+    return false;
   const value = state as unknown as AppState;
-  return value.workspaces.every((workspace) => hasIdName(workspace) && (workspace.sourceTrelloId === undefined || typeof workspace.sourceTrelloId === "string"))
-    && value.boards.every((board) => hasIdName(board) && typeof board.workspaceId === "string" && typeof board.description === "string" && typeof board.background === "string" && typeof board.starred === "boolean" && (board.zones === undefined || Array.isArray(board.zones) && board.zones.every((zone) => hasIdName(zone) && typeof zone.color === "string")) && (board.members === undefined || Array.isArray(board.members) && board.members.every(hasIdName)) && (board.automationRules === undefined || Array.isArray(board.automationRules) && board.automationRules.every((rule) => isRecord(rule) && typeof rule.id === "string" && typeof rule.listId === "string" && (rule.trigger === undefined || rule.trigger === "move" || rule.trigger === "button" || rule.trigger === "due") && (rule.trigger !== "button" || typeof rule.name === "string" && rule.name.trim().length > 0) && (rule.createdAt === undefined || typeof rule.createdAt === "string" && Number.isFinite(Date.parse(rule.createdAt))) && (rule.leadMinutes === undefined || rule.trigger === "due" && typeof rule.leadMinutes === "number" && [0, 60, 1440, 10080].includes(rule.leadMinutes)) && typeof rule.action === "string" && ["complete", "archive", "add-label"].includes(rule.action) && (rule.labelId === undefined || typeof rule.labelId === "string"))))
-    && value.lists.every((list) => hasIdName(list) && typeof list.boardId === "string" && Number.isFinite(list.position) && (list.zoneId === undefined || typeof list.zoneId === "string"))
-    && value.labels.every((label) => hasIdName(label) && typeof label.boardId === "string" && typeof label.color === "string" && (label.deleted === undefined || typeof label.deleted === "boolean"))
-    && value.cards.every((card) => hasIdName(card) && typeof card.boardId === "string" && typeof card.listId === "string" && typeof card.description === "string" && Number.isFinite(card.position) && Array.isArray(card.labelIds) && card.labelIds.every((id) => typeof id === "string") && (card.memberIds === undefined || Array.isArray(card.memberIds) && card.memberIds.every((id) => typeof id === "string")) && (card.stickers === undefined || Array.isArray(card.stickers) && card.stickers.every((sticker) => typeof sticker === "string" && sticker.length <= 8 || isRecord(sticker) && typeof sticker.imageId === "string" && sticker.imageId.length > 0 && typeof sticker.name === "string" && (sticker.status === undefined || sticker.status === "local" || sticker.status === "missing"))) && (card.dueRepeat === undefined || isRecord(card.dueRepeat) && ["daily", "weekly", "monthly", "yearly"].includes(String(card.dueRepeat.cadence)) && typeof card.dueRepeat.anchor === "string" && /^\d{4}-\d{2}-\d{2}$/.test(card.dueRepeat.anchor)) && (card.automationRunKeys === undefined || Array.isArray(card.automationRunKeys) && card.automationRunKeys.every((key) => typeof key === "string")) && typeof card.completed === "boolean" && Array.isArray(card.checklists) && card.checklists.every((list) => hasIdName(list) && Array.isArray(list.items) && list.items.every((item: unknown) => hasIdName(item) && typeof item.checked === "boolean")) && Array.isArray(card.comments) && card.comments.every((comment) => isRecord(comment) && typeof comment.id === "string" && typeof comment.text === "string" && typeof comment.author === "string" && typeof comment.createdAt === "string") && Array.isArray(card.attachments) && card.attachments.every((file) => hasIdName(file) && typeof file.mimeType === "string" && Number.isSafeInteger(file.size) && file.size >= 0 && ["local", "missing", "link"].includes(file.status)))
-    && value.revisions.every((revision) => isRecord(revision) && typeof revision.id === "string" && ["workspace", "board", "list", "card", "label"].includes(revision.entityKind) && typeof revision.entityId === "string" && typeof revision.createdAt === "string" && typeof revision.deviceId === "string" && isRecord(revision.snapshot))
-    && (state.activity === undefined || Array.isArray(state.activity) && state.activity.every((item) => isRecord(item) && typeof item.id === "string" && typeof item.entityKind === "string" && ["workspace", "board", "list", "card", "label"].includes(item.entityKind) && typeof item.entityId === "string" && (item.boardId === undefined || typeof item.boardId === "string") && (item.previousBoardId === undefined || typeof item.previousBoardId === "string") && typeof item.createdAt === "string" && typeof item.deviceId === "string" && typeof item.summary === "string" && typeof item.category === "string" && ["change", "comment"].includes(item.category)))
-    && Object.values(value.heads).every((id) => typeof id === "string")
-    && (state.tombstones === undefined || isRecord(state.tombstones) && Object.values(state.tombstones).every((time) => typeof time === "string"))
-    && (state.ancestry === undefined || isRecord(state.ancestry) && Object.values(state.ancestry).every((parents) => Array.isArray(parents) && parents.every((id) => typeof id === "string")));
+  return (
+    value.workspaces.every(
+      (workspace) =>
+        hasIdName(workspace) &&
+        (workspace.sourceTrelloId === undefined || typeof workspace.sourceTrelloId === "string"),
+    ) &&
+    value.boards.every(
+      (board) =>
+        hasIdName(board) &&
+        typeof board.workspaceId === "string" &&
+        typeof board.description === "string" &&
+        typeof board.background === "string" &&
+        typeof board.starred === "boolean" &&
+        (board.zones === undefined ||
+          (Array.isArray(board.zones) &&
+            board.zones.every((zone) => hasIdName(zone) && typeof zone.color === "string"))) &&
+        (board.members === undefined || (Array.isArray(board.members) && board.members.every(hasIdName))) &&
+        (board.automationRules === undefined ||
+          (Array.isArray(board.automationRules) &&
+            board.automationRules.every(
+              (rule) =>
+                isRecord(rule) &&
+                typeof rule.id === "string" &&
+                typeof rule.listId === "string" &&
+                (rule.trigger === undefined ||
+                  rule.trigger === "move" ||
+                  rule.trigger === "button" ||
+                  rule.trigger === "due") &&
+                (rule.trigger !== "button" || (typeof rule.name === "string" && rule.name.trim().length > 0)) &&
+                (rule.createdAt === undefined ||
+                  (typeof rule.createdAt === "string" && Number.isFinite(Date.parse(rule.createdAt)))) &&
+                (rule.leadMinutes === undefined ||
+                  (rule.trigger === "due" &&
+                    typeof rule.leadMinutes === "number" &&
+                    [0, 60, 1440, 10080].includes(rule.leadMinutes))) &&
+                typeof rule.action === "string" &&
+                ["complete", "archive", "add-label"].includes(rule.action) &&
+                (rule.labelId === undefined || typeof rule.labelId === "string"),
+            ))),
+    ) &&
+    value.lists.every(
+      (list) =>
+        hasIdName(list) &&
+        typeof list.boardId === "string" &&
+        Number.isFinite(list.position) &&
+        (list.zoneId === undefined || typeof list.zoneId === "string"),
+    ) &&
+    value.labels.every(
+      (label) =>
+        hasIdName(label) &&
+        typeof label.boardId === "string" &&
+        typeof label.color === "string" &&
+        (label.deleted === undefined || typeof label.deleted === "boolean"),
+    ) &&
+    value.cards.every(
+      (card) =>
+        hasIdName(card) &&
+        typeof card.boardId === "string" &&
+        typeof card.listId === "string" &&
+        typeof card.description === "string" &&
+        Number.isFinite(card.position) &&
+        Array.isArray(card.labelIds) &&
+        card.labelIds.every((id) => typeof id === "string") &&
+        (card.memberIds === undefined ||
+          (Array.isArray(card.memberIds) && card.memberIds.every((id) => typeof id === "string"))) &&
+        (card.stickers === undefined ||
+          (Array.isArray(card.stickers) &&
+            card.stickers.every(
+              (sticker) =>
+                (typeof sticker === "string" && sticker.length <= 8) ||
+                (isRecord(sticker) &&
+                  typeof sticker.imageId === "string" &&
+                  sticker.imageId.length > 0 &&
+                  typeof sticker.name === "string" &&
+                  (sticker.status === undefined || sticker.status === "local" || sticker.status === "missing")),
+            ))) &&
+        (card.dueRepeat === undefined ||
+          (isRecord(card.dueRepeat) &&
+            ["daily", "weekly", "monthly", "yearly"].includes(String(card.dueRepeat.cadence)) &&
+            typeof card.dueRepeat.anchor === "string" &&
+            /^\d{4}-\d{2}-\d{2}$/.test(card.dueRepeat.anchor))) &&
+        (card.automationRunKeys === undefined ||
+          (Array.isArray(card.automationRunKeys) && card.automationRunKeys.every((key) => typeof key === "string"))) &&
+        typeof card.completed === "boolean" &&
+        Array.isArray(card.checklists) &&
+        card.checklists.every(
+          (list) =>
+            hasIdName(list) &&
+            Array.isArray(list.items) &&
+            list.items.every((item: unknown) => hasIdName(item) && typeof item.checked === "boolean"),
+        ) &&
+        Array.isArray(card.comments) &&
+        card.comments.every(
+          (comment) =>
+            isRecord(comment) &&
+            typeof comment.id === "string" &&
+            typeof comment.text === "string" &&
+            typeof comment.author === "string" &&
+            typeof comment.createdAt === "string",
+        ) &&
+        Array.isArray(card.attachments) &&
+        card.attachments.every(
+          (file) =>
+            hasIdName(file) &&
+            typeof file.mimeType === "string" &&
+            Number.isSafeInteger(file.size) &&
+            file.size >= 0 &&
+            ["local", "missing", "link"].includes(file.status),
+        ),
+    ) &&
+    value.revisions.every(
+      (revision) =>
+        isRecord(revision) &&
+        typeof revision.id === "string" &&
+        ["workspace", "board", "list", "card", "label"].includes(revision.entityKind) &&
+        typeof revision.entityId === "string" &&
+        typeof revision.createdAt === "string" &&
+        typeof revision.deviceId === "string" &&
+        isRecord(revision.snapshot),
+    ) &&
+    (state.activity === undefined ||
+      (Array.isArray(state.activity) &&
+        state.activity.every(
+          (item) =>
+            isRecord(item) &&
+            typeof item.id === "string" &&
+            typeof item.entityKind === "string" &&
+            ["workspace", "board", "list", "card", "label"].includes(item.entityKind) &&
+            typeof item.entityId === "string" &&
+            (item.boardId === undefined || typeof item.boardId === "string") &&
+            (item.previousBoardId === undefined || typeof item.previousBoardId === "string") &&
+            typeof item.createdAt === "string" &&
+            typeof item.deviceId === "string" &&
+            typeof item.summary === "string" &&
+            typeof item.category === "string" &&
+            ["change", "comment"].includes(item.category),
+        ))) &&
+    Object.values(value.heads).every((id) => typeof id === "string") &&
+    (state.tombstones === undefined ||
+      (isRecord(state.tombstones) && Object.values(state.tombstones).every((time) => typeof time === "string"))) &&
+    (state.ancestry === undefined ||
+      (isRecord(state.ancestry) &&
+        Object.values(state.ancestry).every(
+          (parents) => Array.isArray(parents) && parents.every((id) => typeof id === "string"),
+        )))
+  );
 }
 
 function backupFiles(state: AppState): { ids: string[]; unavailable: number } {
@@ -76,7 +216,11 @@ function groupFiles(files: BackupFile[], maxBytes: number): BackupFile[][] {
   return groups;
 }
 
-export async function* createBackupParts(state: AppState, read = loadAttachment, maxBytes = 80 * 1024 * 1024): AsyncGenerator<BackupPart> {
+export async function* createBackupParts(
+  state: AppState,
+  read = loadAttachment,
+  maxBytes = 80 * 1024 * 1024,
+): AsyncGenerator<BackupPart> {
   const { ids, unavailable } = backupFiles(state);
   const files: BackupFile[] = [];
   for (const id of ids) {
@@ -86,34 +230,77 @@ export async function* createBackupParts(state: AppState, read = loadAttachment,
   }
   const groups = groupFiles(files, maxBytes);
   const backupId = newId();
-  const manifest: BackupManifest = { format: "kanbonk-backup", version: 2, id: backupId, parts: groups.length, state, files, unavailable };
+  const manifest: BackupManifest = {
+    format: "kanbonk-backup",
+    version: 2,
+    id: backupId,
+    parts: groups.length,
+    state,
+    files,
+    unavailable,
+  };
   const stamp = new Date().toISOString().slice(0, 10);
   for (let index = 0; index < groups.length; index++) {
     const entries: Record<string, Uint8Array> = { "backup-id.txt": strToU8(backupId) };
     if (index === 0) entries[manifestName] = strToU8(JSON.stringify(manifest));
     for (const file of groups[index]) {
       const blob = await read(file.id);
-      if (!blob || blob.size !== file.size || blob.type !== file.type) throw new Error(`File ${file.id} changed during export. Create the backup again.`);
+      if (!blob || blob.size !== file.size || blob.type !== file.type)
+        throw new Error(`File ${file.id} changed during export. Create the backup again.`);
       const data = new Uint8Array(await blob.arrayBuffer());
-      if (await hash(data) !== file.hash) throw new Error(`File ${file.id} changed during export. Create the backup again.`);
+      if ((await hash(data)) !== file.hash)
+        throw new Error(`File ${file.id} changed during export. Create the backup again.`);
       entries[`files/${file.id}`] = data;
     }
     const archive = zipSync(entries, { level: 0 });
-    yield { name: `${stamp}-kanbonk-${backupId.slice(0, 8)}-${index + 1}of${groups.length}.zip`, blob: new Blob([new Uint8Array(archive)], { type: "application/zip" }), index: index + 1, total: groups.length, unavailable };
+    yield {
+      name: `${stamp}-kanbonk-${backupId.slice(0, 8)}-${index + 1}of${groups.length}.zip`,
+      blob: new Blob([new Uint8Array(archive)], { type: "application/zip" }),
+      index: index + 1,
+      total: groups.length,
+      unavailable,
+    };
   }
 }
 
 function readManifest(raw: unknown): BackupManifest {
-  if (!isRecord(raw) || raw.format !== "kanbonk-backup" && raw.format !== "listva-backup" || raw.version !== 1 && raw.version !== 2 || typeof raw.id !== "string" || !Number.isInteger(raw.parts) || (raw.parts as number) < 1 || !Array.isArray(raw.files) || !isRecord(raw.state)) throw new Error("The archive is not a Kanbonk backup.");
+  if (
+    !isRecord(raw) ||
+    (raw.format !== "kanbonk-backup" && raw.format !== "listva-backup") ||
+    (raw.version !== 1 && raw.version !== 2) ||
+    typeof raw.id !== "string" ||
+    !Number.isInteger(raw.parts) ||
+    (raw.parts as number) < 1 ||
+    !Array.isArray(raw.files) ||
+    !isRecord(raw.state)
+  )
+    throw new Error("The archive is not a Kanbonk backup.");
   const state = raw.state;
   if (!validState(state)) throw new Error("The state in the backup is corrupted.");
   const files = raw.files;
-  if (!files.every((file) => isRecord(file) && typeof file.id === "string" && /^[a-z0-9-]+$/i.test(file.id) && typeof file.type === "string" && typeof file.size === "number" && Number.isSafeInteger(file.size) && file.size >= 0 && (raw.version === 1 ? file.hash === undefined : typeof file.hash === "string" && /^[a-f0-9]{64}$/.test(file.hash)))) throw new Error("The file list in the backup is corrupted.");
+  if (
+    !files.every(
+      (file) =>
+        isRecord(file) &&
+        typeof file.id === "string" &&
+        /^[a-z0-9-]+$/i.test(file.id) &&
+        typeof file.type === "string" &&
+        typeof file.size === "number" &&
+        Number.isSafeInteger(file.size) &&
+        file.size >= 0 &&
+        (raw.version === 1
+          ? file.hash === undefined
+          : typeof file.hash === "string" && /^[a-f0-9]{64}$/.test(file.hash)),
+    )
+  )
+    throw new Error("The file list in the backup is corrupted.");
   const ids = files.map((file) => file.id);
   if (new Set(ids).size !== ids.length) throw new Error("The backup contains duplicate file IDs.");
-  if (!Number.isSafeInteger(raw.unavailable) || (raw.unavailable as number) < 0) throw new Error("The backup manifest is corrupted.");
+  if (!Number.isSafeInteger(raw.unavailable) || (raw.unavailable as number) < 0)
+    throw new Error("The backup manifest is corrupted.");
   const referenced = backupFiles(state as unknown as AppState).ids;
-  if (referenced.length !== ids.length || referenced.some((id) => !ids.includes(id))) throw new Error("The file list does not match the backup data.");
+  if (referenced.length !== ids.length || referenced.some((id) => !ids.includes(id)))
+    throw new Error("The file list does not match the backup data.");
   return raw as unknown as BackupManifest;
 }
 
@@ -123,23 +310,34 @@ async function hash(data: Uint8Array | Blob): Promise<string> {
   return Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-export async function restoreBackup(parts: File[], current: AppState, read = loadAttachment, write = saveAttachment): Promise<{ state: AppState; conflicts: SyncConflict[]; files: number; unavailable: number }> {
+export async function restoreBackup(
+  parts: File[],
+  current: AppState,
+  read = loadAttachment,
+  write = saveAttachment,
+): Promise<{ state: AppState; conflicts: SyncConflict[]; files: number; unavailable: number }> {
   if (!parts.length) throw new Error("Select all ZIP parts of the backup.");
   let manifest: BackupManifest | undefined;
   let backupId = "";
   const found = new Map<string, { size: number; hash: string }>();
   for (const part of parts) {
     let entries: Record<string, Uint8Array>;
-    try { entries = unzipSync(new Uint8Array(await part.arrayBuffer())); }
-    catch { throw new Error(`Could not read ZIP “${part.name}”.`); }
+    try {
+      entries = unzipSync(new Uint8Array(await part.arrayBuffer()));
+    } catch {
+      throw new Error(`Could not read ZIP “${part.name}”.`);
+    }
     const id = entries["backup-id.txt"] ? strFromU8(entries["backup-id.txt"]) : "";
     if (!id || (backupId && id !== backupId)) throw new Error("The selected ZIP files belong to different backups.");
     backupId = id;
     const manifestEntry = entries[manifestName] ?? entries[legacyManifestName];
     if (manifestEntry) {
       if (manifest) throw new Error("The backup contains several manifests.");
-      try { manifest = readManifest(JSON.parse(strFromU8(manifestEntry))); }
-      catch (cause) { throw new Error(`Could not read the manifest: ${String(cause)}`); }
+      try {
+        manifest = readManifest(JSON.parse(strFromU8(manifestEntry)));
+      } catch (cause) {
+        throw new Error(`Could not read the manifest: ${String(cause)}`);
+      }
     }
     for (const [path, data] of Object.entries(entries)) {
       if (path === "backup-id.txt" || path === manifestName || path === legacyManifestName) continue;
@@ -148,22 +346,25 @@ export async function restoreBackup(parts: File[], current: AppState, read = loa
       found.set(fileId, { size: data.length, hash: await hash(data) });
     }
   }
-  if (!manifest || manifest.id !== backupId || manifest.parts !== parts.length) throw new Error("Not all parts of the same backup were selected.");
+  if (!manifest || manifest.id !== backupId || manifest.parts !== parts.length)
+    throw new Error("Not all parts of the same backup were selected.");
   const expected = new Map(manifest.files.map((file) => [file.id, file]));
   if (found.size !== expected.size) throw new Error("The backup has missing or extra files.");
   for (const [id, meta] of found) {
     const file = expected.get(id);
     if (!file || file.size !== meta.size) throw new Error(`The size of file ${id} does not match the manifest.`);
-    if (file.hash && file.hash !== meta.hash) throw new Error(`The checksum of file ${id} does not match the manifest.`);
+    if (file.hash && file.hash !== meta.hash)
+      throw new Error(`The checksum of file ${id} does not match the manifest.`);
     const existing = await read(id);
-    if (existing && (existing.size !== meta.size || await hash(existing) !== meta.hash)) throw new Error(`File ${id} already exists with different content. Import stopped.`);
+    if (existing && (existing.size !== meta.size || (await hash(existing)) !== meta.hash))
+      throw new Error(`File ${id} already exists with different content. Import stopped.`);
   }
   const merged = mergeStates(current, manifest.state);
   for (const part of parts) {
     const entries = unzipSync(new Uint8Array(await part.arrayBuffer()));
     for (const [path, data] of Object.entries(entries)) {
       const id = path.match(/^files\/([a-z0-9-]+)$/i)?.[1];
-      if (id && !await read(id)) await write(id, new Blob([new Uint8Array(data)], { type: expected.get(id)!.type }));
+      if (id && !(await read(id))) await write(id, new Blob([new Uint8Array(data)], { type: expected.get(id)!.type }));
     }
   }
   return { ...merged, files: expected.size, unavailable: manifest.unavailable };

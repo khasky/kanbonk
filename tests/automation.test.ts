@@ -2,16 +2,41 @@ import { describe, expect, it } from "vitest";
 import { applyCardButton, applyDueRules, applyMoveRules } from "../src/automation";
 import { emptyState, type AppState, type Card } from "../src/model";
 
-const card: Card = { id: "card", boardId: "board", listId: "todo", name: "Task", description: "", position: 1, labelIds: [], completed: false, checklists: [], comments: [], attachments: [] };
+const card: Card = {
+  id: "card",
+  boardId: "board",
+  listId: "todo",
+  name: "Task",
+  description: "",
+  position: 1,
+  labelIds: [],
+  completed: false,
+  checklists: [],
+  comments: [],
+  attachments: [],
+};
 
 function fixture(): AppState {
   return {
     ...emptyState(),
-    boards: [{ id: "board", workspaceId: "workspace", name: "Board", description: "", background: "#fff", starred: false, automationRules: [
-      { id: "complete", listId: "done", action: "complete" },
-      { id: "label", listId: "done", action: "add-label", labelId: "important" },
-    ] }],
-    lists: [{ id: "todo", boardId: "board", name: "Todo", position: 1 }, { id: "done", boardId: "board", name: "Done", position: 2 }],
+    boards: [
+      {
+        id: "board",
+        workspaceId: "workspace",
+        name: "Board",
+        description: "",
+        background: "#fff",
+        starred: false,
+        automationRules: [
+          { id: "complete", listId: "done", action: "complete" },
+          { id: "label", listId: "done", action: "add-label", labelId: "important" },
+        ],
+      },
+    ],
+    lists: [
+      { id: "todo", boardId: "board", name: "Todo", position: 1 },
+      { id: "done", boardId: "board", name: "Done", position: 2 },
+    ],
     labels: [{ id: "important", boardId: "board", name: "Important", color: "#f00" }],
     cards: [card],
   };
@@ -23,7 +48,10 @@ describe("local move automation", () => {
     const moved = applyMoveRules(state, card, { ...card, listId: "done" });
     expect(moved).toMatchObject({ completed: true, labelIds: ["important"] });
     expect(applyMoveRules(state, card, { ...card, name: "Edited" })).toMatchObject({ completed: false, labelIds: [] });
-    expect(applyMoveRules(state, moved, { ...moved, listId: "todo" })).toMatchObject({ completed: true, labelIds: ["important"] });
+    expect(applyMoveRules(state, moved, { ...moved, listId: "todo" })).toMatchObject({
+      completed: true,
+      labelIds: ["important"],
+    });
   });
 
   it("archives on entry and ignores labels from another board", () => {
@@ -44,7 +72,9 @@ describe("local move automation", () => {
 
   it("runs a card button only when it is pressed on an active card of its board", () => {
     const state = fixture();
-    state.boards[0].automationRules = [{ id: "button", listId: "", trigger: "button", name: "Add important", action: "add-label", labelId: "important" }];
+    state.boards[0].automationRules = [
+      { id: "button", listId: "", trigger: "button", name: "Add important", action: "add-label", labelId: "important" },
+    ];
     expect(applyMoveRules(state, card, { ...card, listId: "done" }).labelIds).toEqual([]);
     expect(applyCardButton(state, card, "button").labelIds).toEqual(["important"]);
     expect(applyCardButton(state, { ...card, boardId: "other" }, "button")).toEqual({ ...card, boardId: "other" });
@@ -60,7 +90,17 @@ describe("due date automation", () => {
   it("runs a day early once, including when the page opens after the trigger", () => {
     const state = fixture();
     state.cards[0] = { ...card, dueAt: due };
-    state.boards[0].automationRules = [{ id: "early", listId: "", trigger: "due", createdAt: "2026-11-14T12:00:00.000Z", leadMinutes: 1440, action: "add-label", labelId: "important" }];
+    state.boards[0].automationRules = [
+      {
+        id: "early",
+        listId: "",
+        trigger: "due",
+        createdAt: "2026-11-14T12:00:00.000Z",
+        leadMinutes: 1440,
+        action: "add-label",
+        labelId: "important",
+      },
+    ];
     const triggerTime = Date.parse(due) - 86_400_000;
     expect(applyDueRules(state, triggerTime - 1, "device")).toBe(state);
     const fired = applyDueRules(state, triggerTime + 60_000, "device");
@@ -71,13 +111,31 @@ describe("due date automation", () => {
   it("does not run an early rule created after its trigger time", () => {
     const state = fixture();
     state.cards[0] = { ...card, dueAt: due };
-    state.boards[0].automationRules = [{ id: "late", listId: "", trigger: "due", createdAt: "2026-11-15T12:01:00.000Z", leadMinutes: 1440, action: "archive" }];
+    state.boards[0].automationRules = [
+      {
+        id: "late",
+        listId: "",
+        trigger: "due",
+        createdAt: "2026-11-15T12:01:00.000Z",
+        leadMinutes: 1440,
+        action: "archive",
+      },
+    ];
     expect(applyDueRules(state, afterDue, "device")).toBe(state);
   });
 
   it("runs at the due time once and keeps a card revision", () => {
     const state = fixture();
-    state.boards[0].automationRules = [{ id: "due-rule", listId: "", trigger: "due", createdAt: "2026-11-15T12:00:00.000Z", action: "add-label", labelId: "important" }];
+    state.boards[0].automationRules = [
+      {
+        id: "due-rule",
+        listId: "",
+        trigger: "due",
+        createdAt: "2026-11-15T12:00:00.000Z",
+        action: "add-label",
+        labelId: "important",
+      },
+    ];
     state.cards[0] = { ...card, dueAt: due };
     expect(applyDueRules(state, beforeDue, "device")).toBe(state);
     const fired = applyDueRules(state, afterDue, "device");
@@ -89,16 +147,22 @@ describe("due date automation", () => {
   it("catches up after reopening and does not run a rule created after the due time", () => {
     const state = fixture();
     state.cards[0] = { ...card, dueAt: due };
-    state.boards[0].automationRules = [{ id: "late-rule", listId: "", trigger: "due", createdAt: "2026-11-17T12:00:00.000Z", action: "archive" }];
+    state.boards[0].automationRules = [
+      { id: "late-rule", listId: "", trigger: "due", createdAt: "2026-11-17T12:00:00.000Z", action: "archive" },
+    ];
     expect(applyDueRules(state, afterDue + 2 * 86_400_000, "device")).toBe(state);
-    state.boards[0].automationRules = [{ ...state.boards[0].automationRules[0], id: "early-rule", createdAt: "2026-11-15T12:00:00.000Z" }];
+    state.boards[0].automationRules = [
+      { ...state.boards[0].automationRules[0], id: "early-rule", createdAt: "2026-11-15T12:00:00.000Z" },
+    ];
     expect(applyDueRules(state, afterDue + 2 * 86_400_000, "device").cards[0].archived).toBe(true);
   });
 
   it("advances a recurring date once and can run at its next occurrence", () => {
     const state = fixture();
     state.cards[0] = { ...card, dueAt: due, dueRepeat: { cadence: "daily", anchor: "2026-11-16" } };
-    state.boards[0].automationRules = [{ id: "complete-due", listId: "", trigger: "due", createdAt: "2026-11-15T12:00:00.000Z", action: "complete" }];
+    state.boards[0].automationRules = [
+      { id: "complete-due", listId: "", trigger: "due", createdAt: "2026-11-15T12:00:00.000Z", action: "complete" },
+    ];
     const first = applyDueRules(state, afterDue, "device");
     expect(first.cards[0]).toMatchObject({ dueAt: "2026-11-17T12:00:00.000Z", completed: false });
     expect(applyDueRules(first, afterDue, "device")).toBe(first);

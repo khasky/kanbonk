@@ -8,9 +8,7 @@ const NAME = "kanbonk";
 const ENTRY = new RegExp(`(name = "${NAME}"\\r?\\nversion = ")[^"]*(")`);
 
 module.exports.readVersion = function (contents) {
-  const match = new RegExp(`name = "${NAME}"\\r?\\nversion = "([^"]*)"`).exec(
-    contents,
-  );
+  const match = new RegExp(`name = "${NAME}"\\r?\\nversion = "([^"]*)"`).exec(contents);
   return match ? match[1] : undefined;
 };
 

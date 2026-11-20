@@ -9,7 +9,10 @@ export default defineConfig({
   plugins: [react()],
   test: {
     projects: [
-      { extends: true, test: { name: "unit", exclude: [...configDefaults.exclude, ...perf], sequence: { groupOrder: 0 } } },
+      {
+        extends: true,
+        test: { name: "unit", exclude: [...configDefaults.exclude, ...perf], sequence: { groupOrder: 0 } },
+      },
       { extends: true, test: { name: "perf", include: perf, fileParallelism: false, sequence: { groupOrder: 1 } } },
     ],
   },
