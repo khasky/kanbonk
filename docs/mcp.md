@@ -7,9 +7,9 @@ Kanbonk has no server, so the MCP server is a **headless Kanbonk device**: it ke
 ## Setup
 
 ```sh
-npm install
-npm run build:mcp            # bundles src/mcp/agent.ts into dist-mcp/
-npm run build && npm run serve:lan   # the app and the Wi-Fi relay on http://127.0.0.1:4173, if not running yet
+pnpm install
+pnpm build:mcp            # bundles src/mcp/agent.ts into dist-mcp/
+pnpm build && pnpm serve:lan   # the app and the Wi-Fi relay on http://127.0.0.1:4173, if not running yet
 ```
 
 In the app: **⋯ → Sync → Wi-Fi / local network → Create code → Connect with code**. Copy the code, then register the server with your MCP client. Claude Code:

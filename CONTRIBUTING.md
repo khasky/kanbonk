@@ -12,10 +12,10 @@ Thanks for helping. This guide covers how to set up the project, what a good cha
 ## Development setup
 
 ```sh
-npm install
-npm run dev          # web app at http://localhost:1420
-npm test             # unit tests (Vitest)
-npm run build        # type check (tsc) and production build
+pnpm install
+pnpm dev          # web app at http://localhost:1420
+pnpm test             # unit tests (Vitest)
+pnpm build        # type check (tsc) and production build
 ```
 
 Native builds (Windows, Android) and the browser extension are described in [docs/platforms.md](docs/platforms.md).
@@ -39,8 +39,8 @@ Native builds (Windows, Android) and the browser extension are described in [doc
 
 1. Fork the repository and create a branch from `main`, named after the commit type it carries: `feat/…`, `fix/…`, `docs/…`, `refactor/…`, `perf/…`, `ci/…`, `chore/…`. One branch, one change.
 2. Keep domain logic in pure functions in its own module (`src/zones.ts` and `src/trash.ts` are good examples) and cover it with a test in `tests/`.
-3. Run `npm test` and `npm run build`. Both must pass.
-4. If your change affects behavior across devices, check it with two browser profiles syncing over `npm run serve:lan` (see [docs/testing.md](docs/testing.md)).
+3. Run `pnpm test` and `pnpm build`. Both must pass.
+4. If your change affects behavior across devices, check it with two browser profiles syncing over `pnpm serve:lan` (see [docs/testing.md](docs/testing.md)).
 5. Update the documentation in `docs/` when behavior or formats change.
 
 ## Code style
@@ -52,7 +52,7 @@ Native builds (Windows, Android) and the browser extension are described in [doc
 
 ## Commit messages
 
-This repo follows [Conventional Commits](https://www.conventionalcommits.org/). A `commit-msg` hook (husky + commitlint, installed automatically on `npm install`) rejects messages that don't parse, so the format never drifts and the version and changelog are derived straight from history.
+This repo follows [Conventional Commits](https://www.conventionalcommits.org/). A `commit-msg` hook (husky + commitlint, installed automatically on `pnpm install`) rejects messages that don't parse, so the format never drifts and the version and changelog are derived straight from history.
 
 Shape — `type(scope)?: subject`:
 
@@ -85,7 +85,7 @@ Pull requests land as a **squash merge**, so the PR title becomes the commit mes
 
 ## Releasing
 
-`npm run release` (commit-and-tag-version) reads the commits since the last `v*` tag, bumps the version in `package.json`, `package-lock.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock`, writes `CHANGELOG.md`, commits and tags. Push the commit and the tag afterwards.
+`pnpm release` (commit-and-tag-version) reads the commits since the last `v*` tag, bumps the version in `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock`, writes `CHANGELOG.md`, commits and tags. Push the commit and the tag afterwards.
 
 ## Reporting bugs
 

@@ -1,7 +1,7 @@
 // Browser load test: imports a generated 5000-card board and measures how the UI responds, on desktop and with
 // mobile-like CPU throttling. Fails (exit 1) when a measurement exceeds its budget.
 //
-// Usage: npm run build && npm run preview -- --port 4174 --strictPort   (in another terminal)
+// Usage: pnpm build && pnpm preview --port 4174 --strictPort   (in another terminal)
 //        node scripts/load-test.mjs [url=http://127.0.0.1:4174/] [cards=5000]
 // Needs playwright-core and a Chromium-based browser, which are not project dependencies:
 //   PLAYWRIGHT_CORE=<path to playwright-core>  CHROME_PATH=<path to chrome/chromium/edge executable>

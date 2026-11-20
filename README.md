@@ -47,7 +47,7 @@ Kanbonk keeps every workspace, board, list, card and attachment on your own devi
 **Sync without a cloud**
 
 - **Instant and offline** — every change is saved locally at once; offline changes queue up and are sent when the connection returns. Tabs of the same browser stay in sync automatically.
-- **Wi-Fi** — devices meet in a room on a small local relay (`npm run serve:lan`) that only sees encrypted packets.
+- **Wi-Fi** — devices meet in a room on a small local relay (`pnpm serve:lan`) that only sees encrypted packets.
 - **Peer-to-peer over the internet** — a direct, DTLS-encrypted WebRTC link set up by exchanging an invitation, e.g. through a messenger.
 - **Bluetooth, USB or messenger** — an encrypted `.kanbonk-sync` file with data and attachments.
 - **Trusted devices** — a new device must be approved before any data is accepted. Concurrent edits are detected and you choose which version to keep.
@@ -61,13 +61,13 @@ The [feature guide](docs/features.md) covers every page and setting.
 
 ## Quick start
 
-Requires [Node.js](https://nodejs.org/) 22.12 or newer and npm.
+Requires [Node.js](https://nodejs.org/) 22.12 or newer and [pnpm](https://pnpm.io/).
 
 ```sh
 git clone https://github.com/khasky/kanbonk.git
 cd kanbonk
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Open the address Vite prints (by default `http://localhost:1420`). Data is stored in the browser's IndexedDB on this device.
@@ -75,15 +75,15 @@ Open the address Vite prints (by default `http://localhost:1420`). Data is store
 Run the tests and a production build:
 
 ```sh
-npm test
-npm run build
+pnpm test
+pnpm build
 ```
 
 To use Kanbonk from a phone on the same Wi-Fi, build and start the LAN server with your computer's local IP, then open `http://<ip>:4174` on the phone:
 
 ```sh
-npm run build
-npm run serve:lan -- 192.168.1.10 4174
+pnpm build
+pnpm serve:lan 192.168.1.10 4174
 ```
 
 ## Platforms
@@ -92,11 +92,11 @@ One React app in `src/` runs everywhere; the platform-specific code lives in a s
 
 | Platform | Develop | Build | Output |
 | --- | --- | --- | --- |
-| Web | `npm run dev` | `npm run build` | `dist/` |
-| Chrome / Edge extension | `npm run dev:extension` | `npm run build:extension` | `dist-extension/` (load unpacked) |
-| Windows (Tauri) | `npm run tauri dev` | `npm run tauri build` | NSIS `.exe` and `.msi` in `src-tauri/target/release/bundle/` |
-| Android (Tauri) | `npm run tauri android dev` | `npm run tauri android build -- --apk` | APK in `src-tauri/gen/android/app/build/outputs/apk/` |
-| macOS, Linux, iOS (Tauri) | `npm run tauri dev` / `npm run tauri ios dev` | `npm run tauri build` / `npm run tauri ios build` | not built or tested yet |
+| Web | `pnpm dev` | `pnpm build` | `dist/` |
+| Chrome / Edge extension | `pnpm dev:extension` | `pnpm build:extension` | `dist-extension/` (load unpacked) |
+| Windows (Tauri) | `pnpm tauri dev` | `pnpm tauri build` | NSIS `.exe` and `.msi` in `src-tauri/target/release/bundle/` |
+| Android (Tauri) | `pnpm tauri android dev` | `pnpm tauri android build -- --apk` | APK in `src-tauri/gen/android/app/build/outputs/apk/` |
+| macOS, Linux, iOS (Tauri) | `pnpm tauri dev` / `pnpm tauri ios dev` | `pnpm tauri build` / `pnpm tauri ios build` | not built or tested yet |
 
 Native builds need the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/): Rust for desktop, plus JDK 17, the Android SDK and NDK for Android. Step-by-step setup is in [docs/platforms.md](docs/platforms.md).
 

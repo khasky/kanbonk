@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Kanbonk MCP server: a headless trusted device for AI agents. Build first: npm run build:mcp
+// Kanbonk MCP server: a headless trusted device for AI agents. Build first: pnpm build:mcp
 //
 // Environment:
 //   KANBONK_MCP_DIR     where the agent keeps its data (default ~/.kanbonk-mcp)
-//   KANBONK_SYNC_URL    LAN relay address, e.g. http://192.168.1.10:4173 (npm run serve:lan)
+//   KANBONK_SYNC_URL    LAN relay address, e.g. http://192.168.1.10:4173 (pnpm serve:lan)
 //   KANBONK_SYNC_CODE   pairing code: in the app, Sync → Wi-Fi/LAN → "Create code", then "Connect with code"
 //   KANBONK_DEVICE_NAME name shown in the app's trust prompt (default "AI agent (MCP)")
 // Everything goes over stdio as MCP; logs go to stderr.
