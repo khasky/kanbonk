@@ -28,14 +28,15 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 
 | Module | Responsibility |
 |---|---|
-| `main.tsx`, `App.tsx` | Bootstrapping; `App` holds the state, applies changes and decides which page, panel and dialog is shown |
+| `main.tsx`, `App.tsx` | Bootstrapping; `App` holds the state and decides which page, panel and dialog is shown; the changes themselves live in hooks |
 | `layout/` | The app frame: top bar with the app menu, global search results, sidebar, resizable side panel slot |
 | `board/` | The board view: toolbar and menu, filter, list column, card tile, calendar, zone frame, automation and activity panels |
 | `card/` | The card dialog and its sections: dates, description, checklists, labels, members, links, sharing, comments |
 | `dialogs/` | Modal dialogs: Trello import, backup, sync, create, copy board, clone card, delete, duplicates, author name |
 | `panels/` | Side panels: Inbox, Planner, reminders, archive, history, board description, closed boards |
 | `pages/` | Pages in the main area: home, workspace, trash, not-found |
-| `hooks/` | State that lives beside `App`: device sync, panel layout, automatic backups |
+| `hooks/` | Logic that lives beside `App`: changes to cards (`useCardActions`), boards and lists (`useBoardActions`), the trash, device sync, panel layout, automatic backups |
+| `card/CardActionsContext.ts` | Gives the card dialog and its sections the card actions without passing them through props |
 | `ui/` | Shared building blocks: `Modal`, `SidePanel`, icons, inline name editor, elapsed time |
 | `format.ts`, `uiPreferences.ts`, `workspaces.ts` | Date and count formatting, UI preferences in localStorage, the personal workspace |
 | `router.ts` | History API router: routes, links, modal-over-page cards |
