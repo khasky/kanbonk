@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { emptyState, isCardAvailable, linkDependency, unlinkDependency, type Card } from "../src/model";
 import { importedCardForUrl, relatedCards } from "../src/links";
-import { addImportedBoard, parseTrelloBoard } from "../src/importTrello";
+import { addImportedBoard, parseTrelloBoard } from "../src/trello/import";
 
 it.each(["source first", "target first"])(
   "resolves Trello checklist and attachment links when importing %s",

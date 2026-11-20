@@ -21,7 +21,7 @@ import {
   type TrashKind,
 } from "./trash";
 
-import { exportTrelloCsv, exportTrelloJson } from "./trelloFormats";
+import { exportTrelloCsv, exportTrelloJson } from "./trello/formats";
 import { mergeDuplicate, pairKey } from "./dedupe";
 
 import { DocView } from "./board/DocView";

@@ -8,10 +8,10 @@ import {
   readTrelloExport,
   restoreExistingAttachments,
   restoreTrelloAttachments,
-} from "../importTrello";
+} from "../trello/import";
 import { type AppState, recordRevision, recordRevisions } from "../model";
-import { downloadTrelloAttachment, downloadTrelloComments, trelloBridgeAvailable } from "../trelloBridge";
-import { parseTrelloCsv } from "../trelloFormats";
+import { downloadTrelloAttachment, downloadTrelloComments, trelloBridgeAvailable } from "../trello/bridge";
+import { parseTrelloCsv } from "../trello/formats";
 import { ElapsedTime } from "../ui/ElapsedTime";
 import { ensurePersonalWorkspace, personalWorkspaceId } from "../workspaces";
 

@@ -9,9 +9,9 @@ import {
   readTrelloExport,
   restoreExistingAttachments,
   restoreTrelloAttachments,
-} from "../src/importTrello";
+} from "../src/trello/import";
 import { loadAttachment, saveAttachment } from "../src/storage";
-import { addImportedBoard } from "../src/importTrello";
+import { addImportedBoard } from "../src/trello/import";
 import { emptyState } from "../src/model";
 
 vi.mock("../src/storage", () => ({

@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { afterEach, expect, it, vi } from "vitest";
-import { downloadTrelloAttachment, downloadTrelloComments, trelloBridgeAvailable } from "../src/trelloBridge";
+import { downloadTrelloAttachment, downloadTrelloComments, trelloBridgeAvailable } from "../src/trello/bridge";
 
 afterEach(() => vi.unstubAllGlobals());
 

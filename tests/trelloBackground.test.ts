@@ -5,7 +5,7 @@ import {
   parseTrelloBoard,
   restoreExistingAttachments,
   restoreTrelloAttachments,
-} from "../src/importTrello";
+} from "../src/trello/import";
 import { emptyState } from "../src/model";
 import { saveAttachment } from "../src/storage";
 
