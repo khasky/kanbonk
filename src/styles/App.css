@@ -60,6 +60,8 @@ select:focus-visible {
   width: 26px;
   height: 26px;
   display: block;
+  /* The icon is a full square; the header shows it as a rounded tile like the old SVG mark. */
+  border-radius: 22%;
 }
 .topbar button {
   border: 0;
