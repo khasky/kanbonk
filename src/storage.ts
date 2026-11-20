@@ -70,10 +70,11 @@ let adoption: Promise<void> | undefined;
 
 async function openDatabase(): Promise<IDBDatabase> {
   // A failed copy rejects every access, so the app never writes to the new database before the old data is in it.
-  await (adoption ??= adoptLegacyDatabase().catch((cause) => {
+  adoption ??= adoptLegacyDatabase().catch((cause) => {
     adoption = undefined;
     throw cause;
-  }));
+  });
+  await adoption;
   return (await open(databaseName))!;
 }
 

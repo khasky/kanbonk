@@ -1128,7 +1128,7 @@ export function deleteLabel(state: AppState, labelId: string, deviceId: string):
   const label = state.labels.find((item) => item.id === labelId && !item.deleted);
   if (!label) return state;
   const affectedCards = state.cards.filter((card) => card.labelIds.includes(labelId));
-  let next = recordRevision(
+  const next = recordRevision(
     {
       ...state,
       labels: state.labels.map((item) => (item.id === labelId ? { ...item, deleted: true } : item)),

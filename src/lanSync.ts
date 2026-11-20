@@ -239,7 +239,7 @@ export class LanSync {
         return;
       }
       const channel = this.channel;
-      if (!channel || channel.readyState !== "open") throw new Error("No connection for sync.");
+      if (channel?.readyState !== "open") throw new Error("No connection for sync.");
       while (channel.bufferedAmount > 256 * 1024) {
         await new Promise<void>((resolve, reject) => {
           channel.bufferedAmountLowThreshold = 64 * 1024;

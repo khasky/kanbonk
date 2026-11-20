@@ -11,7 +11,10 @@ const words =
 /** Deterministic pseudo-random numbers so every run produces the same board. */
 function random(seed) {
   let value = seed;
-  return () => (value = (value * 1103515245 + 12345) % 2147483648) / 2147483648;
+  return () => {
+    value = (value * 1103515245 + 12345) % 2147483648;
+    return value / 2147483648;
+  };
 }
 
 const hex = (value) => value.toString(16).padStart(24, "0");
