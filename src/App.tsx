@@ -98,9 +98,8 @@ import { activeFilterCount, BoardFilterPanel } from "./board/BoardFilterPanel";
 import { boardColors } from "./board/BoardMenu";
 import { BoardToolbar } from "./board/BoardToolbar";
 import { BoardActivity } from "./board/BoardActivity";
-import { CardTile, type TileActions } from "./board/CardTile";
-import { ListCards } from "./board/ListCards";
-import { TemplateComposer } from "./board/TemplateComposer";
+import type { TileActions } from "./board/CardTile";
+import { type ListActions, ListColumn } from "./board/ListColumn";
 import { CardDialog } from "./card/CardDialog";
 import { AppHeader, type AppMenuActions, plannerViewId } from "./layout/AppHeader";
 import { SearchResults } from "./layout/SearchResults";
@@ -111,7 +110,6 @@ import { usePanelLayout } from "./hooks/usePanelLayout";
 import { InboxView } from "./panels/InboxView";
 import { PlannerView } from "./panels/PlannerView";
 import { Icon } from "./ui/Icon";
-import { NameEditor } from "./ui/NameEditor";
 import { readBoardFilters, readDismissedReminders, type PanelName } from "./uiPreferences";
 import "./MarkdownText.css";
 import "./activity.css";
@@ -610,156 +608,58 @@ function App() {
       setState((current) => deleteZone(current, board.id, zone.id, localDeviceId.current));
   }
 
+  function runListAction(listId: string, action: string) {
+    if (action === "name" || action === "due") sortList(listId, action);
+    else if (action === "move-left") moveListByOne(listId, -1);
+    else if (action === "move-right") moveListByOne(listId, 1);
+    else if (action === "copy") copyListOnBoard(listId);
+    else if (action === "delete") requestDelete("list", listId);
+    else if (action.startsWith("zone:")) setListZone(listId, action.slice(5));
+  }
+
+  const listActions: ListActions = {
+    rename: (listId, name) => updateList(listId, (item) => ({ ...item, name })),
+    run: runListAction,
+    archive: (listId) => updateList(listId, (item) => ({ ...item, archived: true })),
+    dropZone: moveZoneTo,
+    dropList: moveList,
+    dropCard: (cardId, listId) =>
+      updateCard(cardId, (item) => ({
+        ...item,
+        listId,
+        position:
+          Math.max(0, ...state.cards.filter((entry) => entry.listId === listId).map((entry) => entry.position)) + 1,
+      })),
+    startCard: (listId) => {
+      setEditingCardList(listId);
+      setEditingList(false);
+      setDraft("");
+    },
+    cancelCard: () => {
+      setEditingCardList(null);
+      setDraft("");
+    },
+    createCard,
+    createFromTemplate: addCardFromTemplate,
+  };
+
   function renderList(list: BoardList) {
     return (
-      <section
-        className="list-column"
+      <ListColumn
         key={list.id}
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={(event) => {
-          event.preventDefault();
-          const bounds = event.currentTarget.getBoundingClientRect();
-          const movingZoneId = event.dataTransfer.getData("text/kanbonk-zone");
-          if (movingZoneId) {
-            moveZoneTo(movingZoneId, list.id, event.clientX > bounds.left + bounds.width / 2);
-            return;
-          }
-          const movingListId = event.dataTransfer.getData("text/kanbonk-list");
-          if (movingListId) {
-            moveList(movingListId, list.id, event.clientX > bounds.left + bounds.width / 2);
-            return;
-          }
-          const id = event.dataTransfer.getData("text/kanbonk-card");
-          if (id)
-            updateCard(id, (item) => ({
-              ...item,
-              listId: list.id,
-              position:
-                Math.max(0, ...state.cards.filter((entry) => entry.listId === list.id).map((entry) => entry.position)) +
-                1,
-            }));
-        }}
-      >
-        <div className="list-header">
-          <span
-            className="list-drag-handle"
-            draggable
-            title="Drag list"
-            onDragStart={(event) => event.dataTransfer.setData("text/kanbonk-list", list.id)}
-          >
-            ⋮⋮
-          </span>
-          <NameEditor
-            value={list.name}
-            label={`List title ${list.name}`}
-            onCommit={(name) => updateList(list.id, (item) => ({ ...item, name }))}
-          />
-          <select
-            className="list-sort"
-            aria-label={`List actions ${list.name}`}
-            title="List actions"
-            defaultValue=""
-            onChange={(event) => {
-              const action = event.target.value;
-              if (action === "name" || action === "due") sortList(list.id, action);
-              else if (action === "move-left") moveListByOne(list.id, -1);
-              else if (action === "move-right") moveListByOne(list.id, 1);
-              else if (action === "copy") copyListOnBoard(list.id);
-              else if (action === "delete") requestDelete("list", list.id);
-              else if (action.startsWith("zone:")) setListZone(list.id, action.slice(5));
-              event.target.value = "";
-            }}
-          >
-            <option value="">⋯</option>
-            <option value="name">Sort by title</option>
-            <option value="due">Sort by due date</option>
-            <option value="move-left">Move left</option>
-            <option value="move-right">Move right</option>
-            <option value="copy">Copy list</option>
-            <optgroup label="Zone">
-              {list.zoneId && <option value="zone:none">Remove from zone</option>}
-              {(board?.zones ?? [])
-                .filter((zone) => zone.id !== list.zoneId)
-                .map((zone) => (
-                  <option key={zone.id} value={`zone:${zone.id}`}>
-                    To zone “{zone.name}”
-                  </option>
-                ))}
-              <option value="zone:new">New zone…</option>
-            </optgroup>
-            <option value="delete">Move list to trash</option>
-          </select>
-          <button
-            onClick={() => {
-              if (confirm(`Archive list “${list.name}”?`)) updateList(list.id, (item) => ({ ...item, archived: true }));
-            }}
-            aria-label={`Archive list ${list.name}`}
-          >
-            <Icon name="archive" />
-          </button>
-        </div>
-        <div className="card-stack">
-          <ListCards
-            cards={cardsByList.get(list.id) ?? []}
-            render={(item) => (
-              <CardTile
-                key={item.id}
-                card={item}
-                labels={labelMap}
-                members={board?.members}
-                parentName={item.parentCardId ? cardById.get(item.parentCardId)?.name : undefined}
-                actions={tileActions}
-              />
-            )}
-          />
-        </div>
-        {editingCardList === list.id ? (
-          <div className="compose">
-            <textarea
-              autoFocus
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  createCard(list.id);
-                }
-              }}
-              placeholder="Card title"
-            />
-            <div>
-              <button className="primary-button" onClick={() => createCard(list.id)}>
-                Add a card
-              </button>
-              <button
-                className="plain-icon"
-                onClick={() => {
-                  setEditingCardList(null);
-                  setDraft("");
-                }}
-                aria-label="Cancel"
-              >
-                <Icon name="close" />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button
-            className="add-card"
-            onClick={() => {
-              setEditingCardList(list.id);
-              setEditingList(false);
-              setDraft("");
-            }}
-          >
-            <Icon name="plus" /> Add a card
-          </button>
-        )}
-        <TemplateComposer
-          templates={boardTemplates}
-          onCreate={(templateId, name) => addCardFromTemplate(templateId, list.id, name)}
-        />
-      </section>
+        list={list}
+        zones={board?.zones ?? []}
+        cards={cardsByList.get(list.id) ?? []}
+        labels={labelMap}
+        members={board?.members}
+        cardById={cardById}
+        tileActions={tileActions}
+        templates={boardTemplates}
+        composing={editingCardList === list.id}
+        draft={draft}
+        onDraft={setDraft}
+        actions={listActions}
+      />
     );
   }
 
