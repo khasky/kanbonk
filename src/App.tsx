@@ -10,7 +10,7 @@ import {
   saveState,
   type SnapshotMeta,
 } from "./storage";
-import { boardHref, linkHref, trashHref, useRoute, type CalendarScale, type Route } from "./router";
+import { boardHref, trashHref, useRoute, type CalendarScale, type Route } from "./router";
 import {
   emptyTrash,
   moveToTrash,
@@ -86,7 +86,6 @@ import {
   positionBefore,
   recordRevision,
   restoreRevision,
-  searchCards,
   sortListCards,
   transferCard,
   unlinkDependency,
@@ -112,6 +111,9 @@ import { CardTile, type TileActions } from "./board/CardTile";
 import { ListCards } from "./board/ListCards";
 import { TemplateComposer } from "./board/TemplateComposer";
 import { CardDialog } from "./card/CardDialog";
+import { AppHeader, type AppMenuActions, plannerViewId } from "./layout/AppHeader";
+import { SearchResults } from "./layout/SearchResults";
+import { Sidebar } from "./layout/Sidebar";
 import { InboxView } from "./panels/InboxView";
 import { PlannerView } from "./panels/PlannerView";
 import { Icon } from "./ui/Icon";
@@ -130,7 +132,6 @@ import "./App.css";
 import "./pages.css";
 
 const boardColors = ["#147d86", "#0c66e4", "#5e4db2", "#a54800", "#216e4e"];
-const plannerViewId = "kanbonk-planner";
 function App() {
   const [fullState, setState] = useState<AppState>(emptyState);
   const state = useMemo(() => visibleState(fullState), [fullState]);
@@ -400,18 +401,6 @@ function App() {
     .filter((item) => item.boardId === boardId && !item.archived)
     .sort((a, b) => a.position - b.position);
   const card = state.cards.find((item) => item.id === cardId && !item.archived);
-  const deferredSearch = useDeferredValue(search);
-  const matchingCards = useMemo(() => searchCards(state, deferredSearch).slice(0, 50), [state, deferredSearch]);
-  const matchingBoards = search.trim()
-    ? state.boards
-        .filter(
-          (item) =>
-            item.id !== inboxBoardId &&
-            !item.archived &&
-            item.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
-        )
-        .slice(0, 20)
-    : [];
   const boardFilter = useMemo(() => boardFilters[boardId ?? ""] ?? emptyBoardFilter(), [boardFilters, boardId]);
   const deferredFilter = useDeferredValue(boardFilter);
   const filteredCards = useMemo(
@@ -661,6 +650,24 @@ function App() {
   function showBoard(target: string) {
     setBoardId(target);
     setActivePanel(null);
+  }
+
+  /** Shows a card over its board, or over the Inbox panel when it is an inbox card. */
+  function openCardInPlace(item: Card) {
+    if (item.boardId === inboxBoardId) showPanel("inbox");
+    else showBoard(item.boardId);
+    setCardId(item.id);
+  }
+
+  /** Handles the mobile board picker, which also lists the Inbox and Planner panels. */
+  function pickBoard(value: string) {
+    if (value === inboxBoardId) showPanel("inbox");
+    else if (value === plannerViewId) showPanel("planner");
+    else {
+      setActivePanel(null);
+      setBoardId(value || null);
+    }
+    setCardId(null);
   }
 
   function openArchive(targetBoardId: string) {
@@ -1415,14 +1422,6 @@ function App() {
       }
     />
   ) : null;
-  const matchingWorkspaces = search.trim()
-    ? state.workspaces
-        .filter(
-          (item) =>
-            item.id !== inboxWorkspaceId && item.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
-        )
-        .slice(0, 10)
-    : [];
   const trashCount = useMemo(
     () =>
       [fullState.workspaces, fullState.boards, fullState.lists, fullState.cards].reduce(
@@ -1432,188 +1431,61 @@ function App() {
     [fullState],
   );
 
+  const appMenu: AppMenuActions = {
+    onImport: openImport,
+    onBackup: () => {
+      setBackupOpen(true);
+      void refreshBackupInfo();
+    },
+    onSettings: () => setSettingsOpen(true),
+    onSync: () => setSyncOpen(true),
+    onAi: () => setAiOpen(true),
+    onDedupe: () => setDedupeOpen(true),
+    onAuthor: () => setAuthorDialogOpen(true),
+    onClosedBoards: () => setClosedBoardsOpen(true),
+  };
+
   if (!ready) return <main className="startup">{error || "Loading local data…"}</main>;
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <a
-          className="brand"
-          href={linkHref("/")}
-          onClick={(event) => {
-            event.preventDefault();
-            navigate("/");
-          }}
-        >
-          <img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />
-          <strong>Kanbonk</strong>
-        </a>
-        <select
-          className="mobile-board-picker"
-          aria-label="Choose board"
-          value={
-            shownPanels.includes("inbox")
-              ? inboxBoardId
-              : shownPanels.includes("planner")
-                ? plannerViewId
-                : (boardId ?? "")
-          }
-          onChange={(event) => {
-            const value = event.target.value;
-            if (value === inboxBoardId) showPanel("inbox");
-            else if (value === plannerViewId) showPanel("planner");
-            else {
-              setActivePanel(null);
-              setBoardId(value || null);
-            }
-            setCardId(null);
-          }}
-        >
-          <option value="">Boards</option>
-          <option value={inboxBoardId}>Inbox</option>
-          <option value={plannerViewId}>Planner</option>
-          {state.boards
-            .filter((item) => item.id !== inboxBoardId && !item.archived)
-            .map((item) => (
-              <option key={item.id} value={item.id}>
-                {state.workspaces.find((workspace) => workspace.id === item.workspaceId)?.name} / {item.name}
-              </option>
-            ))}
-        </select>
-        <button className="topbar-create" onClick={() => openCreation("board")}>
-          Create
-        </button>
-        <button
-          onClick={() => {
-            setNow(Date.now());
-            setRemindersOpen(true);
-          }}
-          aria-label={`Reminders: ${reminders.length}`}
-        >
-          Reminders{reminders.length ? ` (${reminders.length})` : ""}
-        </button>
-        <details
-          className="topbar-more"
-          onBlur={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
-              event.currentTarget.open = false;
-              event.currentTarget.querySelector("summary")?.focus();
-            }
-          }}
-        >
-          <summary aria-label="App menu" title="App menu">
-            ⋯
-          </summary>
-          <div
-            className="topbar-more-menu"
-            onClick={(event) => {
-              if ((event.target as HTMLElement).closest("button"))
-                (event.currentTarget.parentElement as HTMLDetailsElement).open = false;
-            }}
-          >
-            <button onClick={openImport}>Import from Trello</button>
-            <button
-              onClick={() => {
-                setBackupOpen(true);
-                void refreshBackupInfo();
-              }}
-            >
-              Backup
-            </button>
-            <button onClick={() => setSettingsOpen(true)}>Settings</button>
-            <button onClick={() => setSyncOpen(true)}>Sync</button>
-            <button onClick={() => setAiOpen(true)}>AI assistant</button>
-            <button onClick={() => setDedupeOpen(true)}>Duplicates across boards</button>
-            <button onClick={() => navigate(trashHref())}>Trash</button>
-            <button
-              onClick={() => {
-                setAuthorDialogOpen(true);
-              }}
-            >
-              My name
-            </button>
-            {closedBoards.length > 0 && (
-              <button onClick={() => setClosedBoardsOpen(true)}>Closed boards ({closedBoards.length})</button>
-            )}
-          </div>
-        </details>
-        <label className="global-search">
-          <Icon name="search" />
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search"
-            aria-label="Search cards"
-            onKeyDown={(event) => {
-              if (event.key === "Escape") setSearch("");
-            }}
-          />
-        </label>
-        <a
-          className={`topbar-trash ${page.page === "trash" ? "active" : ""}`}
-          href={linkHref(trashHref())}
-          onClick={(event) => {
-            event.preventDefault();
-            navigate(trashHref());
-          }}
-          aria-label={`Trash: ${trashCount}`}
-        >
-          🗑 Trash{trashCount ? ` (${trashCount})` : ""}
-        </a>
-        <button
-          className={`local-badge ${sync.pendingChanges ? "pending" : ""} ${sync.online ? "" : "offline"}`}
-          onClick={() => setSyncOpen(true)}
-          title="Sync with trusted devices"
-        >
-          {sync.badge}
-        </button>
-      </header>
+      <AppHeader
+        state={state}
+        boardId={boardId}
+        shownPanels={shownPanels}
+        onPickBoard={pickBoard}
+        onCreate={() => openCreation("board")}
+        reminderCount={reminders.length}
+        onOpenReminders={() => {
+          setNow(Date.now());
+          setRemindersOpen(true);
+        }}
+        menu={appMenu}
+        closedBoardCount={closedBoards.length}
+        search={search}
+        onSearch={setSearch}
+        trashActive={page.page === "trash"}
+        trashCount={trashCount}
+        sync={sync}
+        navigate={navigate}
+      />
       {search.trim() && (
-        <section className="search-results" aria-label="Search results">
-          <strong>Search results</strong>
-          {matchingWorkspaces.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                navigate(`/w/${item.id}`);
-                setSearch("");
-              }}
-            >
-              <small>Workspace</small>
-              {item.name}
-            </button>
-          ))}
-          {matchingBoards.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                showBoard(item.id);
-                setCardId(null);
-                setSearch("");
-              }}
-            >
-              <small>Board</small>
-              {item.name}
-            </button>
-          ))}
-          {matchingCards.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                if (item.boardId === inboxBoardId) showPanel("inbox");
-                else showBoard(item.boardId);
-                setCardId(item.id);
-                setSearch("");
-              }}
-            >
-              <small>{state.boards.find((board) => board.id === item.boardId)?.name}</small>
-              {item.name}
-            </button>
-          ))}
-          {!matchingWorkspaces.length && !matchingBoards.length && !matchingCards.length && <p>Nothing found</p>}
-        </section>
+        <SearchResults
+          state={state}
+          query={search}
+          onOpenWorkspace={(id) => {
+            navigate(`/w/${id}`);
+            setSearch("");
+          }}
+          onOpenBoard={(id) => {
+            showBoard(id);
+            setCardId(null);
+            setSearch("");
+          }}
+          onOpenCard={(item) => {
+            openCardInPlace(item);
+            setSearch("");
+          }}
+        />
       )}
       {notice && (
         <div className="notice-banner" role="status">
@@ -1643,75 +1515,21 @@ function App() {
         </div>
       )}
       <div className={shownPanels.length ? "workspace-layout panel-open" : "workspace-layout"}>
-        <aside className="sidebar">
-          <button
-            className={shownPanels.includes("inbox") ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => togglePanel("inbox")}
-          >
-            ☰ <span>Inbox</span>
-          </button>
-          <button
-            className={shownPanels.includes("planner") ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => togglePanel("planner")}
-          >
-            ▦ <span>Planner</span>
-          </button>
-          <button
-            className={page.page === "home" ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => navigate("/")}
-          >
-            ▦ <span>Workspaces</span>
-          </button>
-          <button
-            className={page.page === "trash" ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => navigate(trashHref())}
-          >
-            🗑 <span>Trash</span>
-          </button>
-          <div className="sidebar-heading">
-            Workspaces
-            <button onClick={() => openCreation("workspace")} aria-label="Create workspace">
-              <Icon name="plus" />
-            </button>
-          </div>
-          {state.workspaces
-            .filter((item) => item.id !== inboxWorkspaceId && !item.archived)
-            .map((workspace) => (
-              <div className="workspace-group" key={workspace.id}>
-                <div className="workspace-name">
-                  <span className="workspace-avatar">{workspace.name.slice(0, 1).toUpperCase()}</span>
-                  <button
-                    className={`workspace-link ${page.page === "workspace" && page.id === workspace.id ? "selected" : ""}`}
-                    onClick={() => navigate(`/w/${workspace.id}`)}
-                  >
-                    {workspace.name}
-                  </button>
-                  <button
-                    onClick={() => openCreation("board", workspace.id)}
-                    aria-label={`Add board to ${workspace.name}`}
-                  >
-                    <Icon name="plus" />
-                  </button>
-                </div>
-                {state.boards
-                  .filter((item) => item.workspaceId === workspace.id && item.id !== inboxBoardId && !item.archived)
-                  .map((item) => (
-                    <button
-                      key={item.id}
-                      className={`board-link ${item.id === boardId ? "selected" : ""}`}
-                      onClick={() => {
-                        showBoard(item.id);
-                        setCardId(null);
-                      }}
-                    >
-                      <span className="board-mini" style={{ background: item.background }} />
-                      {item.name}
-                      {item.starred && <Icon name="star" />}
-                    </button>
-                  ))}
-              </div>
-            ))}
-        </aside>
+        <Sidebar
+          state={state}
+          shownPanels={shownPanels}
+          page={page.page}
+          workspaceId={page.page === "workspace" ? page.id : null}
+          boardId={boardId}
+          onTogglePanel={togglePanel}
+          onCreateWorkspace={() => openCreation("workspace")}
+          onCreateBoard={(workspaceId) => openCreation("board", workspaceId)}
+          onOpenBoard={(id) => {
+            showBoard(id);
+            setCardId(null);
+          }}
+          navigate={navigate}
+        />
         {shownPanels.map((name) => (
           <div className="panel-slot" key={name}>
             <aside
@@ -1726,14 +1544,7 @@ function App() {
                   onOpenArchive={() => openArchive(inboxBoardId)}
                 />
               ) : (
-                <PlannerView
-                  state={state}
-                  onOpen={(item) => {
-                    if (item.boardId === inboxBoardId) showPanel("inbox");
-                    else showBoard(item.boardId);
-                    setCardId(item.id);
-                  }}
-                />
+                <PlannerView state={state} onOpen={openCardInPlace} />
               )}
             </aside>
             <div
