@@ -1,3 +1,4 @@
+import { Modal, submitWith } from "./ui/Modal";
 import { useMemo, useState } from "react";
 import type { AppState, Board, Card } from "./model";
 import { MarkdownText } from "./MarkdownText";
@@ -306,90 +307,85 @@ export function AiSettingsDialog({
   const [model, setModel] = useState(settings?.model ?? aiProviders.anthropic.model);
   const [baseUrl, setBaseUrl] = useState(settings?.baseUrl ?? "");
   return (
-    <div className="dialog-backdrop" onMouseDown={onClose}>
-      <form
-        className="creation-dialog ai-settings"
-        role="dialog"
-        aria-modal="true"
-        aria-label="AI settings"
-        onMouseDown={(event) => event.stopPropagation()}
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSave({
-            provider,
-            apiKey: apiKey.trim(),
-            model: model.trim(),
-            baseUrl: provider === "compatible" ? baseUrl.trim() : undefined,
-          });
-        }}
-      >
-        <h2>AI assistant</h2>
+    <Modal
+      label="AI settings"
+      className="creation-dialog ai-settings"
+      onDismiss={onClose}
+      onSubmit={submitWith(() =>
+        onSave({
+          provider,
+          apiKey: apiKey.trim(),
+          model: model.trim(),
+          baseUrl: provider === "compatible" ? baseUrl.trim() : undefined,
+        }),
+      )}
+    >
+      <h2>AI assistant</h2>
+      <label>
+        Provider
+        <select
+          value={provider}
+          onChange={(event) => {
+            const next = event.target.value as AiProvider;
+            setProvider(next);
+            if (!model || Object.values(aiProviders).some((item) => item.model === model))
+              setModel(aiProviders[next].model);
+          }}
+        >
+          {(Object.keys(aiProviders) as AiProvider[]).map((item) => (
+            <option key={item} value={item}>
+              {aiProviders[item].name}
+            </option>
+          ))}
+        </select>
+      </label>
+      {provider === "compatible" && (
         <label>
-          Provider
-          <select
-            value={provider}
-            onChange={(event) => {
-              const next = event.target.value as AiProvider;
-              setProvider(next);
-              if (!model || Object.values(aiProviders).some((item) => item.model === model))
-                setModel(aiProviders[next].model);
-            }}
-          >
-            {(Object.keys(aiProviders) as AiProvider[]).map((item) => (
-              <option key={item} value={item}>
-                {aiProviders[item].name}
-              </option>
-            ))}
-          </select>
-        </label>
-        {provider === "compatible" && (
-          <label>
-            API URL
-            <input
-              type="url"
-              required
-              value={baseUrl}
-              onChange={(event) => setBaseUrl(event.target.value)}
-              placeholder="http://localhost:11434/v1"
-            />
-          </label>
-        )}
-        <label>
-          API key
+          API URL
           <input
-            type="password"
-            required={provider !== "compatible"}
-            value={apiKey}
-            onChange={(event) => setApiKey(event.target.value)}
-            autoComplete="off"
-          />
-        </label>
-        <label>
-          Model
-          <input
+            type="url"
             required
-            value={model}
-            onChange={(event) => setModel(event.target.value)}
-            placeholder={provider === "anthropic" ? "claude-opus-5-5" : "Model name at the provider"}
+            value={baseUrl}
+            onChange={(event) => setBaseUrl(event.target.value)}
+            placeholder="http://localhost:11434/v1"
           />
         </label>
-        <p className="hint">
-          The key is stored only in this browser (never synced, never in backups). Board data is sent to the provider
-          only when you click an AI action button.
-          {provider === "anthropic" ? " Claude models use a server-side fallback in case the model refuses." : ""}
-        </p>
-        <div>
-          {settings && (
-            <button type="button" className="danger-button" onClick={() => onSave(null)}>
-              Remove key
-            </button>
-          )}
-          <button type="button" onClick={onClose}>
-            Cancel
+      )}
+      <label>
+        API key
+        <input
+          type="password"
+          required={provider !== "compatible"}
+          value={apiKey}
+          onChange={(event) => setApiKey(event.target.value)}
+          autoComplete="off"
+        />
+      </label>
+      <label>
+        Model
+        <input
+          required
+          value={model}
+          onChange={(event) => setModel(event.target.value)}
+          placeholder={provider === "anthropic" ? "claude-opus-5-5" : "Model name at the provider"}
+        />
+      </label>
+      <p className="hint">
+        The key is stored only in this browser (never synced, never in backups). Board data is sent to the provider only
+        when you click an AI action button.
+        {provider === "anthropic" ? " Claude models use a server-side fallback in case the model refuses." : ""}
+      </p>
+      <div>
+        {settings && (
+          <button type="button" className="danger-button" onClick={() => onSave(null)}>
+            Remove key
           </button>
-          <button className="primary-button">Save</button>
-        </div>
-      </form>
-    </div>
+        )}
+        <button type="button" onClick={onClose}>
+          Cancel
+        </button>
+        <button className="primary-button">Save</button>
+      </div>
+    </Modal>
   );
 }
