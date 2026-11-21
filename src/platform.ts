@@ -162,10 +162,11 @@ interface ChromeDownloads {
   };
 }
 
-/** The extension saves into Downloads/Kanbonk Backups without asking and may delete the copies it saved. */
+/** The extension saves into Downloads/kanbonk/backups without asking and may delete the copies it saved. */
 function extensionDownloads(): BackupDestination {
   const chrome = (globalThis as unknown as { chrome: ChromeDownloads }).chrome;
-  const folder = "Kanbonk Backups";
+  // Lowercase, no spaces: the same path works on every OS and in synced cloud folders.
+  const folder = "kanbonk/backups";
   // Files are found again by the download IDs recorded here, not by name: the browser may rename a download.
   const recorded = async () => (await loadSetting<Record<string, number[]>>("backup-downloads")) ?? {};
   const present = async (id: number) =>

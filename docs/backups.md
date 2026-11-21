@@ -20,12 +20,12 @@ Snapshots live in the same browser storage as the data. They protect against mis
 
 ## Automatic full backups
 
-**⋯ → Settings → Automatic backups** sets how often a full backup is written (every 6 hours, every day, every week or off), where, and how many backups are kept (1–100, default 7). Backups run while Kanbonk is open: the app checks every 10 minutes whether one is due. **Back up now** writes one at once. Each backup is `kanbonk-auto-<UTC time>-<part>of<total>.zip`; after a successful write, complete backups beyond the newest N are deleted. Only files named `kanbonk-auto-*.zip` are ever deleted.
+**⋯ → Settings → Automatic backups** sets how often a full backup is written (every 6 hours, every day, every week or off), where, and how many backups are kept (1–100, default 7). Backups run while Kanbonk is open: the app checks every 10 minutes whether one is due. **Back up now** writes one at once. Each backup is `kanbonk-auto-<platform>-<device>-<UTC time>-<part>of<total>.zip`, for example `kanbonk-auto-desktop-a1B2c3-2026-11-20T07-10-02Z-1of1.zip`: `<platform>` is `desktop`, `extension` or `web`, `<device>` is the first 6 characters of the device ID. After a successful write, this device's complete backups beyond the newest N are deleted. Only this device's `kanbonk-auto-*.zip` files are ever deleted, so several devices can share one folder, such as a synced cloud folder.
 
 | Platform | Default location | Default frequency | Old copies deleted |
 |---|---|---|---|
-| Browser extension | `Downloads/Kanbonk Backups`, saved without a dialog (`downloads` permission) | Every day | Yes, by the download IDs the extension recorded |
-| Desktop app | `Documents/Kanbonk Backups` | Every day | Yes |
+| Browser extension | `Downloads/kanbonk/backups`, saved without a dialog (`downloads` permission) | Every day | Yes, by the download IDs the extension recorded |
+| Desktop app | `Documents/kanbonk/backups` | Every day | Yes |
 | Web page | Downloads, as an ordinary download | Off | No: a page cannot delete downloads |
 | Mobile app | None | — | — |
 

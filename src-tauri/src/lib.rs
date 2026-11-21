@@ -65,7 +65,7 @@ mod backup_folder {
     #[tauri::command]
     pub fn backup_default_dir(app: tauri::AppHandle) -> Result<String, String> {
         let documents = app.path().document_dir().map_err(|e| e.to_string())?;
-        Ok(documents.join("Kanbonk Backups").to_string_lossy().into_owned())
+        Ok(documents.join("kanbonk").join("backups").to_string_lossy().into_owned())
     }
 
     #[tauri::command]
