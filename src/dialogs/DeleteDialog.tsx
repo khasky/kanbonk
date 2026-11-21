@@ -1,5 +1,5 @@
 import { Modal } from "../ui/Modal";
-import { trashRetentionDays, type TrashImpact, type TrashKind } from "../trash";
+import { trashRetentionDays, type TrashImpact, type TrashKind } from "../model/trash";
 
 const kindOne: Record<TrashKind, string> = { workspace: "workspace", board: "board", list: "list", card: "card" };
 

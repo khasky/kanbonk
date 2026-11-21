@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { emptyState, isCardAvailable, linkDependency, unlinkDependency, type Card } from "../src/model";
-import { importedCardForUrl, relatedCards } from "../src/links";
+import { importedCardForUrl, relatedCards } from "../src/model/links";
 import { addImportedBoard, parseTrelloBoard } from "../src/trello/import";
 
 it.each(["source first", "target first"])(
@@ -181,9 +181,12 @@ it("creates a local dependency checklist and reciprocal card attachment", () => 
   expect(relatedCards(linked.cards[1], linked)[0].target?.id).toBe("later");
   expect(linkDependency(linked, dependent.id, prerequisite.id)).toBe(linked);
   expect(() => linkDependency(state, dependent.id, dependent.id)).toThrow("unavailable");
-  const archived = { ...linked, cards: [linked.cards[0], { ...linked.cards[1], archived: true }] };
-  expect(isCardAvailable(archived, archived.cards[1])).toBe(false);
-  expect(() => linkDependency(archived, dependent.id, prerequisite.id)).toThrow("unavailable");
+  const trashed = {
+    ...linked,
+    cards: [linked.cards[0], { ...linked.cards[1], deletedAt: "2026-01-01T00:00:00.000Z" }],
+  };
+  expect(isCardAvailable(trashed, trashed.cards[1])).toBe(false);
+  expect(() => linkDependency(trashed, dependent.id, prerequisite.id)).toThrow("unavailable");
   const unlinked = unlinkDependency(linked, dependent.id, prerequisite.id);
   expect(unlinked.cards[0].checklists[0].items).toEqual([]);
   expect(unlinked.cards[1].attachments).toEqual([]);

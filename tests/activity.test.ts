@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { cardActivityFeed, cardChanges } from "../src/activity";
+import { cardActivityFeed, cardChanges } from "../src/model/activity";
 import { emptyState, type ActivityEvent, type Card } from "../src/model";
 
 it("shows only the selected card's changes in newest-first order", () => {

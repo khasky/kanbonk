@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { AppState, Card } from "../model";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import type { CalendarScale } from "../router";
+import type { CalendarScale } from "../lib/router";
 import {
   calendarItems,
   calendarRange,
@@ -17,7 +17,7 @@ import {
   startOfWeek,
   type CalendarDrag,
   type WeekRow,
-} from "../calendar";
+} from "../model/calendar";
 
 const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const monthNames = [

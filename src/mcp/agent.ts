@@ -4,10 +4,10 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { emptyState, type AppState } from "../model";
-import { mergeStates } from "../sync";
-import { validState } from "../backup";
-import { migrateLegacyState } from "../legacy";
-import { LanSync, type PeerInfo } from "../lanSync";
+import { mergeStates } from "../sync/sync";
+import { validState } from "../backup/backup";
+import { migrateLegacyState } from "../model/legacy";
+import { LanSync, type PeerInfo } from "../sync/lanSync";
 import { runTool, ToolError, tools } from "./tools";
 
 export interface AgentStore {

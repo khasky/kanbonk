@@ -19,8 +19,8 @@ The top bar has a link to the trash with the number of trashed items and a searc
 ## Boards, lists and cards
 
 - **Drag and drop**: drag a list by its handle (⋮⋮) left or right; drag cards within a list or to another list. Lists can also be moved with **Move left** / **Move right** in the list menu.
-- List menu (⋯): sort cards by name or due date, move, copy the list with its cards, assign a zone, delete to the trash. The archive button hides the list.
-- Boards can be starred, closed (and restored from **⋯ → Closed boards**), copied to another workspace with or without cards and templates, and given a background: a preset color, any color from the color picker, or your own image.
+- List menu (⋯): sort cards by name or due date, move, copy the list with its cards, delete to the trash.
+- Boards can be starred, copied to another workspace with or without cards and templates, and given a background: a preset color, any color from the color picker, or your own image.
 - Cards can be moved or copied to a list on another board, turned into templates and created from templates.
 - Renaming creates one revision when you finish typing; Esc cancels the edit.
 - **Search on the board**: the search box in the board toolbar narrows the board to matching cards as you type (title, description, checklists, comments, labels).
@@ -33,9 +33,9 @@ Boards with thousands of cards stay responsive on desktops and phones: lists out
 
 A zone groups adjacent lists of a board, for example **Development** = Todo + In progress + Testing + Deployment. A list belongs to at most one zone.
 
-- Create: list menu → **New zone…**, enter a name.
-- Add a list: list menu → **To zone “…”**, or drag the list onto a list of the zone, or onto the zone header. The list moves to the end of the zone so the zone stays in one piece.
-- Remove a list: list menu → **Remove from zone**, or drag it onto a list outside the zone.
+- Create: **New zone** at the end of the board, under **Add a list**, enter a name. The empty zone appears at the end of the board with a **Drag lists here** area.
+- Add a list: drag the list into the empty zone's area, onto a list of the zone or onto the zone header. The list moves to the end of the zone so the zone stays in one piece.
+- Remove a list: drag it onto a list outside the zone.
 - Move a whole zone: drag its header handle (⋮⋮) onto another list.
 - The header shows the number of cards in the zone, and lets you rename the zone and change its color. **×** removes the zone; the lists stay on the board.
 
@@ -54,6 +54,7 @@ A card opened from a board appears as a modal on top of it; Esc or the close but
 - **Clone** copies the card right below the original as `<name> - Clone`.
 - **Share**: print the card, save it as PNG or JSON, copy its link (`/c/<id>`) or show a QR code of the link.
 - Checklists, attachments, links, stickers.
+- **Preview** opens a stored attachment in a dialog: images, PDF (in the browser's PDF viewer; not in the Android app), Markdown rendered as formatted text, plain text and code files (txt, json, csv, yaml, source code and similar, first 1 MB), video and audio. The type is taken from the file's MIME type or, for untyped files, its extension.
 - **Dependencies**: **Dependency** links the card to a card it depends on, on any board (as an item of the card's **Dependencies** checklist). The card shows **Depends on** and **Blocks** and is marked as blocked while a prerequisite is open. See [trash-and-dependencies.md](trash-and-dependencies.md).
 - **History**: every change is a revision; any earlier version can be restored.
 - The meta line shows the list, board, creation date and card ID.
@@ -85,7 +86,7 @@ The search box in the top bar searches all workspaces: workspace and board names
 | `has:attachments`, `has:description`, `has:cover`, `has:members`, `has:stickers` | that have it |
 | `due:overdue`, `due:day`, `due:week`, `due:month` | due in that range |
 | `due:complete`, `due:incomplete` | by due completion |
-| `is:open`, `is:starred` | not archived, or on a starred board |
+| `is:open`, `is:starred` | not in the trash, or on a starred board |
 
 Example: `board:"Release" label:bug -is:starred due:week`.
 
@@ -104,7 +105,7 @@ Cards with a due date and a reminder time appear in **Reminders** in the top bar
 **Automation** in the board toolbar creates rules:
 
 - **Trigger**: a card moves to a chosen list, a due date arrives (at the due time or an hour, day or week before), or a custom button in the card is pressed.
-- **Action**: mark complete, archive or add a label.
+- **Action**: mark complete, move to the trash (with its sub-cards) or add a label.
 
 Due rules run once per due date while the app is open or at the next start. Rules are saved with the board and copied with it.
 

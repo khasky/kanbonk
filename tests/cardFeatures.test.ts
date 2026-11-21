@@ -8,8 +8,8 @@ import {
   type AppState,
   type Card,
 } from "../src/model";
-import { readableTextColor } from "../src/labels";
-import { moveToTrash, purgeFromTrash, restoreFromTrash, visibleState } from "../src/trash";
+import { readableTextColor } from "../src/model/labelColors";
+import { moveToTrash, purgeFromTrash, restoreFromTrash, visibleState } from "../src/model/trash";
 
 const card = (id: string, position: number, extra: Partial<Card> = {}): Card => ({
   id,

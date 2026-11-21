@@ -7,9 +7,9 @@ import {
   restoreTrelloAttachments,
 } from "../src/trello/import";
 import { emptyState } from "../src/model";
-import { saveAttachment } from "../src/storage";
+import { saveAttachment } from "../src/lib/storage";
 
-vi.mock("../src/storage", () => ({ saveAttachment: vi.fn() }));
+vi.mock("../src/lib/storage", () => ({ saveAttachment: vi.fn() }));
 
 const board = {
   id: "trello-board",

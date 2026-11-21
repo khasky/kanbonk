@@ -10,11 +10,11 @@ import {
   restoreExistingAttachments,
   restoreTrelloAttachments,
 } from "../src/trello/import";
-import { loadAttachment, saveAttachment } from "../src/storage";
+import { loadAttachment, saveAttachment } from "../src/lib/storage";
 import { addImportedBoard } from "../src/trello/import";
 import { emptyState } from "../src/model";
 
-vi.mock("../src/storage", () => ({
+vi.mock("../src/lib/storage", () => ({
   saveAttachment: vi.fn(async () => {}),
   loadAttachment: vi.fn(async () => undefined),
 }));
@@ -476,16 +476,20 @@ describe("Trello import", () => {
     expect(parseTrelloBoard(source, "workspace-1").cards[0].dueReminderMinutes).toBe(1440);
   });
 
-  it("keeps a closed Trello board and its cards available for later restoration", () => {
+  it("imports a closed Trello board into the trash with its lists and cards", () => {
     const imported = parseTrelloBoard({ ...fixture, closed: true }, "workspace-1");
-    expect(imported.board.archived).toBe(true);
+    expect(imported.board.deletedAt).toBeTruthy();
+    expect(imported.board.deletedBatch).toBe(`trello-closed-${imported.board.id}`);
     expect(imported.lists).toHaveLength(1);
     expect(imported.cards).toHaveLength(1);
   });
 
-  it("preserves a template card, including a hidden template", () => {
+  it("preserves a template card and puts a closed one into the trash", () => {
     const source = { ...fixture, cards: [{ ...fixture.cards[0], isTemplate: true, closed: true }] };
-    expect(parseTrelloBoard(source, "workspace-1").cards[0]).toMatchObject({ isTemplate: true, archived: true });
+    expect(parseTrelloBoard(source, "workspace-1").cards[0]).toMatchObject({
+      isTemplate: true,
+      deletedAt: expect.any(String),
+    });
   });
 
   it("preserves the card start date from Trello", () => {

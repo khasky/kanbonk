@@ -1,7 +1,7 @@
 export function Icon({
   name,
 }: {
-  name: "plus" | "close" | "star" | "search" | "clip" | "clock" | "archive" | "history" | "info";
+  name: "plus" | "close" | "star" | "search" | "clip" | "clock" | "trash" | "history" | "info";
 }) {
   const paths = {
     plus: <path d="M12 5v14M5 12h14" />,
@@ -20,12 +20,7 @@ export function Icon({
         <path d="M12 7v5l3 2" />
       </>
     ),
-    archive: (
-      <>
-        <rect x="3" y="4" width="18" height="4" rx="1" />
-        <path d="M5 8v12h14V8M10 12h4" />
-      </>
-    ),
+    trash: <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />,
     history: (
       <>
         <path d="M3 11a9 9 0 1 1 3 7M3 4v7h7" />

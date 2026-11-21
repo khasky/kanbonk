@@ -1,11 +1,11 @@
 import { Modal } from "../ui/Modal";
 import { useState } from "react";
-import { autoSnapshot } from "../autoBackup";
-import { createBackupParts, restoreBackup } from "../backup";
+import { autoSnapshot } from "../backup/autoBackup";
+import { createBackupParts, restoreBackup } from "../backup/backup";
 import { type AppState, rememberStateIds } from "../model";
-import { saveFile } from "../platform";
-import { loadSnapshot, type SnapshotMeta } from "../storage";
-import type { SyncConflict } from "../sync";
+import { saveFile } from "../lib/platform";
+import { loadSnapshot, type SnapshotMeta } from "../lib/storage";
+import type { SyncConflict } from "../sync/sync";
 
 /**
  * Manual ZIP backups and the automatic snapshots kept inside the app.

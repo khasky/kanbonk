@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dueReminders, reminderSignature } from "../src/reminders";
+import { dueReminders, reminderSignature } from "../src/model/reminders";
 import { emptyState, type AppState, type Card } from "../src/model";
 
 const now = Date.parse("2026-11-15T12:00:00.000Z");
@@ -45,7 +45,7 @@ describe("local due reminders", () => {
     state.cards[0] = { ...card, completed: true };
     expect(dueReminders(state, now, {})).toEqual([]);
     state.cards[0] = card;
-    state.lists[0].archived = true;
+    state.lists[0].deletedAt = "2026-01-01T00:00:00.000Z";
     expect(dueReminders(state, now, {})).toEqual([]);
   });
 

@@ -3,8 +3,8 @@ import type { AppState, Board, Card } from "../model";
 import { MarkdownEditor } from "../ui/MarkdownEditor";
 import { MarkdownText } from "../ui/MarkdownText";
 import { CardPicker } from "../ui/CardPicker";
-import { cardRef, projectSummary, withSummarySnapshot } from "../boardDoc";
-import { kanbonkCardForUrl } from "../links";
+import { cardRef, projectSummary, withSummarySnapshot } from "../model/boardDoc";
+import { kanbonkCardForUrl } from "../model/links";
 
 /**
  * Board + document twin: the project document next to a live, linked summary of the board, so the "why" and the
@@ -29,7 +29,7 @@ export function DocView({
   const summary = useMemo(() => projectSummary(state, board.id), [state, board.id]);
   const cardForUrl = (url: string) => kanbonkCardForUrl(url, state);
   const boardCards = useMemo(
-    () => state.cards.filter((item) => item.boardId === board.id && !item.archived),
+    () => state.cards.filter((item) => item.boardId === board.id && !item.deletedAt),
     [state.cards, board.id],
   );
   return (

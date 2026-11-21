@@ -15,8 +15,8 @@ import {
   restoreRevision,
   sortListCards,
 } from "../model";
-import { ensurePersonalWorkspace, personalWorkspaceId } from "../workspaces";
-import { assignListToZone, createZone, deleteZone, moveListToList, moveZone, updateZone } from "../zones";
+import { ensurePersonalWorkspace, personalWorkspaceId } from "../model/workspaces";
+import { assignListToZone, createZone, deleteZone, moveListToList, moveZone, updateZone } from "../model/zones";
 
 /**
  * Changes to workspaces, boards, lists, zones and board automations. Every change records a revision with this
@@ -56,7 +56,7 @@ export function useBoardActions({
     };
     setState((current) => {
       const next = ensurePersonalWorkspace(current, targetWorkspaceId, deviceId);
-      if (!next.workspaces.some((item) => item.id === targetWorkspaceId && !item.archived)) return current;
+      if (!next.workspaces.some((item) => item.id === targetWorkspaceId && !item.deletedAt)) return current;
       return recordRevision({ ...next, boards: [...next.boards, created] }, "board", created.id, deviceId);
     });
     return created.id;
@@ -93,23 +93,6 @@ export function useBoardActions({
     );
   }
 
-  function reopenBoard(id: string) {
-    setState((current) => {
-      const target = current.boards.find((item) => item.id === id && item.archived);
-      return target
-        ? recordRevision(
-            {
-              ...current,
-              boards: current.boards.map((item) => (item.id === id ? { ...item, archived: false } : item)),
-            },
-            "board",
-            id,
-            deviceId,
-          )
-        : current;
-    });
-  }
-
   function createList(boardId: string, name: string, position: number) {
     const created = { id: newId(), boardId, name, position };
     setState((current) =>
@@ -135,7 +118,7 @@ export function useBoardActions({
   function copyListOnBoard(id: string) {
     const copyId = newId();
     setState((current) => {
-      if (!current.lists.some((list) => list.id === id && !list.archived)) return current;
+      if (!current.lists.some((list) => list.id === id && !list.deletedAt)) return current;
       const copied = copyList(current, id, copyId);
       return recordRevisions(
         copied.state,
@@ -164,8 +147,9 @@ export function useBoardActions({
     setState((current) => moveZone(current, boardId, zoneId, targetListId, after, deviceId));
   }
 
-  function createZoneForList(boardId: string, listId: string, name: string) {
-    setState((current) => createZone(current, boardId, name, [listId], deviceId).state);
+  /** Adds an empty zone at the end of the board; lists are dragged into it. */
+  function addZone(boardId: string, name: string) {
+    setState((current) => createZone(current, boardId, name, [], deviceId).state);
   }
 
   /** Puts a list into a zone, or takes it out of its zone when `zoneId` is undefined. */
@@ -191,11 +175,11 @@ export function useBoardActions({
     leadMinutes = 0,
   ) {
     setState((current) => {
-      const board = current.boards.find((item) => item.id === targetBoardId && !item.archived);
+      const board = current.boards.find((item) => item.id === targetBoardId && !item.deletedAt);
       if (
         !board ||
         (trigger === "move" &&
-          !current.lists.some((item) => item.id === listId && item.boardId === targetBoardId && !item.archived)) ||
+          !current.lists.some((item) => item.id === listId && item.boardId === targetBoardId && !item.deletedAt)) ||
         (trigger === "button" && !name?.trim()) ||
         (trigger === "due" && ![0, 60, 1440, 10080].includes(leadMinutes))
       )
@@ -256,14 +240,13 @@ export function useBoardActions({
     createBoard,
     copyBoardTo,
     updateBoard,
-    reopenBoard,
     createList,
     updateList,
     moveList,
     copyListOnBoard,
     sortList,
     moveZoneTo,
-    createZoneForList,
+    addZone,
     setListZone,
     changeZone,
     removeZone,
@@ -272,3 +255,4 @@ export function useBoardActions({
     restore,
   };
 }
+export type BoardActions = ReturnType<typeof useBoardActions>;

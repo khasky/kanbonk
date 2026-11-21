@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { readLocalAuthor, saveLocalAuthor } from "../src/storage";
+import { readLocalAuthor, saveLocalAuthor } from "../src/lib/storage";
 
 afterEach(() => vi.unstubAllGlobals());
 

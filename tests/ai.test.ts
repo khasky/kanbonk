@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, expect, it, vi } from "vitest";
-import { boardContext, triageInbox, writeWithCitations, type AiSettings } from "../src/ai";
+import { boardContext, triageInbox, writeWithCitations, type AiSettings } from "../src/ai/ai";
 import { emptyState, type AppState, type Card } from "../src/model";
 
 const card = (id: string, name: string): Card => ({

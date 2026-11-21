@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { mentionedCardIds } from "../boardDoc";
-import { cardCreatedAt } from "../calendar";
-import { inboxBoardId } from "../inbox";
-import { importedCardForUrl, relatedCards } from "../links";
+import { mentionedCardIds } from "../model/boardDoc";
+import { cardCreatedAt } from "../model/calendar";
+import { inboxBoardId } from "../model/inbox";
+import { importedCardForUrl, relatedCards } from "../model/links";
 import { isCardAvailable, subCards, type AppState, type Card, type Member } from "../model";
-import { dependentsOf, prerequisitesOf } from "../trash";
+import { dependentsOf, prerequisitesOf } from "../model/trash";
 import { Icon } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
 import { AttachmentRow } from "./AttachmentRow";
@@ -35,7 +35,6 @@ export function CardDialog({
   onClose,
   onNavigateCard,
   onTransfer,
-  onArchive,
   onHistory,
   team,
   onClone,
@@ -51,7 +50,6 @@ export function CardDialog({
   onClose: () => void;
   onNavigateCard: (target: Card) => void;
   onTransfer: (targetListId: string, copy: boolean) => void;
-  onArchive: () => void;
   onHistory: () => void;
   team: Member[];
   onClone: () => void;
@@ -328,11 +326,8 @@ export function CardDialog({
             </section>
           )}
           <div className="card-footer-actions">
-            <button className="archive-action" onClick={onArchive}>
-              <Icon name="archive" /> Archive card
-            </button>
-            <button className="archive-action danger" onClick={onDelete}>
-              🗑 Move to trash
+            <button className="trash-action" onClick={onDelete}>
+              <Icon name="trash" /> Move to trash
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 # Trash and dependencies
 
-Implementation: [`src/trash.ts`](../src/trash.ts). Tests: [`tests/trash.test.ts`](../tests/trash.test.ts).
+Implementation: [`src/model/trash.ts`](../src/model/trash.ts). Tests: [`tests/trash.test.ts`](../tests/trash.test.ts).
 
 ## Moving to the trash
 
@@ -53,6 +53,6 @@ Items stay in the trash for 30 days. The trash page shows how many days each ite
 
 Attachment bytes of purged cards stay in IndexedDB until the next backup restore or cleanup; they are no longer referenced by the state.
 
-## Archive versus trash
+## No archive
 
-Archiving (closing a board, archiving a list or card) is the Trello concept of hiding finished work. Archived items are not in the trash; they are restored from the "Closed boards" and archive views, and they never get purged automatically.
+Kanbonk has no separate archive: hiding finished work means moving it to the trash. Earlier versions could archive workspaces, boards, lists and cards; when such data is loaded, synced from an older device or restored from a backup, archived items move to the trash with the time of that migration, so they can be restored for 30 days. Automation rules that archived a card now move it to the trash. Boards, lists and cards closed in Trello are imported into the trash the same way.

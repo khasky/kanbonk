@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cardActivityFeed } from "../activity";
+import { cardActivityFeed } from "../model/activity";
 import { MarkdownEditor } from "../ui/MarkdownEditor";
 import { MarkdownText } from "../ui/MarkdownText";
 import { type AppState, type Card, canEditComment, newId } from "../model";

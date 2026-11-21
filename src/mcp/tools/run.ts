@@ -15,10 +15,10 @@ import {
   type AppState,
   type Card,
 } from "../../model";
-import { moveToTrash, restoreFromTrash, trashEntries, visibleState, type TrashKind } from "../../trash";
-import { createZone, moveListToList } from "../../zones";
-import { projectSummary } from "../../boardDoc";
-import { findDuplicates, mergeDuplicate } from "../../dedupe";
+import { moveToTrash, restoreFromTrash, trashEntries, visibleState, type TrashKind } from "../../model/trash";
+import { createZone, moveListToList } from "../../model/zones";
+import { projectSummary } from "../../model/boardDoc";
+import { findDuplicates, mergeDuplicate } from "../../model/dedupe";
 import { type Json, trashKinds } from "./definitions";
 
 export class ToolError extends Error {}
@@ -103,7 +103,7 @@ export function runTool(
           id: workspace.id,
           name: workspace.name,
           boards: state.boards
-            .filter((item) => item.workspaceId === workspace.id && !item.archived)
+            .filter((item) => item.workspaceId === workspace.id && !item.deletedAt)
             .map((item) => ({ id: item.id, name: item.name })),
         })),
       );
@@ -112,7 +112,7 @@ export function runTool(
       const keyword = text(args, "keyword") ?? "";
       const cards = filterBoardCards(state, target.id, { ...emptyBoardFilter(), keyword });
       const lists = state.lists
-        .filter((item) => item.boardId === target.id && !item.archived)
+        .filter((item) => item.boardId === target.id && !item.deletedAt)
         .sort((a, b) => a.position - b.position);
       return done(full, {
         id: target.id,

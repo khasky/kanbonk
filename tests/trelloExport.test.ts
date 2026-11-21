@@ -4,9 +4,9 @@ import { fileURLToPath } from "node:url";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { strFromU8, unzipSync } from "fflate";
 import { parseTrelloBoard, readTrelloExport, restoreTrelloAttachments } from "../src/trello/import";
-import { saveAttachment } from "../src/storage";
+import { saveAttachment } from "../src/lib/storage";
 
-vi.mock("../src/storage", () => ({
+vi.mock("../src/lib/storage", () => ({
   saveAttachment: vi.fn(async () => {}),
   loadAttachment: vi.fn(async () => undefined),
 }));

@@ -78,7 +78,7 @@ Senders wait while more than 256 KiB is buffered, and the relay limits a message
 
 ## Merge and conflicts
 
-[`mergeStates(local, remote)`](../src/sync.ts) works per entity (workspace, board, list, card, label):
+[`mergeStates(local, remote)`](../src/sync/sync.ts) works per entity (workspace, board, list, card, label):
 
 1. Revisions, activity and tombstones from both sides are unioned. Purged items (tombstones) are removed on both sides.
 2. An entity that exists only on one side is added.

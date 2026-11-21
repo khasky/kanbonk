@@ -13,9 +13,9 @@ import {
   type Member,
   type Workspace,
 } from "../../model/index";
-import { trelloLabelColors } from "../../labels";
+import { trelloLabelColors } from "../../model/labelColors";
 import { trelloActionDescription } from "./actions";
-import { array, number, object, string, type TrelloRecord } from "./records";
+import { array, closedInTrello, number, object, string, type TrelloRecord } from "./records";
 
 export interface ImportResult {
   organization?: { id: string; name?: string };
@@ -66,7 +66,7 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
     background: string(prefs.backgroundColor) || "#147d86",
     sourceTrelloId: string(source.id),
     starred: Boolean(source.starred),
-    archived: Boolean(source.closed),
+    ...closedInTrello(source.closed, boardId),
   };
   const members: Member[] = [];
   const memberIds = new Map<string, string>();
@@ -98,7 +98,7 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
       boardId,
       name: string(entry.name) || `List ${index + 1}`,
       position: number(entry.pos) || index + 1,
-      archived: Boolean(entry.closed),
+      ...closedInTrello(entry.closed, id),
     };
   });
   const labelIds = new Map<string, string>();
@@ -223,7 +223,7 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
       attachments: cardAttachments,
       stickers: cardStickers,
       cover,
-      archived: Boolean(entry.closed),
+      ...closedInTrello(entry.closed, id),
       sourceTrelloId: trelloId,
       sourceTrelloShortLink: string(entry.shortLink),
       isTemplate: Boolean(entry.isTemplate),

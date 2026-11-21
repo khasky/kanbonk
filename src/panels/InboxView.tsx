@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CardCover } from "../card/CardCover";
 import { CardStickers } from "../card/CardStickers";
-import { inboxBoardId } from "../inbox";
+import { inboxBoardId } from "../model/inbox";
 import { emptyBoardFilter, filterBoardCards, type AppState, type BoardFilter } from "../model";
 import { Icon } from "../ui/Icon";
 
@@ -9,12 +9,10 @@ export function InboxView({
   state,
   onCreate,
   onOpen,
-  onOpenArchive,
 }: {
   state: AppState;
   onCreate: (name: string) => void;
   onOpen: (id: string) => void;
-  onOpenArchive: () => void;
 }) {
   const [draft, setDraft] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -40,7 +38,6 @@ export function InboxView({
           <h1>Inbox</h1>
           <p>Collect ideas and tasks here, then move them to a board.</p>
         </div>
-        <button onClick={onOpenArchive}>Archive</button>
       </header>
       <form
         className="inbox-compose"

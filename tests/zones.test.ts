@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
 import { emptyState, recordRevision, type AppState } from "../src/model";
-import { mergeStates } from "../src/sync";
-import { validState } from "../src/backup";
-import { assignListToZone, createZone, deleteZone, moveListToList, moveZone, zoneRuns } from "../src/zones";
+import { mergeStates } from "../src/sync/sync";
+import { validState } from "../src/backup/backup";
+import { assignListToZone, createZone, deleteZone, moveListToList, moveZone, zoneRuns } from "../src/model/zones";
 
 const names = ["Backlog", "Todo", "In progress", "Testing", "Deployment", "Done"];
 

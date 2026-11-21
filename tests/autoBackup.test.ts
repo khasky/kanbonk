@@ -9,11 +9,11 @@ import {
   loadAutoBackupSettings,
   skipAutoBackup,
   writeAutoBackup,
-} from "../src/autoBackup";
+} from "../src/backup/autoBackup";
 import { emptyState } from "../src/model";
 
 const settings = new Map<string, unknown>();
-vi.mock("../src/storage", () => ({
+vi.mock("../src/lib/storage", () => ({
   deviceId: () => "a1B2c3D4",
   loadSetting: async (key: string) => settings.get(key),
   saveSetting: async (key: string, value: unknown) => {
@@ -27,7 +27,7 @@ vi.mock("../src/storage", () => ({
 
 const files = new Map<string, Blob>();
 let currentPlatform = "extension";
-vi.mock("../src/platform", () => ({
+vi.mock("../src/lib/platform", () => ({
   get platform() {
     return currentPlatform;
   },

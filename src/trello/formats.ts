@@ -1,7 +1,8 @@
 import { newId, type AppState, type Board, type BoardList, type Card, type Label } from "../model/index";
-import { trelloLabelColors } from "../labels";
-import { cardCreatedAt } from "../calendar";
+import { trelloLabelColors } from "../model/labelColors";
+import { cardCreatedAt } from "../model/calendar";
 import type { ImportResult } from "./import";
+import { closedInTrello } from "./import/records";
 
 const colorNames = new Map(Object.entries(trelloLabelColors).map(([name, color]) => [color.toLowerCase(), name]));
 
@@ -68,7 +69,7 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
     id: board.id,
     name: board.name,
     desc: board.description,
-    closed: Boolean(board.archived),
+    closed: Boolean(board.deletedAt),
     idOrganization: board.workspaceId,
     kanbonkOrganizationName: state.workspaces.find((item) => item.id === board.workspaceId)?.name,
     starred: board.starred,
@@ -80,7 +81,7 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
       id: list.id,
       idBoard: board.id,
       name: list.name,
-      closed: Boolean(list.archived),
+      closed: Boolean(list.deletedAt),
       pos: list.position,
     })),
     members: (board.members ?? []).map((member) => ({
@@ -94,7 +95,7 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
       idList: card.listId,
       name: card.name,
       desc: card.description,
-      closed: Boolean(card.archived),
+      closed: Boolean(card.deletedAt),
       pos: card.position,
       shortLink: card.id,
       url: cardUrl(card),
@@ -221,7 +222,7 @@ export function exportTrelloCsv(state: AppState, boardId: string): string {
       listName.get(card.listId) ?? "",
       board.id,
       board.name,
-      card.archived ? "true" : "false",
+      card.deletedAt ? "true" : "false",
       card.startAt ?? "",
       card.completed ? "true" : "false",
     ]
@@ -337,8 +338,9 @@ export function parseTrelloCsv(text: string, workspaceId: string, fallbackName =
       });
     const sourceId = get(row, "Card ID");
     const url = get(row, "Card URL");
+    const id = newId();
     return {
-      id: newId(),
+      id,
       boardId,
       listId: list.id,
       name: get(row, "Card Name") || `Card ${index + 1}`,
@@ -352,7 +354,7 @@ export function parseTrelloCsv(text: string, workspaceId: string, fallbackName =
       startAt: date(get(row, "Start Date")),
       dueAt: date(get(row, "Due Date")),
       completed: get(row, "Due Complete").toLowerCase() === "true",
-      archived: get(row, "Archived").toLowerCase() === "true",
+      ...closedInTrello(get(row, "Archived").toLowerCase() === "true", id),
       checklists: [],
       comments: [],
       attachments: get(row, "Attachment Links")

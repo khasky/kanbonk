@@ -122,9 +122,7 @@ export function recordRevisions(
             ? `${label} “${name}” ${(entity as Label).deleted ? "deleted" : "restored"}`
             : (entity as Trashable).deletedAt !== (previous as Trashable).deletedAt
               ? `${label} “${name}” ${(entity as Trashable).deletedAt ? "moved to Trash" : "restored from Trash"}`
-              : "archived" in previous && "archived" in entity && previous.archived !== entity.archived
-                ? `${label} “${name}” ${entity.archived ? "archived" : "restored"}`
-                : `${label} “${name}” changed`;
+              : `${label} “${name}” changed`;
     if (!commentOnly && currentBoardId)
       activity.push({
         id: revision.id,

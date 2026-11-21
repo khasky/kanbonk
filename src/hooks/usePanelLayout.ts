@@ -1,5 +1,5 @@
 import { type KeyboardEvent, type PointerEvent as ReactPointerEvent, useEffect, useEffectEvent, useState } from "react";
-import { type PanelName, type PanelVisibility, type PanelWidths, readPanelWidths } from "../uiPreferences";
+import { type PanelName, type PanelVisibility, type PanelWidths, readPanelWidths } from "../lib/uiPreferences";
 
 const minWidth = 220;
 /** From this viewport width both panels can be open next to the board; below it only the active one is shown. */

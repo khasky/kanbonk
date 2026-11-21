@@ -3,8 +3,8 @@ import { newId } from "./ids";
 import type { AppState } from "./types";
 
 export function linkDependency(state: AppState, dependentId: string, prerequisiteId: string): AppState {
-  const dependent = state.cards.find((card) => card.id === dependentId && !card.archived);
-  const prerequisite = state.cards.find((card) => card.id === prerequisiteId && !card.archived);
+  const dependent = state.cards.find((card) => card.id === dependentId && !card.deletedAt);
+  const prerequisite = state.cards.find((card) => card.id === prerequisiteId && !card.deletedAt);
   if (
     !dependent ||
     !prerequisite ||

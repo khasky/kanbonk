@@ -7,18 +7,18 @@ export function copyList(
   listId: string,
   copyId = newId(),
 ): { state: AppState; listId: string; cardIds: string[] } {
-  const source = state.lists.find((list) => list.id === listId && !list.archived);
-  if (!source || !state.boards.some((board) => board.id === source.boardId && !board.archived))
+  const source = state.lists.find((list) => list.id === listId && !list.deletedAt);
+  if (!source || !state.boards.some((board) => board.id === source.boardId && !board.deletedAt))
     throw new Error("The list cannot be copied.");
   const following = state.lists
-    .filter((list) => list.boardId === source.boardId && !list.archived && list.position > source.position)
+    .filter((list) => list.boardId === source.boardId && !list.deletedAt && list.position > source.position)
     .sort((a, b) => a.position - b.position)[0];
   const position = following ? (source.position + following.position) / 2 : source.position + 1;
   const copied = { ...source, id: copyId, name: `${source.name} (copy)`, position };
   let next: AppState = { ...state, lists: [...state.lists, copied] };
   const cardIds: string[] = [];
   for (const card of state.cards
-    .filter((item) => item.listId === listId && !item.archived)
+    .filter((item) => item.listId === listId && !item.deletedAt)
     .sort((a, b) => a.position - b.position)) {
     const result = transferCard(next, card.id, copyId, true);
     next = result.state;
@@ -33,11 +33,11 @@ export function copyBoard(
   options: { name: string; workspaceId: string; keepCards: boolean; keepTemplates: boolean },
   copyId = newId(),
 ): { state: AppState; boardId: string; listIds: string[]; cardIds: string[] } {
-  const source = state.boards.find((board) => board.id === sourceId && !board.archived);
+  const source = state.boards.find((board) => board.id === sourceId && !board.deletedAt);
   if (
     !source ||
     !options.name.trim() ||
-    !state.workspaces.some((workspace) => workspace.id === options.workspaceId && !workspace.archived)
+    !state.workspaces.some((workspace) => workspace.id === options.workspaceId && !workspace.deletedAt)
   )
     throw new Error("The board or workspace is unavailable.");
   const board: Board = {
@@ -51,7 +51,7 @@ export function copyBoard(
   };
   const listIds = new Map<string, string>();
   const lists = state.lists
-    .filter((list) => list.boardId === sourceId && !list.archived)
+    .filter((list) => list.boardId === sourceId && !list.deletedAt)
     .map((list) => {
       const id = newId();
       listIds.set(list.id, id);
@@ -80,7 +80,7 @@ export function copyBoard(
     ];
   });
   const sourceCards = state.cards.filter((card) => {
-    if (card.boardId !== sourceId || card.archived || !listIds.has(card.listId)) return false;
+    if (card.boardId !== sourceId || card.deletedAt || !listIds.has(card.listId)) return false;
     if (card.isTemplate) return options.keepTemplates;
     return options.keepCards;
   });

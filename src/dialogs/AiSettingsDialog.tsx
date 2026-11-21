@@ -1,6 +1,6 @@
 import { Modal, submitWith } from "../ui/Modal";
 import { useState } from "react";
-import { aiProviders, type AiProvider, type AiSettings } from "../ai";
+import { aiProviders, type AiProvider, type AiSettings } from "../ai/ai";
 
 /** Provider, key and model; the key never leaves this device except in requests to the chosen provider. */
 export function AiSettingsDialog({

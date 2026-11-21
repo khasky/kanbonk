@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { labelColorOptions, readableTextColor } from "../labels";
+import { labelColorOptions, readableTextColor } from "../model/labelColors";
 import type { Card, Label } from "../model";
 
 /** Toggles the board's labels on the card, and creates, edits and deletes labels. */

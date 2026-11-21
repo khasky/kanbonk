@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { emptyState, recordRevision, type AppState, type Card } from "../src/model";
-import { mergeStates } from "../src/sync";
+import { mergeStates } from "../src/sync/sync";
 import {
   dependentsOf,
   emptyTrash,
@@ -12,7 +12,7 @@ import {
   trashEntries,
   trashImpact,
   visibleState,
-} from "../src/trash";
+} from "../src/model/trash";
 
 const card = (id: string, listId: string, extra: Partial<Card> = {}): Card => ({
   id,

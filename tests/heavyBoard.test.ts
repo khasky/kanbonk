@@ -10,10 +10,10 @@ import {
 } from "../src/model";
 import { addImportedBoardWithRevisions, parseTrelloBoard } from "../src/trello/import";
 import { exportTrelloCsv, exportTrelloJson, parseTrelloCsv } from "../src/trello/formats";
-import { mergeStates } from "../src/sync";
-import { validState } from "../src/backup";
-import { findDuplicates } from "../src/dedupe";
-import { moveToTrash, visibleState } from "../src/trash";
+import { mergeStates } from "../src/sync/sync";
+import { validState } from "../src/backup/backup";
+import { findDuplicates } from "../src/model/dedupe";
+import { moveToTrash, visibleState } from "../src/model/trash";
 // Plain JS generator shared with the browser load test.
 import { bigBoard } from "../scripts/generate-big-board.mjs";
 

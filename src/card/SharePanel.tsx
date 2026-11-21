@@ -1,6 +1,6 @@
 import { type RefObject, useState } from "react";
 import type { AppState, Card } from "../model";
-import { cardLink, downloadCardJson, downloadCardPng, printCard, qrSvg } from "../share";
+import { cardLink, downloadCardJson, downloadCardPng, printCard, qrSvg } from "./share";
 
 /** Print, save or copy a link to the card. `dialog` is the element saved as an image. */
 export function SharePanel({

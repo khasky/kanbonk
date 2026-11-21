@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
-import { migrateLegacyState, migrateLegacyStorage } from "../src/legacy";
-import { ensureInbox, inboxBoardId, inboxListId, inboxWorkspaceId } from "../src/inbox";
+import { migrateLegacyState, migrateLegacyStorage } from "../src/model/legacy";
+import { ensureInbox, inboxBoardId, inboxListId, inboxWorkspaceId } from "../src/model/inbox";
 import { emptyState, recordRevision, type AppState } from "../src/model";
-import { mergeStates } from "../src/sync";
-import { openSyncBundle } from "../src/devices";
-import { createBackupParts, restoreBackup } from "../src/backup";
+import { mergeStates } from "../src/sync/sync";
+import { openSyncBundle } from "../src/sync/devices";
+import { createBackupParts, restoreBackup } from "../src/backup/backup";
 import { parseTrelloBoard } from "../src/trello/import";
 
 /** A state with an inbox card, as written by the app before the rename. */
@@ -168,5 +168,102 @@ describe("legacy files", () => {
     const result = parseTrelloBoard(source, "personal");
     expect(result.organization?.name).toBe("Team");
     expect(result.cards[0].comments.map((item) => item.text)).toEqual(["Old comment"]);
+  });
+});
+
+describe("archive removal", () => {
+  /** A state as earlier versions stored it, with `archived` flags and an "archive" automation rule. */
+  function archivedState(): AppState {
+    return {
+      ...emptyState(),
+      workspaces: [{ id: "w", name: "Work" }],
+      boards: [
+        {
+          id: "b",
+          workspaceId: "w",
+          name: "Board",
+          description: "",
+          background: "#fff",
+          starred: false,
+          automationRules: [{ id: "r", listId: "l", action: "archive" }],
+        },
+      ],
+      lists: [
+        { id: "l", boardId: "b", name: "Open", position: 1, archived: false },
+        { id: "old", boardId: "b", name: "Old", position: 2, archived: true },
+      ],
+      cards: [
+        {
+          id: "kept",
+          boardId: "b",
+          listId: "l",
+          name: "Kept",
+          description: "",
+          position: 1,
+          labelIds: [],
+          completed: false,
+          checklists: [],
+          comments: [],
+          attachments: [],
+        },
+        {
+          id: "gone",
+          boardId: "b",
+          listId: "l",
+          name: "Gone",
+          description: "",
+          position: 2,
+          labelIds: [],
+          completed: false,
+          checklists: [],
+          comments: [],
+          attachments: [],
+          archived: true,
+        },
+        {
+          id: "both",
+          boardId: "b",
+          listId: "l",
+          name: "Both",
+          description: "",
+          position: 3,
+          labelIds: [],
+          completed: false,
+          checklists: [],
+          comments: [],
+          attachments: [],
+          archived: true,
+          deletedAt: "2026-01-01T00:00:00.000Z",
+          deletedBatch: "earlier",
+        },
+      ],
+    } as unknown as AppState;
+  }
+
+  it("moves archived items into the trash, drops the flag and turns archive rules into trash rules", () => {
+    const migrated = migrateLegacyState(archivedState());
+    const now = migrated.lists.find((item) => item.id === "old")?.deletedAt;
+    expect(now).toBeTruthy();
+    expect(migrated.lists.find((item) => item.id === "old")).toMatchObject({ deletedBatch: "archived-old" });
+    expect(migrated.cards.find((item) => item.id === "gone")).toMatchObject({
+      deletedAt: now,
+      deletedBatch: "archived-gone",
+    });
+    expect(migrated.cards.find((item) => item.id === "both")).toMatchObject({
+      deletedAt: "2026-01-01T00:00:00.000Z",
+      deletedBatch: "earlier",
+    });
+    expect(migrated.cards.find((item) => item.id === "kept")?.deletedAt).toBeUndefined();
+    expect([...migrated.lists, ...migrated.cards].some((item) => "archived" in item)).toBe(false);
+    expect(migrated.boards[0].automationRules?.[0].action).toBe("trash");
+    expect(migrated.revisions).toEqual([]);
+    const clean = migrateLegacyState(emptyState());
+    expect(migrateLegacyState(clean)).toBe(clean);
+  });
+
+  it("migrates archived items arriving from a device or backup on an earlier version", () => {
+    const { state } = mergeStates(emptyState(), archivedState());
+    expect(state.cards.find((item) => item.id === "gone")?.deletedAt).toBeTruthy();
+    expect(state.lists.find((item) => item.id === "old")?.deletedAt).toBeTruthy();
   });
 });

@@ -88,7 +88,7 @@ pnpm serve:lan 192.168.1.10 4174
 
 ## Platforms
 
-One React app in `src/` runs everywhere; the platform-specific code lives in a single module, [`src/platform.ts`](src/platform.ts).
+One React app in `src/` runs everywhere; the platform-specific code lives in a single module, [`src/lib/platform.ts`](src/lib/platform.ts).
 
 | Platform | Develop | Build | Output |
 | --- | --- | --- | --- |

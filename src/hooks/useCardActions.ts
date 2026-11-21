@@ -1,7 +1,8 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { TriageItem } from "../ai";
-import { applyCardButton, applyMoveRules } from "../automation";
-import { inboxBoardId, inboxListId } from "../inbox";
+import type { TriageItem } from "../ai/ai";
+import { applyCardButton, applyMoveRules } from "../model/automation";
+import { trashSubCards } from "../model/trash";
+import { inboxBoardId, inboxListId } from "../model/inbox";
 import {
   type AppState,
   type Card,
@@ -17,9 +18,9 @@ import {
   transferCard,
   unlinkDependency,
 } from "../model";
-import { saveFile } from "../platform";
-import { applyDueRecurrence } from "../repeatingDue";
-import { loadAttachment, saveAttachment } from "../storage";
+import { saveFile } from "../lib/platform";
+import { applyDueRecurrence } from "../model/repeatingDue";
+import { loadAttachment, saveAttachment } from "../lib/storage";
 
 const nextPosition = (cards: Card[], listId: string) =>
   Math.max(0, ...cards.filter((item) => item.listId === listId).map((item) => item.position)) + 1;
@@ -42,14 +43,18 @@ export function useCardActions({
   /** Applies a change to a card, then its move rules and repeating due date. */
   function updateCard(id: string, change: (item: Card) => Card) {
     setState((current) =>
-      recordRevision(
-        {
-          ...current,
-          cards: current.cards.map((item) =>
-            item.id === id ? applyDueRecurrence(item, applyMoveRules(current, item, change(item))) : item,
-          ),
-        },
-        "card",
+      trashSubCards(
+        recordRevision(
+          {
+            ...current,
+            cards: current.cards.map((item) =>
+              item.id === id ? applyDueRecurrence(item, applyMoveRules(current, item, change(item))) : item,
+            ),
+          },
+          "card",
+          id,
+          deviceId,
+        ),
         id,
         deviceId,
       ),
@@ -63,9 +68,13 @@ export function useCardActions({
       const after = applyDueRecurrence(before, applyCardButton(current, before, ruleId));
       return after === before
         ? current
-        : recordRevision(
-            { ...current, cards: current.cards.map((item) => (item.id === cardId ? after : item)) },
-            "card",
+        : trashSubCards(
+            recordRevision(
+              { ...current, cards: current.cards.map((item) => (item.id === cardId ? after : item)) },
+              "card",
+              cardId,
+              deviceId,
+            ),
             cardId,
             deviceId,
           );
@@ -74,7 +83,7 @@ export function useCardActions({
 
   /** Moves or copies a card to an open list. Returns the id of the card in the target list, or undefined. */
   function moveOrCopyCard(id: string, targetListId: string, copy: boolean) {
-    const targetList = state.lists.find((list) => list.id === targetListId && !list.archived);
+    const targetList = state.lists.find((list) => list.id === targetListId && !list.deletedAt);
     if (!targetList) return undefined;
     const targetId = copy ? newId() : id;
     setState((current) => {
@@ -86,7 +95,7 @@ export function useCardActions({
               item.id === id ? applyDueRecurrence(before, applyMoveRules(current, before, item)) : item,
             )
           : transferred.cards;
-      return recordRevision({ ...transferred, cards }, "card", targetId, deviceId);
+      return trashSubCards(recordRevision({ ...transferred, cards }, "card", targetId, deviceId), targetId, deviceId);
     });
     return { targetId, boardId: targetList.boardId };
   }

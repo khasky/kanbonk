@@ -15,7 +15,7 @@ Open **⋯ → Import from Trello** and choose the files; several ZIP parts and 
 | More ZIP parts later | **Add files to imported board** | Missing files of a board imported earlier |
 | CSV | Board menu → Print, export and share → Export as CSV (Trello Premium) | Lists and cards with names, descriptions, labels, members, start and due dates |
 
-From JSON Kanbonk restores boards, lists, cards, descriptions, labels with all 30 Trello colors, members, start and due dates, checklists, comments and the `actions` log, card templates, covers, sticker metadata and attachment links. Closed Trello boards stay closed. Card creation times come from the timestamp inside the 24-hex Trello ID or from the `createCard` action and drive the calendar view.
+From JSON Kanbonk restores boards, lists, cards, descriptions, labels with all 30 Trello colors, members, start and due dates, checklists, comments and the `actions` log, card templates, covers, sticker metadata and attachment links. Boards, lists and cards closed in Trello are imported into the trash, where they can be restored for 30 days. Card creation times come from the timestamp inside the 24-hex Trello ID or from the `createCard` action and drive the calendar view.
 
 Links to Trello cards inside names, descriptions, checklist items and link attachments become links between the imported cards, across boards. Trello represents dependencies the same way, so they keep working.
 

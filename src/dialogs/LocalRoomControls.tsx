@@ -1,4 +1,4 @@
-import { newRoomCode } from "../lanSync";
+import { newRoomCode } from "../sync/lanSync";
 
 export function LocalRoomControls({
   serverUrl,

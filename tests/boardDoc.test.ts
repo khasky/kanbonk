@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import { cardRef, mentionedCardIds, projectSummary, withSummarySnapshot } from "../src/boardDoc";
-import { kanbonkCardForUrl, importedCardForUrl } from "../src/links";
+import { cardRef, mentionedCardIds, projectSummary, withSummarySnapshot } from "../src/model/boardDoc";
+import { kanbonkCardForUrl, importedCardForUrl } from "../src/model/links";
 import { emptyState, type AppState, type Card } from "../src/model";
 
 const card = (id: string, listId: string, extra: Partial<Card> = {}): Card => ({

@@ -1,7 +1,7 @@
 import { Modal } from "../ui/Modal";
-import type { SyncTransport } from "../devices";
+import type { SyncTransport } from "../sync/devices";
 import type { DeviceSync } from "../hooks/useDeviceSync";
-import { newRoomCode } from "../lanSync";
+import { newRoomCode } from "../sync/lanSync";
 import { LocalRoomControls } from "./LocalRoomControls";
 
 const pairingCode = /^[a-f0-9]{32}$/;

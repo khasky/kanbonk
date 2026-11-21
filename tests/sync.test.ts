@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { deleteLabel, emptyState, linkDependency, recordRevision, restoreRevision } from "../src/model";
-import { relatedCards } from "../src/links";
-import { chooseConflict, mergeStates } from "../src/sync";
+import { relatedCards } from "../src/model/links";
+import { chooseConflict, mergeStates } from "../src/sync/sync";
 
 const original = {
   id: "card-1",

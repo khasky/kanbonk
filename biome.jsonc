@@ -59,7 +59,7 @@
     },
     {
       // Compares ISO date strings; Math.max would turn them into NaN.
-      "includes": ["src/sync.ts"],
+      "includes": ["src/sync/sync.ts"],
       "linter": { "rules": { "complexity": { "useMathMinMax": "off" } } }
     }
   ],

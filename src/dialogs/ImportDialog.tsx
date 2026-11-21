@@ -1,6 +1,6 @@
 import { Modal } from "../ui/Modal";
 import { type Dispatch, type SetStateAction, useState } from "react";
-import { counted } from "../format";
+import { counted } from "../lib/format";
 import {
   addImportedBoardWithRevisions,
   parseTrelloBoard,
@@ -13,7 +13,7 @@ import { type AppState, recordRevision, recordRevisions } from "../model";
 import { downloadTrelloAttachment, downloadTrelloComments, trelloBridgeAvailable } from "../trello/bridge";
 import { parseTrelloCsv } from "../trello/formats";
 import { ElapsedTime } from "../ui/ElapsedTime";
-import { ensurePersonalWorkspace, personalWorkspaceId } from "../workspaces";
+import { ensurePersonalWorkspace, personalWorkspaceId } from "../model/workspaces";
 
 const isZip = (file: File) => file.name.toLowerCase().endsWith(".zip");
 
@@ -113,7 +113,7 @@ export function ImportDialog({
       next = ensurePersonalWorkspace(next, prepared.workspaceId, deviceId);
       return addImportedBoardWithRevisions(next, result, deviceId);
     });
-    if (!result.board.archived) onBoardImported(result.board.id);
+    if (!result.board.deletedAt) onBoardImported(result.board.id);
 
     const missingAttachments = warnings.filter((item) => item.startsWith("Could not download attachment"));
     const missingStickers = warnings.filter((item) => item.startsWith("Could not download sticker"));
@@ -129,7 +129,11 @@ export function ImportDialog({
         (item) => !item.startsWith("Attachments need") && !item.startsWith("Trello sticker images need"),
       ),
       unavailable,
-      result.board.archived ? "The board is closed in Trello; you can find it under “Closed boards”." : "",
+      result.board.deletedAt
+        ? "The board is closed in Trello, so it is in the trash; restore it there within 30 days."
+        : [...result.lists, ...result.cards].some((item) => item.deletedAt)
+          ? `Lists and cards closed in Trello are in the trash (${[...result.lists, ...result.cards].filter((item) => item.deletedAt).length}); restore them there within 30 days.`
+          : "",
     ];
     const imported = [
       counted(result.lists.length, "list", "lists"),

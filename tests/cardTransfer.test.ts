@@ -91,7 +91,7 @@ describe("card transfer", () => {
     expect(copied.cover?.attachmentId).toBe("file");
   });
 
-  it("creates a destination label when needed and rejects an archived target list", () => {
+  it("creates a destination label when needed and rejects a target list in the trash", () => {
     const source = fixture();
     source.labels = source.labels.slice(0, 1);
     const result = transferCard(source, "card", "to-list", false);
@@ -100,7 +100,7 @@ describe("card transfer", () => {
       name: "Important",
       color: "#f00",
     });
-    source.lists[1].archived = true;
+    source.lists[1].deletedAt = "2026-01-01T00:00:00.000Z";
     expect(() => transferCard(source, "card", "to-list", false)).toThrow("unavailable");
   });
 
@@ -118,7 +118,12 @@ describe("list copy", () => {
     const source = fixture();
     source.lists.push({ id: "following", boardId: "from", name: "Following", position: 2 });
     source.cards.push({ ...structuredClone(source.cards[0]), id: "second", name: "Second", position: 2 });
-    source.cards.push({ ...structuredClone(source.cards[0]), id: "archived", archived: true, position: 3 });
+    source.cards.push({
+      ...structuredClone(source.cards[0]),
+      id: "trashed",
+      deletedAt: "2026-01-01T00:00:00.000Z",
+      position: 3,
+    });
     const copied = copyList(source, "from-list", "copy-list");
     expect(source.lists).toHaveLength(3);
     expect(source.cards).toHaveLength(3);
@@ -139,20 +144,19 @@ describe("list copy", () => {
     expect(cards[0].sourceTrelloId).toBeUndefined();
   });
 
-  it("does not copy an archived list", () => {
+  it("does not copy a list in the trash", () => {
     const source = fixture();
-    source.lists[0].archived = true;
+    source.lists[0].deletedAt = "2026-01-01T00:00:00.000Z";
     expect(() => copyList(source, "from-list")).toThrow("cannot be copied");
   });
 });
 
 describe("card templates", () => {
-  it("creates a normal card from a hidden template without dates or comments", () => {
+  it("creates a normal card from a template without dates or comments", () => {
     const source = fixture();
     source.cards[0] = {
       ...source.cards[0],
       isTemplate: true,
-      archived: true,
       startAt: "2026-01-01",
       dueAt: "2026-02-01",
       dueReminderMinutes: 1440,
@@ -163,7 +167,6 @@ describe("card templates", () => {
       id: "new-card",
       name: "New task",
       isTemplate: false,
-      archived: false,
       description: "Text",
       labelIds: ["label-a"],
     });
@@ -206,9 +209,14 @@ describe("board copy", () => {
   it("copies active cards and templates with fresh IDs and local media references", () => {
     const source = fixture();
     source.workspaces = [{ id: "workspace", name: "Personal" }];
-    source.cards.push({ ...structuredClone(source.cards[0]), id: "archived", archived: true });
+    source.cards.push({ ...structuredClone(source.cards[0]), id: "trashed", deletedAt: "2026-01-01T00:00:00.000Z" });
     source.cards.push({ ...structuredClone(source.cards[0]), id: "template", isTemplate: true });
-    source.cards.push({ ...structuredClone(source.cards[0]), id: "hidden-template", isTemplate: true, archived: true });
+    source.cards.push({
+      ...structuredClone(source.cards[0]),
+      id: "trashed-template",
+      isTemplate: true,
+      deletedAt: "2026-01-01T00:00:00.000Z",
+    });
     const result = copyBoard(
       source,
       "from",
@@ -230,7 +238,7 @@ describe("board copy", () => {
       description: "Text",
       labelIds: [result.state.labels.at(-1)?.id],
     });
-    expect(cards.find((card) => !card.isTemplate)?.archived).toBeFalsy();
+    expect(cards.find((card) => !card.isTemplate)?.deletedAt).toBeUndefined();
     expect(cards[0].attachments[0].id).toBe("file");
     expect(cards[0].cover?.attachmentId).toBe("file");
     expect(cards[0].checklists[0].id).not.toBe("checklist");

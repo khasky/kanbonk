@@ -1,4 +1,4 @@
-import { trelloLabelColors } from "../labels";
+import { trelloLabelColors } from "./labelColors";
 import type { AppState, Board, BoardFilter, BoardList, Card, Label } from "./types";
 
 const cardTexts = new WeakMap<Card, string>();
@@ -23,9 +23,9 @@ export function cardText(card: Card): string {
 
 export function filterBoardCards(state: AppState, boardId: string, filter: BoardFilter, now = Date.now()): Card[] {
   const keyword = filter.keyword.trim().toLocaleLowerCase();
-  const archivedListIds = new Set(state.lists.filter((list) => list.archived).map((list) => list.id));
+  const trashedListIds = new Set(state.lists.filter((list) => list.deletedAt).map((list) => list.id));
   return state.cards.filter((card) => {
-    if (card.boardId !== boardId || card.archived || archivedListIds.has(card.listId)) return false;
+    if (card.boardId !== boardId || card.deletedAt || trashedListIds.has(card.listId)) return false;
     if (filter.labelId && !card.labelIds.includes(filter.labelId)) return false;
     if (filter.memberId && !(card.memberIds ?? []).includes(filter.memberId)) return false;
     if (filter.status === "complete" && !card.completed) return false;
@@ -139,13 +139,13 @@ function searchMatch(
 export function searchCards(state: AppState, query: string, now = Date.now()): Card[] {
   const tokens = searchTokens(query.trim());
   if (!tokens.length) return [];
-  const boards = new Map(state.boards.filter((board) => !board.archived).map((board) => [board.id, board]));
+  const boards = new Map(state.boards.filter((board) => !board.deletedAt).map((board) => [board.id, board]));
   const lists = new Map(state.lists.map((list) => [list.id, list]));
   const labels = new Map(state.labels.filter((label) => !label.deleted).map((label) => [label.id, label]));
   return state.cards.filter((card) => {
     const board = boards.get(card.boardId);
     const list = lists.get(card.listId);
-    if (card.archived || !board || list?.archived) return false;
+    if (card.deletedAt || !board || list?.deletedAt) return false;
     const cardLabels = card.labelIds.map((id) => labels.get(id)).filter((label): label is Label => Boolean(label));
     return tokens.every(
       ({ operator, value, negative }) => searchMatch(card, operator, value, board, list, cardLabels, now) !== negative,

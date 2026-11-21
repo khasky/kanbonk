@@ -1,5 +1,5 @@
 import type { AppState } from "../model";
-import { trashDaysLeft, trashEntries, trashRetentionDays, type TrashKind } from "../trash";
+import { trashDaysLeft, trashEntries, trashRetentionDays, type TrashKind } from "../model/trash";
 
 const kindNames: Record<TrashKind, string> = { workspace: "Workspaces", board: "Boards", list: "Lists", card: "Cards" };
 

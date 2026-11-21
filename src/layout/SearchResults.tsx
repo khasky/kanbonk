@@ -1,5 +1,5 @@
 import { useDeferredValue, useMemo } from "react";
-import { inboxBoardId, inboxWorkspaceId } from "../inbox";
+import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import { type AppState, type Card, searchCards } from "../model";
 
 /** Workspaces, boards and cards matching the global search. Card search is deferred so typing stays responsive. */
@@ -23,7 +23,7 @@ export function SearchResults({
     .filter((item) => item.id !== inboxWorkspaceId && item.name.toLocaleLowerCase().includes(needle))
     .slice(0, 10);
   const boards = state.boards
-    .filter((item) => item.id !== inboxBoardId && !item.archived && item.name.toLocaleLowerCase().includes(needle))
+    .filter((item) => item.id !== inboxBoardId && !item.deletedAt && item.name.toLocaleLowerCase().includes(needle))
     .slice(0, 20);
   return (
     <section className="search-results" aria-label="Search results">

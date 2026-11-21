@@ -4,13 +4,13 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 
 ```
 ┌────────────────────────── shared app (src/) ───────────────────────────┐
-│  React UI (App.tsx + layout/ board/ card/ dialogs/ panels/ pages/)      │
+│  React UI (app/ layout/ board/ card/ dialogs/ panels/ pages/ hooks/)   │
 │      │ setState(pure function)                                          │
 │      ▼                                                                  │
-│  Domain modules: model · trash · zones · calendar · dedupe · sync …     │
+│  Domain modules: model/ (trash · zones · calendar · dedupe …) · sync/   │
 │      │                                                                  │
 │      ▼                                                                  │
-│  storage.ts (IndexedDB)   lanSync.ts / devices.ts (sync)   platform.ts │
+│  lib/storage (IndexedDB)  sync/lanSync · sync/devices   lib/platform   │
 └──────┬──────────────────────────────┬──────────────────────────┬────────┘
        │                              │                          │
    web page / extension page     Wi-Fi relay, WebRTC,      Tauri plugins (desktop,
@@ -22,42 +22,28 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 - **Local-first.** The device's IndexedDB is the source of truth. Sync merges whole states between devices; nothing depends on a server.
 - **Pure domain logic.** Every change is a pure function `AppState → AppState` in a domain module. React components call these functions inside `setState`, and the same functions run in tests.
 - **Every change is versioned.** `recordRevision` stores a snapshot of the changed entity. Revisions power history, undo by restore and conflict detection during sync.
-- **One codebase for all platforms.** Only [`src/platform.ts`](../src/platform.ts) knows which shell the app runs in.
+- **One codebase for all platforms.** Only [`src/lib/platform.ts`](../src/lib/platform.ts) knows which shell the app runs in.
 
 ## Source layout
 
 | Module | Responsibility |
 |---|---|
-| `main.tsx`, `App.tsx` | Bootstrapping; `App` holds the state and decides which page, panel and dialog is shown; the changes themselves live in hooks |
+| `main.tsx` | Bootstrapping: mounts `app/App` |
+| `app/` | The app shell. `App.tsx` wires the hooks together and lays out the header, sidebar, panels and main area; `useAppState` loads and saves the data; `useOverlays` tracks open dialogs; `AppContext` shares data, navigation and actions with `MainContent` (the page switch) and `AppOverlays` (every dialog and panel); `useBoardView` derives the open board's lists, filter and cards; `StatusBanners`, `useClock`, `useNotice`, `useBoardBackground` |
 | `layout/` | The app frame: top bar with the app menu, global search results, sidebar, resizable side panel slot |
-| `board/` | The board view: toolbar and menu, filter, list column, card tile, calendar, zone frame, automation and activity panels |
-| `card/` | The card dialog and its sections: dates, description, checklists, labels, members, links, sharing, comments |
-| `dialogs/` | Modal dialogs: Trello import, backup, sync, create, copy board, clone card, delete, duplicates, author name |
-| `panels/` | Side panels: Inbox, Planner, reminders, archive, history, board description, closed boards |
+| `board/` | The board view (`BoardView`, `BoardCanvas`): toolbar and menu, filter, list column, card tile, calendar, zone frame, automation and activity panels, the board document (`DocView`) and AI panel |
+| `card/` | The card dialog and its sections: dates, description, checklists, labels, members, links, attachments and previews, sharing (`share.ts`: print, PNG, JSON, link, QR), comments; `CardActionsContext` gives them the card actions without props |
+| `dialogs/` | Modal dialogs: Trello import, backup, sync, settings, AI settings, create, copy board, clone card, delete, duplicates, author name |
+| `panels/` | Side panels: Inbox, Planner, reminders, history, board description |
 | `pages/` | Pages in the main area: home, workspace, trash, not-found |
-| `hooks/` | Logic that lives beside `App`: changes to cards (`useCardActions`), boards and lists (`useBoardActions`), the trash, device sync, panel layout, automatic backups |
-| `card/CardActionsContext.ts` | Gives the card dialog and its sections the card actions without passing them through props |
-| `ui/` | Shared building blocks: `Modal`, `SidePanel`, icons, inline name editor, elapsed time |
-| `format.ts`, `uiPreferences.ts`, `workspaces.ts` | Date and count formatting, UI preferences in localStorage, the personal workspace |
-| `router.ts` | History API router: routes, links, modal-over-page cards |
-| `platform.ts` | Platform detection, saving and sharing files, hash routing in the extension |
-| `model/` | Types (`types.ts`), short IDs, revisions, search and filters, card and list operations, dependencies, copying, media references; `model/index.ts` re-exports all of it |
-| `trash.ts` | Soft delete, restore chains, purge, tombstones, the visible state |
-| `zones.ts` | Grouping lists into zones, zone drag and drop |
-| `calendar.ts` | Calendar ranges, card placement, lane layout for multi-day cards |
-| `dedupe.ts` | Semantic duplicate detection and merging |
-| `sync.ts` | Merging two states by revision ancestry, conflicts |
-| `lanSync.ts` | Sync sessions over the LAN relay or WebRTC, the wire protocol, trust handshake |
-| `devices.ts` | Trusted devices, encrypted file bundles, the tab channel |
-| `storage.ts` | IndexedDB access: state, attachments, snapshots, settings; device ID |
-| `backup.ts`, `autoBackup.ts`, `SettingsDialog.tsx` | ZIP backups, state validation, automatic snapshots and scheduled full backups with their settings |
+| `hooks/` | Changes to cards (`useCardActions`), boards and lists (`useBoardActions`), the trash, device sync, panel layout, automatic backups |
+| `ui/` | Shared building blocks: `Modal`, `SidePanel`, `Menu`, icons, inline name editor, color input, card picker, Markdown editor and renderer |
+| `model/` | Pure domain logic. Types (`types.ts`), IDs, revisions, search and filters, card and list operations, dependencies, copying (re-exported by `model/index.ts`); `trash.ts` (soft delete, restore chains, purge, visible state), `zones.ts`, `calendar.ts`, `dedupe.ts`, `automation.ts`, `reminders.ts`, `repeatingDue.ts`, `inbox.ts`, `links.ts`, `activity.ts`, `labelColors.ts`, `boardDoc.ts`, `workspaces.ts`, `legacy.ts` (migrating older saved data) |
+| `sync/` | `sync.ts` merges two states by revision ancestry and finds conflicts; `lanSync.ts` runs sessions over the LAN relay or WebRTC; `devices.ts` keeps trusted devices, encrypted file bundles and the tab channel |
+| `backup/` | `backup.ts` builds and restores ZIP backups and validates states; `autoBackup.ts` schedules snapshots and full backups |
+| `lib/` | Infrastructure without domain logic: `storage.ts` (IndexedDB, device ID), `platform.ts` (platform detection, saving and sharing files), `router.ts` (History API router, modal-over-page cards), `format.ts`, `htmlToMarkdown.ts`, `uiPreferences.ts` |
+| `ai/` | AI providers (bring your own key), inbox triage and documents with citations |
 | `trello/import/`, `trello/formats.ts`, `trello/bridge.ts` | Trello JSON/ZIP import (parsing, ZIP reading, attachments), JSON/CSV export and CSV import, the Trello import extension client |
-| `automation.ts`, `reminders.ts`, `repeatingDue.ts` | Board rules, due reminders, repeating due dates |
-| `inbox.ts`, `links.ts`, `activity.ts`, `labels.ts` | Personal inbox, links between cards, activity feed, label colors |
-| `MarkdownEditor.tsx`, `htmlToMarkdown.ts`, `MarkdownText.tsx` | Visual Markdown editing and rendering |
-| `ColorInput.tsx`, `CardPicker.tsx`, `share.ts` | Color picker with presets, searchable card chooser, card print/PNG/JSON/link/QR |
-| `boardDoc.ts`, `DocView.tsx` | The board document: card links, backlinks, live project summary |
-| `ai.ts`, `AiPanel.tsx` | AI providers (bring your own key), inbox triage and documents with citations |
 | `mcp/tools/`, `mcp/agent.ts` | MCP tool schemas (`definitions.ts`) and their implementation (`run.ts`), the headless agent device; the Node entry is `mcp/kanbonk-mcp.mjs` |
 
 ## State flow
@@ -70,7 +56,7 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 
 ## Routing
 
-[`router.ts`](../src/router.ts) uses the History API.
+[`router.ts`](../src/lib/router.ts) uses the History API.
 
 | Path | Page |
 |---|---|
@@ -87,7 +73,7 @@ In the browser extension there is no server to answer deep links, so routes live
 
 ## Platform layer
 
-[`platform.ts`](../src/platform.ts) exports:
+[`platform.ts`](../src/lib/platform.ts) exports:
 
 - `platform`: `"web" | "extension" | "desktop" | "mobile"`.
 - `saveFile(blob, name)`: uses the Tauri dialog and fs plugins in native apps (the Android WebView ignores `<a download>`), otherwise a regular download.

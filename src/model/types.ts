@@ -8,7 +8,6 @@ export interface Trashable {
 export interface Workspace extends Trashable {
   id: string;
   name: string;
-  archived?: boolean;
   sourceTrelloId?: string;
 }
 
@@ -19,7 +18,7 @@ export interface AutomationRule {
   name?: string;
   createdAt?: string;
   leadMinutes?: number;
-  action: "complete" | "archive" | "add-label";
+  action: "complete" | "trash" | "add-label";
   labelId?: string;
 }
 
@@ -38,7 +37,6 @@ export interface Board extends Trashable {
   /** Project document twin of the board (Markdown); links `/c/<id>` point at cards. */
   doc?: string;
   starred: boolean;
-  archived?: boolean;
 }
 
 export interface Zone {
@@ -59,7 +57,6 @@ export interface BoardList extends Trashable {
   position: number;
   /** A list belongs to at most one zone of its board. */
   zoneId?: string;
-  archived?: boolean;
 }
 
 export interface Label {
@@ -133,7 +130,6 @@ export interface Card extends Trashable {
   attachments: Attachment[];
   stickers?: Array<string | ImageSticker>;
   cover?: { attachmentId?: string; color?: string; size: "normal" | "full" };
-  archived?: boolean;
   sourceTrelloId?: string;
   sourceTrelloShortLink?: string;
   isTemplate?: boolean;

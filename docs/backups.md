@@ -8,7 +8,7 @@ Kanbonk keeps three kinds of backups. All of them stay on the user's devices.
 | Automatic full backup | Every 6 hours, day or week, set in **⋯ → Settings** | Full ZIP backup with all files | The platform's default place or a folder the user chose |
 | Manual backup | **⋯ → Backup → Download backup** | Full ZIP backup with all files | Downloaded or saved through the system dialog |
 
-Implementation: [`src/autoBackup.ts`](../src/autoBackup.ts), [`src/backup.ts`](../src/backup.ts).
+Implementation: [`src/backup/autoBackup.ts`](../src/backup/autoBackup.ts), [`src/backup/backup.ts`](../src/backup/backup.ts).
 
 ## Automatic snapshots
 

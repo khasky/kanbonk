@@ -9,15 +9,15 @@ import {
   monthWeeks,
   parseDay,
   startOfWeek,
-} from "../src/calendar";
-import { boardHref, parseRoute, trashHref } from "../src/router";
+} from "../src/model/calendar";
+import { boardHref, parseRoute, trashHref } from "../src/lib/router";
 import { exportTrelloCsv, exportTrelloJson, parseCsv, parseTrelloCsv } from "../src/trello/formats";
 import { parseTrelloBoard } from "../src/trello/import";
-import { findDuplicates, mergeDuplicate, stems } from "../src/dedupe";
-import { htmlToMarkdown, type MdNode } from "../src/htmlToMarkdown";
-import { createSyncBundle, openSyncBundle, trustDevice } from "../src/devices";
-import { retainSnapshots } from "../src/autoBackup";
-import { visibleState } from "../src/trash";
+import { findDuplicates, mergeDuplicate, stems } from "../src/model/dedupe";
+import { htmlToMarkdown, type MdNode } from "../src/lib/htmlToMarkdown";
+import { createSyncBundle, openSyncBundle, trustDevice } from "../src/sync/devices";
+import { retainSnapshots } from "../src/backup/autoBackup";
+import { visibleState } from "../src/model/trash";
 
 const card = (id: string, extra: Partial<Card> = {}): Card => ({
   id,
@@ -137,7 +137,7 @@ function board(): AppState {
           },
         ],
       }),
-      card("c2", { listId: "l2", name: "Report", completed: true, archived: true }),
+      card("c2", { listId: "l2", name: "Report", completed: true }),
     ],
   };
 }
@@ -167,7 +167,8 @@ describe("Trello formats", () => {
     ]);
     expect(imported.labels).toMatchObject([{ name: "Important", color: "#f87168" }]);
     expect(imported.board.members?.map((member) => member.name)).toEqual(["Anna"]);
-    expect(imported.cards.find((item) => item.name === "Report")).toMatchObject({ archived: true, completed: true });
+    expect(imported.cards.find((item) => item.name === "Report")).toMatchObject({ completed: true });
+    expect(imported.cards.find((item) => item.name === "Report")?.deletedAt).toBeUndefined();
   });
 
   it("exports Trello CSV columns and imports them back", () => {
@@ -187,7 +188,8 @@ describe("Trello formats", () => {
       memberIds: [imported.board.members![0].id],
     });
     expect(imported.labels).toMatchObject([{ name: "Important", color: "#f87168" }]);
-    expect(imported.cards[1]).toMatchObject({ archived: true, completed: true });
+    expect(imported.cards[1]).toMatchObject({ completed: true });
+    expect(imported.cards[1].deletedAt).toBeUndefined();
   });
 });
 

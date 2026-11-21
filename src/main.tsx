@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
-import { migrateLegacyStorage } from "./legacy";
+import App from "./app/App";
+import { migrateLegacyStorage } from "./model/legacy";
 
 migrateLegacyStorage();
 

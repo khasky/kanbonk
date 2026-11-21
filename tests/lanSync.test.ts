@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { LanSync } from "../src/lanSync";
-import { loadAttachment, saveAttachment } from "../src/storage";
+import { LanSync } from "../src/sync/lanSync";
+import { loadAttachment, saveAttachment } from "../src/lib/storage";
 import { emptyState, markMediaLocal } from "../src/model";
 
-vi.mock("../src/storage", () => ({ loadAttachment: vi.fn(), saveAttachment: vi.fn() }));
+vi.mock("../src/lib/storage", () => ({ loadAttachment: vi.fn(), saveAttachment: vi.fn() }));
 
 interface Packet {
   type: string;

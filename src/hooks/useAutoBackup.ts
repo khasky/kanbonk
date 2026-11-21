@@ -7,10 +7,10 @@ import {
   loadAutoBackupSettings,
   skipAutoBackup,
   writeAutoBackup,
-} from "../autoBackup";
+} from "../backup/autoBackup";
 import type { AppState } from "../model";
-import { defaultBackupMayAsk } from "../platform";
-import { listSnapshots, type SnapshotMeta } from "../storage";
+import { defaultBackupMayAsk } from "../lib/platform";
+import { listSnapshots, type SnapshotMeta } from "../lib/storage";
 
 /**
  * Automatic backups: local snapshots every 10 minutes (and when the page is hidden) plus full ZIP backups on the

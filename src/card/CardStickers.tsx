@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Card } from "../model";
-import { loadAttachment } from "../storage";
+import { loadAttachment } from "../lib/storage";
 
 export function CardStickers({ card }: { card: Card }) {
   const imageIds = (card.stickers ?? []).flatMap((sticker) => (typeof sticker === "string" ? [] : [sticker.imageId]));

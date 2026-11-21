@@ -69,7 +69,7 @@ export function BoardCopyDialog({
         />
         Keep card templates
       </label>
-      <p>Comments, members and archived cards are not copied.</p>
+      <p>Comments, members and cards in the trash are not copied.</p>
       <div>
         <button type="button" onClick={onClose}>
           Cancel

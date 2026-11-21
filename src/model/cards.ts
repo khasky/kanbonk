@@ -4,15 +4,15 @@ import type { AppState, BoardList, Card } from "./types";
 export function isCardAvailable(state: AppState, card?: Card): boolean {
   return Boolean(
     card &&
-      !card.archived &&
-      state.boards.some((board) => board.id === card.boardId && !board.archived) &&
-      state.lists.some((list) => list.id === card.listId && !list.archived),
+      !card.deletedAt &&
+      state.boards.some((board) => board.id === card.boardId && !board.deletedAt) &&
+      state.lists.some((list) => list.id === card.listId && !list.deletedAt),
   );
 }
 
 export function positionBefore(cards: Card[], movingId: string, target: Card): number {
   const siblings = cards
-    .filter((card) => card.listId === target.listId && card.id !== movingId && !card.archived)
+    .filter((card) => card.listId === target.listId && card.id !== movingId && !card.deletedAt)
     .sort((a, b) => a.position - b.position);
   const targetIndex = siblings.findIndex((card) => card.id === target.id);
   if (targetIndex < 1) return target.position - 1;
@@ -20,11 +20,11 @@ export function positionBefore(cards: Card[], movingId: string, target: Card): n
 }
 
 export function reorderLists(lists: BoardList[], movingId: string, targetId: string, after = false): BoardList[] {
-  const moving = lists.find((list) => list.id === movingId && !list.archived);
-  const target = lists.find((list) => list.id === targetId && !list.archived);
+  const moving = lists.find((list) => list.id === movingId && !list.deletedAt);
+  const target = lists.find((list) => list.id === targetId && !list.deletedAt);
   if (!moving || !target || moving.id === target.id || moving.boardId !== target.boardId) return lists;
   const ordered = lists
-    .filter((list) => list.boardId === moving.boardId && !list.archived && list.id !== movingId)
+    .filter((list) => list.boardId === moving.boardId && !list.deletedAt && list.id !== movingId)
     .sort((a, b) => a.position - b.position);
   const targetIndex = ordered.findIndex((list) => list.id === targetId);
   ordered.splice(targetIndex + Number(after), 0, moving);
@@ -34,7 +34,7 @@ export function reorderLists(lists: BoardList[], movingId: string, targetId: str
 
 export function sortListCards(cards: Card[], listId: string, by: "name" | "due"): Card[] {
   const sorted = cards
-    .filter((card) => card.listId === listId && !card.archived)
+    .filter((card) => card.listId === listId && !card.deletedAt)
     .sort((a, b) =>
       by === "name"
         ? a.name.localeCompare(b.name)
@@ -51,9 +51,9 @@ export function transferCard(
   copy: boolean,
   copyId?: string,
 ): { state: AppState; cardId: string } {
-  const source = state.cards.find((card) => card.id === cardId && !card.archived);
-  const targetList = state.lists.find((list) => list.id === targetListId && !list.archived);
-  const targetBoard = state.boards.find((board) => board.id === targetList?.boardId && !board.archived);
+  const source = state.cards.find((card) => card.id === cardId && !card.deletedAt);
+  const targetList = state.lists.find((list) => list.id === targetListId && !list.deletedAt);
+  const targetBoard = state.boards.find((board) => board.id === targetList?.boardId && !board.deletedAt);
   if (!source || !targetList || !targetBoard) throw new Error("The card or target list is unavailable.");
 
   const crossBoard = source.boardId !== targetBoard.id;
@@ -92,7 +92,7 @@ export function transferCard(
     Math.max(
       0,
       ...state.cards
-        .filter((card) => card.listId === targetListId && (copy || card.id !== cardId) && !card.archived)
+        .filter((card) => card.listId === targetListId && (copy || card.id !== cardId) && !card.deletedAt)
         .map((card) => card.position),
     ) + 1;
   const transferred: Card = {
@@ -148,7 +148,7 @@ export function cloneCard(state: AppState, cardId: string, copyId = newId()): { 
   const next = copied.cards
     .filter(
       (card) =>
-        card.listId === source.listId && card.id !== copyId && !card.archived && card.position > source.position,
+        card.listId === source.listId && card.id !== copyId && !card.deletedAt && card.position > source.position,
     )
     .sort((a, b) => a.position - b.position)[0];
   const position = next ? (source.position + next.position) / 2 : source.position + 1;
@@ -173,7 +173,7 @@ export function createSubCard(
 ): AppState {
   const parent = state.cards.find((card) => card.id === parentId);
   if (!parent) throw new Error("Card not found.");
-  const siblings = state.cards.filter((card) => card.listId === parent.listId && !card.archived);
+  const siblings = state.cards.filter((card) => card.listId === parent.listId && !card.deletedAt);
   const after = Math.max(
     parent.position,
     ...siblings.filter((card) => card.parentCardId === parentId).map((card) => card.position),
@@ -213,7 +213,7 @@ export function parentCandidates(state: AppState, cardId: string): Card[] {
         grew = true;
       }
   }
-  return state.cards.filter((card) => !blocked.has(card.id) && !card.archived && !card.isTemplate);
+  return state.cards.filter((card) => !blocked.has(card.id) && !card.deletedAt && !card.isTemplate);
 }
 
 export function createCardFromTemplate(
@@ -224,13 +224,10 @@ export function createCardFromTemplate(
   copyId = newId(),
 ): { state: AppState; cardId: string } {
   const template = state.cards.find((card) => card.id === templateId && card.isTemplate);
-  const target = state.lists.find((list) => list.id === targetListId && !list.archived);
+  const target = state.lists.find((list) => list.id === targetListId && !list.deletedAt);
   if (!template || !target || template.boardId !== target.boardId)
     throw new Error("The template or target list is unavailable.");
-  const available = template.archived
-    ? { ...state, cards: state.cards.map((card) => (card.id === templateId ? { ...card, archived: false } : card)) }
-    : state;
-  const result = transferCard(available, templateId, targetListId, true, copyId);
+  const result = transferCard(state, templateId, targetListId, true, copyId);
   return {
     state: {
       ...result.state,
@@ -242,7 +239,6 @@ export function createCardFromTemplate(
                 ...card,
                 name: name.trim() || template.name,
                 isTemplate: false,
-                archived: false,
                 startAt: undefined,
                 dueAt: undefined,
                 dueReminderMinutes: undefined,
@@ -290,7 +286,7 @@ export function convertChecklistItem(
   )
     return state;
   const following = state.cards
-    .filter((card) => card.listId === source.listId && !card.archived && card.position > source.position)
+    .filter((card) => card.listId === source.listId && !card.deletedAt && card.position > source.position)
     .sort((a, b) => a.position - b.position)[0];
   const created: Card = {
     id: newCardId,

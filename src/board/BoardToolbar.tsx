@@ -1,5 +1,5 @@
 import type { Board } from "../model";
-import { type BoardView, boardHref, type CalendarScale } from "../router";
+import { type BoardView, boardHref, type CalendarScale } from "../lib/router";
 import { Icon } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
 import { BoardMenu, type BoardMenuActions } from "./BoardMenu";

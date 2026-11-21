@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { CardCover } from "../card/CardCover";
 import { CardStickers } from "../card/CardStickers";
-import { readableTextColor } from "../labels";
+import { readableTextColor } from "../model/labelColors";
 import type { Card, Label, Member } from "../model";
 import { Icon } from "../ui/Icon";
 

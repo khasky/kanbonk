@@ -1,10 +1,16 @@
-import { inboxBoardId, inboxWorkspaceId } from "../inbox";
+import { useState } from "react";
+import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import type { AppState } from "../model";
-import { trashHref } from "../router";
+import { trashHref } from "../lib/router";
 import { Icon } from "../ui/Icon";
-import type { PanelName } from "../uiPreferences";
+import type { PanelName } from "../lib/uiPreferences";
 
-/** Links to Inbox, Planner, Workspaces and Trash, then every workspace with its boards. */
+const collapsedKey = "kanbonk-sidebar-collapsed";
+
+/**
+ * Links to Inbox, Planner, Workspaces and Trash, then every workspace with its boards. It collapses to a strip of
+ * icons; the choice is remembered on this device.
+ */
 export function Sidebar({
   state,
   shownPanels,
@@ -30,9 +36,23 @@ export function Sidebar({
   onOpenBoard: (boardId: string) => void;
   navigate: (href: string) => void;
 }) {
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem(collapsedKey) === "true");
   const linkClass = (active: boolean) => (active ? "sidebar-link active" : "sidebar-link");
+  function toggle() {
+    localStorage.setItem(collapsedKey, String(!collapsed));
+    setCollapsed(!collapsed);
+  }
   return (
-    <aside className="sidebar">
+    <aside className={collapsed ? "sidebar collapsed" : "sidebar"}>
+      <button
+        className="sidebar-toggle"
+        onClick={toggle}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        aria-expanded={!collapsed}
+        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {collapsed ? "»" : "«"}
+      </button>
       <button className={linkClass(shownPanels.includes("inbox"))} onClick={() => onTogglePanel("inbox")}>
         ☰ <span>Inbox</span>
       </button>
@@ -52,7 +72,7 @@ export function Sidebar({
         </button>
       </div>
       {state.workspaces
-        .filter((item) => item.id !== inboxWorkspaceId && !item.archived)
+        .filter((item) => item.id !== inboxWorkspaceId && !item.deletedAt)
         .map((workspace) => (
           <div className="workspace-group" key={workspace.id}>
             <div className="workspace-name">
@@ -68,7 +88,7 @@ export function Sidebar({
               </button>
             </div>
             {state.boards
-              .filter((item) => item.workspaceId === workspace.id && item.id !== inboxBoardId && !item.archived)
+              .filter((item) => item.workspaceId === workspace.id && item.id !== inboxBoardId && !item.deletedAt)
               .map((item) => (
                 <button
                   key={item.id}

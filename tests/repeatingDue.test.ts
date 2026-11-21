@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyDueRecurrence, nextDueDate } from "../src/repeatingDue";
+import { applyDueRecurrence, nextDueDate } from "../src/model/repeatingDue";
 import type { Card } from "../src/model";
 
 const localDue = (year: number, month: number, day: number, hour = 9) =>

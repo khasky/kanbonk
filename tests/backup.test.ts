@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
-import { createBackupParts, restoreBackup } from "../src/backup";
+import { createBackupParts, restoreBackup } from "../src/backup/backup";
 import { deleteLabel, emptyState, linkDependency, recordRevision, type AppState } from "../src/model";
-import { relatedCards } from "../src/links";
-import { mergeStates } from "../src/sync";
-import { applyDueRules } from "../src/automation";
+import { relatedCards } from "../src/model/links";
+import { mergeStates } from "../src/sync/sync";
+import { applyDueRules } from "../src/model/automation";
 
 function example(): AppState {
   return {

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { calendarItems, dayKey, previewItem, rescheduleCard } from "../src/calendar";
+import { calendarItems, dayKey, previewItem, rescheduleCard } from "../src/model/calendar";
 import { emptyState, type Card } from "../src/model";
 
 const at = (y: number, m: number, d: number, h = 9) => new Date(y, m - 1, d, h).toISOString();

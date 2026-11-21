@@ -1,9 +1,10 @@
 import type { DeviceSync } from "../hooks/useDeviceSync";
-import { inboxBoardId } from "../inbox";
+import { inboxBoardId } from "../model/inbox";
 import type { AppState } from "../model";
-import { linkHref, trashHref } from "../router";
+import { linkHref, trashHref } from "../lib/router";
 import { Icon } from "../ui/Icon";
-import type { PanelName } from "../uiPreferences";
+import { Menu } from "../ui/Menu";
+import type { PanelName } from "../lib/uiPreferences";
 
 /** The value the mobile board picker uses for the Planner panel, which is not a board. */
 export const plannerViewId = "kanbonk-planner";
@@ -16,7 +17,6 @@ export type AppMenuActions = {
   onAi: () => void;
   onDedupe: () => void;
   onAuthor: () => void;
-  onClosedBoards: () => void;
 };
 
 export function AppHeader({
@@ -28,7 +28,6 @@ export function AppHeader({
   reminderCount,
   onOpenReminders,
   menu,
-  closedBoardCount,
   search,
   onSearch,
   trashActive,
@@ -45,7 +44,6 @@ export function AppHeader({
   reminderCount: number;
   onOpenReminders: () => void;
   menu: AppMenuActions;
-  closedBoardCount: number;
   search: string;
   onSearch: (search: string) => void;
   trashActive: boolean;
@@ -82,7 +80,7 @@ export function AppHeader({
         <option value={inboxBoardId}>Inbox</option>
         <option value={plannerViewId}>Planner</option>
         {state.boards
-          .filter((item) => item.id !== inboxBoardId && !item.archived)
+          .filter((item) => item.id !== inboxBoardId && !item.deletedAt)
           .map((item) => (
             <option key={item.id} value={item.id}>
               {state.workspaces.find((workspace) => workspace.id === item.workspaceId)?.name} / {item.name}
@@ -95,7 +93,7 @@ export function AppHeader({
       <button onClick={onOpenReminders} aria-label={`Reminders: ${reminderCount}`}>
         Reminders{reminderCount ? ` (${reminderCount})` : ""}
       </button>
-      <AppMenu actions={menu} closedBoardCount={closedBoardCount} navigate={navigate} />
+      <AppMenu actions={menu} navigate={navigate} />
       <label className="global-search">
         <Icon name="search" />
         <input
@@ -130,49 +128,18 @@ export function AppHeader({
   );
 }
 
-/** The "⋯" menu. It closes when focus leaves it, on Escape and after any of its buttons is pressed. */
-function AppMenu({
-  actions,
-  closedBoardCount,
-  navigate,
-}: {
-  actions: AppMenuActions;
-  closedBoardCount: number;
-  navigate: (href: string) => void;
-}) {
+/** The app's "⋯" menu. */
+function AppMenu({ actions, navigate }: { actions: AppMenuActions; navigate: (href: string) => void }) {
   return (
-    <details
-      className="topbar-more"
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "Escape") {
-          event.currentTarget.open = false;
-          event.currentTarget.querySelector("summary")?.focus();
-        }
-      }}
-    >
-      <summary aria-label="App menu" title="App menu">
-        ⋯
-      </summary>
-      <div
-        className="topbar-more-menu"
-        onClick={(event) => {
-          if ((event.target as HTMLElement).closest("button"))
-            (event.currentTarget.parentElement as HTMLDetailsElement).open = false;
-        }}
-      >
-        <button onClick={actions.onImport}>Import from Trello</button>
-        <button onClick={actions.onBackup}>Backup</button>
-        <button onClick={actions.onSettings}>Settings</button>
-        <button onClick={actions.onSync}>Sync</button>
-        <button onClick={actions.onAi}>AI assistant</button>
-        <button onClick={actions.onDedupe}>Duplicates across boards</button>
-        <button onClick={() => navigate(trashHref())}>Trash</button>
-        <button onClick={actions.onAuthor}>My name</button>
-        {closedBoardCount > 0 && <button onClick={actions.onClosedBoards}>Closed boards ({closedBoardCount})</button>}
-      </div>
-    </details>
+    <Menu label="App menu" className="topbar-more">
+      <button onClick={actions.onImport}>Import from Trello</button>
+      <button onClick={actions.onBackup}>Backup</button>
+      <button onClick={actions.onSettings}>Settings</button>
+      <button onClick={actions.onSync}>Sync</button>
+      <button onClick={actions.onAi}>AI assistant</button>
+      <button onClick={actions.onDedupe}>Duplicates across boards</button>
+      <button onClick={() => navigate(trashHref())}>Trash</button>
+      <button onClick={actions.onAuthor}>My name</button>
+    </Menu>
   );
 }

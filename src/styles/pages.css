@@ -131,8 +131,7 @@ button.sidebar-link {
 .empty-page a {
   color: #0c66e4;
 }
-.danger-button,
-.archive-action.danger {
+.danger-button {
   background: #ffeceb !important;
   color: #ae2e24 !important;
   border: 0;
@@ -618,6 +617,16 @@ button.sidebar-link {
   min-height: 0;
   align-items: flex-start;
 }
+.zone-empty {
+  width: 272px;
+  min-height: 96px;
+  display: grid;
+  place-items: center;
+  border: 2px dashed #ffffffb3;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+}
 .calendar-bar {
   position: relative;
   display: flex;
@@ -833,4 +842,77 @@ button.sidebar-link {
   display: flex;
   gap: 12px;
   align-items: center;
+}
+.attachment-preview-dialog {
+  width: min(1100px, 100%);
+  height: calc(100dvh - 96px);
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px #0005;
+  overflow: hidden;
+}
+.attachment-preview-dialog header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #dfe1e6;
+}
+.attachment-preview-dialog h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.attachment-preview-dialog header button:not(.plain-icon) {
+  border: 0;
+  background: #f1f2f4;
+  border-radius: 4px;
+  color: #172b4d;
+  padding: 6px 9px;
+}
+.attachment-preview-dialog header button:not(.plain-icon):hover {
+  background: #dfe1e6;
+}
+.attachment-preview-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+}
+.attachment-preview-body.preview-image,
+.attachment-preview-body.preview-video,
+.attachment-preview-body.preview-audio {
+  display: grid;
+  place-items: center;
+  background: #f7f8f9;
+}
+.attachment-preview-body img,
+.attachment-preview-body video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.attachment-preview-body.preview-pdf {
+  padding: 0;
+}
+.attachment-preview-body iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.attachment-preview-body pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font:
+    13px / 1.5 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  color: #172b4d;
 }

@@ -30,7 +30,6 @@ interface AppState {
 
 Workspaces, boards, lists and cards also carry:
 
-- `archived` — Trello-style "closed/archived": hidden from boards and search, restored from the archive views.
 - `deletedAt`, `deletedBatch` — the item is in the trash (see [trash-and-dependencies.md](trash-and-dependencies.md)).
 - `sourceTrelloId` — the original Trello ID for imported items.
 
@@ -38,7 +37,7 @@ Workspaces, boards, lists and cards also carry:
 
 ### Zones
 
-A zone groups adjacent lists of one board. Zones are stored as `Board.zones: { id, name, color }[]` and each list points to at most one zone with `BoardList.zoneId`. Keeping the reference on the list makes "a list belongs to one zone at most" a property of the data rather than a rule to enforce. `src/zones.ts` keeps each zone contiguous: a list that joins a zone moves to the end of the zone, and drag and drop assigns the zone of the list it lands on. Deleting a zone clears `zoneId` on its lists; the lists stay.
+A zone groups adjacent lists of one board. Zones are stored as `Board.zones: { id, name, color }[]` and each list points to at most one zone with `BoardList.zoneId`. Keeping the reference on the list makes "a list belongs to one zone at most" a property of the data rather than a rule to enforce. `src/model/zones.ts` keeps each zone contiguous: a list that joins a zone moves to the end of the zone, and drag and drop assigns the zone of the list it lands on. Deleting a zone clears `zoneId` on its lists; the lists stay.
 
 ### Card dependencies
 
@@ -47,7 +46,7 @@ A dependency is a pair of links:
 - the **dependent** card gets an item in its `Dependencies` checklist (created when missing) with `linkedCardId` = the prerequisite card;
 - the **prerequisite** card gets an attachment of status `link` with `linkedCardId` = the dependent card.
 
-`linkDependency` and `unlinkDependency` in `model.ts` keep both sides consistent. This mirrors [how Trello represents dependencies](https://support.atlassian.com/trello/docs/creating-and-managing-task-dependencies/), so dependencies survive a Trello round trip.
+`linkDependency` and `unlinkDependency` in `model/dependencies.ts` keep both sides consistent. This mirrors [how Trello represents dependencies](https://support.atlassian.com/trello/docs/creating-and-managing-task-dependencies/), so dependencies survive a Trello round trip.
 
 ### Attachments and media
 
@@ -73,7 +72,7 @@ Revision IDs use 12 characters. Older data with UUIDs keeps working: IDs are opa
 
 ## Storage
 
-The project was previously called Listva, and data written under that name is migrated by [`src/legacy.ts`](../src/legacy.ts) and [`src/storage.ts`](../src/storage.ts): on start the IndexedDB database `listva` is copied into `kanbonk` and deleted, and `localStorage` keys `listva-*` move to `kanbonk-*`. The inbox and personal workspace IDs `listva-*` are renamed to `kanbonk-*` everywhere they are referenced (entities, revisions, heads, tombstones) when the state is loaded and in every incoming state, so backups, sync bundles (header `LISTVA-SYNC-1`, key prefix `listva-key:`) and Trello helper exports (`listva*` fields) made before the rename are still read. Live sync uses the new room and key prefixes, so a device has to run the renamed version to pair. The desktop app's identifier changed from `app.listva.local` to `com.khasky.kanbonk`; on Windows the first start copies the old WebView profile ([`src-tauri/src/lib.rs`](../src-tauri/src/lib.rs)). On Android the new identifier is a separate app: move data with a backup or sync.
+The project was previously called Listva, and data written under that name is migrated by [`src/model/legacy.ts`](../src/model/legacy.ts) and [`src/lib/storage.ts`](../src/lib/storage.ts): on start the IndexedDB database `listva` is copied into `kanbonk` and deleted, and `localStorage` keys `listva-*` move to `kanbonk-*`. The inbox and personal workspace IDs `listva-*` are renamed to `kanbonk-*` everywhere they are referenced (entities, revisions, heads, tombstones) when the state is loaded and in every incoming state, so backups, sync bundles (header `LISTVA-SYNC-1`, key prefix `listva-key:`) and Trello helper exports (`listva*` fields) made before the rename are still read. Live sync uses the new room and key prefixes, so a device has to run the renamed version to pair. The desktop app's identifier changed from `app.listva.local` to `com.khasky.kanbonk`; on Windows the first start copies the old WebView profile ([`src-tauri/src/lib.rs`](../src-tauri/src/lib.rs)). On Android the new identifier is a separate app: move data with a backup or sync.
 
 | Where | What |
 |---|---|
@@ -88,6 +87,6 @@ Each origin has its own storage: the web app on `localhost:1420`, the web app on
 ## Changing the model
 
 - Add new fields as **optional** so that older states, backups, sync peers and file bundles stay valid.
-- Extend `validState` in [`backup.ts`](../src/backup.ts) for the new field; it guards backup restores, sync packets and file bundles against malformed data.
+- Extend `validState` in [`backup.ts`](../src/backup/backup.ts) for the new field; it guards backup restores, sync packets and file bundles against malformed data.
 - Copy or remap the field in `copyBoard`/`copyList` and `transferCard` if it references other entities.
 - Add a test in `tests/` covering creation, sync (`mergeStates`) and `validState`.

@@ -116,6 +116,33 @@ select:focus-visible {
   padding: 18px 10px;
   overflow: auto;
 }
+.sidebar-toggle {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -8px 0 6px auto;
+  border-radius: 4px;
+  color: #44546f;
+  font-size: 18px;
+  line-height: 1;
+}
+.sidebar.collapsed {
+  width: 52px;
+  padding: 14px 4px;
+}
+.sidebar.collapsed .sidebar-toggle {
+  margin: 0 auto 8px;
+}
+.sidebar.collapsed .sidebar-link span,
+.sidebar.collapsed .sidebar-heading,
+.sidebar.collapsed .workspace-name button,
+.sidebar.collapsed .board-link {
+  display: none;
+}
+.sidebar.collapsed .workspace-name {
+  justify-content: center;
+}
 .sidebar-link {
   border-radius: 4px;
   padding: 9px 10px;
@@ -409,6 +436,10 @@ select:focus-visible {
   background: #ffffff42;
   border-radius: 12px;
   padding: 6px;
+}
+.add-list-column {
+  display: grid;
+  gap: 4px;
 }
 .add-list-column > button {
   margin: 0;
@@ -742,15 +773,15 @@ select:focus-visible {
   color: #626f86;
   margin-top: 3px;
 }
-.archive-action {
+.trash-action {
   border: 0;
-  background: #f1f2f4;
+  background: #ffeceb;
   border-radius: 4px;
   padding: 9px 12px;
   display: flex;
   gap: 8px;
   align-items: center;
-  color: #44546f;
+  color: #ae2e24;
 }
 .activity-panel {
   background: #f7f8f9;
@@ -884,6 +915,7 @@ select:focus-visible {
     width: 52px;
     padding: 14px 4px;
   }
+  .sidebar-toggle,
   .sidebar-link span,
   .sidebar-heading,
   .workspace-name strong,
@@ -907,7 +939,8 @@ select:focus-visible {
     padding: 0;
   }
   .card-dialog,
-  .side-panel {
+  .side-panel,
+  .attachment-preview-dialog {
     width: 100%;
     max-height: 100dvh;
     height: 100dvh;
@@ -1196,16 +1229,8 @@ select:focus-visible {
     margin-left: 0;
   }
 }
-.background-upload {
-  cursor: pointer;
-}
-.background-upload input {
+.menu-item input[type="file"] {
   display: none;
-}
-@media (max-width: 800px) {
-  .background-upload {
-    font-size: 11px;
-  }
 }
 .search-results {
   position: fixed;
@@ -1395,17 +1420,18 @@ select:focus-visible {
   color: #172b4d;
 }
 
-.list-sort {
+.list-menu > summary {
   width: 32px;
-  flex: none;
-  border: 0;
-  background: transparent;
-  color: #44546f;
+  height: 32px;
+  display: grid;
+  place-items: center;
   border-radius: 4px;
-  padding: 5px 2px;
-  cursor: pointer;
+  color: #44546f;
+  font-size: 20px;
+  line-height: 1;
 }
-.list-sort:hover {
+.list-menu > summary:hover,
+.list-menu[open] > summary {
   background: #dfe1e6;
 }
 
@@ -1639,7 +1665,7 @@ select:focus-visible {
   .board-toolbar button[title] {
     font-size: 14px;
   }
-  .list-sort {
+  .list-menu > summary {
     min-width: 44px;
     min-height: 44px;
   }
@@ -2196,33 +2222,30 @@ select:focus-visible {
   flex: 1;
   min-width: 0;
 }
-.board-more {
+/* Dropdown menus (ui/Menu.tsx): the popover and its items look the same everywhere. */
+.menu {
   position: relative;
   flex: none;
-  z-index: 20;
 }
-.board-more summary {
+.menu > summary {
   list-style: none;
-  justify-content: center;
-  min-width: 40px;
-  font-size: 22px;
-  line-height: 1;
-  padding: 4px 8px;
+  cursor: pointer;
 }
-.board-more summary::-webkit-details-marker {
+.menu > summary::-webkit-details-marker {
   display: none;
 }
-.board-more summary:focus-visible {
+.menu > summary:focus-visible {
   outline: 2px solid #0c66e4;
   outline-offset: 2px;
 }
-.board-more[open] summary {
-  background: #ffffff45;
+.menu[open] {
+  z-index: 40;
 }
-.board-more-menu {
+.menu-popover {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
+  z-index: 40;
   width: min(240px, calc(100vw - 24px));
   max-height: calc(100dvh - 120px);
   overflow-y: auto;
@@ -2234,9 +2257,11 @@ select:focus-visible {
   border-radius: 8px;
   box-shadow: 0 8px 24px #091e4240;
   padding: 6px;
+  font-size: 14px;
+  font-weight: 400;
 }
-.board-more-menu button,
-.board-more-menu .background-upload {
+.menu-popover > button,
+.menu-popover > .menu-item {
   display: block;
   width: 100%;
   border: 0;
@@ -2247,16 +2272,47 @@ select:focus-visible {
   padding: 9px 10px;
   cursor: pointer;
 }
-.board-more-menu button:hover,
-.board-more-menu .background-upload:hover {
+.menu-popover > button:hover,
+.menu-popover > .menu-item:hover {
   background: #e9f2ff;
 }
-.board-color-option {
+.menu-popover > button.danger {
+  color: #ae2e24;
+}
+.menu-popover > button.danger:hover {
+  background: #ffeceb;
+}
+.menu-popover > hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid #dfe1e6;
+  margin: 3px 0;
+}
+.board-more {
+  z-index: 20;
+}
+.board-more summary {
+  list-style: none;
+  justify-content: center;
+  min-width: 40px;
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px 8px;
+}
+.board-more[open] summary {
+  background: #ffffff45;
+}
+.menu-popover > .board-color-option {
   display: grid;
   gap: 6px;
   border-top: 1px solid #dfe1e6;
+  border-radius: 0;
   padding: 10px;
   margin-top: 3px;
+  cursor: default;
+}
+.menu-popover > .board-color-option:hover {
+  background: transparent;
 }
 .board-color-option select {
   width: 100%;
@@ -2277,12 +2333,9 @@ select:focus-visible {
   }
 }
 .topbar-more {
-  position: relative;
   z-index: 30;
-  flex: none;
 }
 .topbar-more summary {
-  list-style: none;
   display: grid;
   place-items: center;
   width: 34px;
@@ -2292,41 +2345,22 @@ select:focus-visible {
   color: #fff;
   font-size: 22px;
   line-height: 1;
-  cursor: pointer;
-}
-.topbar-more summary::-webkit-details-marker {
-  display: none;
 }
 .topbar-more summary:focus-visible {
-  outline: 2px solid #579dff;
-  outline-offset: 2px;
+  outline-color: #579dff;
 }
 .topbar-more[open] summary,
 .topbar-more summary:hover {
   background: #626f86;
 }
-.topbar-more-menu {
-  position: absolute;
+.topbar .menu-popover {
   top: calc(100% + 8px);
-  right: 0;
-  display: grid;
-  gap: 2px;
-  width: min(230px, calc(100vw - 24px));
-  background: #fff;
-  border: 1px solid #dfe1e6;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px #091e4240;
-  padding: 6px;
 }
-.topbar .topbar-more-menu button {
-  display: block;
-  width: 100%;
+.topbar .menu-popover > button {
   background: transparent;
   color: #172b4d;
-  text-align: left;
-  padding: 9px 10px;
 }
-.topbar .topbar-more-menu button:hover {
+.topbar .menu-popover > button:hover {
   background: #e9f2ff;
 }
 @media (max-width: 550px) {
@@ -2523,10 +2557,6 @@ select:focus-visible {
   background: #fff;
   color: #172b4d;
   outline: 2px solid #0c66e4;
-}
-.card-tile {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 64px;
 }
 .card-stack-more {
   padding: 6px 0;

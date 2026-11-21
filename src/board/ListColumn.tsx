@@ -1,5 +1,6 @@
-import type { BoardList, Card, Label, Member, Zone } from "../model";
+import type { BoardList, Card, Label, Member } from "../model";
 import { Icon } from "../ui/Icon";
+import { Menu } from "../ui/Menu";
 import { NameEditor } from "../ui/NameEditor";
 import { CardTile, type TileActions } from "./CardTile";
 import { ListCards } from "./ListCards";
@@ -8,9 +9,7 @@ import { TemplateComposer } from "./TemplateComposer";
 /** What a list column can ask the board to do; every handler gets the list's id. */
 export interface ListActions {
   rename: (listId: string, name: string) => void;
-  /** A value from the list actions menu: "name", "due", "move-left", "move-right", "copy", "delete" or "zone:<id>". */
-  run: (listId: string, action: string) => void;
-  archive: (listId: string) => void;
+  run: (listId: string, action: "name" | "due" | "move-left" | "move-right" | "copy" | "delete") => void;
   dropZone: (zoneId: string, listId: string, after: boolean) => void;
   dropList: (movingListId: string, listId: string, after: boolean) => void;
   dropCard: (cardId: string, listId: string) => void;
@@ -23,7 +22,6 @@ export interface ListActions {
 /** One list on the board: header with its menu, the cards, the new-card composer and templates. */
 export function ListColumn({
   list,
-  zones,
   cards,
   labels,
   members,
@@ -36,8 +34,6 @@ export function ListColumn({
   actions,
 }: {
   list: BoardList;
-  /** The board's zones, offered as targets in the list menu. */
-  zones: Zone[];
   cards: Card[];
   labels: Map<string, Label>;
   members?: Member[];
@@ -86,59 +82,31 @@ export function ListColumn({
           label={`List title ${list.name}`}
           onCommit={(name) => actions.rename(list.id, name)}
         />
-        <select
-          className="list-sort"
-          aria-label={`List actions ${list.name}`}
-          title="List actions"
-          defaultValue=""
-          onChange={(event) => {
-            actions.run(list.id, event.target.value);
-            event.target.value = "";
-          }}
-        >
-          <option value="">⋯</option>
-          <option value="name">Sort by title</option>
-          <option value="due">Sort by due date</option>
-          <option value="move-left">Move left</option>
-          <option value="move-right">Move right</option>
-          <option value="copy">Copy list</option>
-          <optgroup label="Zone">
-            {list.zoneId && <option value="zone:none">Remove from zone</option>}
-            {zones
-              .filter((zone) => zone.id !== list.zoneId)
-              .map((zone) => (
-                <option key={zone.id} value={`zone:${zone.id}`}>
-                  To zone “{zone.name}”
-                </option>
-              ))}
-            <option value="zone:new">New zone…</option>
-          </optgroup>
-          <option value="delete">Move list to trash</option>
-        </select>
-        <button
-          onClick={() => {
-            if (confirm(`Archive list “${list.name}”?`)) actions.archive(list.id);
-          }}
-          aria-label={`Archive list ${list.name}`}
-        >
-          <Icon name="archive" />
-        </button>
+        <Menu label={`List actions ${list.name}`} className="list-menu">
+          <button onClick={() => actions.run(list.id, "name")}>Sort by title</button>
+          <button onClick={() => actions.run(list.id, "due")}>Sort by due date</button>
+          <button onClick={() => actions.run(list.id, "move-left")}>Move left</button>
+          <button onClick={() => actions.run(list.id, "move-right")}>Move right</button>
+          <button onClick={() => actions.run(list.id, "copy")}>Copy list</button>
+          <hr />
+          <button className="danger" onClick={() => actions.run(list.id, "delete")}>
+            Move list to trash
+          </button>
+        </Menu>
       </div>
-      <div className="card-stack">
-        <ListCards
-          cards={cards}
-          render={(item) => (
-            <CardTile
-              key={item.id}
-              card={item}
-              labels={labels}
-              members={members}
-              parentName={item.parentCardId ? cardById.get(item.parentCardId)?.name : undefined}
-              actions={tileActions}
-            />
-          )}
-        />
-      </div>
+      <ListCards
+        cards={cards}
+        render={(item) => (
+          <CardTile
+            key={item.id}
+            card={item}
+            labels={labels}
+            members={members}
+            parentName={item.parentCardId ? cardById.get(item.parentCardId)?.name : undefined}
+            actions={tileActions}
+          />
+        )}
+      />
       {composing ? (
         <div className="compose">
           <textarea

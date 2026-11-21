@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Card } from "../model";
-import { loadAttachment } from "../storage";
+import { loadAttachment } from "../lib/storage";
 
 export function CardCover({ card }: { card: Card }) {
   const attachment = card.attachments.find(

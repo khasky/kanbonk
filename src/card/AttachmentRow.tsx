@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import type { Card } from "../model";
-import { loadAttachment } from "../storage";
+import { platform } from "../lib/platform";
+import { loadAttachment } from "../lib/storage";
+import { AttachmentPreview } from "./AttachmentPreview";
+import { previewKind } from "./previewKinds";
 
 export function AttachmentRow({
   attachment,
@@ -16,6 +19,10 @@ export function AttachmentRow({
   onRemove: () => void;
 }) {
   const [localUrl, setLocalUrl] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  // Android WebViews have no PDF viewer, so PDFs are only downloaded there.
+  const preview = attachment.status === "local" ? previewKind(attachment.name, attachment.mimeType) : undefined;
+  const canPreview = preview && !(preview === "pdf" && platform === "mobile");
   useEffect(() => {
     if (attachment.status !== "local" || !/^(image|video|audio)\//.test(attachment.mimeType)) return;
     let url = "";
@@ -41,7 +48,7 @@ export function AttachmentRow({
     </button>
   );
   if (attachment.status === "link") {
-    if (linkedCard && !linkedCard.archived)
+    if (linkedCard && !linkedCard.deletedAt)
       action = <button onClick={() => onNavigateCard(linkedCard)}>Open card</button>;
     else if (attachment.linkedCardId) action = <small>Card unavailable</small>;
     else if (/^https?:\/\//.test(attachment.sourceUrl ?? ""))
@@ -63,6 +70,11 @@ export function AttachmentRow({
               : `${Math.round(attachment.size / 1024)} KB ${attachment.status === "missing" ? "· file missing" : ""}`}
           </small>
         </span>
+        {canPreview && (
+          <button onClick={() => setPreviewOpen(true)} aria-label={`Preview ${attachment.name}`}>
+            Preview
+          </button>
+        )}
         {action}
         <button onClick={onRemove} aria-label={`Delete attachment ${attachment.name}`}>
           Delete
@@ -74,6 +86,14 @@ export function AttachmentRow({
       )}
       {localUrl && kind === "audio" && (
         <audio className="attachment-audio" src={localUrl} controls preload="metadata" />
+      )}
+      {previewOpen && preview && (
+        <AttachmentPreview
+          attachment={attachment}
+          kind={preview}
+          onDownload={() => onDownload(attachment.id, attachment.name)}
+          onClose={() => setPreviewOpen(false)}
+        />
       )}
     </div>
   );

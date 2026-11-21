@@ -8,7 +8,7 @@ import {
   type TrashImpact,
   type TrashKind,
   trashImpact,
-} from "../trash";
+} from "../model/trash";
 
 export interface PendingDelete {
   kind: TrashKind;
@@ -84,3 +84,4 @@ export function useTrash({
 
   return { pendingDelete, requestDelete, confirmDelete, cancelDelete, restore, purge, empty };
 }
+export type Trash = ReturnType<typeof useTrash>;

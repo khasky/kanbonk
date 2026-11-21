@@ -1,5 +1,5 @@
 import type { AppState } from "../model";
-import { inboxWorkspaceId } from "../inbox";
+import { inboxWorkspaceId } from "../model/inbox";
 
 export function HomePage({
   state,
@@ -10,14 +10,14 @@ export function HomePage({
   onOpen: (id: string) => void;
   onCreate: () => void;
 }) {
-  const workspaces = state.workspaces.filter((item) => item.id !== inboxWorkspaceId && !item.archived);
+  const workspaces = state.workspaces.filter((item) => item.id !== inboxWorkspaceId && !item.deletedAt);
   return (
     <section className="page home-page" aria-label="Workspaces">
       <h1>Workspaces</h1>
       {workspaces.length ? (
         <div className="tile-grid">
           {workspaces.map((workspace) => {
-            const boards = state.boards.filter((board) => board.workspaceId === workspace.id && !board.archived);
+            const boards = state.boards.filter((board) => board.workspaceId === workspace.id && !board.deletedAt);
             return (
               <button key={workspace.id} className="tile workspace-tile" onClick={() => onOpen(workspace.id)}>
                 <span className="workspace-avatar">{workspace.name.slice(0, 1).toUpperCase()}</span>

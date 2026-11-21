@@ -159,7 +159,7 @@ it("places a dragged card before the target in the same or another list", () => 
   expect(positionBefore(cards, "a", cards[3])).toBe(9);
 });
 
-it("sorts a whole list by name or due date without moving archived or other-list cards", () => {
+it("sorts a whole list by name or due date without moving trashed or other-list cards", () => {
   const card = (id: string, name: string, position: number, dueAt?: string): Card => ({
     id,
     boardId: "board",
@@ -178,20 +178,20 @@ it("sorts a whole list by name or due date without moving archived or other-list
     card("z", "Zebra", 1, "2026-12-02"),
     card("a", "Alpha", 2),
     card("b", "Beta", 3, "2026-12-01"),
-    { ...card("hidden", "A", 4), archived: true },
+    { ...card("hidden", "A", 4), deletedAt: "2026-01-01T00:00:00.000Z" },
     { ...card("other", "A", 12), listId: "second" },
   ];
   const byName = sortListCards(cards, "first", "name");
   expect(
     byName
-      .filter((item) => item.listId === "first" && !item.archived)
+      .filter((item) => item.listId === "first" && !item.deletedAt)
       .sort((a, b) => a.position - b.position)
       .map((item) => item.id),
   ).toEqual(["a", "b", "z"]);
   const byDue = sortListCards(cards, "first", "due");
   expect(
     byDue
-      .filter((item) => item.listId === "first" && !item.archived)
+      .filter((item) => item.listId === "first" && !item.deletedAt)
       .sort((a, b) => a.position - b.position)
       .map((item) => item.id),
   ).toEqual(["b", "z", "a"]);
@@ -204,13 +204,13 @@ it("reorders active lists only within their board", () => {
     { id: "first", boardId: "board", name: "First", position: 1 },
     { id: "second", boardId: "board", name: "Second", position: 2 },
     { id: "third", boardId: "board", name: "Third", position: 3 },
-    { id: "hidden", boardId: "board", name: "Hidden", position: 4, archived: true },
+    { id: "hidden", boardId: "board", name: "Hidden", position: 4, deletedAt: "2026-01-01T00:00:00.000Z" },
     { id: "other", boardId: "other-board", name: "Other", position: 1 },
   ];
   const moved = reorderLists(lists, "first", "second", true);
   expect(
     moved
-      .filter((item) => item.boardId === "board" && !item.archived)
+      .filter((item) => item.boardId === "board" && !item.deletedAt)
       .sort((a, b) => a.position - b.position)
       .map((item) => item.id),
   ).toEqual(["second", "first", "third"]);
@@ -218,7 +218,7 @@ it("reorders active lists only within their board", () => {
   expect(reorderLists(lists, "first", "other")).toBe(lists);
 });
 
-it("searches across boards and card details while excluding archived cards", () => {
+it("searches across boards and card details while excluding trashed cards", () => {
   const card = (id: string, boardId: string): Card => ({
     id,
     boardId,
@@ -241,7 +241,7 @@ it("searches across boards and card details while excluding archived cards", () 
     ...card("second", "board-b"),
     checklists: [{ id: "checklist", name: "Stages", items: [{ id: "item", name: "Shared project", checked: false }] }],
   };
-  const archived = { ...card("third", "board-b"), name: "Shared project", archived: true };
+  const trashed = { ...card("third", "board-b"), name: "Shared project", deletedAt: "2026-01-01T00:00:00.000Z" };
   const boards = ["board-a", "board-b"].map((id) => ({
     id,
     workspaceId: "workspace",
@@ -253,7 +253,7 @@ it("searches across boards and card details while excluding archived cards", () 
   const state = {
     ...emptyState(),
     boards,
-    cards: [first, second, archived],
+    cards: [first, second, trashed],
     labels: [{ id: "label", boardId: "board-a", name: "Important", color: "#f00" }],
   };
   expect(searchCards(state, "shared PROJECT").map((item) => item.id)).toEqual(["first", "second"]);
@@ -380,7 +380,7 @@ it("filters upcoming, overdue and completed due dates", () => {
   expect(searchCards(state, "due:complete", now).map((item) => item.id)).toEqual(["done"]);
 });
 
-it("hides cards of archived lists from board filters and global search", () => {
+it("hides cards of trashed lists from board filters and global search", () => {
   const card = (id: string, listId: string): Card => ({
     id,
     boardId: "board",
@@ -401,9 +401,9 @@ it("hides cards of archived lists from board filters and global search", () => {
     ],
     lists: [
       { id: "active", boardId: "board", name: "Active", position: 1 },
-      { id: "archived", boardId: "board", name: "Archive", position: 2, archived: true },
+      { id: "trashed", boardId: "board", name: "Old", position: 2, deletedAt: "2026-01-01T00:00:00.000Z" },
     ],
-    cards: [card("visible", "active"), card("hidden", "archived")],
+    cards: [card("visible", "active"), card("hidden", "trashed")],
   };
   expect(searchCards(state, "Shared request").map((item) => item.id)).toEqual(["visible"]);
   expect(filterBoardCards(state, "board", emptyBoardFilter()).map((item) => item.id)).toEqual(["visible"]);
@@ -436,7 +436,7 @@ it("filters cards inside one board by text, label, status and due date", () => {
       { ...card("late", "board-a"), dueAt: "2025-12-31T00:00:00.000Z" },
       { ...card("done", "board-a"), completed: true, dueAt: "2025-12-31T00:00:00.000Z" },
       { ...card("other", "board-b"), labelIds: ["red"], dueAt: "2026-01-03T00:00:00.000Z" },
-      { ...card("hidden", "board-a"), archived: true },
+      { ...card("hidden", "board-a"), deletedAt: "2026-01-01T00:00:00.000Z" },
     ],
   };
   const now = Date.parse("2026-01-01T00:00:00.000Z");

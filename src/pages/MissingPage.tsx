@@ -1,4 +1,4 @@
-import { linkHref } from "../router";
+import { linkHref } from "../lib/router";
 
 export function MissingPage({ what }: { what: string }) {
   return (

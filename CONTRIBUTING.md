@@ -5,7 +5,7 @@ Thanks for helping. This guide covers how to set up the project, what a good cha
 ## Ground rules
 
 - Kanbonk is **local-first**: no accounts, no cloud storage and no Kanbonk-operated servers. Changes that send user data to a third party will not be accepted.
-- One codebase serves every platform. Keep platform checks inside [`src/platform.ts`](src/platform.ts); the rest of `src/` must work the same on web, extension, desktop and mobile.
+- One codebase serves every platform. Keep platform checks inside [`src/lib/platform.ts`](src/lib/platform.ts); the rest of `src/` must work the same on web, extension, desktop and mobile.
 - Data on users' devices must survive upgrades. Changes to the persisted state, the sync protocol or the backup format need a migration or must stay backward compatible (see [docs/data-model.md](docs/data-model.md)).
 - Please open an issue before starting a large feature or a new dependency, so we can agree on the approach first.
 
@@ -40,7 +40,7 @@ Native builds (Windows, Android) and the browser extension are described in [doc
 ## Making a change
 
 1. Fork the repository and create a branch from `main`, named after the commit type it carries: `feat/…`, `fix/…`, `docs/…`, `refactor/…`, `perf/…`, `ci/…`, `chore/…`. One branch, one change.
-2. Keep domain logic in pure functions in its own module (`src/zones.ts` and `src/trash.ts` are good examples) and cover it with a test in `tests/`.
+2. Keep domain logic in pure functions in its own module (`src/model/zones.ts` and `src/model/trash.ts` are good examples) and cover it with a test in `tests/`.
 3. Run `pnpm lint`, `pnpm test`, `pnpm test:e2e` and `pnpm build`. All must pass; CI runs the same checks on every pull request.
 4. If your change affects behavior across devices, check it with two browser profiles syncing over `pnpm serve:lan` (see [docs/testing.md](docs/testing.md)).
 5. Update the documentation in `docs/` when behavior or formats change.

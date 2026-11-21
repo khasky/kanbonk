@@ -1,8 +1,8 @@
 import { Modal } from "../ui/Modal";
 import { useMemo, useState } from "react";
 import type { AppState, Card } from "../model";
-import { findDuplicates, pairKey, type DuplicatePair } from "../dedupe";
-import { inboxBoardId } from "../inbox";
+import { findDuplicates, pairKey, type DuplicatePair } from "../model/dedupe";
+import { inboxBoardId } from "../model/inbox";
 
 export function DedupeDialog({
   state,

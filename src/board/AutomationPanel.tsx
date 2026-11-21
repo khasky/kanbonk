@@ -22,7 +22,7 @@ export function AutomationPanel({
   ) => void;
   onRemove: (ruleId: string) => void;
 }) {
-  const lists = state.lists.filter((item) => item.boardId === board.id && !item.archived);
+  const lists = state.lists.filter((item) => item.boardId === board.id && !item.deletedAt);
   const labels = state.labels.filter((item) => item.boardId === board.id && !item.deleted);
   const [trigger, setTrigger] = useState<"move" | "button" | "due">("move");
   const [name, setName] = useState("");
@@ -33,8 +33,8 @@ export function AutomationPanel({
   const actionText = (rule: AutomationRule) =>
     rule.action === "complete"
       ? "mark complete"
-      : rule.action === "archive"
-        ? "archive"
+      : rule.action === "trash"
+        ? "move to trash"
         : `add label “${labels.find((item) => item.id === rule.labelId)?.name ?? "unavailable"}”`;
   return (
     <SidePanel
@@ -100,7 +100,7 @@ export function AutomationPanel({
           Action
           <select value={action} onChange={(event) => setAction(event.target.value as AutomationRule["action"])}>
             <option value="complete">Mark complete</option>
-            <option value="archive">Archive</option>
+            <option value="trash">Move to trash</option>
             <option value="add-label">Add label</option>
           </select>
         </label>

@@ -11,7 +11,7 @@ import {
   writeAutoBackup,
   type AutoBackupSettings,
   type BackupFrequency,
-} from "../autoBackup";
+} from "../backup/autoBackup";
 import {
   backupFolderLabel,
   backupFolderSupported,
@@ -19,7 +19,7 @@ import {
   pickBackupFolder,
   platform,
   type BackupFolder,
-} from "../platform";
+} from "../lib/platform";
 
 const frequencies: Array<[BackupFrequency, string]> = [
   ["6h", "Every 6 hours"],

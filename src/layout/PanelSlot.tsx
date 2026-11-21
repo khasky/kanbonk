@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { PanelLayout } from "../hooks/usePanelLayout";
-import type { PanelName } from "../uiPreferences";
+import type { PanelName } from "../lib/uiPreferences";
 
 /** An Inbox or Planner panel next to the board, with a handle that resizes it by pointer or arrow keys. */
 export function PanelSlot({ name, layout, children }: { name: PanelName; layout: PanelLayout; children: ReactNode }) {

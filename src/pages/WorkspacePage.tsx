@@ -1,6 +1,6 @@
 import { MissingPage } from "./MissingPage";
 import type { AppState } from "../model";
-import { inboxWorkspaceId } from "../inbox";
+import { inboxWorkspaceId } from "../model/inbox";
 
 export function WorkspacePage({
   state,
@@ -19,7 +19,7 @@ export function WorkspacePage({
 }) {
   const workspace = state.workspaces.find((item) => item.id === workspaceId);
   if (!workspace) return <MissingPage what="Workspace not found" />;
-  const boards = state.boards.filter((board) => board.workspaceId === workspace.id && !board.archived);
+  const boards = state.boards.filter((board) => board.workspaceId === workspace.id && !board.deletedAt);
   return (
     <section className="page workspace-page" aria-label={workspace.name}>
       <header className="page-header">

@@ -17,10 +17,10 @@ export function TransferPicker({
   const [destinationListId, setDestinationListId] = useState(card.listId);
   if (!open) return null;
   const availableBoards = state.boards.filter(
-    (item) => !item.archived && state.lists.some((list) => list.boardId === item.id && !list.archived),
+    (item) => !item.deletedAt && state.lists.some((list) => list.boardId === item.id && !list.deletedAt),
   );
   const destinationLists = state.lists
-    .filter((item) => item.boardId === destinationBoardId && !item.archived)
+    .filter((item) => item.boardId === destinationBoardId && !item.deletedAt)
     .sort((a, b) => a.position - b.position);
   return (
     <section className="transfer-picker" aria-label="Move or copy card">
@@ -34,7 +34,7 @@ export function TransferPicker({
             setDestinationBoardId(id);
             setDestinationListId(
               state.lists
-                .filter((item) => item.boardId === id && !item.archived)
+                .filter((item) => item.boardId === id && !item.deletedAt)
                 .sort((a, b) => a.position - b.position)[0]?.id ?? "",
             );
           }}

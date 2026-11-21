@@ -1,6 +1,6 @@
 # Platforms
 
-All platforms build from the same `src/`. Platform-specific behavior is limited to [`src/platform.ts`](../src/platform.ts) (see [architecture.md](architecture.md#platform-layer)).
+All platforms build from the same `src/`. Platform-specific behavior is limited to [`src/lib/platform.ts`](../src/lib/platform.ts) (see [architecture.md](architecture.md#platform-layer)).
 
 | Platform | Develop | Build | Output | Tested |
 |---|---|---|---|---|

@@ -1,8 +1,12 @@
 import { ColorInput } from "../ui/ColorInput";
 import type { Zone } from "../model";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { Icon } from "../ui/Icon";
 
-/** A frame drawn around adjacent lists of one zone; its header drags the whole zone and accepts dropped lists. */
+/**
+ * A frame drawn around adjacent lists of one zone; its header drags the whole zone and accepts dropped lists. A zone
+ * without lists is shown at the end of the board with a drop area.
+ */
 export function ZoneFrame({
   zone,
   cardCount,
@@ -18,7 +22,8 @@ export function ZoneFrame({
   onColor: (color: string) => void;
   onDelete: () => void;
   onDropList: (listId: string) => void;
-  children: ReactNode;
+  /** The zone's lists; without them the zone shows a place to drop lists into. */
+  children?: ReactNode;
 }) {
   return (
     <section className="zone-frame" style={{ borderColor: zone.color }} aria-label={`Zone ${zone.name}`}>
@@ -62,7 +67,60 @@ export function ZoneFrame({
           ×
         </button>
       </header>
-      <div className="zone-lists">{children}</div>
+      <div className="zone-lists">
+        {children ?? (
+          <div
+            className="zone-empty"
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => {
+              const listId = event.dataTransfer.getData("text/kanbonk-list");
+              if (!listId) return;
+              event.preventDefault();
+              onDropList(listId);
+            }}
+          >
+            Drag lists here
+          </div>
+        )}
+      </div>
     </section>
+  );
+}
+
+/** "New zone" at the end of the board: asks for a name and adds an empty zone that lists can be dragged into. */
+export function ZoneComposer({ onCreate }: { onCreate: (name: string) => void }) {
+  const [name, setName] = useState<string>();
+  if (name === undefined)
+    return (
+      <button onClick={() => setName("")}>
+        <Icon name="plus" /> New zone
+      </button>
+    );
+  const submit = () => {
+    if (name.trim()) onCreate(name.trim());
+    setName(undefined);
+  };
+  return (
+    <div className="compose">
+      <input
+        autoFocus
+        aria-label="Zone name"
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") submit();
+          if (event.key === "Escape") setName(undefined);
+        }}
+        placeholder="Zone name, e.g. Development"
+      />
+      <div>
+        <button className="primary-button" onClick={submit}>
+          Add zone
+        </button>
+        <button className="plain-icon" onClick={() => setName(undefined)} aria-label="Cancel">
+          <Icon name="close" />
+        </button>
+      </div>
+    </div>
   );
 }

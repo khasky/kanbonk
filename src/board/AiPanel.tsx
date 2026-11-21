@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import type { AppState, Board, Card } from "../model";
 import { MarkdownText } from "../ui/MarkdownText";
-import { aiProviders, boardContext, triageInbox, writeWithCitations, type AiSettings, type TriageItem } from "../ai";
-import { kanbonkCardForUrl } from "../links";
+import { aiProviders, boardContext, triageInbox, writeWithCitations, type AiSettings, type TriageItem } from "../ai/ai";
+import { kanbonkCardForUrl } from "../model/links";
 
 export interface ProposedCard extends TriageItem {
   listId: string;
@@ -34,7 +34,7 @@ export function AiPanel({
   const [proposals, setProposals] = useState<Array<ProposedCard & { selected: boolean }>>([]);
   const [draft, setDraft] = useState<{ markdown: string; cited: number; invalid: number } | null>(null);
   const lists = state.lists
-    .filter((item) => item.boardId === board.id && !item.archived && !item.deletedAt)
+    .filter((item) => item.boardId === board.id && !item.deletedAt)
     .sort((a, b) => a.position - b.position);
   const context = useMemo(() => (mode === "triage" ? null : boardContext(state, board.id)), [mode, state, board.id]);
   const cardForUrl = (url: string) => kanbonkCardForUrl(url, state);

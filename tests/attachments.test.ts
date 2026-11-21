@@ -2,7 +2,7 @@ import { expect, it, vi } from "vitest";
 import { strToU8, zipSync } from "fflate";
 import { emptyState, type Card } from "../src/model";
 
-vi.mock("../src/storage", () => ({ saveAttachment: vi.fn() }));
+vi.mock("../src/lib/storage", () => ({ saveAttachment: vi.fn() }));
 
 import { restoreExistingAttachments } from "../src/trello/import";
 

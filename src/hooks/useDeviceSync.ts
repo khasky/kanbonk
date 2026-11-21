@@ -17,12 +17,12 @@ import {
   type TrustedDevice,
   tabChannel,
   trustDevice,
-} from "../devices";
-import { LanSync } from "../lanSync";
+} from "../sync/devices";
+import { LanSync } from "../sync/lanSync";
 import { type AppState, markMediaLocal, rememberStateIds } from "../model";
-import { shareFile } from "../platform";
-import { loadAttachment, loadState, saveAttachment } from "../storage";
-import { chooseConflict, mergeStates, type SyncConflict } from "../sync";
+import { shareFile } from "../lib/platform";
+import { loadAttachment, loadState, saveAttachment } from "../lib/storage";
+import { chooseConflict, mergeStates, type SyncConflict } from "../sync/sync";
 
 const transportKey = "kanbonk-sync-transport";
 

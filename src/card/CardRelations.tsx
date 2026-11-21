@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CardPicker } from "../ui/CardPicker";
-import type { relatedCards } from "../links";
+import type { relatedCards } from "../model/links";
 import { type AppState, type Card, isCardAvailable, parentCandidates } from "../model";
 
 /** Cards this card depends on and cards it blocks. */

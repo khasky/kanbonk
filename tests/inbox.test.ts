@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
-import { ensureInbox, inboxBoardId, inboxListId, inboxWorkspaceId } from "../src/inbox";
+import { ensureInbox, inboxBoardId, inboxListId, inboxWorkspaceId } from "../src/model/inbox";
 import { emptyState, recordRevision } from "../src/model";
-import { mergeStates } from "../src/sync";
+import { mergeStates } from "../src/sync/sync";
 
 it("initializes the inbox before any personal workspace exists", () => {
   const state = ensureInbox(emptyState(), "device-a");

@@ -1,5 +1,5 @@
 import { newId, type AppState, type Board } from "../../model/index";
-import { loadAttachment, saveAttachment } from "../../storage";
+import { loadAttachment, saveAttachment } from "../../lib/storage";
 import type { ImportResult } from "./parse";
 import {
   attachmentEntries,

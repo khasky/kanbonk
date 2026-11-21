@@ -26,7 +26,8 @@ test("creates a workspace, board, lists and cards that survive a reload", async 
   await page.keyboard.press("Enter");
   await expect(ideas.getByRole("button", { name: /First idea/ })).toBeVisible();
 
-  await page.getByLabel("List actions Ideas").selectOption({ label: "Move right" });
+  await page.getByLabel("List actions Ideas").click();
+  await page.getByRole("button", { name: "Move right" }).click();
   await expect(page.locator(".list-column [aria-label^='List title']").first()).toHaveValue("Doing");
 
   await page.reload();
@@ -51,4 +52,16 @@ test("opens a card by its address and closes it back to the board", async ({ pag
 
   await page.goto(cardUrl.replace(/\/c\/.*/, "/c/missing-card"));
   await expect(page.getByRole("main")).toContainText(/not found/i);
+});
+
+test("collapses the sidebar to icons and keeps it collapsed after a reload", async ({ page }) => {
+  await page.goto("/");
+  const sidebar = page.locator("aside.sidebar");
+  await expect(sidebar.getByText("Workspaces", { exact: true }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Collapse sidebar" }).click();
+  await expect(sidebar).toHaveClass(/collapsed/);
+  expect((await sidebar.boundingBox())?.width).toBeLessThan(60);
+  await page.reload();
+  await page.getByRole("button", { name: "Expand sidebar" }).click();
+  expect((await sidebar.boundingBox())?.width).toBeGreaterThan(200);
 });
