@@ -1,7 +1,7 @@
 import { sha256 } from "@noble/hashes/sha2.js";
 import { newId, type AppState } from "./model";
 import { createBackupParts } from "./backup";
-import { listSnapshots, loadSetting, saveSetting, saveSnapshot, type SnapshotMeta } from "./storage";
+import { deviceId, listSnapshots, loadSetting, saveSetting, saveSnapshot, type SnapshotMeta } from "./storage";
 import {
   defaultBackupDestination,
   folderDestination,
@@ -105,18 +105,29 @@ export function backupDue(settings: AutoBackupSettings, last: string | undefined
   return !last || now.getTime() - new Date(last).getTime() >= periods[settings.frequency];
 }
 
-const backupName = /^kanbonk-auto-(.+)-(\d+)of(\d+)\.zip$/;
+/**
+ * Names the device in backup file names as `<platform>-<first 6 characters of the device id>`, so devices that share a
+ * folder (or a synced cloud folder) tell their backups apart and never delete each other's.
+ */
+export function backupDevice(platformName: string, id: string): string {
+  return `${platformName}-${id.replace(/[^A-Za-z0-9]/g, "").slice(0, 6)}`;
+}
 
-/** Backup files beyond the newest `keep` complete backups; a backup is complete when all its ZIP parts are present. */
-export function backupsToDelete(names: string[], keep: number): string[] {
+const backupName = /^kanbonk-auto-([a-z]+-[A-Za-z0-9]+)-(.+)-(\d+)of(\d+)\.zip$/;
+
+/**
+ * This device's backup files beyond its newest `keep` complete backups; a backup is complete when all its ZIP parts
+ * are present. Files of other devices and other names are never returned.
+ */
+export function backupsToDelete(names: string[], keep: number, device: string): string[] {
   const groups = new Map<string, { parts: Set<number>; total: number; names: string[] }>();
   for (const name of names) {
     const match = name.match(backupName);
-    if (!match) continue;
-    const group = groups.get(match[1]) ?? { parts: new Set(), total: Number(match[3]), names: [] };
-    group.parts.add(Number(match[2]));
+    if (!match || match[1] !== device) continue;
+    const group = groups.get(match[2]) ?? { parts: new Set(), total: Number(match[4]), names: [] };
+    group.parts.add(Number(match[3]));
     group.names.push(name);
-    groups.set(match[1], group);
+    groups.set(match[2], group);
   }
   const stamps = [...groups.keys()].sort().reverse();
   const kept = stamps.filter((stamp) => groups.get(stamp)!.parts.size === groups.get(stamp)!.total).slice(0, keep);
@@ -144,16 +155,17 @@ export async function writeAutoBackup(
   now = new Date(),
 ): Promise<string> {
   const target = await destination(settings, interactive);
+  const device = backupDevice(platform, deviceId());
   const stamp = `${now.toISOString().slice(0, 19).replace(/:/g, "-")}Z`;
   let written = 0;
   for await (const part of createBackupParts(state)) {
-    await target.write(`kanbonk-auto-${stamp}-${part.index}of${part.total}.zip`, part.blob);
+    await target.write(`kanbonk-auto-${device}-${stamp}-${part.index}of${part.total}.zip`, part.blob);
     written++;
   }
   await saveSetting("backup-folder-last", now.toISOString());
   let removed = 0;
   if (target.list && target.remove) {
-    for (const name of backupsToDelete(await target.list(), settings.keep)) {
+    for (const name of backupsToDelete(await target.list(), settings.keep, device)) {
       await target.remove(name);
       removed++;
     }

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  backupDevice,
   backupDue,
   backupFolder,
   backupsToDelete,
@@ -11,6 +12,7 @@ import { emptyState } from "../src/model";
 
 const settings = new Map<string, unknown>();
 vi.mock("../src/storage", () => ({
+  deviceId: () => "a1B2c3D4",
   loadSetting: async (key: string) => settings.get(key),
   saveSetting: async (key: string, value: unknown) => {
     if (value === undefined) settings.delete(key);
@@ -28,7 +30,7 @@ vi.mock("../src/platform", () => ({
     return currentPlatform;
   },
   defaultBackupDestination: async () => ({
-    label: "Downloads/Kanbonk Backups",
+    label: "Downloads/kanbonk/backups",
     write: async (name: string, blob: Blob) => {
       files.set(name, blob);
     },
@@ -60,22 +62,42 @@ describe("automatic backups", () => {
   });
 
   it("deletes backups beyond the newest complete ones and keeps an unfinished newer one", () => {
+    const device = "desktop-a1B2c3";
     const names = [
-      "kanbonk-auto-2026-11-17-1of2.zip",
-      "kanbonk-auto-2026-11-17-2of2.zip",
-      "kanbonk-auto-2026-11-18T06-00-00Z-1of1.zip",
-      "kanbonk-auto-2026-11-19T06-00-00Z-1of2.zip",
-      "kanbonk-auto-2026-11-19T06-00-00Z-2of2.zip",
-      "kanbonk-auto-2026-11-20T06-00-00Z-1of2.zip",
+      `kanbonk-auto-${device}-2026-11-17-1of2.zip`,
+      `kanbonk-auto-${device}-2026-11-17-2of2.zip`,
+      `kanbonk-auto-${device}-2026-11-18T06-00-00Z-1of1.zip`,
+      `kanbonk-auto-${device}-2026-11-19T06-00-00Z-1of2.zip`,
+      `kanbonk-auto-${device}-2026-11-19T06-00-00Z-2of2.zip`,
+      `kanbonk-auto-${device}-2026-11-20T06-00-00Z-1of2.zip`,
       "notes.txt",
     ];
-    expect(backupsToDelete(names, 2)).toEqual(["kanbonk-auto-2026-11-17-1of2.zip", "kanbonk-auto-2026-11-17-2of2.zip"]);
-    expect(backupsToDelete(names, 3)).toEqual([]);
-    expect(backupsToDelete(names, 1)).toEqual([
-      "kanbonk-auto-2026-11-18T06-00-00Z-1of1.zip",
-      "kanbonk-auto-2026-11-17-1of2.zip",
-      "kanbonk-auto-2026-11-17-2of2.zip",
+    expect(backupsToDelete(names, 2, device)).toEqual([
+      `kanbonk-auto-${device}-2026-11-17-1of2.zip`,
+      `kanbonk-auto-${device}-2026-11-17-2of2.zip`,
     ]);
+    expect(backupsToDelete(names, 3, device)).toEqual([]);
+    expect(backupsToDelete(names, 1, device)).toEqual([
+      `kanbonk-auto-${device}-2026-11-18T06-00-00Z-1of1.zip`,
+      `kanbonk-auto-${device}-2026-11-17-1of2.zip`,
+      `kanbonk-auto-${device}-2026-11-17-2of2.zip`,
+    ]);
+  });
+
+  it("names the device in backups and never deletes another device's backups in a shared folder", () => {
+    expect(backupDevice("desktop", "a1B2c3D4")).toBe("desktop-a1B2c3");
+    expect(backupDevice("extension", "x-y_z12345")).toBe("extension-xyz123");
+    const names = [
+      "kanbonk-auto-desktop-a1B2c3-2026-11-18T06-00-00Z-1of1.zip",
+      "kanbonk-auto-desktop-a1B2c3-2026-11-19T06-00-00Z-1of1.zip",
+      "kanbonk-auto-extension-a1B2c3-2026-11-17T06-00-00Z-1of1.zip",
+      "kanbonk-auto-desktop-Zz9yX8-2026-11-16T06-00-00Z-1of1.zip",
+      "kanbonk-auto-2026-11-15T06-00-00Z-1of1.zip",
+    ];
+    expect(backupsToDelete(names, 1, "desktop-a1B2c3")).toEqual([
+      "kanbonk-auto-desktop-a1B2c3-2026-11-18T06-00-00Z-1of1.zip",
+    ]);
+    expect(backupsToDelete(names, 1, "extension-a1B2c3")).toEqual([]);
   });
 
   it("keeps using a folder chosen before these settings existed", async () => {
@@ -101,12 +123,12 @@ describe("automatic backups", () => {
     for (const day of ["18", "19", "20"])
       await writeAutoBackup(emptyState(), keep, false, new Date(`2026-11-${day}T06:00:00Z`));
     expect([...files.keys()].sort()).toEqual([
-      "kanbonk-auto-2026-11-19T06-00-00Z-1of1.zip",
-      "kanbonk-auto-2026-11-20T06-00-00Z-1of1.zip",
+      "kanbonk-auto-extension-a1B2c3-2026-11-19T06-00-00Z-1of1.zip",
+      "kanbonk-auto-extension-a1B2c3-2026-11-20T06-00-00Z-1of1.zip",
     ]);
     expect(settings.get("backup-folder-last")).toBe("2026-11-20T06:00:00.000Z");
     expect(await writeAutoBackup(emptyState(), keep, false, new Date("2026-11-21T06:00:00Z"))).toBe(
-      "Downloads/Kanbonk Backups: 1 ZIP, 1 older file deleted.",
+      "Downloads/kanbonk/backups: 1 ZIP, 1 older file deleted.",
     );
   });
 });
