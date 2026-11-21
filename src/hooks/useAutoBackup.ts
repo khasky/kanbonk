@@ -3,27 +3,34 @@ import {
   autoBackupIntervalMs,
   autoSnapshot,
   backupDue,
-  lastAutoBackup,
+  lastAutoBackupOrSkip,
   loadAutoBackupSettings,
+  skipAutoBackup,
   writeAutoBackup,
 } from "../autoBackup";
 import type { AppState } from "../model";
+import { defaultBackupMayAsk } from "../platform";
 import { listSnapshots, type SnapshotMeta } from "../storage";
 
 /**
  * Automatic backups: local snapshots every 10 minutes (and when the page is hidden) plus full ZIP backups on the
- * schedule from Settings. Returns the snapshot list shown in the Backup dialog.
+ * schedule from Settings. Where writing one could open the browser's save dialog, a due backup waits for the user:
+ * `backupAsk` is then true until they call `saveDueBackup` or `skipDueBackup`.
+ * Also returns the snapshot list shown in the Backup dialog.
  */
 export function useAutoBackup({
   ready,
   stateRef,
   onError,
+  onNotice,
 }: {
   ready: boolean;
   stateRef: RefObject<AppState>;
   onError: (message: string) => void;
+  onNotice: (message: string) => void;
 }) {
   const [snapshots, setSnapshots] = useState<SnapshotMeta[]>([]);
+  const [backupAsk, setBackupAsk] = useState(false);
   const running = useRef(false);
   const lastError = useRef("");
   const reportError = useEffectEvent(onError);
@@ -40,7 +47,11 @@ export function useAutoBackup({
       running.current = true;
       void (async () => {
         const settings = await loadAutoBackupSettings();
-        if (!backupDue(settings, await lastAutoBackup())) return;
+        if (!backupDue(settings, await lastAutoBackupOrSkip())) return;
+        if (settings.target === "default" && defaultBackupMayAsk) {
+          setBackupAsk(true);
+          return;
+        }
         await writeAutoBackup(stateRef.current, settings);
         lastError.current = "";
       })()
@@ -71,5 +82,23 @@ export function useAutoBackup({
     setSnapshots((await listSnapshots()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
   }
 
-  return { snapshots, refreshSnapshots };
+  async function saveDueBackup() {
+    setBackupAsk(false);
+    try {
+      onNotice(`Backup saved: ${await writeAutoBackup(stateRef.current, await loadAutoBackupSettings(), true)}`);
+    } catch (cause) {
+      onError(`Backup failed: ${String(cause instanceof Error ? cause.message : cause)}`);
+    }
+  }
+
+  async function skipDueBackup() {
+    setBackupAsk(false);
+    try {
+      await skipAutoBackup();
+    } catch (cause) {
+      onError(`Could not postpone the backup: ${String(cause)}`);
+    }
+  }
+
+  return { snapshots, refreshSnapshots, backupAsk, saveDueBackup, skipDueBackup };
 }

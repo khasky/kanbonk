@@ -224,6 +224,13 @@ function extensionDownloads(): BackupDestination {
   };
 }
 
+/**
+ * The default backup location of the extension and the web page is a browser download, and the browser opens a save
+ * dialog for it when "Ask where to save each file" is on, a setting pages cannot read. So automatic backups there wait
+ * for the user to agree instead of opening a dialog out of nowhere.
+ */
+export const defaultBackupMayAsk = platform === "extension" || platform === "web";
+
 /** The place automatic backups go when the user has not chosen a folder; undefined where there is none. */
 export async function defaultBackupDestination(): Promise<BackupDestination | undefined> {
   if (platform === "extension") return extensionDownloads();

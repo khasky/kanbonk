@@ -100,6 +100,18 @@ export async function lastAutoBackup(): Promise<string | undefined> {
   return loadSetting<string>("backup-folder-last");
 }
 
+/** Postpones the due automatic backup by one period without writing it. */
+export async function skipAutoBackup(now = new Date()): Promise<void> {
+  await saveSetting("backup-skipped", now.toISOString());
+}
+
+/** The time the backup schedule counts from: the last written or the last skipped backup, whichever is newer. */
+export async function lastAutoBackupOrSkip(): Promise<string | undefined> {
+  const written = await lastAutoBackup();
+  const skipped = await loadSetting<string>("backup-skipped");
+  return !written || (skipped && skipped > written) ? skipped : written;
+}
+
 export function backupDue(settings: AutoBackupSettings, last: string | undefined, now = new Date()): boolean {
   if (settings.frequency === "off") return false;
   return !last || now.getTime() - new Date(last).getTime() >= periods[settings.frequency];
