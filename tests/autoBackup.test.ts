@@ -5,7 +5,9 @@ import {
   backupFolder,
   backupsToDelete,
   defaultAutoBackup,
+  lastAutoBackupOrSkip,
   loadAutoBackupSettings,
+  skipAutoBackup,
   writeAutoBackup,
 } from "../src/autoBackup";
 import { emptyState } from "../src/model";
@@ -98,6 +100,18 @@ describe("automatic backups", () => {
       "kanbonk-auto-desktop-a1B2c3-2026-11-18T06-00-00Z-1of1.zip",
     ]);
     expect(backupsToDelete(names, 1, "extension-a1B2c3")).toEqual([]);
+  });
+
+  it("counts the schedule from a skipped backup as from a written one", async () => {
+    const day = { ...defaultAutoBackup, frequency: "day" as const };
+    expect(await lastAutoBackupOrSkip()).toBeUndefined();
+    await skipAutoBackup(new Date("2026-11-20T06:00:00Z"));
+    expect(await lastAutoBackupOrSkip()).toBe("2026-11-20T06:00:00.000Z");
+    expect(backupDue(day, await lastAutoBackupOrSkip(), new Date("2026-11-20T18:00:00Z"))).toBe(false);
+    await writeAutoBackup(emptyState(), day, false, new Date("2026-11-21T06:00:00Z"));
+    expect(await lastAutoBackupOrSkip()).toBe("2026-11-21T06:00:00.000Z");
+    await skipAutoBackup(new Date("2026-11-22T06:00:00Z"));
+    expect(await lastAutoBackupOrSkip()).toBe("2026-11-22T06:00:00.000Z");
   });
 
   it("keeps using a folder chosen before these settings existed", async () => {

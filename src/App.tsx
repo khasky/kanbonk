@@ -195,7 +195,12 @@ function App() {
       .catch((cause) => setError(`Could not save changes: ${String(cause)}`));
   }, [fullState, ready]);
 
-  const { snapshots, refreshSnapshots } = useAutoBackup({ ready, stateRef, onError: setError });
+  const { snapshots, refreshSnapshots, backupAsk, saveDueBackup, skipDueBackup } = useAutoBackup({
+    ready,
+    stateRef,
+    onError: setError,
+    onNotice: setNotice,
+  });
 
   useEffect(() => {
     try {
@@ -719,6 +724,19 @@ function App() {
             <button onClick={() => setNotice("")} aria-label="Dismiss message">
               <Icon name="close" />
             </button>
+          </div>
+        )}
+        {backupAsk && (
+          <div className="backup-ask" role="alertdialog" aria-label="Automatic backup">
+            <span>An automatic backup is due. Your browser may ask where to save it.</span>
+            <div>
+              <button className="primary-button" onClick={() => void saveDueBackup()}>
+                Save backup
+              </button>
+              <button className="link-button" onClick={() => void skipDueBackup()}>
+                Skip
+              </button>
+            </div>
           </div>
         )}
         {error && (
