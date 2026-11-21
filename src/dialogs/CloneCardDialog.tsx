@@ -1,4 +1,6 @@
-import { Modal } from "../ui/Modal";
+import { Dialog } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { dialogFooterClass, dialogTitleClass } from "./dialogLook";
 
 export function CloneCardDialog({
   name,
@@ -12,17 +14,17 @@ export function CloneCardDialog({
   onCancel: () => void;
 }) {
   return (
-    <Modal label="Clone card" className="creation-dialog delete-dialog" role="alertdialog" onDismiss={onCancel}>
-      <h2>Clone card “{name}”?</h2>
+    <Dialog label="Clone card" size="md" role="alertdialog" onDismiss={onCancel}>
+      <h2 className={dialogTitleClass}>Clone card “{name}”?</h2>
       <p>The copy “{copyName}” will be added right below it in the same list.</p>
-      <div>
-        <button type="button" onClick={onCancel}>
+      <div className={`${dialogFooterClass} flex-wrap`}>
+        <Button variant="secondary" size="lg" type="button" onClick={onCancel}>
           Cancel
-        </button>
-        <button type="button" className="primary-button" autoFocus onClick={onConfirm}>
+        </Button>
+        <Button type="button" variant="primary" autoFocus onClick={onConfirm}>
           Clone
-        </button>
+        </Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

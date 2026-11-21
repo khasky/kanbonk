@@ -1,5 +1,17 @@
 import { useEffect, useState, type DragEvent as ReactDragEvent } from "react";
 import { moveChecklistItem, newId, type Card, type Checklist } from "../model";
+import { Button } from "../ui/Button";
+import { SectionTitle } from "../ui/SectionTitle";
+import { Checkbox, Textarea } from "../ui/Field";
+import { Menu, MenuItem } from "../ui/Menu";
+import { detailSectionClass, detailTitleClass, inlineFormClass } from "./cardLook";
+
+/** The "⋯" button of a checklist's and an item's menu. */
+const menuButtonClass =
+  "grid size-7 place-items-center rounded-sm text-[18px] leading-none text-ink-subtle hover:bg-surface-sunken group-open/menu:bg-surface-sunken max-phone:min-h-11 max-phone:min-w-11";
+
+const itemNameClass =
+  "min-w-0 flex-1 border-0 bg-transparent p-[5px] focus:rounded-sm focus:border focus:border-line focus:bg-white";
 
 export function ChecklistSection({
   checklist,
@@ -87,15 +99,15 @@ export function ChecklistSection({
 
   return (
     <section
-      className="detail-section"
+      className={detailSectionClass}
       onDragOver={(event) => event.preventDefault()}
       onDrop={(event) => dropItem(event)}
     >
-      <div className="section-title">
-        <h3>
+      <SectionTitle>
+        <h3 className={`${detailTitleClass} mr-auto min-w-0`}>
           ☑{" "}
           <input
-            className="checklist-title"
+            className="w-[min(240px,35vw)] min-w-0 border-0 bg-transparent p-0.5 text-inherit focus:bg-white"
             value={titleDraft}
             onChange={(event) => setTitleDraft(event.target.value)}
             onBlur={() => {
@@ -109,33 +121,29 @@ export function ChecklistSection({
             aria-label="Checklist title"
           />
         </h3>
-        <button onClick={() => setHideChecked((value) => !value)} aria-pressed={hideChecked}>
+        <Button variant="secondary" onClick={() => setHideChecked((value) => !value)} aria-pressed={hideChecked}>
           {hideChecked ? "Show checked items" : "Hide checked items"}
-        </button>
-        <select
-          className="checklist-actions"
-          aria-label={`Checklist actions ${checklist.name}`}
-          defaultValue=""
-          onChange={(event) => {
-            if (event.target.value === "delete") deleteChecklist();
-            event.target.value = "";
-          }}
-        >
-          <option value="">⋯</option>
-          <option value="delete">Delete checklist</option>
-        </select>
-      </div>
-      <div className="checklist-progress">
+        </Button>
+        <Menu label={`Checklist actions ${checklist.name}`} summaryClassName={menuButtonClass}>
+          <MenuItem danger onClick={deleteChecklist}>
+            Delete checklist
+          </MenuItem>
+        </Menu>
+      </SectionTitle>
+      <div className="flex items-center gap-[9px] text-[12px]">
         {checklist.items.length ? Math.round((100 * checked) / checklist.items.length) : 0}%
-        <div>
-          <span style={{ width: `${checklist.items.length ? (100 * checked) / checklist.items.length : 0}%` }} />
+        <div className="h-2 flex-1 overflow-hidden rounded-[5px] bg-line">
+          <span
+            className="block h-full bg-[#4bce97]"
+            style={{ width: `${checklist.items.length ? (100 * checked) / checklist.items.length : 0}%` }}
+          />
         </div>
       </div>
       {checklist.items
         .filter((item) => !hideChecked || !item.checked)
         .map((item) => (
           <div
-            className="checklist-item-row"
+            className="flex items-center gap-2 py-[5px]"
             key={item.id}
             onDragOver={(event) => {
               event.preventDefault();
@@ -144,15 +152,14 @@ export function ChecklistSection({
             onDrop={(event) => dropItem(event, item.id)}
           >
             <span
-              className="checklist-drag-handle"
+              className="flex-none cursor-grab text-ink-muted select-none"
               draggable
               title="Drag item"
               onDragStart={(event) => event.dataTransfer.setData("text/kanbonk-check-item", item.id)}
             >
               ⋮⋮
             </span>
-            <input
-              type="checkbox"
+            <Checkbox
               checked={item.checked}
               onChange={() =>
                 updateList((list) => ({
@@ -165,7 +172,7 @@ export function ChecklistSection({
               aria-label={`Check item ${item.name}`}
             />
             <input
-              className={item.checked ? "checklist-item-name checked" : "checklist-item-name"}
+              className={item.checked ? `${itemNameClass} text-ink-muted line-through` : `${itemNameClass} text-ink`}
               value={itemNames[item.id] ?? item.name}
               onChange={(event) => setItemNames((current) => ({ ...current, [item.id]: event.target.value }))}
               onBlur={() => saveItemName(item.id, item.name)}
@@ -174,34 +181,29 @@ export function ChecklistSection({
               }}
               aria-label={`Item title ${item.name}`}
             />
-            <select
-              aria-label={`Item actions ${item.name}`}
-              defaultValue=""
-              onChange={(event) => {
-                itemAction(item.id, event.target.value);
-                event.target.value = "";
-              }}
-            >
-              <option value="">⋯</option>
-              <option value="up">Move up</option>
-              <option value="down">Move down</option>
+            <Menu label={`Item actions ${item.name}`} summaryClassName={menuButtonClass}>
+              <MenuItem onClick={() => itemAction(item.id, "up")}>Move up</MenuItem>
+              <MenuItem onClick={() => itemAction(item.id, "down")}>Move down</MenuItem>
               {card.checklists
                 .filter((list) => list.id !== checklist.id)
                 .map((list) => (
-                  <option key={list.id} value={`to:${list.id}`}>
+                  <MenuItem key={list.id} onClick={() => itemAction(item.id, `to:${list.id}`)}>
                     To checklist “{list.name}”
-                  </option>
+                  </MenuItem>
                 ))}
-              <option value="convert" disabled={Boolean(item.linkedCardId)}>
+              <MenuItem disabled={Boolean(item.linkedCardId)} onClick={() => itemAction(item.id, "convert")}>
                 Convert to card
-              </option>
-              <option value="delete">Delete item</option>
-            </select>
+              </MenuItem>
+              <MenuItem danger onClick={() => itemAction(item.id, "delete")}>
+                Delete item
+              </MenuItem>
+            </Menu>
           </div>
         ))}
-      <div className="inline-form">
-        <textarea
-          className="checklist-new-items"
+      <div className={inlineFormClass}>
+        <Textarea
+          size="sm"
+          className="min-h-[38px] min-w-0 flex-1"
           rows={2}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
@@ -214,7 +216,9 @@ export function ChecklistSection({
           placeholder="Add an item"
           aria-label="New checklist items"
         />
-        <button onClick={addItem}>Add</button>
+        <Button variant="secondary" onClick={addItem}>
+          Add
+        </Button>
       </div>
     </section>
   );

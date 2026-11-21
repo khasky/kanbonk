@@ -1,10 +1,13 @@
 import type { BoardList, Card, Label, Member } from "../model";
 import { Icon } from "../ui/Icon";
-import { Menu } from "../ui/Menu";
+import { Menu, MenuItem, MenuSeparator } from "../ui/Menu";
 import { NameEditor } from "../ui/NameEditor";
 import { CardTile, type TileActions } from "./CardTile";
 import { ListCards } from "./ListCards";
 import { TemplateComposer } from "./TemplateComposer";
+import { Button } from "../ui/Button";
+import { Textarea } from "../ui/Field";
+import { addCardClass, composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
 
 /** What a list column can ask the board to do; every handler gets the list's id. */
 export interface ListActions {
@@ -48,7 +51,7 @@ export function ListColumn({
 }) {
   return (
     <section
-      className="list-column"
+      className="list-column flex max-h-full w-[272px] flex-none flex-col rounded-xl bg-surface-sunken p-2 shadow-tile-soft"
       onDragOver={(event) => event.preventDefault()}
       onDrop={(event) => {
         event.preventDefault();
@@ -68,9 +71,9 @@ export function ListColumn({
         if (id) actions.dropCard(id, list.id);
       }}
     >
-      <div className="list-header">
+      <div className="flex items-center gap-1 px-1 pt-0.5 pb-2">
         <span
-          className="list-drag-handle"
+          className={`${dragHandleClass} text-ink-muted`}
           draggable
           title="Drag list"
           onDragStart={(event) => event.dataTransfer.setData("text/kanbonk-list", list.id)}
@@ -78,20 +81,25 @@ export function ListColumn({
           ⋮⋮
         </span>
         <NameEditor
+          className="min-w-0 flex-1 rounded-sm border-0 bg-transparent px-1.5 py-[7px] font-bold text-ink focus:bg-white max-phone:text-[16px]"
           value={list.name}
           label={`List title ${list.name}`}
           onCommit={(name) => actions.rename(list.id, name)}
         />
-        <Menu label={`List actions ${list.name}`} className="list-menu">
-          <button onClick={() => actions.run(list.id, "name")}>Sort by title</button>
-          <button onClick={() => actions.run(list.id, "due")}>Sort by due date</button>
-          <button onClick={() => actions.run(list.id, "move-left")}>Move left</button>
-          <button onClick={() => actions.run(list.id, "move-right")}>Move right</button>
-          <button onClick={() => actions.run(list.id, "copy")}>Copy list</button>
-          <hr />
-          <button className="danger" onClick={() => actions.run(list.id, "delete")}>
+        <Menu
+          label={`List actions ${list.name}`}
+          summaryClassName="grid size-8 place-items-center rounded-sm text-[20px] leading-none text-ink-subtle group-open/menu:bg-line hover:bg-line max-phone:min-h-11 max-phone:min-w-11"
+          touchRows
+        >
+          <MenuItem onClick={() => actions.run(list.id, "name")}>Sort by title</MenuItem>
+          <MenuItem onClick={() => actions.run(list.id, "due")}>Sort by due date</MenuItem>
+          <MenuItem onClick={() => actions.run(list.id, "move-left")}>Move left</MenuItem>
+          <MenuItem onClick={() => actions.run(list.id, "move-right")}>Move right</MenuItem>
+          <MenuItem onClick={() => actions.run(list.id, "copy")}>Copy list</MenuItem>
+          <MenuSeparator />
+          <MenuItem danger onClick={() => actions.run(list.id, "delete")}>
             Move list to trash
-          </button>
+          </MenuItem>
         </Menu>
       </div>
       <ListCards
@@ -108,8 +116,9 @@ export function ListColumn({
         )}
       />
       {composing ? (
-        <div className="compose">
-          <textarea
+        <div className={composeClass}>
+          <Textarea
+            className="min-h-[42px] w-full"
             autoFocus
             value={draft}
             onChange={(event) => onDraft(event.target.value)}
@@ -121,17 +130,17 @@ export function ListColumn({
             }}
             placeholder="Card title"
           />
-          <div>
-            <button className="primary-button" onClick={() => actions.createCard(list.id)}>
+          <div className={composeActionsClass}>
+            <Button variant="primary" onClick={() => actions.createCard(list.id)}>
               Add a card
-            </button>
-            <button className="plain-icon" onClick={actions.cancelCard} aria-label="Cancel">
+            </Button>
+            <Button variant="icon" onClick={actions.cancelCard} aria-label="Cancel">
               <Icon name="close" />
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
-        <button className="add-card" onClick={() => actions.startCard(list.id)}>
+        <button className={addCardClass} onClick={() => actions.startCard(list.id)}>
           <Icon name="plus" /> Add a card
         </button>
       )}

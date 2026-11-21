@@ -1,4 +1,4 @@
-import { Modal } from "../ui/Modal";
+import { Dialog } from "../ui/Modal";
 import { type Dispatch, type SetStateAction, useState } from "react";
 import { counted } from "../lib/format";
 import {
@@ -14,6 +14,10 @@ import { downloadTrelloAttachment, downloadTrelloComments, trelloBridgeAvailable
 import { parseTrelloCsv } from "../trello/formats";
 import { ElapsedTime } from "../ui/ElapsedTime";
 import { ensurePersonalWorkspace, personalWorkspaceId } from "../model/workspaces";
+import { Button } from "../ui/Button";
+import { FileButton } from "../ui/FileButton";
+import { Hint } from "../ui/Hint";
+import { dialogFooterClass, dialogIntroClass, dialogTitleClass, fieldLabelClass, reportClass } from "./dialogLook";
 
 const isZip = (file: File) => file.name.toLowerCase().endsWith(".zip");
 
@@ -161,54 +165,63 @@ export function ImportDialog({
   }
 
   return (
-    <Modal label="Import from Trello" className="creation-dialog import-dialog" onDismiss={busy ? undefined : onClose}>
-      <h2>Import from Trello</h2>
-      <p>
+    <Dialog
+      label="Import from Trello"
+      className="max-h-[calc(100dvh-96px)] overflow-auto"
+      onDismiss={busy ? undefined : onClose}
+    >
+      <h2 className={dialogTitleClass}>Import from Trello</h2>
+      <p className={dialogIntroClass}>
         To move a board with all its files, install the Kanbonk Trello Import extension: open chrome://extensions or
         edge://extensions, turn on Developer mode, choose Load unpacked and select the trello-import-extension folder of
         the project. Then open the board in Trello and press <strong>Export board</strong> in the Kanbonk panel. The
         board arrives as ZIP parts of about 100 MB.
       </p>
-      <p>
+      <p className={dialogIntroClass}>
         Choose all the parts here at once. A board JSON or CSV exported from Trello also works; attachments are then
         fetched through the extension while a Trello tab is open.
       </p>
-      <label>
+      <div className={`${fieldLabelClass} my-3.5`}>
         Files from Trello
-        <input
-          type="file"
+        <FileButton
+          size="lg"
           multiple
           accept=".zip,application/zip,.json,application/json,.csv,text/csv"
           disabled={busy}
-          onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
-        />
-      </label>
-      {files.length > 1 && <p className="hint">{counted(files.length, "file", "files")} chosen.</p>}
-      {time && <ElapsedTime {...time} />}
+          placeholder="No files chosen"
+          onFiles={setFiles}
+        >
+          Choose files
+        </FileButton>
+      </div>
+      {files.length > 1 && <Hint tone="subtle">{counted(files.length, "file", "files")} chosen.</Hint>}
+      {time && <ElapsedTime {...time} tone="subtle" />}
       {report && (
-        <p className="import-report" role="status">
+        <p className={reportClass} role="status">
           {report}
         </p>
       )}
-      <div>
-        <button onClick={onClose} disabled={busy}>
+      <div className={dialogFooterClass}>
+        <Button variant="secondary" size="lg" onClick={onClose} disabled={busy}>
           Close
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="secondary"
+          size="lg"
           onClick={() => void run(addMissingFiles, "ZIP error")}
           disabled={busy || !zips.length}
           title="Fill missing files of a board imported earlier"
         >
           Add files to imported board
-        </button>
-        <button
-          className="primary-button"
+        </Button>
+        <Button
+          variant="primary"
           onClick={() => void run(importBoard, "Import failed")}
           disabled={busy || !files.length}
         >
           {busy ? "Importing…" : "Import"}
-        </button>
+        </Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

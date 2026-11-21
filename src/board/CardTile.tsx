@@ -4,6 +4,14 @@ import { CardStickers } from "../card/CardStickers";
 import { readableTextColor } from "../model/labelColors";
 import type { Card, Label, Member } from "../model";
 import { Icon } from "../ui/Icon";
+import {
+  completeMarkClass,
+  tileClass,
+  tileMetaClass,
+  tileMetaIconClass,
+  tileMetaItemClass,
+  tileNameClass,
+} from "./tileLook";
 
 export interface TileActions {
   open: (id: string) => void;
@@ -24,9 +32,11 @@ export const CardTile = memo(function CardTile({
   parentName?: string;
   actions: TileActions;
 }) {
+  const full = item.cover?.size === "full";
+  const fullCover = full && Boolean(item.cover?.attachmentId);
   return (
     <button
-      className={`card-tile ${item.cover?.size === "full" ? (item.cover.attachmentId ? "full-cover" : "full-color") : ""}`}
+      className={tileClass(fullCover)}
       style={
         item.cover?.size === "full" && item.cover.color
           ? { background: item.cover.color, color: readableTextColor(item.cover.color) }
@@ -47,15 +57,19 @@ export const CardTile = memo(function CardTile({
       }}
       onClick={() => actions.open(item.id)}
     >
-      <CardCover card={item} />
+      <CardCover card={item} fill={fullCover} />
       <CardStickers card={item} />
       {item.labelIds.some((id) => labels.get(id)?.color) && (
-        <span className="card-labels">
+        <span className={fullCover ? "hidden" : "flex flex-wrap gap-1"}>
           {item.labelIds.map((id) => {
             const label = labels.get(id);
             return (
               label?.color && (
-                <span key={id} style={{ background: label.color, color: readableTextColor(label.color) }}>
+                <span
+                  key={id}
+                  className="min-w-10 rounded-[3px] px-2 py-0.5 text-[11px] font-bold"
+                  style={{ background: label.color, color: readableTextColor(label.color) }}
+                >
                   {label.name}
                 </span>
               )
@@ -63,23 +77,31 @@ export const CardTile = memo(function CardTile({
           })}
         </span>
       )}
-      <span className="card-name">
-        {item.completed && <span className="complete-mark">✓</span>}
+      <span className={tileNameClass(fullCover)}>
+        {item.completed && <span className={completeMarkClass}>✓</span>}
         {item.name}
       </span>
-      {item.isTemplate && <span className="template-badge">Template</span>}
+      {item.isTemplate && (
+        <span className="self-start rounded-[3px] bg-line px-[5px] py-0.5 text-[11px] font-bold text-ink-subtle">
+          Template
+        </span>
+      )}
       {parentName && (
-        <span className="sub-card-parent" title="Parent card">
+        <span className="truncate text-[12px] opacity-75" title="Parent card">
           ↳ {parentName}
         </span>
       )}
       {(item.memberIds ?? []).length > 0 && (
-        <span className="card-members" aria-label="Card members">
+        <span className="flex flex-wrap gap-1 self-end" aria-label="Card members">
           {(item.memberIds ?? []).map((id) => {
             const member = members?.find((entry) => entry.id === id);
             return (
               member && (
-                <span key={id} title={member.name}>
+                <span
+                  key={id}
+                  className="grid h-6 w-6 place-items-center rounded-[50%] bg-line text-[10px] font-bold text-ink"
+                  title={member.name}
+                >
                   {member.name.slice(0, 2).toUpperCase()}
                 </span>
               )
@@ -88,23 +110,23 @@ export const CardTile = memo(function CardTile({
         </span>
       )}
       {item.description || item.dueAt || item.attachments.length || item.comments.length || item.checklists.length ? (
-        <span className="card-meta">
+        <span className={fullCover ? "hidden" : tileMetaClass(full)}>
           {item.description && "≡"}
           {item.dueAt && (
-            <span>
-              <Icon name="clock" />
+            <span className={tileMetaItemClass}>
+              <Icon name="clock" className={tileMetaIconClass} />
               {new Date(item.dueAt).toLocaleDateString()}
             </span>
           )}
           {item.attachments.length > 0 && (
-            <span>
-              <Icon name="clip" />
+            <span className={tileMetaItemClass}>
+              <Icon name="clip" className={tileMetaIconClass} />
               {item.attachments.length}
             </span>
           )}
-          {item.comments.length > 0 && <span>☰ {item.comments.length}</span>}
+          {item.comments.length > 0 && <span className={tileMetaItemClass}>☰ {item.comments.length}</span>}
           {item.checklists.map((checklist) => (
-            <span key={checklist.id}>
+            <span key={checklist.id} className={tileMetaItemClass}>
               ☑ {checklist.items.filter((entry) => entry.checked).length}/{checklist.items.length}
             </span>
           ))}

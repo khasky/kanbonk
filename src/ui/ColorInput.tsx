@@ -6,11 +6,14 @@ export function ColorInput({
   onCommit,
   label,
   presets,
+  className,
 }: {
   value: string;
   onCommit: (color: string) => void;
   label: string;
   presets?: string[];
+  /** The look of the input; it has none of its own. */
+  className?: string;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const commit = useRef(onCommit);
@@ -29,7 +32,7 @@ export function ColorInput({
   const listId = presets ? `colors${id}` : undefined;
   return (
     <>
-      <input ref={input} type="color" defaultValue={value} list={listId} aria-label={label} />
+      <input ref={input} type="color" className={className} defaultValue={value} list={listId} aria-label={label} />
       {presets && (
         <datalist id={listId}>
           {presets.map((color) => (

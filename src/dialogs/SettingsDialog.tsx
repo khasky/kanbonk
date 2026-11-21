@@ -1,4 +1,4 @@
-import { Modal } from "../ui/Modal";
+import { Dialog } from "../ui/Modal";
 import { useEffect, useState } from "react";
 import type { AppState } from "../model";
 import {
@@ -20,6 +20,19 @@ import {
   platform,
   type BackupFolder,
 } from "../lib/platform";
+import { Button } from "../ui/Button";
+import { Checkbox, Input, Select } from "../ui/Field";
+import { Hint } from "../ui/Hint";
+import {
+  dialogFooterClass,
+  dialogListClass,
+  dialogTitleClass,
+  fieldLabelClass,
+  optionLabelClass,
+  plainReportClass,
+} from "./dialogLook";
+
+const optionClass = `${optionLabelClass} font-normal`;
 
 const frequencies: Array<[BackupFrequency, string]> = [
   ["6h", "Every 6 hours"],
@@ -79,15 +92,15 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
 
   const available = Boolean(defaultLabel) || backupFolderSupported;
   return (
-    <Modal label="Settings" className="creation-dialog settings-dialog" onDismiss={busy ? undefined : onClose}>
-      <h2>Settings</h2>
-      <section className="auto-backups">
+    <Dialog label="Settings" onDismiss={busy ? undefined : onClose}>
+      <h2 className={dialogTitleClass}>Settings</h2>
+      <section className={dialogListClass}>
         <h3>Automatic backups</h3>
         {platform === "extension" && (
-          <p className="hint">
+          <Hint>
             Boards and files live inside this browser extension. Removing the extension deletes them; automatic backups
             keep a copy outside the browser.
-          </p>
+          </Hint>
         )}
         {available ? (
           <>
@@ -95,9 +108,9 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
               A full backup with all files is written as ZIP parts. To restore, choose all parts of one backup in ⋯ →
               Backup.
             </p>
-            <label>
+            <label className={fieldLabelClass}>
               Frequency
-              <select
+              <Select
                 value={settings.frequency}
                 onChange={(event) => void change({ ...settings, frequency: event.target.value as BackupFrequency })}
               >
@@ -106,52 +119,61 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
                     {label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
-            <fieldset className="backup-target">
-              <legend>Location</legend>
+            <fieldset className="m-0 grid gap-2 rounded-md border border-line px-3 pt-2 pb-3">
+              <legend className="px-1 font-semibold">Location</legend>
               {defaultLabel && (
-                <label className="settings-option">
-                  <input
+                <label className={optionClass}>
+                  <Checkbox
                     type="radio"
                     name="backup-target"
                     checked={settings.target === "default"}
                     onChange={() => void change({ ...settings, target: "default" })}
                   />
-                  <span>
+                  <span className="wrap-anywhere">
                     Default: <strong>{defaultLabel}</strong>
                   </span>
                 </label>
               )}
               {backupFolderSupported && (
-                <label className="settings-option">
-                  <input
+                <label className={optionClass}>
+                  <Checkbox
                     type="radio"
                     name="backup-target"
                     checked={settings.target === "folder"}
                     disabled={!folder}
                     onChange={() => void change({ ...settings, target: "folder" })}
                   />
-                  <span>
+                  <span className="wrap-anywhere">
                     Folder: <strong>{folder ? backupFolderLabel(folder) : "not chosen"}</strong>
                   </span>
                 </label>
               )}
               {backupFolderSupported && (
-                <button type="button" onClick={() => void chooseFolder()} disabled={busy}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="lg"
+                  className="justify-self-start"
+                  onClick={() => void chooseFolder()}
+                  disabled={busy}
+                >
                   {folder ? "Choose another folder" : "Choose folder"}
-                </button>
+                </Button>
               )}
               {platform === "web" && settings.target === "default" && (
-                <p className="hint">
+                <Hint>
                   A web page cannot delete or replace files in Downloads: every backup is a new download. Choose a
                   folder to keep only the newest copies.
-                </p>
+                </Hint>
               )}
             </fieldset>
-            <label className="settings-option">
+            <label className={optionClass}>
               Keep the newest
-              <input
+              <Input
+                size="sm"
+                className="w-[72px]"
                 type="number"
                 min={1}
                 max={100}
@@ -163,33 +185,33 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
               />{" "}
               backups
             </label>
-            <p className="hint">
+            <Hint>
               Backups run while Kanbonk is open. Last backup:{" "}
               {last ? new Date(last).toLocaleString("en-US") : "none yet"}.
-            </p>
-            <button
+            </Hint>
+            <Button
               type="button"
-              className="primary-button"
+              variant="primary"
               onClick={() => void backupNow()}
               disabled={busy || (settings.target === "folder" && !folder)}
             >
               {busy ? "Please wait…" : "Back up now"}
-            </button>
+            </Button>
           </>
         ) : (
           <p>Automatic backups to files are not available in this app. Use ⋯ → Backup or sync with another device.</p>
         )}
         {status && (
-          <p className="import-report" role="status">
+          <p className={plainReportClass} role="status">
             {status}
           </p>
         )}
       </section>
-      <div>
-        <button type="button" onClick={onClose} disabled={busy}>
+      <div className={dialogFooterClass}>
+        <Button variant="secondary" size="lg" type="button" onClick={onClose} disabled={busy}>
           Close
-        </button>
+        </Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

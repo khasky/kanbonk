@@ -1,4 +1,7 @@
 import type { Card, Member } from "../model";
+import { Checkbox } from "../ui/Field";
+import { Hint } from "../ui/Hint";
+import { labelPickerClass } from "./LabelPicker";
 
 /**
  * Assigns members to the card. `assignable` lists board members first, then trusted devices and imported members
@@ -20,12 +23,11 @@ export function MemberPicker({
   onAddMember: (member: Member) => void;
 }) {
   return (
-    <div className="label-picker">
+    <div className={labelPickerClass}>
       <strong>Board members</strong>
       {assignable.map((member) => (
-        <label key={member.id}>
-          <input
-            type="checkbox"
+        <label className="flex items-center gap-2" key={member.id}>
+          <Checkbox
             checked={(card.memberIds ?? []).includes(member.id)}
             onChange={() =>
               boardMembers.some((item) => item.id === member.id)
@@ -42,7 +44,7 @@ export function MemberPicker({
           {member.id === currentDeviceId ? " (you)" : ""}
         </label>
       ))}
-      <small className="hint">Members are trusted devices and members imported from Trello.</small>
+      <Hint as="small">Members are trusted devices and members imported from Trello.</Hint>
     </div>
   );
 }
@@ -51,12 +53,17 @@ export function MemberPicker({
 export function CardMemberAvatars({ card, boardMembers }: { card: Card; boardMembers: Member[] }) {
   if (!(card.memberIds ?? []).length) return null;
   return (
-    <div className="member-avatars" aria-label="Card members">
+    <div className="mt-3 ml-[34px] flex flex-wrap gap-1" aria-label="Card members">
       {(card.memberIds ?? []).map((id) => {
         const member = boardMembers.find((item) => item.id === id);
         return (
           member && (
-            <span key={id} title={member.name} aria-label={member.name}>
+            <span
+              className="grid h-[30px] w-[30px] place-items-center rounded-full bg-line text-[11px] font-bold text-ink"
+              key={id}
+              title={member.name}
+              aria-label={member.name}
+            >
               {member.name.slice(0, 2).toUpperCase()}
             </span>
           )

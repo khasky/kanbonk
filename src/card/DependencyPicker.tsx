@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { CardPicker } from "../ui/CardPicker";
 import { type AppState, type Card, isCardAvailable } from "../model";
+import { pickerBoxClass } from "./cardLook";
 
 /** Picks a card that this card depends on. */
 export function DependencyPicker({
@@ -19,7 +20,7 @@ export function DependencyPicker({
     [state, card.id],
   );
   return (
-    <section className="transfer-picker dependency-picker" aria-label="Add dependency">
+    <section className={pickerBoxClass} aria-label="Add dependency">
       <strong>Depends on card</strong>
       <CardPicker
         label="Dependency card"

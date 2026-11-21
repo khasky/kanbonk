@@ -1,7 +1,9 @@
 export function Icon({
   name,
+  className,
 }: {
   name: "plus" | "close" | "star" | "search" | "clip" | "clock" | "trash" | "history" | "info";
+  className?: string;
 }) {
   const paths = {
     plus: <path d="M12 5v14M5 12h14" />,
@@ -36,6 +38,7 @@ export function Icon({
   };
   return (
     <svg
+      className={className}
       width="18"
       height="18"
       viewBox="0 0 24 24"

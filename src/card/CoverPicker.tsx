@@ -1,5 +1,10 @@
 import { ColorInput } from "../ui/ColorInput";
 import type { Card } from "../model";
+import { SectionTitle } from "../ui/SectionTitle";
+import { Button } from "../ui/Button";
+import { Select } from "../ui/Field";
+
+const pressedClass = "aria-pressed:outline-2 aria-pressed:outline-offset-1 aria-pressed:outline-brand";
 
 const coverColors = [
   "#4bce97",
@@ -25,14 +30,17 @@ export function CoverPicker({
 }) {
   const images = card.attachments.filter((item) => item.status === "local" && item.mimeType.startsWith("image/"));
   return (
-    <div className="cover-picker">
-      <div className="section-title">
+    <div className="mb-[15px] ml-[34px] grid gap-3 rounded-md border border-line p-3 max-phone:ml-0">
+      <SectionTitle>
         <strong>Cover</strong>
-        <button onClick={onClose}>Close</button>
-      </div>
-      <div className="cover-colors">
+        <Button variant="secondary" onClick={onClose}>
+          Close
+        </Button>
+      </SectionTitle>
+      <div className="flex flex-wrap gap-1.5">
         {coverColors.map((color) => (
           <button
+            className={`h-[30px] w-[38px] rounded-sm border-2 border-transparent ${pressedClass}`}
             key={color}
             style={{ background: color }}
             aria-label={`Cover ${color}`}
@@ -40,8 +48,12 @@ export function CoverPicker({
             onClick={() => onChange((item) => ({ ...item, cover: { color, size: item.cover?.size ?? "normal" } }))}
           />
         ))}
-        <label className="custom-color" title="Custom color">
+        <label
+          className="inline-flex h-[30px] w-[38px] cursor-pointer items-center gap-2 overflow-hidden rounded-sm bg-[conic-gradient(red,yellow,lime,cyan,blue,magenta,red)]"
+          title="Custom color"
+        >
           <ColorInput
+            className="h-full w-full cursor-pointer border-0 p-0 opacity-85"
             value={card.cover?.color ?? "#579dff"}
             label="Custom cover color"
             onCommit={(color) =>
@@ -50,18 +62,22 @@ export function CoverPicker({
           />
         </label>
       </div>
-      <button
+      <Button
+        variant="secondary"
+        className="justify-self-start"
         onClick={() =>
           onChange((item) => ({ ...item, cover: { color: item.cover?.color ?? "#579dff", size: "full" } }))
         }
         aria-pressed={card.cover?.size === "full" && Boolean(card.cover.color)}
       >
         Color the whole card
-      </button>
+      </Button>
       {images.length > 0 && (
-        <div className="cover-files">
+        <div className="flex flex-wrap gap-1.5">
           {images.map((image) => (
-            <button
+            <Button
+              variant="secondary"
+              className={pressedClass}
               key={image.id}
               aria-pressed={card.cover?.attachmentId === image.id}
               onClick={() =>
@@ -69,13 +85,14 @@ export function CoverPicker({
               }
             >
               {image.name}
-            </button>
+            </Button>
           ))}
         </div>
       )}
-      <label>
+      <label className="flex items-center gap-2">
         Size{" "}
-        <select
+        <Select
+          size="sm"
           value={card.cover?.size ?? "normal"}
           disabled={!card.cover}
           onChange={(event) =>
@@ -87,11 +104,16 @@ export function CoverPicker({
         >
           <option value="normal">Normal</option>
           <option value="full">Full card</option>
-        </select>
+        </Select>
       </label>
-      <button onClick={() => onChange((item) => ({ ...item, cover: undefined }))} disabled={!card.cover}>
+      <Button
+        variant="secondary"
+        className="justify-self-start"
+        onClick={() => onChange((item) => ({ ...item, cover: undefined }))}
+        disabled={!card.cover}
+      >
         Remove cover
-      </button>
+      </Button>
     </div>
   );
 }

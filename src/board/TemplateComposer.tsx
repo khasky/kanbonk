@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { Card } from "../model";
 import { Icon } from "../ui/Icon";
+import { Button } from "../ui/Button";
+import { addCardClass, composeActionsClass } from "./boardLook";
+import { Input, Select } from "../ui/Field";
 
 export function TemplateComposer({
   templates,
@@ -17,7 +20,7 @@ export function TemplateComposer({
   if (!open)
     return (
       <button
-        className="add-card"
+        className={addCardClass}
         onClick={() => {
           setTemplateId(selected.id);
           setName(selected.name);
@@ -28,10 +31,11 @@ export function TemplateComposer({
       </button>
     );
   return (
-    <div className="compose template-compose">
-      <label>
+    <div className="grid flex-col gap-2">
+      <label className="grid gap-1 text-[12px] font-semibold">
         Template
-        <select
+        <Select
+          className="w-full"
           value={selected.id}
           onChange={(event) => {
             const next = templates.find((item) => item.id === event.target.value);
@@ -46,9 +50,10 @@ export function TemplateComposer({
               {item.name}
             </option>
           ))}
-        </select>
+        </Select>
       </label>
-      <input
+      <Input
+        className="w-full"
         value={name}
         onChange={(event) => setName(event.target.value)}
         onKeyDown={(event) => {
@@ -59,9 +64,9 @@ export function TemplateComposer({
         }}
         aria-label="New card title"
       />
-      <div>
-        <button
-          className="primary-button"
+      <div className={composeActionsClass}>
+        <Button
+          variant="primary"
           disabled={!name.trim()}
           onClick={() => {
             onCreate(selected.id, name);
@@ -69,10 +74,10 @@ export function TemplateComposer({
           }}
         >
           Create card
-        </button>
-        <button className="plain-icon" onClick={() => setOpen(false)} aria-label="Cancel">
+        </Button>
+        <Button variant="icon" onClick={() => setOpen(false)} aria-label="Cancel">
           <Icon name="close" />
-        </button>
+        </Button>
       </div>
     </div>
   );

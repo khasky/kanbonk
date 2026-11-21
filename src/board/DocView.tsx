@@ -5,6 +5,14 @@ import { MarkdownText } from "../ui/MarkdownText";
 import { CardPicker } from "../ui/CardPicker";
 import { cardRef, projectSummary, withSummarySnapshot } from "../model/boardDoc";
 import { kanbonkCardForUrl } from "../model/links";
+import { Button } from "../ui/Button";
+import { Hint } from "../ui/Hint";
+
+const paneClass = "min-w-0 rounded-[10px] bg-white px-5 py-4 shadow-tile";
+
+/** The "Link a card" box. */
+const linkBoxClass =
+  "mt-0 mr-0 mb-[15px] ml-[34px] flex flex-col gap-2 rounded-md border border-line p-3 max-phone:ml-0";
 
 /**
  * Board + document twin: the project document next to a live, linked summary of the board, so the "why" and the
@@ -33,22 +41,29 @@ export function DocView({
     [state.cards, board.id],
   );
   return (
-    <section className="doc-view" aria-label="Board doc">
-      <article className="doc-main">
-        <header className="doc-header">
-          <h2>Project doc</h2>
+    <section
+      className="grid h-full grid-cols-[minmax(0,1fr)_minmax(280px,420px)] items-start gap-4 overflow-auto p-4 max-[901px]:grid-cols-[1fr]"
+      aria-label="Board doc"
+    >
+      <article className={paneClass}>
+        <header className="flex flex-wrap items-center gap-2">
+          <h2 className="my-0 mr-auto ml-0 text-[18px]">Project doc</h2>
           {!editing && (
             <>
-              <button onClick={() => setEditing(true)}>{doc ? "Edit" : "Write"}</button>
-              <button onClick={() => setLinking(!linking)} aria-expanded={linking}>
+              <Button variant="secondary" onClick={() => setEditing(true)}>
+                {doc ? "Edit" : "Write"}
+              </Button>
+              <Button variant="secondary" onClick={() => setLinking(!linking)} aria-expanded={linking}>
                 Link a card
-              </button>
-              <button onClick={() => onChange(withSummarySnapshot(doc, summary))}>Insert status snapshot</button>
+              </Button>
+              <Button variant="secondary" onClick={() => onChange(withSummarySnapshot(doc, summary))}>
+                Insert status snapshot
+              </Button>
             </>
           )}
         </header>
         {linking && !editing && (
-          <div className="transfer-picker">
+          <div className={linkBoxClass}>
             <CardPicker
               label="Card to link"
               candidates={boardCards}
@@ -70,22 +85,22 @@ export function DocView({
             onCancel={() => setEditing(false)}
           />
         ) : doc ? (
-          <div className="doc-body" onDoubleClick={() => setEditing(true)}>
+          <div onDoubleClick={() => setEditing(true)}>
             <MarkdownText text={doc} localCardForUrl={cardForUrl} onNavigateCard={onOpenCard} />
           </div>
         ) : (
-          <p className="hint">
+          <Hint>
             Describe goals, decisions and agreements. Card links open cards right from here, and a status snapshot
             records where the project stands now.
-          </p>
+          </Hint>
         )}
         {assistant}
       </article>
-      <aside className="doc-summary" aria-label="Board status">
-        <h2>
-          Board status <small>updates automatically</small>
+      <aside className={paneClass} aria-label="Board status">
+        <h2 className="mx-0 mt-0 mb-2 text-[16px]">
+          Board status <small className="text-[12px] font-normal text-ink-muted">updates automatically</small>
         </h2>
-        <MarkdownText text={summary} localCardForUrl={cardForUrl} onNavigateCard={onOpenCard} />
+        <MarkdownText text={summary} look="summary" localCardForUrl={cardForUrl} onNavigateCard={onOpenCard} />
       </aside>
     </section>
   );

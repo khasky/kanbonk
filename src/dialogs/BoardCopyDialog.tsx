@@ -1,6 +1,11 @@
 import { useState } from "react";
 import type { Workspace } from "../model";
-import { Modal, submitWith } from "../ui/Modal";
+import { Dialog, submitWith } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Checkbox, Input, Select } from "../ui/Field";
+import { fieldLabelClass, optionLabelClass } from "./dialogLook";
+
+const optionClass = `${optionLabelClass} font-normal`;
 
 export interface BoardCopyOptions {
   name: string;
@@ -24,18 +29,18 @@ export function BoardCopyDialog({
   const [options, setOptions] = useState(initial);
   const change = (patch: Partial<BoardCopyOptions>) => setOptions((current) => ({ ...current, ...patch }));
   return (
-    <Modal
+    <Dialog
       label="Copy board"
-      className="creation-dialog board-copy-dialog"
+      className="grid gap-3.5"
       onDismiss={onClose}
       onSubmit={submitWith(() => {
         if (options.name.trim()) onCopy(options);
       })}
     >
-      <h2>Copy board</h2>
-      <label>
+      <h2 className="mx-0 mt-0 mb-1 text-[20px]">Copy board</h2>
+      <label className={fieldLabelClass}>
         Title
-        <input
+        <Input
           autoFocus
           value={options.name}
           onChange={(event) => change({ name: event.target.value })}
@@ -43,41 +48,36 @@ export function BoardCopyDialog({
           maxLength={120}
         />
       </label>
-      <label>
+      <label className={fieldLabelClass}>
         Workspace
-        <select value={options.workspaceId} onChange={(event) => change({ workspaceId: event.target.value })}>
+        <Select value={options.workspaceId} onChange={(event) => change({ workspaceId: event.target.value })}>
           {workspaces.map((item) => (
             <option key={item.id} value={item.id}>
               {item.name}
             </option>
           ))}
-        </select>
+        </Select>
       </label>
-      <label className="copy-option">
-        <input
-          type="checkbox"
-          checked={options.keepCards}
-          onChange={(event) => change({ keepCards: event.target.checked })}
-        />
+      <label className={optionClass}>
+        <Checkbox checked={options.keepCards} onChange={(event) => change({ keepCards: event.target.checked })} />
         Keep cards
       </label>
-      <label className="copy-option">
-        <input
-          type="checkbox"
+      <label className={optionClass}>
+        <Checkbox
           checked={options.keepTemplates}
           onChange={(event) => change({ keepTemplates: event.target.checked })}
         />
         Keep card templates
       </label>
-      <p>Comments, members and cards in the trash are not copied.</p>
-      <div>
-        <button type="button" onClick={onClose}>
+      <p className="m-0 text-[13px] text-ink-muted">Comments, members and cards in the trash are not copied.</p>
+      <div className="mt-1 flex justify-end gap-2">
+        <Button variant="secondary" size="lg" type="button" onClick={onClose}>
           Cancel
-        </button>
-        <button className="primary-button" type="submit">
+        </Button>
+        <Button variant="primary" type="submit">
           Create copy
-        </button>
+        </Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

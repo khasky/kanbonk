@@ -18,6 +18,9 @@ import {
   type CalendarDrag,
   type WeekRow,
 } from "../model/calendar";
+import { Hint } from "../ui/Hint";
+import { Segmented, SegmentedTab } from "../ui/Segmented";
+import { Button } from "../ui/Button";
 
 const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const monthNames = [
@@ -34,6 +37,13 @@ const monthNames = [
   "November",
   "December",
 ];
+
+/** A bar's sides: a bar that continues from the previous week or into the next one is flat and flush on that side. */
+const barStart = { flush: "ml-0 rounded-l-none", own: "ml-[3px] rounded-l-sm" };
+const barEnd = { flush: "mr-0 rounded-r-none", own: "mr-[3px] rounded-r-sm" };
+
+/** A year view's chip of a card, or the "N more" link under them. */
+const chipBase = `cursor-pointer rounded-sm border-0 px-1.5 py-[3px] text-left text-[12px] truncate`;
 
 interface CalendarDragState {
   cardId: string;
@@ -69,19 +79,24 @@ function CalendarWeek({
   onStartDrag: (event: ReactPointerEvent, card: Card, mode: CalendarDrag) => void;
   onDelete: (card: Card) => void;
 }) {
+  const outside = (day: Date) => month !== undefined && day.getMonth() !== month;
   return (
     <div
-      className={`calendar-week ${tall ? "tall" : ""}`}
+      className={`grid grid-cols-[repeat(7,minmax(0,1fr))] gap-y-0.5 border-t border-line pb-1.5 ${tall ? "min-h-[420px]" : "min-h-[110px] max-[761px]:min-h-20"}`}
       style={{ gridTemplateRows: `26px repeat(${Math.max(row.lanes, 1)}, auto) 1fr` }}
     >
       {row.days.map((day, index) => (
         <div
           key={dayKey(day)}
           data-day={dayKey(day)}
-          className={`calendar-day ${month !== undefined && day.getMonth() !== month ? "outside" : ""} ${dayKey(day) === today ? "today" : ""}`}
+          className={`min-w-0 border-l border-surface-sunken ${outside(day) ? "bg-surface-soft" : ""}`}
           style={{ gridColumn: index + 1, gridRow: `1 / span ${row.lanes + 2}` }}
         >
-          <span className="calendar-day-number">{day.getDate()}</span>
+          <span
+            className={`m-0.5 inline-block rounded-[10px] px-1.5 py-[3px] text-[12px] ${dayKey(day) === today ? "bg-brand text-white" : outside(day) ? "text-ink-faint" : ""}`}
+          >
+            {day.getDate()}
+          </span>
         </div>
       ))}
       {row.segments.map((segment) => {
@@ -90,7 +105,7 @@ function CalendarWeek({
         return (
           <div
             key={card.id}
-            className={`calendar-bar ${segment.continuesBefore ? "cont-before" : ""} ${segment.continuesAfter ? "cont-after" : ""} ${card.completed ? "done" : ""} ${dragging === card.id ? "dragging" : ""}`}
+            className={`group relative z-1 flex min-w-0 touch-none items-center gap-1 overflow-hidden border-l-4 border-l-brand-light px-1.5 py-0.5 text-left text-[12px] text-ellipsis whitespace-nowrap text-ink select-none max-[761px]:px-[3px] max-[761px]:py-px max-[761px]:text-[11px] ${segment.continuesBefore ? barStart.flush : barStart.own} ${segment.continuesAfter ? barEnd.flush : barEnd.own} ${card.completed ? "line-through opacity-60" : ""} ${dragging === card.id ? "cursor-grabbing bg-[#cce0ff] shadow-[0_2px_6px_#091e4240]" : "cursor-pointer bg-brand-soft hover:bg-[#cce0ff]"}`}
             style={{
               gridColumn: `${segment.column + 1} / span ${segment.span}`,
               gridRow: segment.lane + 2,
@@ -101,7 +116,7 @@ function CalendarWeek({
           >
             {!segment.continuesBefore && (
               <span
-                className="calendar-resize start"
+                className="absolute top-0 bottom-0 -left-1 w-2 cursor-ew-resize [@media(hover:none)]:w-3.5"
                 aria-hidden="true"
                 onPointerDown={(event) => {
                   event.stopPropagation();
@@ -110,7 +125,7 @@ function CalendarWeek({
               />
             )}
             <button
-              className="calendar-bar-name"
+              className="min-w-0 flex-1 cursor-[inherit] overflow-hidden border-0 bg-transparent p-0 text-left text-ellipsis whitespace-nowrap text-inherit"
               onClick={(event) => {
                 if (event.detail === 0) onOpen(card);
               }}
@@ -124,7 +139,7 @@ function CalendarWeek({
             {!segment.continuesAfter && (
               <>
                 <button
-                  className="calendar-delete"
+                  className="flex-none cursor-pointer border-0 bg-transparent px-0.5 py-0 text-[14px] leading-none text-ink-subtle opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                   aria-label={`Delete card ${card.name}`}
                   title="Delete"
                   onPointerDown={(event) => event.stopPropagation()}
@@ -136,7 +151,7 @@ function CalendarWeek({
                   ×
                 </button>
                 <span
-                  className="calendar-resize end"
+                  className="absolute top-0 -right-0.5 bottom-0 w-2 cursor-ew-resize [@media(hover:none)]:w-3.5"
                   aria-hidden="true"
                   onPointerDown={(event) => {
                     event.stopPropagation();
@@ -226,32 +241,45 @@ export function BoardCalendar({
         : `${from.toLocaleDateString("en-US")} – ${to.toLocaleDateString("en-US")}`;
   const boardLabels = state.labels.filter((label) => !label.deleted);
   return (
-    <section className="board-calendar" aria-label="Board calendar">
-      <div className="calendar-toolbar">
-        <button onClick={() => onNavigate(scale, dayKey(shiftAnchor(scale, anchor, -1)))} aria-label="Previous">
+    <section
+      className="mx-3 mt-0 mb-3 min-h-0 flex-1 overflow-auto rounded-[10px] bg-white p-3 text-ink"
+      aria-label="Board calendar"
+    >
+      <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+        <Button
+          variant="secondary"
+          onClick={() => onNavigate(scale, dayKey(shiftAnchor(scale, anchor, -1)))}
+          aria-label="Previous"
+        >
           ‹
-        </button>
-        <button onClick={() => onNavigate(scale, undefined)}>Today</button>
-        <button onClick={() => onNavigate(scale, dayKey(shiftAnchor(scale, anchor, 1)))} aria-label="Next">
+        </Button>
+        <Button variant="secondary" onClick={() => onNavigate(scale, undefined)}>
+          Today
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => onNavigate(scale, dayKey(shiftAnchor(scale, anchor, 1)))}
+          aria-label="Next"
+        >
           ›
-        </button>
-        <h2>{title}</h2>
-        <div className="segmented" role="tablist" aria-label="Calendar scale">
+        </Button>
+        <h2 className="mx-2 my-0 flex-1 text-[18px]">{title}</h2>
+        <Segmented label="Calendar scale">
           {(["week", "month", "year"] as const).map((item) => (
-            <button key={item} role="tab" aria-selected={scale === item} onClick={() => onNavigate(item, date)}>
+            <SegmentedTab key={item} selected={scale === item} onClick={() => onNavigate(item, date)}>
               {item === "week" ? "Week" : item === "month" ? "Month" : "Year"}
-            </button>
+            </SegmentedTab>
           ))}
-        </div>
+        </Segmented>
       </div>
       {scale === "year" ? (
-        <div className="calendar-year">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-3">
           {monthNames.map((name, month) => {
             const monthItems = itemsInMonth(items, anchor.getFullYear(), month);
             return (
-              <div className="calendar-year-month" key={name}>
+              <div className="flex min-h-[120px] flex-col gap-[3px] rounded-lg border border-line p-2" key={name}>
                 <button
-                  className="calendar-year-title"
+                  className="cursor-pointer border-0 bg-transparent px-0 py-0.5 text-left font-bold text-ink"
                   onClick={() => onNavigate("month", dayKey(new Date(anchor.getFullYear(), month, 1)))}
                 >
                   {name} <small>{monthItems.length || ""}</small>
@@ -259,7 +287,7 @@ export function BoardCalendar({
                 {monthItems.slice(0, 8).map((item) => (
                   <button
                     key={item.card.id}
-                    className={`calendar-chip ${item.card.completed ? "done" : ""}`}
+                    className={`${chipBase} bg-brand-soft ${item.card.completed ? "line-through opacity-60" : ""}`}
                     onClick={() => onOpen(item.card)}
                     title={item.card.name}
                   >
@@ -268,7 +296,7 @@ export function BoardCalendar({
                 ))}
                 {monthItems.length > 8 && (
                   <button
-                    className="calendar-more"
+                    className={`${chipBase} bg-transparent text-brand`}
                     onClick={() => onNavigate("month", dayKey(new Date(anchor.getFullYear(), month, 1)))}
                   >
                     {monthItems.length - 8} more
@@ -279,10 +307,12 @@ export function BoardCalendar({
           })}
         </div>
       ) : (
-        <div className={`calendar-grid ${scale}`}>
-          <div className="calendar-weekdays">
+        <div>
+          <div className="grid grid-cols-[repeat(7,1fr)] py-1 text-[12px] font-bold text-ink-muted">
             {weekdays.map((day) => (
-              <span key={day}>{day}</span>
+              <span key={day} className="pl-1.5">
+                {day}
+              </span>
             ))}
           </div>
           {(scale === "week" ? [layoutWeek(startOfWeek(anchor), items)] : monthWeeks(anchor, items)).map((row) => (
@@ -301,10 +331,10 @@ export function BoardCalendar({
           ))}
         </div>
       )}
-      <p className="hint">
+      <Hint>
         A card spans from its start date (or creation date) to its due date, if that is later. Drag a bar to another
         day, or drag its edge to change the start or due date; × moves the card to the trash.
-      </p>
+      </Hint>
     </section>
   );
 }

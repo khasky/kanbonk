@@ -1,6 +1,12 @@
-import { Modal, submitWith } from "../ui/Modal";
+import { Dialog, submitWith } from "../ui/Modal";
 import { useState } from "react";
 import { aiProviders, type AiProvider, type AiSettings } from "../ai/ai";
+import { Button } from "../ui/Button";
+import { Hint } from "../ui/Hint";
+import { Input, Select } from "../ui/Field";
+import { dialogFooterClass, dialogTitleClass } from "./dialogLook";
+
+const labelClass = "flex flex-col gap-1 font-semibold";
 
 /** Provider, key and model; the key never leaves this device except in requests to the chosen provider. */
 export function AiSettingsDialog({
@@ -17,9 +23,8 @@ export function AiSettingsDialog({
   const [model, setModel] = useState(settings?.model ?? aiProviders.anthropic.model);
   const [baseUrl, setBaseUrl] = useState(settings?.baseUrl ?? "");
   return (
-    <Modal
+    <Dialog
       label="AI settings"
-      className="creation-dialog ai-settings"
       onDismiss={onClose}
       onSubmit={submitWith(() =>
         onSave({
@@ -30,10 +35,10 @@ export function AiSettingsDialog({
         }),
       )}
     >
-      <h2>AI assistant</h2>
-      <label>
+      <h2 className={dialogTitleClass}>AI assistant</h2>
+      <label className={labelClass}>
         Provider
-        <select
+        <Select
           value={provider}
           onChange={(event) => {
             const next = event.target.value as AiProvider;
@@ -47,12 +52,12 @@ export function AiSettingsDialog({
               {aiProviders[item].name}
             </option>
           ))}
-        </select>
+        </Select>
       </label>
       {provider === "compatible" && (
-        <label>
+        <label className={labelClass}>
           API URL
-          <input
+          <Input
             type="url"
             required
             value={baseUrl}
@@ -61,9 +66,9 @@ export function AiSettingsDialog({
           />
         </label>
       )}
-      <label>
+      <label className={labelClass}>
         API key
-        <input
+        <Input
           type="password"
           required={provider !== "compatible"}
           value={apiKey}
@@ -71,31 +76,31 @@ export function AiSettingsDialog({
           autoComplete="off"
         />
       </label>
-      <label>
+      <label className={labelClass}>
         Model
-        <input
+        <Input
           required
           value={model}
           onChange={(event) => setModel(event.target.value)}
           placeholder={provider === "anthropic" ? "claude-opus-5-5" : "Model name at the provider"}
         />
       </label>
-      <p className="hint">
+      <Hint>
         The key is stored only in this browser (never synced, never in backups). Board data is sent to the provider only
         when you click an AI action button.
         {provider === "anthropic" ? " Claude models use a server-side fallback in case the model refuses." : ""}
-      </p>
-      <div>
+      </Hint>
+      <div className={dialogFooterClass}>
         {settings && (
-          <button type="button" className="danger-button" onClick={() => onSave(null)}>
+          <Button type="button" variant="danger" size="lg" onClick={() => onSave(null)}>
             Remove key
-          </button>
+          </Button>
         )}
-        <button type="button" onClick={onClose}>
+        <Button variant="secondary" size="lg" type="button" onClick={onClose}>
           Cancel
-        </button>
-        <button className="primary-button">Save</button>
+        </Button>
+        <Button variant="primary">Save</Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

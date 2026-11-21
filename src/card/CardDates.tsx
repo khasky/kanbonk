@@ -1,6 +1,10 @@
 import { localDateTime } from "../lib/format";
 import type { Card } from "../model";
+import { Input, Select } from "../ui/Field";
 import { Icon } from "../ui/Icon";
+import { detailSectionClass, detailTitleClass } from "./cardLook";
+
+const labelClass = "grid gap-[5px] text-ink-subtle";
 
 const reminderOptions = [
   { minutes: 0, label: "At due time" },
@@ -17,14 +21,15 @@ const reminderOptions = [
 /** Start and due dates, the due reminder and the repeat cadence. */
 export function CardDates({ card, onChange }: { card: Card; onChange: (change: (card: Card) => Card) => void }) {
   return (
-    <section className="detail-section">
-      <h3>
+    <section className={detailSectionClass}>
+      <h3 className={detailTitleClass}>
         <Icon name="clock" /> Dates
       </h3>
-      <div className="date-fields">
-        <label>
+      <div className="ml-7 flex flex-wrap gap-3">
+        <label className={labelClass}>
           Start date
-          <input
+          <Input
+            size="sm"
             type="datetime-local"
             value={card.startAt ? localDateTime(card.startAt) : ""}
             onChange={(event) =>
@@ -36,9 +41,10 @@ export function CardDates({ card, onChange }: { card: Card; onChange: (change: (
             aria-label="Card start date"
           />
         </label>
-        <label>
+        <label className={labelClass}>
           Due date
-          <input
+          <Input
+            size="sm"
             id={`due-${card.id}`}
             type="datetime-local"
             value={card.dueAt ? localDateTime(card.dueAt) : ""}
@@ -53,9 +59,10 @@ export function CardDates({ card, onChange }: { card: Card; onChange: (change: (
             aria-label="Card due date"
           />
         </label>
-        <label>
+        <label className={labelClass}>
           Reminder
-          <select
+          <Select
+            size="sm"
             value={card.dueReminderMinutes ?? ""}
             onChange={(event) =>
               onChange((item) => ({
@@ -76,11 +83,12 @@ export function CardDates({ card, onChange }: { card: Card; onChange: (change: (
               !reminderOptions.some((option) => option.minutes === card.dueReminderMinutes) && (
                 <option value={card.dueReminderMinutes}>{card.dueReminderMinutes} minutes before</option>
               )}
-          </select>
+          </Select>
         </label>
-        <label>
+        <label className={labelClass}>
           Repeat
-          <select
+          <Select
+            size="sm"
             value={card.dueRepeat?.cadence ?? ""}
             onChange={(event) => {
               const cadence = event.target.value as NonNullable<Card["dueRepeat"]>["cadence"] | "";
@@ -98,7 +106,7 @@ export function CardDates({ card, onChange }: { card: Card; onChange: (change: (
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
-          </select>
+          </Select>
         </label>
       </div>
     </section>

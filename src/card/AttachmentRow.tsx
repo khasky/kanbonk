@@ -4,6 +4,12 @@ import { platform } from "../lib/platform";
 import { loadAttachment } from "../lib/storage";
 import { AttachmentPreview } from "./AttachmentPreview";
 import { previewKind } from "./previewKinds";
+import { Button } from "../ui/Button";
+import { PanelRowNote } from "../ui/PanelRow";
+
+const buttonClass = "whitespace-nowrap";
+const noteClass = "mt-[3px] block text-ink-muted";
+const mediaMargins = "mx-2 mt-1 mb-3 block";
 
 export function AttachmentRow({
   attachment,
@@ -43,49 +49,84 @@ export function AttachmentRow({
   }, [attachment.id, attachment.mimeType, attachment.status, attachment]);
   const kind = attachment.mimeType.split("/")[0];
   let action = (
-    <button onClick={() => onDownload(attachment.id, attachment.name)} disabled={attachment.status === "missing"}>
+    <Button
+      variant="secondary"
+      className={buttonClass}
+      onClick={() => onDownload(attachment.id, attachment.name)}
+      disabled={attachment.status === "missing"}
+    >
       Download
-    </button>
+    </Button>
   );
   if (attachment.status === "link") {
     if (linkedCard && !linkedCard.deletedAt)
-      action = <button onClick={() => onNavigateCard(linkedCard)}>Open card</button>;
-    else if (attachment.linkedCardId) action = <small>Card unavailable</small>;
+      action = (
+        <Button variant="secondary" className={buttonClass} onClick={() => onNavigateCard(linkedCard)}>
+          Open card
+        </Button>
+      );
+    else if (attachment.linkedCardId) action = <small className={noteClass}>Card unavailable</small>;
     else if (/^https?:\/\//.test(attachment.sourceUrl ?? ""))
       action = (
-        <a href={attachment.sourceUrl} target="_blank" rel="noopener noreferrer">
+        <a
+          className="whitespace-nowrap text-brand no-underline"
+          href={attachment.sourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Open link
         </a>
       );
-    else action = <small>Link unavailable</small>;
+    else action = <small className={noteClass}>Link unavailable</small>;
   }
   return (
-    <div className="attachment-entry">
-      <div className="attachment-row">
-        <span>
+    <div className="border-b border-[#eee]">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 p-2">
+        <span className="min-w-0 flex-[1_1_150px] wrap-anywhere">
           {attachment.name}
-          <small>
+          <PanelRowNote>
             {attachment.status === "link"
               ? "Link"
               : `${Math.round(attachment.size / 1024)} KB ${attachment.status === "missing" ? "· file missing" : ""}`}
-          </small>
+          </PanelRowNote>
         </span>
         {canPreview && (
-          <button onClick={() => setPreviewOpen(true)} aria-label={`Preview ${attachment.name}`}>
+          <Button
+            variant="secondary"
+            className={buttonClass}
+            onClick={() => setPreviewOpen(true)}
+            aria-label={`Preview ${attachment.name}`}
+          >
             Preview
-          </button>
+          </Button>
         )}
         {action}
-        <button onClick={onRemove} aria-label={`Delete attachment ${attachment.name}`}>
+        <Button
+          variant="secondary"
+          className={buttonClass}
+          onClick={onRemove}
+          aria-label={`Delete attachment ${attachment.name}`}
+        >
           Delete
-        </button>
+        </Button>
       </div>
-      {localUrl && kind === "image" && <img className="attachment-preview" src={localUrl} alt={attachment.name} />}
+      {localUrl && kind === "image" && (
+        <img
+          className={`${mediaMargins} max-h-80 max-w-full rounded-sm object-contain`}
+          src={localUrl}
+          alt={attachment.name}
+        />
+      )}
       {localUrl && kind === "video" && (
-        <video className="attachment-preview" src={localUrl} controls preload="metadata" />
+        <video
+          className={`${mediaMargins} max-h-80 max-w-full rounded-sm object-contain`}
+          src={localUrl}
+          controls
+          preload="metadata"
+        />
       )}
       {localUrl && kind === "audio" && (
-        <audio className="attachment-audio" src={localUrl} controls preload="metadata" />
+        <audio className={`${mediaMargins} w-[min(100%,360px)]`} src={localUrl} controls preload="metadata" />
       )}
       {previewOpen && preview && (
         <AttachmentPreview

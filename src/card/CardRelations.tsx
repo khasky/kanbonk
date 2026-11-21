@@ -2,6 +2,13 @@ import { useState } from "react";
 import { CardPicker } from "../ui/CardPicker";
 import type { relatedCards } from "../model/links";
 import { type AppState, type Card, isCardAvailable, parentCandidates } from "../model";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Field";
+import { detailSectionClass, detailTitleClass, inlineFormClass } from "./cardLook";
+
+const dependencyLineClass = "my-1.5 flex flex-wrap items-center gap-1.5";
+/** A sub-card or the parent card, as a blue text link. */
+const cardLinkClass = "cursor-pointer border-0 bg-transparent px-0 py-0.5 text-left text-brand";
 
 /** Cards this card depends on and cards it blocks. */
 export function DependencySummary({
@@ -16,28 +23,30 @@ export function DependencySummary({
   onNavigateCard: (target: Card) => void;
 }) {
   return (
-    <section className="detail-section dependency-summary">
-      <h3>Dependencies</h3>
+    <section className={detailSectionClass}>
+      <h3 className={detailTitleClass}>Dependencies</h3>
       {prerequisiteCards.length > 0 && (
-        <p>
+        <p className={dependencyLineClass}>
           Depends on:{" "}
           {prerequisiteCards.map((item) => (
-            <button key={item.id} onClick={() => onNavigateCard(item)}>
+            <Button variant="secondary" key={item.id} onClick={() => onNavigateCard(item)}>
               {item.completed ? "✓" : "⏳"} {item.name}
-            </button>
+            </Button>
           ))}
         </p>
       )}
       {prerequisiteCards.some((item) => !item.completed) && !card.completed && (
-        <p className="blocked-note">Card is blocked: not all dependencies are complete.</p>
+        <p className={`${dependencyLineClass} font-semibold text-danger`}>
+          Card is blocked: not all dependencies are complete.
+        </p>
       )}
       {dependentCards.length > 0 && (
-        <p>
+        <p className={dependencyLineClass}>
           Blocks:{" "}
           {dependentCards.map((item) => (
-            <button key={item.id} onClick={() => onNavigateCard(item)}>
+            <Button variant="secondary" key={item.id} onClick={() => onNavigateCard(item)}>
               {item.name}
-            </button>
+            </Button>
           ))}
         </p>
       )}
@@ -66,18 +75,21 @@ export function SubCards({
   const [subCardName, setSubCardName] = useState("");
   const [choosingParent, setChoosingParent] = useState(false);
   return (
-    <section className="detail-section sub-cards">
-      <h3>Sub-cards</h3>
+    <section className={detailSectionClass}>
+      <h3 className={detailTitleClass}>Sub-cards</h3>
       {parentCard && (
         <p>
-          Parent: <button onClick={() => onNavigateCard(parentCard)}>{parentCard.name}</button>
+          Parent:{" "}
+          <button className={cardLinkClass} onClick={() => onNavigateCard(parentCard)}>
+            {parentCard.name}
+          </button>
         </p>
       )}
       {childCards.length > 0 && (
-        <ul>
+        <ul className="mt-0 mb-2 pl-[18px]">
           {childCards.map((item) => (
             <li key={item.id}>
-              <button onClick={() => onNavigateCard(item)}>
+              <button className={cardLinkClass} onClick={() => onNavigateCard(item)}>
                 {item.completed ? "✓ " : ""}
                 {item.name}
               </button>
@@ -85,8 +97,10 @@ export function SubCards({
           ))}
         </ul>
       )}
-      <div className="inline-form">
-        <input
+      <div className={inlineFormClass}>
+        <Input
+          size="sm"
+          className="min-w-0 flex-1"
           value={subCardName}
           onChange={(event) => setSubCardName(event.target.value)}
           onKeyDown={(event) => {
@@ -98,7 +112,8 @@ export function SubCards({
           placeholder="New sub-card"
           aria-label="New sub-card title"
         />
-        <button
+        <Button
+          variant="secondary"
           disabled={!subCardName.trim()}
           onClick={() => {
             onCreateSubCard(subCardName.trim());
@@ -106,13 +121,14 @@ export function SubCards({
           }}
         >
           Add
-        </button>
+        </Button>
       </div>
-      <div className="parent-picker">
+      <div className="mt-2 flex flex-row flex-wrap items-start gap-1.5">
         {choosingParent ? (
           <>
             <CardPicker
               label="Parent card"
+              className="min-w-[200px] flex-1"
               candidates={parentCandidates(state, card.id).filter(
                 (item) => item.boardId === card.boardId && isCardAvailable(state, item),
               )}
@@ -121,15 +137,19 @@ export function SubCards({
                 setChoosingParent(false);
               }}
             />
-            <button onClick={() => setChoosingParent(false)}>Cancel</button>
+            <Button variant="secondary" onClick={() => setChoosingParent(false)}>
+              Cancel
+            </Button>
           </>
         ) : (
           <>
-            <button onClick={() => setChoosingParent(true)}>
+            <Button variant="secondary" onClick={() => setChoosingParent(true)}>
               {parentCard ? "Change parent" : "Choose parent card"}
-            </button>
+            </Button>
             {card.parentCardId && (
-              <button onClick={() => onChange((item) => ({ ...item, parentCardId: undefined }))}>Remove parent</button>
+              <Button variant="secondary" onClick={() => onChange((item) => ({ ...item, parentCardId: undefined }))}>
+                Remove parent
+              </Button>
             )}
           </>
         )}
@@ -149,17 +169,22 @@ export function RelatedCards({
   onNavigateCard: (target: Card) => void;
 }) {
   return (
-    <section className="detail-section related-cards">
-      <h3>Linked cards</h3>
+    <section className={detailSectionClass}>
+      <h3 className={detailTitleClass}>Linked cards</h3>
       {related.map((link, index) => (
-        <div className="related-row" key={`${link.url}-${index}`}>
-          <span>{link.source}</span>
+        <div className="flex items-center gap-2.5 border-b border-line py-2 wrap-anywhere" key={`${link.url}-${index}`}>
+          <span className="min-w-[70px] text-[12px] text-ink-muted">{link.source}</span>
           {link.target && isCardAvailable(state, link.target) ? (
-            <button onClick={() => onNavigateCard(link.target!)}>{link.target.name}</button>
+            <button
+              className="rounded-sm border-0 bg-brand-soft px-2 py-1.5 text-left text-brand"
+              onClick={() => onNavigateCard(link.target!)}
+            >
+              {link.target.name}
+            </button>
           ) : link.target ? (
-            <small>Card unavailable: {link.target.name}</small>
+            <small className="text-danger">Card unavailable: {link.target.name}</small>
           ) : (
-            <small>Card not imported: {link.url}</small>
+            <small className="text-danger">Card not imported: {link.url}</small>
           )}
         </div>
       ))}

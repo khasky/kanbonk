@@ -2,17 +2,29 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Card } from "../model";
 
+const looks = {
+  plain: "markdown-text",
+  comment: "markdown-text rounded-[5px] bg-white px-[11px] py-[9px] shadow-tile-soft",
+  summary: "markdown-text markdown-summary",
+};
+
+/**
+ * Rendered Markdown; card links open the card in the app instead of a new tab. `look="comment"` is a comment bubble,
+ * `look="summary"` has full-width compact tables.
+ */
 export function MarkdownText({
   text,
+  look = "plain",
   localCardForUrl,
   onNavigateCard,
 }: {
   text: string;
+  look?: keyof typeof looks;
   localCardForUrl?: (url: string) => Card | undefined;
   onNavigateCard?: (card: Card) => void;
 }) {
   return (
-    <div className="markdown-text">
+    <div className={looks[look]}>
       <ReactMarkdown
         skipHtml
         remarkPlugins={[remarkGfm]}
@@ -33,7 +45,7 @@ export function MarkdownText({
               children
             );
           },
-          img: ({ alt, src }) => <span className="markdown-image">Image: {alt || src || "untitled"}</span>,
+          img: ({ alt, src }) => <span className="text-ink-subtle italic">Image: {alt || src || "untitled"}</span>,
         }}
       >
         {text}

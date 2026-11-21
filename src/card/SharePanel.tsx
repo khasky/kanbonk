@@ -1,5 +1,7 @@
 import { type RefObject, useState } from "react";
 import type { AppState, Card } from "../model";
+import { Button } from "../ui/Button";
+import { pickerBoxClass } from "./cardLook";
 import { cardLink, downloadCardJson, downloadCardPng, printCard, qrSvg } from "./share";
 
 /** Print, save or copy a link to the card. `dialog` is the element saved as an image. */
@@ -34,25 +36,34 @@ export function SharePanel({
   }
   if (!open) return null;
   return (
-    <section className="transfer-picker share-panel" aria-label="Share card" data-share-skip>
+    <section className={pickerBoxClass} aria-label="Share card" data-share-skip>
       <strong>Share</strong>
-      <div className="share-actions">
-        <button onClick={() => void share("print")}>Print</button>
-        <button onClick={() => void share("png")}>PNG</button>
-        <button onClick={() => void share("json")}>JSON</button>
-        <button onClick={() => void share("link")}>Copy link</button>
-        <button onClick={() => setShowQr(!showQr)} aria-pressed={showQr}>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" size="lg" onClick={() => void share("print")}>
+          Print
+        </Button>
+        <Button variant="secondary" size="lg" onClick={() => void share("png")}>
+          PNG
+        </Button>
+        <Button variant="secondary" size="lg" onClick={() => void share("json")}>
+          JSON
+        </Button>
+        <Button variant="secondary" size="lg" onClick={() => void share("link")}>
+          Copy link
+        </Button>
+        <Button variant="secondary" size="lg" onClick={() => setShowQr(!showQr)} aria-pressed={showQr}>
           QR code
-        </button>
+        </Button>
       </div>
       {showQr && (
-        <figure className="share-qr">
+        <figure className="mx-0 mt-2 mb-0 flex flex-col items-center gap-1.5">
           <span
+            className="block h-[180px] w-[180px] bg-white [&_svg]:h-full [&_svg]:w-full"
             role="img"
             aria-label="QR code for the card link"
             dangerouslySetInnerHTML={{ __html: qrSvg(cardLink(card.id)) }}
           />
-          <figcaption>{cardLink(card.id)}</figcaption>
+          <figcaption className="text-center text-[12px] break-all">{cardLink(card.id)}</figcaption>
         </figure>
       )}
       {shareStatus && <p role="status">{shareStatus}</p>}

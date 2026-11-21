@@ -33,10 +33,7 @@ import { useBoardView } from "./useBoardView";
 import { useClock } from "./useClock";
 import { useNotice } from "./useNotice";
 import { useOverlays } from "./useOverlays";
-import "../ui/MarkdownText.css";
-import "../styles/activity.css";
-import "../styles/App.css";
-import "../styles/pages.css";
+import "../styles/index.css";
 
 /**
  * The app shell. It owns the data, the route and the open dialogs, wires the change hooks together and lays out the
@@ -270,11 +267,11 @@ function App() {
     setLocalAuthor,
   };
 
-  if (!ready) return <main className="startup">{error || "Loading local data…"}</main>;
+  if (!ready) return <main className="grid min-h-dvh place-items-center">{error || "Loading local data…"}</main>;
   return (
     <AppContext value={services}>
       <CardActionsContext value={cardActionsWithFilters}>
-        <div className="app-shell">
+        <div className="flex h-dvh flex-col overflow-hidden">
           <AppHeader
             state={state}
             boardId={boardId}
@@ -324,7 +321,8 @@ function App() {
             error={error}
             onDismissError={() => setError("")}
           />
-          <div className={panels.shownPanels.length ? "workspace-layout panel-open" : "workspace-layout"}>
+          {/* `panel-open` is a hook for the board toolbar's rules. */}
+          <div className={panels.shownPanels.length ? "panel-open flex min-h-0 flex-1" : "flex min-h-0 flex-1"}>
             <Sidebar
               state={state}
               shownPanels={panels.shownPanels}

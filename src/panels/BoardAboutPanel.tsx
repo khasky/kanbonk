@@ -1,5 +1,7 @@
 import { useState } from "react";
 import type { Board } from "../model";
+import { Button } from "../ui/Button";
+import { Textarea } from "../ui/Field";
 import { SidePanel } from "../ui/Modal";
 
 export function BoardAboutPanel({
@@ -16,28 +18,26 @@ export function BoardAboutPanel({
     <SidePanel
       title="About this board"
       label="Board description"
-      className="board-about"
       closeLabel="Close board description"
       onClose={onClose}
     >
-      <p>{board.name}</p>
-      <label>
+      <p className="text-ink-muted">{board.name}</p>
+      <label className="grid gap-2 font-bold">
         Description
-        <textarea
+        <Textarea
+          className="min-h-[220px] w-full"
           value={description}
           onChange={(event) => setDescription(event.target.value)}
           placeholder="Add a board description…"
         />
       </label>
-      <div className="panel-actions">
-        <button onClick={onClose}>Cancel</button>
-        <button
-          className="primary-button"
-          onClick={() => onSave(description)}
-          disabled={description === board.description}
-        >
+      <div className="mt-4 flex justify-end gap-2">
+        <Button variant="secondary" size="lg" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={() => onSave(description)} disabled={description === board.description}>
           Save
-        </button>
+        </Button>
       </div>
     </SidePanel>
   );

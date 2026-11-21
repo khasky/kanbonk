@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { type AppState, type Card, isCardAvailable, newId } from "../model";
+import { Button } from "../ui/Button";
+import { Input, Select } from "../ui/Field";
+import { pickerBoxClass, pickerLabelClass, pickerRowClass } from "./cardLook";
 
 /** Adds a checklist to the card, optionally copying the items of another checklist on the board. */
 export function ChecklistComposer({
@@ -36,19 +39,23 @@ export function ChecklistComposer({
     setCopyChecklistId("");
   }
   return (
-    <section className="transfer-picker checklist-composer" aria-label="New checklist">
+    <section className={pickerBoxClass} aria-label="New checklist">
       <strong>New checklist</strong>
-      <label>
+      <label className={pickerLabelClass}>
         Title
-        <input
+        <Input
+          size="sm"
+          className="w-[70%] min-w-0"
           value={checklistName}
           onChange={(event) => setChecklistName(event.target.value)}
           aria-label="New checklist title"
         />
       </label>
-      <label>
+      <label className={pickerLabelClass}>
         Copy items from
-        <select
+        <Select
+          size="sm"
+          className="w-[70%] min-w-0"
           value={copyChecklistId}
           onChange={(event) => {
             setCopyChecklistId(event.target.value);
@@ -63,13 +70,15 @@ export function ChecklistComposer({
               {cardName} / {checklist.name}
             </option>
           ))}
-        </select>
+        </Select>
       </label>
-      <div>
-        <button className="primary-button" onClick={addChecklist}>
+      <div className={pickerRowClass}>
+        <Button variant="primary" onClick={addChecklist}>
           Add checklist
-        </button>
-        <button onClick={onClose}>Cancel</button>
+        </Button>
+        <Button variant="secondary" size="lg" onClick={onClose}>
+          Cancel
+        </Button>
       </div>
     </section>
   );

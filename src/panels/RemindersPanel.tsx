@@ -1,5 +1,7 @@
 import type { Card } from "../model";
 import { SidePanel } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { PanelRow, PanelRowNote } from "../ui/PanelRow";
 
 export function RemindersPanel({
   reminders,
@@ -16,18 +18,26 @@ export function RemindersPanel({
     <SidePanel title="Reminders" closeLabel="Close reminders" onClose={onClose}>
       {reminders.length ? (
         reminders.map((item) => (
-          <div className="panel-row reminder-row" key={item.id}>
-            <button onClick={() => onOpen(item)}>
+          <PanelRow key={item.id}>
+            <button
+              className="flex-1 whitespace-normal rounded-sm border-0 bg-transparent px-[9px] py-1.5 text-left text-ink hover:bg-brand-soft"
+              onClick={() => onOpen(item)}
+            >
               {item.name}
-              <small>{new Date(item.dueAt!).toLocaleString("en-US")}</small>
+              <PanelRowNote>{new Date(item.dueAt!).toLocaleString("en-US")}</PanelRowNote>
             </button>
-            <button onClick={() => onDismiss(item)} aria-label={`Dismiss reminder ${item.name}`}>
+            <Button
+              variant="secondary"
+              className="flex-none"
+              onClick={() => onDismiss(item)}
+              aria-label={`Dismiss reminder ${item.name}`}
+            >
               Dismiss
-            </button>
-          </div>
+            </Button>
+          </PanelRow>
         ))
       ) : (
-        <p>No new reminders.</p>
+        <p className="text-ink-muted">No new reminders.</p>
       )}
     </SidePanel>
   );

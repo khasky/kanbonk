@@ -74,7 +74,11 @@ export function MainContent({
 
   return (
     <main
-      className="main-area"
+      className={
+        app.panels.shownPanels.length
+          ? "relative flex min-w-0 flex-1 flex-col max-phone:hidden"
+          : "relative flex min-w-0 flex-1 flex-col"
+      }
       style={{
         backgroundColor: board?.background ?? "#f7f8f9",
         backgroundImage: backgroundUrl ? `url("${backgroundUrl}")` : undefined,

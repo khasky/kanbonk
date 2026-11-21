@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { type Card, newId } from "../model";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Field";
+import { pickerBoxClass, pickerLabelClass } from "./cardLook";
 
 /** Attaches a website link to the card. */
 export function LinkEditor({
@@ -42,11 +45,13 @@ export function LinkEditor({
     }
   }
   return (
-    <section className="transfer-picker link-editor" aria-label="Add link">
+    <section className={pickerBoxClass} aria-label="Add link">
       <strong>Website link</strong>
-      <label>
+      <label className={pickerLabelClass}>
         URL
-        <input
+        <Input
+          size="sm"
+          className="w-[70%] min-w-0"
           type="url"
           value={linkUrl}
           onChange={(event) => {
@@ -56,14 +61,24 @@ export function LinkEditor({
           placeholder="https://example.com"
         />
       </label>
-      <label>
+      <label className={pickerLabelClass}>
         Title
-        <input value={linkName} onChange={(event) => setLinkName(event.target.value)} placeholder="Optional" />
+        <Input
+          size="sm"
+          className="w-[70%] min-w-0"
+          value={linkName}
+          onChange={(event) => setLinkName(event.target.value)}
+          placeholder="Optional"
+        />
       </label>
-      {linkError && <p role="alert">{linkError}</p>}
-      <button disabled={!linkUrl.trim()} onClick={addUrlAttachment}>
+      {linkError && (
+        <p className="m-0 text-[#ae2a19]" role="alert">
+          {linkError}
+        </p>
+      )}
+      <Button variant="primary" className="self-start" disabled={!linkUrl.trim()} onClick={addUrlAttachment}>
         Add link
-      </button>
+      </Button>
     </section>
   );
 }

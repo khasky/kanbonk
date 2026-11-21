@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { isCardAvailable, type AppState, type Card } from "../model";
+import { Button } from "../ui/Button";
+
+const weekButtonClass = "max-phone:min-h-11";
 
 export function PlannerView({ state, onOpen }: { state: AppState; onOpen: (card: Card) => void }) {
   const [weekOffset, setWeekOffset] = useState(0);
@@ -17,28 +20,50 @@ export function PlannerView({ state, onOpen }: { state: AppState; onOpen: (card:
     .filter((card) => card.dueAt && isCardAvailable(state, card))
     .sort((a, b) => Date.parse(a.dueAt!) - Date.parse(b.dueAt!));
   return (
-    <section className="planner-view" aria-label="Planner">
-      <header>
+    <section className="flex min-h-0 flex-1 flex-col gap-5 bg-white p-3.5 text-ink" aria-label="Planner">
+      <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>Planner</h1>
-          <p>Cards with due dates from your boards and inbox.</p>
+          <h1 className="mx-0 mt-0 mb-1.5 text-[18px]">Planner</h1>
+          <p className="m-0 text-[12px] text-ink-subtle">Cards with due dates from your boards and inbox.</p>
         </div>
-        <div>
-          <button onClick={() => setWeekOffset((value) => value - 1)}>Previous week</button>
-          <button onClick={() => setWeekOffset(0)}>Today</button>
-          <button onClick={() => setWeekOffset((value) => value + 1)}>Next week</button>
+        <div className="flex flex-wrap gap-1.5">
+          <Button
+            variant="secondary"
+            size="lg"
+            className={weekButtonClass}
+            onClick={() => setWeekOffset((value) => value - 1)}
+          >
+            Previous week
+          </Button>
+          <Button variant="secondary" size="lg" className={weekButtonClass} onClick={() => setWeekOffset(0)}>
+            Today
+          </Button>
+          <Button
+            variant="secondary"
+            size="lg"
+            className={weekButtonClass}
+            onClick={() => setWeekOffset((value) => value + 1)}
+          >
+            Next week
+          </Button>
         </div>
       </header>
-      <div className="planner-week">
+      <div className="flex min-h-0 flex-col overflow-auto">
         {days.map((day) => (
-          <section className="planner-day" key={day.toDateString()}>
-            <h2>{day.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "long" })}</h2>
+          <section className="min-h-[76px] flex-none border-b border-line bg-white px-0 py-3" key={day.toDateString()}>
+            <h2 className="mx-0 mt-0 mb-3 text-[14px] text-ink-subtle capitalize">
+              {day.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "long" })}
+            </h2>
             {cards
               .filter((card) => new Date(card.dueAt!).toDateString() === day.toDateString())
               .map((card) => (
-                <button className="planner-card" key={card.id} onClick={() => onOpen(card)}>
+                <button
+                  className="mb-1.5 grid w-full gap-1 rounded-md border border-line bg-brand-soft p-2 text-left text-ink wrap-anywhere"
+                  key={card.id}
+                  onClick={() => onOpen(card)}
+                >
                   <strong>{card.name}</strong>
-                  <small>
+                  <small className="text-ink-subtle">
                     {state.boards.find((board) => board.id === card.boardId)?.name} ·{" "}
                     {new Date(card.dueAt!).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                     {card.completed ? " · done" : ""}

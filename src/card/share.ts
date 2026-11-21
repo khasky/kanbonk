@@ -64,7 +64,7 @@ export async function downloadCardPng(element: HTMLElement, card: Card): Promise
   return saveFile(blob, fileName(card, "png"));
 }
 
-/** Prints only the card: `body.printing-card` hides everything else (see App.css). */
+/** Prints only the card: `body.printing-card` hides everything else (see the print rules in styles/index.css). */
 export function printCard(): void {
   document.body.classList.add("printing-card");
   const done = () => {

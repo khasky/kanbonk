@@ -1,4 +1,8 @@
 import type { Card } from "../model";
+import { FileButton } from "../ui/FileButton";
+
+const rowClass = "mt-2.5 flex flex-wrap gap-2";
+const stickerClass = "min-h-11 min-w-11 rounded-md border border-line bg-surface-soft text-[25px] hover:bg-brand-soft";
 
 const stickerChoices = [
   { symbol: "⭐", name: "Star" },
@@ -20,11 +24,15 @@ export function StickerPicker({
   onAddStickerImage: (file: File | null) => void;
 }) {
   return (
-    <section className="sticker-picker" aria-label="Card stickers">
+    <section
+      className="mb-[15px] ml-[34px] rounded-md border border-line bg-white p-3 max-phone:ml-0"
+      aria-label="Card stickers"
+    >
       <strong>Stickers</strong>
-      <div className="sticker-options">
+      <div className={rowClass}>
         {stickerChoices.map(({ symbol, name }) => (
           <button
+            className={stickerClass}
             key={symbol}
             onClick={() => onChange((item) => ({ ...item, stickers: [...(item.stickers ?? []), symbol] }))}
             aria-label={`Add sticker ${name}`}
@@ -33,21 +41,19 @@ export function StickerPicker({
           </button>
         ))}
       </div>
-      <label className="file-button">
+      <FileButton
+        size="md"
+        className="mt-2.5"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+        onFiles={(files) => onAddStickerImage(files[0] ?? null)}
+      >
         Custom image
-        <input
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
-          onChange={(event) => {
-            onAddStickerImage(event.target.files?.[0] ?? null);
-            event.target.value = "";
-          }}
-        />
-      </label>
+      </FileButton>
       {(card.stickers ?? []).length > 0 && (
-        <div className="sticker-current">
+        <div className={rowClass}>
           {card.stickers!.map((symbol, index) => (
             <button
+              className={stickerClass}
               key={index}
               onClick={() =>
                 onChange((item) => ({

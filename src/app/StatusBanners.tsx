@@ -1,4 +1,5 @@
 import { Icon } from "../ui/Icon";
+import { Button } from "../ui/Button";
 
 /** The messages over the app: a notice that may open a card, the automatic backup question and the last error. */
 export function StatusBanners({
@@ -25,11 +26,14 @@ export function StatusBanners({
   return (
     <>
       {notice && (
-        <div className="notice-banner" role="status">
+        <div
+          className="fixed bottom-5 left-1/2 z-[110] flex -translate-x-1/2 items-center gap-3.5 rounded-[5px] border border-[#4bce97] bg-[#dcfff1] px-3 py-2.5 text-[#164b35] shadow-popover"
+          role="status"
+        >
           {notice}
           {noticeCardId && (
             <button
-              className="link-button"
+              className="cursor-pointer border-0 bg-transparent p-0 text-inherit underline"
               onClick={() => {
                 onDismissNotice();
                 onOpenCard(noticeCardId);
@@ -38,28 +42,43 @@ export function StatusBanners({
               Open
             </button>
           )}
-          <button onClick={onDismissNotice} aria-label="Dismiss message">
+          <button
+            className="border-0 bg-transparent text-inherit"
+            onClick={onDismissNotice}
+            aria-label="Dismiss message"
+          >
             <Icon name="close" />
           </button>
         </div>
       )}
       {backupAsk && (
-        <div className="backup-ask" role="alertdialog" aria-label="Automatic backup">
+        <div
+          className="fixed right-5 bottom-5 z-[110] grid max-w-[340px] gap-2.5 rounded-md border border-line bg-white px-3.5 py-3 text-[14px] text-ink shadow-popover"
+          role="alertdialog"
+          aria-label="Automatic backup"
+        >
           <span>An automatic backup is due. Your browser may ask where to save it.</span>
-          <div>
-            <button className="primary-button" onClick={onSaveBackup}>
+          <div className="flex items-center gap-3">
+            <Button variant="primary" onClick={onSaveBackup}>
               Save backup
-            </button>
-            <button className="link-button" onClick={onSkipBackup}>
+            </Button>
+            <Button variant="link" onClick={onSkipBackup}>
               Skip
-            </button>
+            </Button>
           </div>
         </div>
       )}
       {error && (
-        <div className="error-banner" role="alert">
+        <div
+          className="absolute top-[49px] right-5 z-[110] flex gap-3.5 rounded-[5px] border border-[#f87168] bg-[#fef1ee] p-3 text-danger"
+          role="alert"
+        >
           {error}
-          <button onClick={onDismissError} aria-label="Dismiss message">
+          <button
+            className="border-0 bg-transparent text-inherit"
+            onClick={onDismissError}
+            aria-label="Dismiss message"
+          >
             <Icon name="close" />
           </button>
         </div>

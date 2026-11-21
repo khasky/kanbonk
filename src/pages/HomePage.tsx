@@ -1,5 +1,8 @@
 import type { AppState } from "../model";
 import { inboxWorkspaceId } from "../model/inbox";
+import { Button } from "../ui/Button";
+import { WorkspaceAvatar } from "../ui/WorkspaceAvatar";
+import { createTileClass, emptyClass, pageClass, pageTitleClass, tileGridClass, workspaceTileClass } from "./pageLook";
 
 export function HomePage({
   state,
@@ -12,17 +15,17 @@ export function HomePage({
 }) {
   const workspaces = state.workspaces.filter((item) => item.id !== inboxWorkspaceId && !item.deletedAt);
   return (
-    <section className="page home-page" aria-label="Workspaces">
-      <h1>Workspaces</h1>
+    <section className={pageClass} aria-label="Workspaces">
+      <h1 className={pageTitleClass}>Workspaces</h1>
       {workspaces.length ? (
-        <div className="tile-grid">
+        <div className={tileGridClass}>
           {workspaces.map((workspace) => {
             const boards = state.boards.filter((board) => board.workspaceId === workspace.id && !board.deletedAt);
             return (
-              <button key={workspace.id} className="tile workspace-tile" onClick={() => onOpen(workspace.id)}>
-                <span className="workspace-avatar">{workspace.name.slice(0, 1).toUpperCase()}</span>
+              <button key={workspace.id} className={workspaceTileClass} onClick={() => onOpen(workspace.id)}>
+                <WorkspaceAvatar name={workspace.name} />
                 <strong>{workspace.name}</strong>
-                <small>
+                <small className="text-ink-muted">
                   {boards.length
                     ? boards
                         .slice(0, 3)
@@ -33,16 +36,16 @@ export function HomePage({
               </button>
             );
           })}
-          <button className="tile tile-create" onClick={onCreate}>
+          <button className={createTileClass} onClick={onCreate}>
             + Create workspace
           </button>
         </div>
       ) : (
-        <div className="empty-page">
+        <div className={emptyClass}>
           <p>No workspaces yet.</p>
-          <button className="primary-button" onClick={onCreate}>
+          <Button variant="primary" onClick={onCreate}>
             Add workspace
-          </button>
+          </Button>
         </div>
       )}
     </section>

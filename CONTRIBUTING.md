@@ -49,7 +49,8 @@ Native builds (Windows, Android) and the browser extension are described in [doc
 
 - TypeScript in strict mode; `tsc` must report no errors, including unused locals.
 - [Biome](https://biomejs.dev/) formats and lints the code: `pnpm format` rewrites files, `pnpm lint` checks them. Rules that are off in `biome.jsonc` carry a comment explaining why.
-- One component per file, grouped by area (`src/board/`, `src/card/`, `src/dialogs/` …); state that is not about rendering goes into a hook in `src/hooks/`. Build dialogs on `Modal` and `SidePanel` from `src/ui/Modal.tsx`.
+- One component per file, grouped by area (`src/board/`, `src/card/`, `src/dialogs/` …); state that is not about rendering goes into a hook in `src/hooks/`. Build dialogs on `Dialog`, `Modal` and `SidePanel` from `src/ui/Modal.tsx`.
+- Style components with [Tailwind CSS](https://tailwindcss.com/) v4 utilities in their JSX. Colors, shadows and breakpoints come from the tokens in `@theme` in `src/styles/index.css` (`text-ink`, `bg-brand-soft`, `max-phone:` …). Tailwind's preflight reset is off, so elements start from the browser's default styles. Reuse the shared components in `src/ui/` (`Button`, `Input`, `Select`, `Textarea`, `Checkbox`, `FileButton`, `Dialog`, `SidePanel`, `Menu` …); no control should keep the browser's default look and add a variant there instead of overriding their classes from outside.
 - Prefer native platform features (`<input type="date">`, CSS) over new code or dependencies.
 - Comments explain *why*, not *what*.
 - The UI text is English; keep new strings consistent with the surrounding UI.

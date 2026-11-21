@@ -42,18 +42,21 @@ export function ListCards({ cards, render }: { cards: Card[]; render: (card: Car
     return (
       <div
         ref={stack}
-        className="card-stack card-stack-placeholder"
+        className="flex min-h-0.5 flex-col gap-[7px] overflow-auto px-0.5"
         data-count={cards.length}
         style={{ height: Math.min(cards.length, listPageSize) * 44 }}
         aria-label={`Cards: ${cards.length}`}
       />
     );
   return (
-    <div ref={stack} className="card-stack" data-count={cards.length}>
+    <div ref={stack} className="flex min-h-0.5 flex-col gap-[7px] overflow-auto px-0.5" data-count={cards.length}>
       {cards.slice(0, limit).map(render)}
       {more && (
-        <div ref={sentinel} className="card-stack-more">
-          <button onClick={() => setLimit((value) => value + listPageSize)}>
+        <div ref={sentinel} className="py-1.5">
+          <button
+            className="w-full cursor-pointer rounded-md border-0 bg-[#091e420f] p-1.5"
+            onClick={() => setLimit((value) => value + listPageSize)}
+          >
             Show {Math.min(listPageSize, cards.length - limit)} more of {cards.length - limit}
           </button>
         </div>

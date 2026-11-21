@@ -8,6 +8,9 @@ import { Icon } from "../ui/Icon";
 import type { TileActions } from "./CardTile";
 import { type ListActions, ListColumn } from "./ListColumn";
 import { ZoneComposer, ZoneFrame } from "./ZoneFrame";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Field";
+import { addListClass, composeActionsClass, composeClass } from "./boardLook";
 
 /**
  * The lists view of a board: lists grouped into zone frames, empty zones, and the column that adds a list or a zone.
@@ -125,7 +128,7 @@ export function BoardCanvas({
   }
 
   return (
-    <div className="board-canvas">
+    <div className="flex min-h-0 flex-1 items-start gap-3 overflow-x-auto px-3 pt-3.5 pb-5 max-phone:p-2">
       {zoneRuns(lists, board.zones).map((run) =>
         run.zone
           ? renderZone(run.zone, run.lists, `zone-${run.zone.id}-${run.lists[0].id}`)
@@ -134,10 +137,11 @@ export function BoardCanvas({
       {(board.zones ?? [])
         .filter((zone) => !lists.some((item) => item.zoneId === zone.id))
         .map((zone) => renderZone(zone, [], `zone-${zone.id}`))}
-      <div className="add-list-column">
+      <div className="add-list-column grid w-[272px] flex-none gap-1 rounded-xl bg-[#ffffff42] p-1.5">
         {editingList ? (
-          <div className="compose">
-            <input
+          <div className={composeClass}>
+            <Input
+              className="w-full"
               autoFocus
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
@@ -146,12 +150,12 @@ export function BoardCanvas({
               }}
               placeholder="List title"
             />
-            <div>
-              <button className="primary-button" onClick={createList}>
+            <div className={composeActionsClass}>
+              <Button variant="primary" onClick={createList}>
                 Add a list
-              </button>
-              <button
-                className="plain-icon"
+              </Button>
+              <Button
+                variant="icon"
                 onClick={() => {
                   setEditingList(false);
                   setDraft("");
@@ -159,11 +163,12 @@ export function BoardCanvas({
                 aria-label="Cancel"
               >
                 <Icon name="close" />
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
           <button
+            className={addListClass}
             onClick={() => {
               setEditingList(true);
               setEditingCardList(null);

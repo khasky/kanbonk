@@ -1,5 +1,10 @@
 import type { AppState } from "../model";
 import { trashDaysLeft, trashEntries, trashRetentionDays, type TrashKind } from "../model/trash";
+import { Button } from "../ui/Button";
+import { Hint } from "../ui/Hint";
+import { PanelRow, PanelRowNote, PanelRowText, RowActions } from "../ui/PanelRow";
+import { Segmented, SegmentedTab } from "../ui/Segmented";
+import { emptyClass, pageClass, pageHeaderClass } from "./pageLook";
 
 const kindNames: Record<TrashKind, string> = { workspace: "Workspaces", board: "Boards", list: "Lists", card: "Cards" };
 
@@ -21,55 +26,57 @@ export function TrashPage({
   const all = trashEntries(state);
   const entries = kind ? all.filter((item) => item.kind === kind) : all;
   return (
-    <section className="page trash-page" aria-label="Trash">
-      <header className="page-header">
-        <h1>Trash</h1>
+    <section className={pageClass} aria-label="Trash">
+      <header className={pageHeaderClass}>
+        <h1 className="m-0 flex-1 text-[24px]">Trash</h1>
         {all.length > 0 && (
-          <button className="danger-button" onClick={onEmpty}>
+          <Button variant="danger" onClick={onEmpty}>
             Empty trash
-          </button>
+          </Button>
         )}
       </header>
-      <div className="segmented" role="tablist" aria-label="Category">
-        <button role="tab" aria-selected={!kind} onClick={() => onKind(undefined)}>
+      <Segmented label="Category">
+        <SegmentedTab selected={!kind} onClick={() => onKind(undefined)}>
           All ({all.length})
-        </button>
+        </SegmentedTab>
         {(Object.keys(kindNames) as TrashKind[]).map((item) => (
-          <button key={item} role="tab" aria-selected={kind === item} onClick={() => onKind(item)}>
+          <SegmentedTab key={item} selected={kind === item} onClick={() => onKind(item)}>
             {kindNames[item]} ({all.filter((entry) => entry.kind === item).length})
-          </button>
+          </SegmentedTab>
         ))}
-      </div>
+      </Segmented>
       {entries.length ? (
-        <div className="trash-list">
+        <div className="mt-4 flex flex-col gap-1.5">
           {entries.map((entry) => (
-            <div className="panel-row trash-row" key={`${entry.kind}:${entry.id}`}>
-              <span>
+            <PanelRow look="boxed" key={`${entry.kind}:${entry.id}`}>
+              <PanelRowText className="flex flex-col gap-[3px]">
                 <strong>{entry.name}</strong>
-                <small>
+                <PanelRowNote>
                   {kindNames[entry.kind]}
                   {entry.context ? ` · ${entry.context}` : ""} · trashed{" "}
                   {new Date(entry.deletedAt).toLocaleString("en-US")}
                   {entry.withParent ? " · with its parent" : ""} · deleted in {trashDaysLeft(entry.deletedAt)} days
-                </small>
-              </span>
-              <span className="row-actions">
-                <button onClick={() => onRestore(entry.kind, entry.id)}>Restore</button>
-                <button className="danger-button" onClick={() => onPurge(entry.kind, entry.id)}>
+                </PanelRowNote>
+              </PanelRowText>
+              <RowActions as="span" className="min-w-0 wrap-anywhere">
+                <Button variant="secondary" className="flex-none" onClick={() => onRestore(entry.kind, entry.id)}>
+                  Restore
+                </Button>
+                <Button variant="danger" size="sm" className="flex-none" onClick={() => onPurge(entry.kind, entry.id)}>
                   Delete forever
-                </button>
-              </span>
-            </div>
+                </Button>
+              </RowActions>
+            </PanelRow>
           ))}
         </div>
       ) : (
-        <p className="empty-page">Trash is empty.</p>
+        <p className={emptyClass}>Trash is empty.</p>
       )}
-      <p className="hint">
+      <Hint>
         Items stay in the trash for {trashRetentionDays} days, then are deleted forever. Restoring cascades: an item
         comes back together with its deleted parents (workspace, board, list), everything deleted along with it, and the
         cards it depends on.
-      </p>
+      </Hint>
     </section>
   );
 }

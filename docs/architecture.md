@@ -37,7 +37,8 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 | `panels/` | Side panels: Inbox, Planner, reminders, history, board description |
 | `pages/` | Pages in the main area: home, workspace, trash, not-found |
 | `hooks/` | Changes to cards (`useCardActions`), boards and lists (`useBoardActions`), the trash, device sync, panel layout, automatic backups |
-| `ui/` | Shared building blocks: `Modal`, `SidePanel`, `Menu`, icons, inline name editor, color input, card picker, Markdown editor and renderer |
+| `ui/` | Shared building blocks: `Modal`, `Dialog`, `SidePanel`, `Button`, form fields (`Input`, `Select`, `Textarea`, `Checkbox`, `FileButton`), `Menu`, `Segmented`, `PanelRow`, `Hint`, icons, inline name editor, color input, card picker, Markdown editor and renderer |
+| `styles/` | `index.css`, the only stylesheet: Tailwind CSS v4 without its preflight reset, the design tokens in `@theme`, base element rules, rendered-Markdown and print rules. Components style themselves with Tailwind utilities in their JSX |
 | `model/` | Pure domain logic. Types (`types.ts`), IDs, revisions, search and filters, card and list operations, dependencies, copying (re-exported by `model/index.ts`); `trash.ts` (soft delete, restore chains, purge, visible state), `zones.ts`, `calendar.ts`, `dedupe.ts`, `automation.ts`, `reminders.ts`, `repeatingDue.ts`, `inbox.ts`, `links.ts`, `activity.ts`, `labelColors.ts`, `boardDoc.ts`, `workspaces.ts`, `legacy.ts` (migrating older saved data) |
 | `sync/` | `sync.ts` merges two states by revision ancestry and finds conflicts; `lanSync.ts` runs sessions over the LAN relay or WebRTC; `devices.ts` keeps trusted devices, encrypted file bundles and the tab channel |
 | `backup/` | `backup.ts` builds and restores ZIP backups and validates states; `autoBackup.ts` schedules snapshots and full backups |

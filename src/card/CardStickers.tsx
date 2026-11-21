@@ -33,17 +33,26 @@ export function CardStickers({ card }: { card: Card }) {
   if (!card.stickers?.length) return null;
   return (
     <span
-      className="card-stickers"
+      className="flex flex-wrap gap-[5px] self-end text-[24px] leading-none"
       aria-label={`Stickers: ${card.stickers.map((sticker) => (typeof sticker === "string" ? sticker : sticker.name)).join(" ")}`}
     >
       {card.stickers.map((sticker, index) => (
-        <span key={index} role="img" aria-label={typeof sticker === "string" ? sticker : sticker.name}>
+        <span
+          key={index}
+          className="inline-block"
+          role="img"
+          aria-label={typeof sticker === "string" ? sticker : sticker.name}
+        >
           {typeof sticker === "string" ? (
             sticker
           ) : sticker.status === "missing" ? (
-            <span title="Sticker file missing">⚠</span>
+            <span className="inline-block" title="Sticker file missing">
+              ⚠
+            </span>
           ) : (
-            imageUrls[sticker.imageId] && <img src={imageUrls[sticker.imageId]} alt="" />
+            imageUrls[sticker.imageId] && (
+              <img className="block h-8 w-8 object-contain" src={imageUrls[sticker.imageId]} alt="" />
+            )
           )}
         </span>
       ))}

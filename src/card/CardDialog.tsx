@@ -23,6 +23,22 @@ import { CardMemberAvatars, MemberPicker } from "./MemberPicker";
 import { SharePanel } from "./SharePanel";
 import { StickerPicker } from "./StickerPicker";
 import { TransferPicker } from "./TransferPicker";
+import { Button } from "../ui/Button";
+import { Backdrop } from "../ui/Modal";
+import { Select } from "../ui/Field";
+import { FileButton } from "../ui/FileButton";
+import { detailSectionClass, detailTitleClass } from "./cardLook";
+
+// `card-dialog`, `card-dialog-top` and `card-actions` are hooks of the print rules (styles/index.css) and of tests;
+// `file-button` (on the file labels of `FileButton`) is a hook of tests.
+const dialogLook =
+  "card-dialog flex w-[min(1080px,100%)] flex-col rounded-xl bg-white text-ink max-phone:h-dvh max-phone:w-full max-phone:rounded-none";
+// On phones every button is a 44px touch target and fields use 16px text so the browser does not zoom into them.
+const phoneTouch =
+  "max-phone:[&_:is(input,textarea,select)]:text-[16px] max-phone:[&_button:not([data-inline],.markdown-card-link)]:min-h-11";
+const modalClass = `${dialogLook} ${phoneTouch} max-h-[calc(100dvh-96px)] overflow-hidden shadow-dialog max-tablet:max-h-none max-phone:max-h-dvh`;
+const pageClass = `${dialogLook} ${phoneTouch} mx-auto my-5 max-h-none flex-none overflow-visible shadow-[0_1px_3px_#091e4240]`;
+const topButtonClass = "rounded-sm border-0 bg-transparent p-1.5 text-ink-subtle hover:bg-line";
 
 export function CardDialog({
   card,
@@ -57,7 +73,7 @@ export function CardDialog({
 }) {
   const actions = useCardActionsContext();
   const onChange = (change: (card: Card) => Card) => actions.updateCard(card.id, change);
-  const onAttach = (files: FileList | null) => actions.attachFiles(card, files);
+  const onAttach = (files: File[]) => actions.attachFiles(card, files);
   const onAddStickerImage = (file: File | null) => {
     void actions.addStickerImage(card, file);
   };
@@ -125,7 +141,7 @@ export function CardDialog({
   const created = cardCreatedAt(state, card);
   const body = (
     <div
-      className={asPage ? "card-dialog card-page" : "card-dialog"}
+      className={asPage ? pageClass : modalClass}
       role={asPage ? "region" : "dialog"}
       aria-modal={asPage ? undefined : true}
       aria-label={card.name}
@@ -133,29 +149,38 @@ export function CardDialog({
       ref={dialogRef}
       onMouseDown={(event) => event.stopPropagation()}
     >
-      <header className="card-dialog-top">
-        <select value={card.listId} onChange={(event) => onTransfer(event.target.value, false)} aria-label="Card list">
+      <header className="card-dialog-top flex h-14 flex-none items-center justify-between border-b border-line px-5">
+        <Select
+          size="sm"
+          value={card.listId}
+          onChange={(event) => onTransfer(event.target.value, false)}
+          aria-label="Card list"
+        >
           {lists.map((list) => (
             <option key={list.id} value={list.id}>
               {list.name}
             </option>
           ))}
-        </select>
-        <div>
-          <button onClick={onHistory} aria-label="Card history">
+        </Select>
+        <div className="flex gap-1">
+          <button className={topButtonClass} onClick={onHistory} aria-label="Card history">
             <Icon name="history" />
           </button>
-          <button onClick={onClose} aria-label="Close card">
+          <button className={topButtonClass} onClick={onClose} aria-label="Close card">
             <Icon name="close" />
           </button>
         </div>
       </header>
-      <div className="card-dialog-body">
-        <div className="card-detail-main">
-          <div className="card-title-row">
+      <div className="grid min-h-0 grid-cols-[minmax(0,1.4fr)_minmax(290px,1fr)] overflow-auto max-tablet:block">
+        <div className="overflow-auto px-8 pt-6 pb-8 max-tablet:overflow-visible max-phone:p-[18px]">
+          <div className="flex items-center gap-3">
             {!card.isTemplate && (
               <button
-                className={`complete-toggle ${card.completed ? "done" : ""}`}
+                className={
+                  card.completed
+                    ? "h-[22px] min-h-0! w-[22px] flex-none rounded-full border-2 border-success bg-success p-0 text-white"
+                    : "h-[22px] min-h-0! w-[22px] flex-none rounded-full border-2 border-ink-muted bg-white p-0"
+                }
                 onClick={() => onChange((item) => ({ ...item, completed: !item.completed }))}
                 aria-label={card.completed ? "Mark incomplete" : "Mark complete"}
               >
@@ -163,56 +188,76 @@ export function CardDialog({
               </button>
             )}
             <NameEditor
+              // `!`: the dialog's phone rule would make the title 16px like the other fields.
+              className="w-full min-w-0 border-0 bg-transparent p-1 text-[25px]! font-bold text-ink"
               value={card.name}
               label="Card title"
               onCommit={(name) => onChange((item) => ({ ...item, name }))}
             />
           </div>
-          <p className="card-meta-line">
+          <p className="mt-1 mb-3 text-[13px] text-ink-muted">
             in list “{lists.find((item) => item.id === card.listId)?.name ?? "—"}” ·{" "}
             {state.boards.find((item) => item.id === card.boardId)?.name}
             {created ? ` · created ${new Date(created).toLocaleString("en-US")}` : ""} · ID {card.id}
           </p>
-          <div className="card-actions">
+          <div className="card-actions mt-5 mb-[26px] ml-[34px] flex flex-wrap gap-2 max-phone:ml-0">
             {cardButtons.map((rule) => (
-              <button key={rule.id} onClick={() => onRunAutomation(rule.id)}>
+              <Button variant="secondary" size="md" key={rule.id} onClick={() => onRunAutomation(rule.id)}>
                 {rule.name}
-              </button>
+              </Button>
             ))}
             {card.boardId !== inboxBoardId && (
               <>
-                <button onClick={() => onChange((item) => ({ ...item, isTemplate: !item.isTemplate }))}>
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => onChange((item) => ({ ...item, isTemplate: !item.isTemplate }))}
+                >
                   {card.isTemplate ? "Remove template" : "Make template"}
-                </button>
-                {canAssign && <button onClick={() => setShowMembers(!showMembers)}>Members</button>}
-                <button onClick={() => setShowLabels(!showLabels)}>Labels</button>
+                </Button>
+                {canAssign && (
+                  <Button variant="secondary" size="md" onClick={() => setShowMembers(!showMembers)}>
+                    Members
+                  </Button>
+                )}
+                <Button variant="secondary" size="md" onClick={() => setShowLabels(!showLabels)}>
+                  Labels
+                </Button>
               </>
             )}
-            <button onClick={() => setShowCover(!showCover)}>Cover</button>
-            <button onClick={() => setShowStickers(!showStickers)}>Stickers</button>
+            <Button variant="secondary" size="md" onClick={() => setShowCover(!showCover)}>
+              Cover
+            </Button>
+            <Button variant="secondary" size="md" onClick={() => setShowStickers(!showStickers)}>
+              Stickers
+            </Button>
             {!card.isTemplate && (
-              <button onClick={() => document.getElementById(`due-${card.id}`)?.focus()}>Due date</button>
+              <Button variant="secondary" size="md" onClick={() => document.getElementById(`due-${card.id}`)?.focus()}>
+                Due date
+              </Button>
             )}
-            <button onClick={() => setShowChecklistComposer(!showChecklistComposer)}>Checklist</button>
-            <label className="file-button">
+            <Button variant="secondary" size="md" onClick={() => setShowChecklistComposer(!showChecklistComposer)}>
+              Checklist
+            </Button>
+            <FileButton size="md" multiple onFiles={onAttach}>
               Attachment
-              <input
-                type="file"
-                multiple
-                onChange={(event) => {
-                  onAttach(event.target.files);
-                  event.target.value = "";
-                }}
-              />
-            </label>
-            <button onClick={() => setShowLinkEditor(!showLinkEditor)}>Link</button>
-            <button onClick={() => setShowTransfer(!showTransfer)}>Move / copy</button>
-            <button onClick={onClone}>Clone</button>
-            <button onClick={() => setShowShare(!showShare)} aria-expanded={showShare}>
+            </FileButton>
+            <Button variant="secondary" size="md" onClick={() => setShowLinkEditor(!showLinkEditor)}>
+              Link
+            </Button>
+            <Button variant="secondary" size="md" onClick={() => setShowTransfer(!showTransfer)}>
+              Move / copy
+            </Button>
+            <Button variant="secondary" size="md" onClick={onClone}>
+              Clone
+            </Button>
+            <Button variant="secondary" size="md" onClick={() => setShowShare(!showShare)} aria-expanded={showShare}>
               Share
-            </button>
+            </Button>
             {card.boardId !== inboxBoardId && (
-              <button onClick={() => setShowDependencies(!showDependencies)}>Dependency</button>
+              <Button variant="secondary" size="md" onClick={() => setShowDependencies(!showDependencies)}>
+                Dependency
+              </Button>
             )}
           </div>
           <SharePanel open={showShare} card={card} state={state} dialog={dialogRef} />
@@ -224,7 +269,7 @@ export function CardDialog({
             onClose={() => setShowChecklistComposer(false)}
           />
           {card.isTemplate && (
-            <p className="template-notice">
+            <p className="mt-0 mb-3.5 ml-[34px] rounded-sm bg-brand-soft p-2.5 text-ink">
               This is a card template. Dates aren't copied when you create a card from it.
             </p>
           )}
@@ -277,11 +322,11 @@ export function CardDialog({
             />
           )}
           {mentionedInDoc && (
-            <p className="doc-backlink">
+            <p className="my-1">
               📄 Mentioned in the{" "}
-              <button className="link-button" onClick={onOpenDoc}>
+              <Button variant="link" onClick={onOpenDoc}>
                 board doc
-              </button>
+              </Button>
             </p>
           )}
           {!card.isTemplate && card.boardId !== inboxBoardId && (
@@ -307,8 +352,8 @@ export function CardDialog({
           ))}
           {related.length > 0 && <RelatedCards related={related} state={state} onNavigateCard={onNavigateCard} />}
           {card.attachments.length > 0 && (
-            <section className="detail-section">
-              <h3>
+            <section className={detailSectionClass}>
+              <h3 className={detailTitleClass}>
                 <Icon name="clip" /> Attachments
               </h3>
               {card.attachments.map((attachment) => (
@@ -325,10 +370,10 @@ export function CardDialog({
               ))}
             </section>
           )}
-          <div className="card-footer-actions">
-            <button className="trash-action" onClick={onDelete}>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="danger" size="lg" className="flex items-center gap-2" onClick={onDelete}>
               <Icon name="trash" /> Move to trash
-            </button>
+            </Button>
           </div>
         </div>
         <CardActivity
@@ -343,11 +388,5 @@ export function CardDialog({
       </div>
     </div>
   );
-  return asPage ? (
-    body
-  ) : (
-    <div className="dialog-backdrop" onMouseDown={onClose}>
-      {body}
-    </div>
-  );
+  return asPage ? body : <Backdrop onMouseDown={onClose}>{body}</Backdrop>;
 }

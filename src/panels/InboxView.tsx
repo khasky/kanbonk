@@ -4,6 +4,18 @@ import { CardStickers } from "../card/CardStickers";
 import { inboxBoardId } from "../model/inbox";
 import { emptyBoardFilter, filterBoardCards, type AppState, type BoardFilter } from "../model";
 import { Icon } from "../ui/Icon";
+import { Button } from "../ui/Button";
+import { Input, Select } from "../ui/Field";
+import {
+  completeMarkClass,
+  tileClass,
+  tileMetaClass,
+  tileMetaIconClass,
+  tileMetaItemClass,
+  tileNameClass,
+} from "../board/tileLook";
+
+const selectClass = "flex-[1_1_110px] max-phone:min-h-11";
 
 export function InboxView({
   state,
@@ -32,40 +44,47 @@ export function InboxView({
     setDraft("");
   }
   return (
-    <section className="inbox-view" aria-label="Inbox">
-      <header>
+    <section className="inbox-view min-h-0 flex-1 overflow-auto bg-brand-soft p-4 text-ink" aria-label="Inbox">
+      <header className="flex max-w-[760px] items-start justify-between gap-4">
         <div>
-          <h1>Inbox</h1>
-          <p>Collect ideas and tasks here, then move them to a board.</p>
+          <h1 className="mx-0 mt-0 mb-1.5 text-[17px]">Inbox</h1>
+          <p className="mx-0 mt-0 mb-4 text-[12px] leading-[1.4] text-ink-subtle">
+            Collect ideas and tasks here, then move them to a board.
+          </p>
         </div>
       </header>
       <form
-        className="inbox-compose"
+        className="mb-5 flex max-w-[760px] flex-col gap-2 max-phone:flex-row"
         onSubmit={(event) => {
           event.preventDefault();
           addCard();
         }}
       >
-        <input
+        <Input
+          className="min-w-0 flex-1 max-phone:min-h-11"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Add a card"
           aria-label="New card in inbox"
           required
         />
-        <button className="primary-button" type="submit">
+        <Button variant="primary" type="submit" className="max-phone:min-h-11">
           Add
-        </button>
+        </Button>
       </form>
-      <div className="inbox-filters">
-        <input
+      <div className="mb-3.5 flex max-w-[760px] flex-wrap gap-2">
+        <Input
+          size="sm"
+          className="min-w-[150px] flex-1 max-phone:min-h-11"
           type="search"
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}
           placeholder="Search inbox"
           aria-label="Search inbox"
         />
-        <select
+        <Select
+          size="sm"
+          className={selectClass}
           value={status}
           onChange={(event) => setStatus(event.target.value as BoardFilter["status"])}
           aria-label="Inbox status"
@@ -73,8 +92,10 @@ export function InboxView({
           <option value="all">Any status</option>
           <option value="complete">Completed</option>
           <option value="incomplete">Not completed</option>
-        </select>
-        <select
+        </Select>
+        <Select
+          size="sm"
+          className={selectClass}
           value={due}
           onChange={(event) => setDue(event.target.value as BoardFilter["due"])}
           aria-label="Inbox due date"
@@ -83,8 +104,10 @@ export function InboxView({
           <option value="overdue">Overdue</option>
           <option value="next-week">Next 7 days</option>
           <option value="none">No due date</option>
-        </select>
-        <select
+        </Select>
+        <Select
+          size="sm"
+          className={selectClass}
           value={sort}
           onChange={(event) => setSort(event.target.value as typeof sort)}
           aria-label="Inbox sorting"
@@ -92,40 +115,40 @@ export function InboxView({
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
           <option value="name">By title</option>
-        </select>
+        </Select>
       </div>
-      <div className="inbox-cards">
+      <div className="grid max-w-[760px] gap-2">
         {cards.map((card) => (
-          <button className="card-tile" key={card.id} onClick={() => onOpen(card.id)}>
+          <button className={tileClass()} key={card.id} onClick={() => onOpen(card.id)}>
             <CardCover card={card} />
             <CardStickers card={card} />
-            <span className="card-name">
-              {card.completed && <span className="complete-mark">✓</span>}
+            <span className={tileNameClass()}>
+              {card.completed && <span className={completeMarkClass}>✓</span>}
               {card.name}
             </span>
-            <span className="card-meta">
+            <span className={tileMetaClass()}>
               {card.dueAt && (
-                <span>
-                  <Icon name="clock" /> {new Date(card.dueAt).toLocaleDateString()}
+                <span className={tileMetaItemClass}>
+                  <Icon name="clock" className={tileMetaIconClass} /> {new Date(card.dueAt).toLocaleDateString()}
                 </span>
               )}
               {card.checklists.length > 0 && (
-                <span>
+                <span className={tileMetaItemClass}>
                   ☑{" "}
                   {card.checklists.reduce((count, list) => count + list.items.filter((item) => item.checked).length, 0)}
                   /{card.checklists.reduce((count, list) => count + list.items.length, 0)}
                 </span>
               )}
               {card.attachments.length > 0 && (
-                <span>
-                  <Icon name="clip" /> {card.attachments.length}
+                <span className={tileMetaItemClass}>
+                  <Icon name="clip" className={tileMetaIconClass} /> {card.attachments.length}
                 </span>
               )}
             </span>
           </button>
         ))}
         {!cards.length && (
-          <p className="inbox-empty">
+          <p className="p-[22px] text-center text-ink-muted">
             {keyword || status !== "all" || due !== "any" ? "Nothing found" : "No cards in your inbox yet"}
           </p>
         )}

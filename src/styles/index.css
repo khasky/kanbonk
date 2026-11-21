@@ -1,0 +1,176 @@
+/*
+ * The app's only stylesheet. Components are styled with Tailwind utilities in their JSX; this file holds the design
+ * tokens (`@theme`), the few element rules the app relies on (`base`), styles for markup the app does not render
+ * itself (`components`: rendered Markdown) and the print rules. Tailwind runs without its preflight reset: the design
+ * is built on the browser's default element styles.
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme {
+  --font-sans: Arial, Helvetica, sans-serif;
+
+  --color-ink: #172b4d;
+  --color-ink-subtle: #44546f;
+  --color-ink-muted: #626f86;
+  --color-ink-faint: #8590a2;
+  --color-line: #dfe1e6;
+  --color-surface-sunken: #f1f2f4;
+  --color-surface-soft: #f7f8f9;
+  --color-brand: #0c66e4;
+  --color-brand-hover: #0055cc;
+  --color-brand-soft: #e9f2ff;
+  --color-brand-light: #579dff;
+  --color-danger: #ae2e24;
+  --color-danger-soft: #ffeceb;
+  --color-success: #216e4e;
+  --color-warning: #f5cd47;
+  --color-topbar: #1d2125;
+  --color-topbar-button: #454f59;
+
+  --shadow-tile: 0 1px 2px #091e4240;
+  --shadow-tile-soft: 0 1px 2px #091e4233;
+  --shadow-popover: 0 4px 12px #091e4230;
+  --shadow-overlay: 0 12px 28px #091e4240;
+  --shadow-dialog: 0 10px 40px #0005;
+
+  --breakpoint-phone: 551px;
+  --breakpoint-tablet: 801px;
+}
+
+@layer base {
+  :root {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #172b4d;
+    background: #fff;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-size: 14px;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid #0c66e4;
+    outline-offset: 2px;
+  }
+}
+
+/*
+ * Rendered Markdown (ui/MarkdownText.tsx, ui/MarkdownEditor.tsx): its elements come from the Markdown renderer or the
+ * browser's editing commands, not from JSX, so they are styled through the wrapper's class.
+ */
+@layer components {
+  .markdown-text {
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+  }
+  .markdown-text > :first-child {
+    margin-top: 0;
+  }
+  .markdown-text > :last-child {
+    margin-bottom: 0;
+  }
+  .markdown-text pre {
+    overflow: auto;
+    background: #e9edf2;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  .markdown-text code {
+    background: #e9edf2;
+    border-radius: 3px;
+    padding: 1px 3px;
+  }
+  .markdown-text pre code {
+    padding: 0;
+  }
+  .markdown-text table {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+  .markdown-text th,
+  .markdown-text td {
+    border: 1px solid #dfe1e6;
+    padding: 4px 8px;
+  }
+  .markdown-text blockquote {
+    border-left: 3px solid #8590a2;
+    margin-left: 0;
+    padding-left: 12px;
+    color: #44546f;
+  }
+  .markdown-text a {
+    color: #0c66e4;
+  }
+  /* A link to a card of this app, rendered as a button (MarkdownText.tsx); tests read its class. */
+  .markdown-card-link {
+    border: 0;
+    background: transparent;
+    color: #0c66e4;
+    text-decoration: underline;
+    padding: 0;
+    text-align: left;
+  }
+  .markdown-card-link:hover {
+    color: #0055cc;
+  }
+  /* Headings in a card's description and comments look like the card's section titles. */
+  .card-markdown h3 {
+    font-size: 15px;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .markdown-summary table {
+    width: 100%;
+    font-size: 13px;
+  }
+  .markdown-summary th,
+  .markdown-summary td {
+    padding: 3px 6px;
+    text-align: left;
+  }
+}
+
+/* Printing one card (card/share.ts sets the body class): unlayered, so it wins over every layer. */
+@media print {
+  body.printing-card * {
+    visibility: hidden;
+  }
+  body.printing-card .card-dialog,
+  body.printing-card .card-dialog * {
+    visibility: visible;
+  }
+  body.printing-card .card-dialog {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    box-shadow: none;
+  }
+  body.printing-card .card-dialog [data-share-skip],
+  body.printing-card .card-dialog-top,
+  body.printing-card .card-actions {
+    display: none;
+  }
+}

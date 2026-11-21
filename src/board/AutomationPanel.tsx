@@ -1,6 +1,11 @@
 import { SidePanel } from "../ui/Modal";
 import { useState } from "react";
 import type { AppState, AutomationRule, Board } from "../model";
+import { Button } from "../ui/Button";
+import { PanelRow, PanelRowText } from "../ui/PanelRow";
+import { Input, Select } from "../ui/Field";
+
+const labelClass = "grid gap-[5px]";
 
 export function AutomationPanel({
   board,
@@ -37,47 +42,47 @@ export function AutomationPanel({
         ? "move to trash"
         : `add label “${labels.find((item) => item.id === rule.labelId)?.name ?? "unavailable"}”`;
   return (
-    <SidePanel
-      title="Automation"
-      label="Board automation"
-      className="automation-panel"
-      closeLabel="Close automation"
-      onClose={onClose}
-    >
-      <p>
+    <SidePanel title="Automation" label="Board automation" closeLabel="Close automation" onClose={onClose}>
+      <p className="text-ink-muted">
         Rules run when a card is moved to a list, when a due date arrives, or when a card button is pressed. Due dates
         are checked while the app is open and on the next launch.
       </p>
       <form
+        className="mx-0 mt-4 mb-6 grid gap-3"
         onSubmit={(event) => {
           event.preventDefault();
           onAdd(listId, action, labelId, trigger, name, leadMinutes);
           if (trigger === "button") setName("");
         }}
       >
-        <label>
+        <label className={labelClass}>
           Type
-          <select value={trigger} onChange={(event) => setTrigger(event.target.value as "move" | "button" | "due")}>
+          <Select
+            className="w-full"
+            value={trigger}
+            onChange={(event) => setTrigger(event.target.value as "move" | "button" | "due")}
+          >
             <option value="move">Moved to list</option>
             <option value="due">Due date arrives</option>
             <option value="button">Card button</option>
-          </select>
+          </Select>
         </label>
         {trigger === "move" ? (
-          <label>
+          <label className={labelClass}>
             List
-            <select value={listId} onChange={(event) => setListId(event.target.value)}>
+            <Select className="w-full" value={listId} onChange={(event) => setListId(event.target.value)}>
               {lists.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
         ) : trigger === "button" ? (
-          <label>
+          <label className={labelClass}>
             Button name
-            <input
+            <Input
+              className="w-full"
               value={name}
               onChange={(event) => setName(event.target.value)}
               maxLength={60}
@@ -86,38 +91,46 @@ export function AutomationPanel({
           </label>
         ) : null}
         {trigger === "due" && (
-          <label>
+          <label className={labelClass}>
             When
-            <select value={leadMinutes} onChange={(event) => setLeadMinutes(Number(event.target.value))}>
+            <Select
+              className="w-full"
+              value={leadMinutes}
+              onChange={(event) => setLeadMinutes(Number(event.target.value))}
+            >
               <option value={0}>At due time</option>
               <option value={60}>1 hour before</option>
               <option value={1440}>1 day before</option>
               <option value={10080}>1 week before</option>
-            </select>
+            </Select>
           </label>
         )}
-        <label>
+        <label className={labelClass}>
           Action
-          <select value={action} onChange={(event) => setAction(event.target.value as AutomationRule["action"])}>
+          <Select
+            className="w-full"
+            value={action}
+            onChange={(event) => setAction(event.target.value as AutomationRule["action"])}
+          >
             <option value="complete">Mark complete</option>
             <option value="trash">Move to trash</option>
             <option value="add-label">Add label</option>
-          </select>
+          </Select>
         </label>
         {action === "add-label" && (
-          <label>
+          <label className={labelClass}>
             Label
-            <select value={labelId} onChange={(event) => setLabelId(event.target.value)}>
+            <Select className="w-full" value={labelId} onChange={(event) => setLabelId(event.target.value)}>
               {labels.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
         )}
-        <button
-          className="primary-button"
+        <Button
+          variant="primary"
           type="submit"
           disabled={
             (trigger === "move" && !listId) ||
@@ -126,14 +139,14 @@ export function AutomationPanel({
           }
         >
           Add rule
-        </button>
+        </Button>
         {action === "add-label" && !labels.length && <small>Create a label on the board first.</small>}
       </form>
-      <h3>Board rules</h3>
+      <h3 className="mx-0 mt-0 mb-2 text-[15px]">Board rules</h3>
       {(board.automationRules ?? []).length ? (
         board.automationRules!.map((rule) => (
-          <div className="panel-row" key={rule.id}>
-            <span>
+          <PanelRow key={rule.id}>
+            <PanelRowText>
               {rule.trigger === "button"
                 ? `Button “${rule.name}”`
                 : rule.trigger === "due"
@@ -149,18 +162,20 @@ export function AutomationPanel({
                     (state.lists.find((item) => item.id === rule.listId)?.name ?? "list unavailable") +
                     "”"}{" "}
               — {actionText(rule)}
-            </span>
-            <button
+            </PanelRowText>
+            <Button
+              variant="secondary"
+              className="flex-none"
               onClick={() => {
                 if (confirm("Delete rule?")) onRemove(rule.id);
               }}
             >
               Delete
-            </button>
-          </div>
+            </Button>
+          </PanelRow>
         ))
       ) : (
-        <p>No rules yet.</p>
+        <p className="text-ink-muted">No rules yet.</p>
       )}
     </SidePanel>
   );

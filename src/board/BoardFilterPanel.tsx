@@ -1,5 +1,10 @@
 import { type AppState, type Board, type BoardFilter, emptyBoardFilter } from "../model";
 import { Icon } from "../ui/Icon";
+import { Button } from "../ui/Button";
+import { SectionTitle } from "../ui/SectionTitle";
+import { Input, Select } from "../ui/Field";
+
+const labelClass = "grid gap-[5px] font-semibold";
 
 /** Filters the cards shown on a board by text, label, member, completion and due date. */
 export function BoardFilterPanel({
@@ -21,25 +26,29 @@ export function BoardFilterPanel({
   onClose: () => void;
 }) {
   return (
-    <section className="board-filter" aria-label="Board filter">
-      <div className="section-title">
+    <section
+      className="absolute top-[58px] right-3 z-20 grid w-[min(320px,calc(100vw-24px))] gap-3 rounded-lg border border-line bg-white p-4 text-ink shadow-overlay"
+      aria-label="Board filter"
+    >
+      <SectionTitle>
         <strong>Board filter</strong>
-        <button onClick={onClose} aria-label="Close filter">
+        <Button variant="secondary" className="grid place-items-center" onClick={onClose} aria-label="Close filter">
           <Icon name="close" />
-        </button>
-      </div>
-      <label>
+        </Button>
+      </SectionTitle>
+      <label className={labelClass}>
         Text
-        <input
+        <Input
           type="search"
+          size="sm"
           value={filter.keyword}
           onChange={(event) => onChange({ keyword: event.target.value })}
           placeholder="Title or content"
         />
       </label>
-      <label>
+      <label className={labelClass}>
         Label
-        <select value={filter.labelId} onChange={(event) => onChange({ labelId: event.target.value })}>
+        <Select size="sm" value={filter.labelId} onChange={(event) => onChange({ labelId: event.target.value })}>
           <option value="">All labels</option>
           {state.labels
             .filter((item) => item.boardId === board.id && !item.deleted)
@@ -48,44 +57,55 @@ export function BoardFilterPanel({
                 {item.name || item.color}
               </option>
             ))}
-        </select>
+        </Select>
       </label>
-      <label>
+      <label className={labelClass}>
         Member
-        <select value={filter.memberId ?? ""} onChange={(event) => onChange({ memberId: event.target.value })}>
+        <Select
+          size="sm"
+          value={filter.memberId ?? ""}
+          onChange={(event) => onChange({ memberId: event.target.value })}
+        >
           <option value="">All members</option>
           {(board.members ?? []).map((member) => (
             <option key={member.id} value={member.id}>
               {member.name}
             </option>
           ))}
-        </select>
+        </Select>
       </label>
-      <label>
+      <label className={labelClass}>
         Status
-        <select
+        <Select
+          size="sm"
           value={filter.status}
           onChange={(event) => onChange({ status: event.target.value as BoardFilter["status"] })}
         >
           <option value="all">All cards</option>
           <option value="complete">Completed</option>
           <option value="incomplete">Not completed</option>
-        </select>
+        </Select>
       </label>
-      <label>
+      <label className={labelClass}>
         Due date
-        <select value={filter.due} onChange={(event) => onChange({ due: event.target.value as BoardFilter["due"] })}>
+        <Select
+          size="sm"
+          value={filter.due}
+          onChange={(event) => onChange({ due: event.target.value as BoardFilter["due"] })}
+        >
           <option value="any">Any due date</option>
           <option value="overdue">Overdue</option>
           <option value="next-week">Next 7 days</option>
           <option value="none">No due date</option>
-        </select>
+        </Select>
       </label>
-      <div className="filter-footer">
+      <div className="flex items-center justify-between gap-2 text-ink-subtle">
         <span>
           Showing {shown} of {total}
         </span>
-        <button onClick={() => onChange(emptyBoardFilter())}>Reset</button>
+        <Button variant="secondary" onClick={() => onChange(emptyBoardFilter())}>
+          Reset
+        </Button>
       </div>
     </section>
   );

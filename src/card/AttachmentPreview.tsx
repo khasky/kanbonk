@@ -6,9 +6,20 @@ import { Icon } from "../ui/Icon";
 import { MarkdownText } from "../ui/MarkdownText";
 import { Modal } from "../ui/Modal";
 import { previewMimeType, type PreviewKind } from "./previewKinds";
+import { Button } from "../ui/Button";
+import { Hint } from "../ui/Hint";
 
 /** Text files are shown up to this size; the rest is left for the download. */
 const textLimit = 1_000_000;
+
+const bodyLooks: Record<PreviewKind, string> = {
+  image: "grid min-h-0 flex-1 place-items-center overflow-auto bg-surface-soft p-4",
+  video: "grid min-h-0 flex-1 place-items-center overflow-auto bg-surface-soft p-4",
+  audio: "grid min-h-0 flex-1 place-items-center overflow-auto bg-surface-soft p-4",
+  pdf: "min-h-0 flex-1 overflow-auto p-0",
+  markdown: "min-h-0 flex-1 overflow-auto p-4",
+  text: "min-h-0 flex-1 overflow-auto p-4",
+};
 
 type Content = { url?: string; text?: string; truncated?: boolean; error?: string };
 
@@ -50,33 +61,41 @@ export function AttachmentPreview({
 
   // Rendered into <body>: inside the card dialog a fixed backdrop would be confined to the dialog's box.
   return createPortal(
-    <Modal label={`Preview ${attachment.name}`} className="attachment-preview-dialog" onDismiss={onClose}>
-      <header>
-        <h2>{attachment.name}</h2>
-        <button onClick={onDownload}>Download</button>
-        <button className="plain-icon" onClick={onClose} aria-label="Close preview">
+    <Modal
+      label={`Preview ${attachment.name}`}
+      className="z-101 flex h-[calc(100dvh-96px)] w-[min(1100px,100%)] flex-col overflow-hidden rounded-[10px] bg-white shadow-dialog max-phone:h-dvh max-phone:max-h-dvh max-phone:w-full max-phone:rounded-none"
+      onDismiss={onClose}
+    >
+      <header className="flex items-center gap-2.5 border-b border-line px-4 py-3">
+        <h2 className="m-0 min-w-0 flex-1 text-[16px] wrap-anywhere">{attachment.name}</h2>
+        <Button variant="secondary" onClick={onDownload}>
+          Download
+        </Button>
+        <Button variant="icon" onClick={onClose} aria-label="Close preview">
           <Icon name="close" />
-        </button>
+        </Button>
       </header>
-      <div className={`attachment-preview-body preview-${kind}`}>
+      <div className={bodyLooks[kind]}>
         {!content ? (
-          <p className="hint">Loading…</p>
+          <Hint>Loading…</Hint>
         ) : content.error ? (
-          <p className="hint">{content.error}</p>
+          <Hint>{content.error}</Hint>
         ) : kind === "image" ? (
-          <img src={content.url} alt={attachment.name} />
+          <img className="max-h-full max-w-full object-contain" src={content.url} alt={attachment.name} />
         ) : kind === "pdf" ? (
-          <iframe src={content.url} title={attachment.name} />
+          <iframe className="h-full w-full border-0" src={content.url} title={attachment.name} />
         ) : kind === "video" ? (
-          <video src={content.url} controls autoPlay />
+          <video className="max-h-full max-w-full object-contain" src={content.url} controls autoPlay />
         ) : kind === "audio" ? (
           <audio src={content.url} controls autoPlay />
         ) : kind === "markdown" ? (
           <MarkdownText text={content.text ?? ""} />
         ) : (
-          <pre>{content.text}</pre>
+          <pre className="m-0 font-[family-name:ui-monospace,SFMono-Regular,Consolas,monospace] text-[13px] leading-[1.5] whitespace-pre-wrap text-ink wrap-anywhere">
+            {content.text}
+          </pre>
         )}
-        {content?.truncated && <p className="hint">Showing the first 1 MB. Download the file to see all of it.</p>}
+        {content?.truncated && <Hint>Showing the first 1 MB. Download the file to see all of it.</Hint>}
       </div>
     </Modal>,
     document.body,

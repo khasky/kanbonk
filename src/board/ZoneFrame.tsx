@@ -2,6 +2,9 @@ import { ColorInput } from "../ui/ColorInput";
 import type { Zone } from "../model";
 import { useState, type ReactNode } from "react";
 import { Icon } from "../ui/Icon";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Field";
+import { addListClass, composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
 
 /**
  * A frame drawn around adjacent lists of one zone; its header drags the whole zone and accepts dropped lists. A zone
@@ -26,9 +29,13 @@ export function ZoneFrame({
   children?: ReactNode;
 }) {
   return (
-    <section className="zone-frame" style={{ borderColor: zone.color }} aria-label={`Zone ${zone.name}`}>
+    <section
+      className="flex max-h-full flex-none flex-col rounded-[14px] border-2 border-solid bg-[#ffffff26]"
+      style={{ borderColor: zone.color }}
+      aria-label={`Zone ${zone.name}`}
+    >
       <header
-        className="zone-header"
+        className="sticky left-0 flex items-center gap-1.5 rounded-t-[11px] px-2 py-1 text-white"
         style={{ background: zone.color }}
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
@@ -40,7 +47,7 @@ export function ZoneFrame({
         }}
       >
         <span
-          className="list-drag-handle"
+          className={dragHandleClass}
           draggable
           title="Drag zone"
           onDragStart={(event) => event.dataTransfer.setData("text/kanbonk-zone", zone.id)}
@@ -48,6 +55,7 @@ export function ZoneFrame({
           ⋮⋮
         </span>
         <input
+          className="rounded-sm border-0 bg-transparent px-1.5 py-1 font-bold text-white focus:bg-[#0003]"
           aria-label="Zone name"
           size={Math.max(6, zone.name.length + 1)}
           defaultValue={zone.name}
@@ -62,15 +70,25 @@ export function ZoneFrame({
           }}
         />
         <small title="Cards in zone">{cardCount}</small>
-        <ColorInput label={`Zone color ${zone.name}`} value={zone.color} onCommit={onColor} />
-        <button onClick={onDelete} aria-label={`Remove zone ${zone.name}`} title="Remove zone (lists stay)">
+        <ColorInput
+          className="h-[22px] w-[22px] rounded-sm border-2 border-solid border-white bg-transparent p-0"
+          label={`Zone color ${zone.name}`}
+          value={zone.color}
+          onCommit={onColor}
+        />
+        <button
+          className="rounded-sm border-0 bg-transparent px-1.5 py-0 text-[16px] text-white hover:bg-[#0003]"
+          onClick={onDelete}
+          aria-label={`Remove zone ${zone.name}`}
+          title="Remove zone (lists stay)"
+        >
           ×
         </button>
       </header>
-      <div className="zone-lists">
+      <div className="flex min-h-0 items-start gap-3 p-2">
         {children ?? (
           <div
-            className="zone-empty"
+            className="grid min-h-24 w-[272px] place-items-center rounded-xl border-2 border-dashed border-[#ffffffb3] font-semibold text-white"
             onDragOver={(event) => event.preventDefault()}
             onDrop={(event) => {
               const listId = event.dataTransfer.getData("text/kanbonk-list");
@@ -92,7 +110,7 @@ export function ZoneComposer({ onCreate }: { onCreate: (name: string) => void })
   const [name, setName] = useState<string>();
   if (name === undefined)
     return (
-      <button onClick={() => setName("")}>
+      <button className={addListClass} onClick={() => setName("")}>
         <Icon name="plus" /> New zone
       </button>
     );
@@ -101,8 +119,9 @@ export function ZoneComposer({ onCreate }: { onCreate: (name: string) => void })
     setName(undefined);
   };
   return (
-    <div className="compose">
-      <input
+    <div className={composeClass}>
+      <Input
+        className="w-full"
         autoFocus
         aria-label="Zone name"
         value={name}
@@ -113,13 +132,13 @@ export function ZoneComposer({ onCreate }: { onCreate: (name: string) => void })
         }}
         placeholder="Zone name, e.g. Development"
       />
-      <div>
-        <button className="primary-button" onClick={submit}>
+      <div className={composeActionsClass}>
+        <Button variant="primary" onClick={submit}>
           Add zone
-        </button>
-        <button className="plain-icon" onClick={() => setName(undefined)} aria-label="Cancel">
+        </Button>
+        <Button variant="icon" onClick={() => setName(undefined)} aria-label="Cancel">
           <Icon name="close" />
-        </button>
+        </Button>
       </div>
     </div>
   );

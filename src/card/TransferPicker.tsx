@@ -1,5 +1,8 @@
 import { useState } from "react";
 import type { AppState, Card } from "../model";
+import { Button } from "../ui/Button";
+import { Select } from "../ui/Field";
+import { pickerBoxClass, pickerLabelClass, pickerRowClass } from "./cardLook";
 
 /** Moves or copies the card to a list on any open board. */
 export function TransferPicker({
@@ -23,11 +26,13 @@ export function TransferPicker({
     .filter((item) => item.boardId === destinationBoardId && !item.deletedAt)
     .sort((a, b) => a.position - b.position);
   return (
-    <section className="transfer-picker" aria-label="Move or copy card">
+    <section className={pickerBoxClass} aria-label="Move or copy card">
       <strong>Choose a destination</strong>
-      <label>
+      <label className={pickerLabelClass}>
         Board
-        <select
+        <Select
+          size="sm"
+          className="w-[70%] min-w-0"
           value={destinationBoardId}
           onChange={(event) => {
             const id = event.target.value;
@@ -44,25 +49,35 @@ export function TransferPicker({
               {item.name}
             </option>
           ))}
-        </select>
+        </Select>
       </label>
-      <label>
+      <label className={pickerLabelClass}>
         List
-        <select value={destinationListId} onChange={(event) => setDestinationListId(event.target.value)}>
+        <Select
+          size="sm"
+          className="w-[70%] min-w-0"
+          value={destinationListId}
+          onChange={(event) => setDestinationListId(event.target.value)}
+        >
           {destinationLists.map((item) => (
             <option key={item.id} value={item.id}>
               {item.name}
             </option>
           ))}
-        </select>
+        </Select>
       </label>
-      <div>
-        <button onClick={() => onTransfer(destinationListId, false)} disabled={!destinationListId}>
+      <div className={pickerRowClass}>
+        <Button variant="primary" onClick={() => onTransfer(destinationListId, false)} disabled={!destinationListId}>
           Move
-        </button>
-        <button onClick={() => onTransfer(destinationListId, true)} disabled={!destinationListId}>
+        </Button>
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={() => onTransfer(destinationListId, true)}
+          disabled={!destinationListId}
+        >
           Copy
-        </button>
+        </Button>
       </div>
     </section>
   );

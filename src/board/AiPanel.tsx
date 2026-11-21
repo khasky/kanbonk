@@ -3,6 +3,13 @@ import type { AppState, Board, Card } from "../model";
 import { MarkdownText } from "../ui/MarkdownText";
 import { aiProviders, boardContext, triageInbox, writeWithCitations, type AiSettings, type TriageItem } from "../ai/ai";
 import { kanbonkCardForUrl } from "../model/links";
+import { Button } from "../ui/Button";
+import { Checkbox, Input, Select, Textarea } from "../ui/Field";
+import { Hint } from "../ui/Hint";
+import { RowActions } from "../ui/PanelRow";
+import { Segmented, SegmentedTab } from "../ui/Segmented";
+
+const panelClass = "mt-5 flex flex-col gap-2 border-t border-line pt-3";
 
 export interface ProposedCard extends TriageItem {
   listId: string;
@@ -41,13 +48,15 @@ export function AiPanel({
 
   if (!settings)
     return (
-      <section className="ai-panel">
+      <section className={panelClass}>
         <h3>AI assistant</h3>
-        <p className="hint">
+        <Hint>
           Connect your own API key (Claude, ChatGPT, Gemini or a compatible server) to triage incoming tasks and keep a
           project doc with links to cards. The key is stored only on this device.
-        </p>
-        <button onClick={onOpenSettings}>Connect AI</button>
+        </Hint>
+        <Button variant="secondary" size="lg" className="self-start" onClick={onOpenSettings}>
+          Connect AI
+        </Button>
       </section>
     );
 
@@ -64,15 +73,17 @@ export function AiPanel({
   }
   const provider = aiProviders[settings.provider].name;
   return (
-    <section className="ai-panel" aria-label="AI assistant">
-      <header className="ai-header">
-        <h3>AI assistant</h3>
-        <small>
+    <section className={panelClass} aria-label="AI assistant">
+      <header className="flex items-baseline gap-2">
+        <h3 className="m-0">AI assistant</h3>
+        <small className="mr-auto text-ink-muted">
           {provider} · {settings.model}
         </small>
-        <button onClick={onOpenSettings}>Settings</button>
+        <Button variant="secondary" onClick={onOpenSettings}>
+          Settings
+        </Button>
       </header>
-      <div className="segmented" role="tablist" aria-label="AI action">
+      <Segmented label="AI action">
         {(
           [
             ["triage", "Triage inbox"],
@@ -80,10 +91,9 @@ export function AiPanel({
             ["ask", "Ask about this board"],
           ] as const
         ).map(([id, name]) => (
-          <button
+          <SegmentedTab
             key={id}
-            role="tab"
-            aria-selected={mode === id}
+            selected={mode === id}
             onClick={() => {
               setMode(id);
               setError("");
@@ -91,21 +101,21 @@ export function AiPanel({
             }}
           >
             {name}
-          </button>
+          </SegmentedTab>
         ))}
-      </div>
+      </Segmented>
       {mode === "triage" && (
         <>
-          <textarea
-            className="ai-input"
+          <Textarea
+            className="w-full"
             value={inbound}
             onChange={(event) => setInbound(event.target.value)}
             placeholder="Paste emails, meeting notes, chat messages…"
             aria-label="Incoming messages"
             rows={6}
           />
-          <button
-            className="primary-button"
+          <Button
+            variant="primary"
             disabled={busy || !inbound.trim() || !lists.length}
             onClick={() =>
               void run(async () =>
@@ -120,14 +130,13 @@ export function AiPanel({
             }
           >
             {busy ? "Triaging…" : `Triage (sends text to ${provider})`}
-          </button>
+          </Button>
           {proposals.length > 0 && (
-            <div className="ai-proposals">
+            <div className="flex flex-col gap-2">
               {proposals.map((item, index) => (
-                <div className="ai-proposal" key={index}>
-                  <label>
-                    <input
-                      type="checkbox"
+                <div className="flex flex-col gap-1 rounded-lg border border-line p-2" key={index}>
+                  <label className="flex items-center gap-1.5">
+                    <Checkbox
                       checked={item.selected}
                       onChange={() =>
                         setProposals((current) =>
@@ -138,7 +147,9 @@ export function AiPanel({
                       }
                       aria-label={`Create card ${item.title}`}
                     />
-                    <input
+                    <Input
+                      size="sm"
+                      className="min-w-0 flex-1"
                       value={item.title}
                       onChange={(event) =>
                         setProposals((current) =>
@@ -150,7 +161,8 @@ export function AiPanel({
                       aria-label="Card title"
                     />
                   </label>
-                  <select
+                  <Select
+                    size="sm"
                     value={item.listId}
                     onChange={(event) =>
                       setProposals((current) =>
@@ -166,13 +178,15 @@ export function AiPanel({
                         {list.name}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                   {item.due && <small>Due date: {item.due}</small>}
-                  <blockquote>{item.source}</blockquote>
+                  <blockquote className="m-0 border-l-[3px] border-line pl-2 text-[12px] text-ink-subtle">
+                    {item.source}
+                  </blockquote>
                 </div>
               ))}
-              <button
-                className="primary-button"
+              <Button
+                variant="primary"
                 disabled={!proposals.some((item) => item.selected)}
                 onClick={() => {
                   onCreateCards(proposals.filter((item) => item.selected));
@@ -181,20 +195,20 @@ export function AiPanel({
                 }}
               >
                 Create selected ({proposals.filter((item) => item.selected).length})
-              </button>
+              </Button>
             </div>
           )}
         </>
       )}
       {mode !== "triage" && context && (
-        <p className="hint">
+        <Hint>
           Will be sent to {provider}: {context.cards} cards from the board and the doc
           {context.truncated ? `; ${context.truncated} cards did not fit` : ""}.
-        </p>
+        </Hint>
       )}
       {mode === "doc" && (
-        <button
-          className="primary-button"
+        <Button
+          variant="primary"
           disabled={busy}
           onClick={() =>
             void run(async () =>
@@ -211,17 +225,20 @@ export function AiPanel({
           }
         >
           {busy ? "Writing…" : "Draft a new version of the doc"}
-        </button>
+        </Button>
       )}
       {mode === "ask" && (
-        <div className="inline-form">
-          <input
+        <div className="mt-2 flex gap-1.5">
+          <Input
+            size="sm"
+            className="min-w-0 flex-1"
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             placeholder="For example: what is blocking the release?"
             aria-label="Ask about this board"
           />
-          <button
+          <Button
+            variant="secondary"
             disabled={busy || !question.trim()}
             onClick={() =>
               void run(async () =>
@@ -238,34 +255,36 @@ export function AiPanel({
             }
           >
             {busy ? "Thinking…" : "Ask"}
-          </button>
+          </Button>
         </div>
       )}
       {error && (
-        <p role="alert" className="ai-error">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
       {draft && (
-        <div className="ai-draft">
-          <p className="hint">
+        <div className="rounded-lg border border-dashed border-brand px-3 py-2">
+          <Hint>
             Card links: {draft.cited}
             {draft.invalid ? `; links to missing cards: ${draft.invalid} (marked)` : ""}.
-          </p>
+          </Hint>
           <MarkdownText text={draft.markdown} localCardForUrl={cardForUrl} onNavigateCard={onOpenCard} />
-          <div className="row-actions">
+          <RowActions>
             {mode === "doc" && (
-              <button
-                className="primary-button"
+              <Button
+                variant="primary"
                 onClick={() => {
                   onDocChange(draft.markdown);
                   setDraft(null);
                 }}
               >
                 Replace doc
-              </button>
+              </Button>
             )}
-            <button
+            <Button
+              variant="secondary"
+              size="lg"
               onClick={() => {
                 onDocChange(
                   `${(board.doc ?? "").trimEnd()}\n\n${mode === "ask" ? `## ${question}\n\n` : ""}${draft.markdown}\n`,
@@ -274,9 +293,11 @@ export function AiPanel({
               }}
             >
               Append to doc
-            </button>
-            <button onClick={() => setDraft(null)}>Discard</button>
-          </div>
+            </Button>
+            <Button variant="secondary" size="lg" onClick={() => setDraft(null)}>
+              Discard
+            </Button>
+          </RowActions>
         </div>
       )}
     </section>

@@ -42,6 +42,8 @@
     }
   },
   "css": {
+    // Tailwind v4 at-rules (@theme) in src/styles/index.css.
+    "parser": { "tailwindDirectives": true },
     "linter": { "enabled": true },
     "formatter": { "enabled": true }
   },

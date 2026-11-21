@@ -1,6 +1,17 @@
 import { MissingPage } from "./MissingPage";
 import type { AppState } from "../model";
 import { inboxWorkspaceId } from "../model/inbox";
+import { Button } from "../ui/Button";
+import { WorkspaceAvatar } from "../ui/WorkspaceAvatar";
+import {
+  boardTileClass,
+  createTileClass,
+  emptyClass,
+  pageClass,
+  pageHeaderClass,
+  pageHeadingClass,
+  tileGridClass,
+} from "./pageLook";
 
 export function WorkspacePage({
   state,
@@ -21,11 +32,11 @@ export function WorkspacePage({
   if (!workspace) return <MissingPage what="Workspace not found" />;
   const boards = state.boards.filter((board) => board.workspaceId === workspace.id && !board.deletedAt);
   return (
-    <section className="page workspace-page" aria-label={workspace.name}>
-      <header className="page-header">
-        <span className="workspace-avatar large">{workspace.name.slice(0, 1).toUpperCase()}</span>
+    <section className={pageClass} aria-label={workspace.name}>
+      <header className={pageHeaderClass}>
+        <WorkspaceAvatar name={workspace.name} size="lg" />
         <input
-          className="page-title"
+          className="flex-1 rounded-sm border border-transparent px-2 py-1.5 text-[22px] font-bold text-ink hover:border-ink-faint focus:border-ink-faint"
           aria-label="Workspace name"
           defaultValue={workspace.name}
           key={workspace.name}
@@ -39,18 +50,18 @@ export function WorkspacePage({
           }}
         />
         {workspace.id !== inboxWorkspaceId && (
-          <button className="danger-button" onClick={onDelete}>
+          <Button variant="danger" onClick={onDelete}>
             Move to trash
-          </button>
+          </Button>
         )}
       </header>
-      <h2>Boards</h2>
+      <h2 className={pageHeadingClass}>Boards</h2>
       {boards.length ? (
-        <div className="tile-grid">
+        <div className={tileGridClass}>
           {boards.map((board) => (
             <button
               key={board.id}
-              className="tile board-tile"
+              className={boardTileClass}
               style={{ background: board.background }}
               onClick={() => onOpenBoard(board.id)}
             >
@@ -58,16 +69,16 @@ export function WorkspacePage({
               {board.starred && <span aria-label="Starred">★</span>}
             </button>
           ))}
-          <button className="tile tile-create" onClick={onCreateBoard}>
+          <button className={createTileClass} onClick={onCreateBoard}>
             + Create board
           </button>
         </div>
       ) : (
-        <div className="empty-page">
+        <div className={emptyClass}>
           <p>This workspace has no boards yet.</p>
-          <button className="primary-button" onClick={onCreateBoard}>
+          <Button variant="primary" onClick={onCreateBoard}>
             Add board
-          </button>
+          </Button>
         </div>
       )}
     </section>

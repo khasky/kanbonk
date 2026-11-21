@@ -280,8 +280,8 @@ export function useCardActions({
     setState((current) => deleteLabel(current, id, deviceId));
   }
 
-  async function attachFiles(target: Card, files: FileList | null) {
-    for (const file of Array.from(files ?? [])) {
+  async function attachFiles(target: Card, files: File[]) {
+    for (const file of files) {
       const id = newId();
       try {
         await saveAttachment(id, file);

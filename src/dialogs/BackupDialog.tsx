@@ -1,4 +1,4 @@
-import { Modal } from "../ui/Modal";
+import { Dialog } from "../ui/Modal";
 import { useState } from "react";
 import { autoSnapshot } from "../backup/autoBackup";
 import { createBackupParts, restoreBackup } from "../backup/backup";
@@ -6,6 +6,18 @@ import { type AppState, rememberStateIds } from "../model";
 import { saveFile } from "../lib/platform";
 import { loadSnapshot, type SnapshotMeta } from "../lib/storage";
 import type { SyncConflict } from "../sync/sync";
+import { Button } from "../ui/Button";
+import { FileButton } from "../ui/FileButton";
+import { PanelRow, PanelRowNote, PanelRowText } from "../ui/PanelRow";
+import { ConflictChoice } from "./ConflictChoice";
+import {
+  dialogFooterClass,
+  dialogIntroClass,
+  dialogListClass,
+  dialogTitleClass,
+  fieldLabelClass,
+  reportClass,
+} from "./dialogLook";
 
 /**
  * Manual ZIP backups and the automatic snapshots kept inside the app.
@@ -105,50 +117,56 @@ export function BackupDialog({
   }
 
   return (
-    <Modal label="Backup" className="creation-dialog import-dialog" onDismiss={busy ? undefined : onClose}>
-      <h2>Backup</h2>
-      <p>
+    <Dialog label="Backup" className="max-h-[calc(100dvh-96px)] overflow-auto" onDismiss={busy ? undefined : onClose}>
+      <h2 className={dialogTitleClass}>Backup</h2>
+      <p className={dialogIntroClass}>
         Save all boards and available local files to ZIP. To restore, select all parts of one backup at once. Existing
         data is kept; conflicting changes will ask you to choose a version.
       </p>
-      <button className="primary-button" onClick={exportBackup} disabled={busy}>
+      <Button variant="primary" onClick={exportBackup} disabled={busy}>
         {busy ? "Please wait…" : "Download backup"}
-      </button>
-      <label>
+      </Button>
+      <div className={`${fieldLabelClass} my-3.5`}>
         Backup ZIP parts
-        <input
-          type="file"
-          accept=".zip,application/zip"
-          multiple
-          onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
-        />
-      </label>
-      <button onClick={importBackup} disabled={busy || !files.length}>
+        <FileButton size="lg" accept=".zip,application/zip" multiple placeholder="No files chosen" onFiles={setFiles}>
+          Choose files
+        </FileButton>
+      </div>
+      <Button variant="secondary" size="lg" onClick={importBackup} disabled={busy || !files.length}>
         Restore from ZIP
-      </button>
-      <section className="auto-backups">
+      </Button>
+      <section className={dialogListClass}>
         <h3>Snapshots</h3>
         <p>
           Every 10 minutes, if anything changed, a snapshot of all data is saved inside the app (the last 20, plus one
           per day for 30 days). Full backups with files outside the app are set up in{" "}
-          <button type="button" className="link-button" onClick={onOpenSettings}>
+          <Button type="button" variant="link" onClick={onOpenSettings}>
             Settings
-          </button>
+          </Button>
           .
         </p>
-        <button onClick={() => void autoSnapshot(getState()).then(onRefreshSnapshots)}>Create snapshot now</button>
+        <Button
+          variant="secondary"
+          size="lg"
+          className="self-start"
+          onClick={() => void autoSnapshot(getState()).then(onRefreshSnapshots)}
+        >
+          Create snapshot now
+        </Button>
         {snapshots.length ? (
-          <div className="snapshot-list">
+          <div className="flex max-h-[220px] flex-col gap-1 overflow-auto">
             {snapshots.map((meta) => (
-              <div className="panel-row" key={meta.id}>
-                <span>
+              <PanelRow wrap key={meta.id}>
+                <PanelRowText className="flex flex-col">
                   <strong>{new Date(meta.createdAt).toLocaleString("en-US")}</strong>
-                  <small>
+                  <PanelRowNote>
                     boards: {meta.boards}, cards: {meta.cards}, {Math.round(meta.size / 1024)} KB
-                  </small>
-                </span>
-                <button onClick={() => void restoreSnapshot(meta)}>Restore</button>
-              </div>
+                  </PanelRowNote>
+                </PanelRowText>
+                <Button variant="secondary" className="flex-none" onClick={() => void restoreSnapshot(meta)}>
+                  Restore
+                </Button>
+              </PanelRow>
             ))}
           </div>
         ) : (
@@ -156,25 +174,24 @@ export function BackupDialog({
         )}
       </section>
       {report && (
-        <p className="import-report" role="status">
+        <p className={reportClass} role="status">
           {report}
         </p>
       )}
       {conflicts.map((conflict) => (
-        <div className="sync-conflict" key={`${conflict.kind}-${conflict.id}`}>
-          <strong>Conflict: {conflict.local.name}</strong>
-          <small>Choose a version of this item.</small>
-          <div>
-            <button onClick={() => onChooseConflict(conflict, "local")}>Current version</button>
-            <button onClick={() => onChooseConflict(conflict, "remote")}>Backup version</button>
-          </div>
-        </div>
+        <ConflictChoice
+          key={`${conflict.kind}-${conflict.id}`}
+          name={conflict.local.name}
+          localLabel="Current version"
+          remoteLabel="Backup version"
+          onChoose={(version) => onChooseConflict(conflict, version)}
+        />
       ))}
-      <div>
-        <button onClick={onClose} disabled={busy}>
+      <div className={dialogFooterClass}>
+        <Button variant="secondary" size="lg" onClick={onClose} disabled={busy}>
           Close
-        </button>
+        </Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

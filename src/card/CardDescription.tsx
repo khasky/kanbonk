@@ -2,6 +2,8 @@ import { useState } from "react";
 import { MarkdownEditor } from "../ui/MarkdownEditor";
 import { MarkdownText } from "../ui/MarkdownText";
 import type { Card } from "../model";
+import { Button } from "../ui/Button";
+import { detailSectionClass, detailTitleClass, placeholderClass } from "./cardLook";
 
 /** The card description as Markdown; a double click or the Edit button opens the editor. */
 export function CardDescription({
@@ -17,13 +19,13 @@ export function CardDescription({
 }) {
   const [editingDescription, setEditingDescription] = useState(false);
   return (
-    <section className="detail-section">
-      <h3>
+    <section className={`card-markdown ${detailSectionClass}`}>
+      <h3 className={detailTitleClass}>
         Description
         {card.description && !editingDescription && (
-          <button className="description-edit-button" onClick={() => setEditingDescription(true)}>
+          <Button variant="secondary" className="ml-auto" onClick={() => setEditingDescription(true)}>
             Edit
-          </button>
+          </Button>
         )}
       </h3>
       {editingDescription ? (
@@ -37,11 +39,11 @@ export function CardDescription({
           onCancel={() => setEditingDescription(false)}
         />
       ) : card.description ? (
-        <div className="description-preview" onDoubleClick={() => setEditingDescription(true)}>
+        <div className="rounded-sm bg-surface-sunken p-2.5" onDoubleClick={() => setEditingDescription(true)}>
           <MarkdownText text={card.description} localCardForUrl={localCardForUrl} onNavigateCard={onNavigateCard} />
         </div>
       ) : (
-        <button className="description-placeholder" onClick={() => setEditingDescription(true)}>
+        <button className={placeholderClass} onClick={() => setEditingDescription(true)}>
           Add a more detailed description…
         </button>
       )}
