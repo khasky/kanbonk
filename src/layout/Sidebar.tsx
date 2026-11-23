@@ -2,7 +2,7 @@ import { useState } from "react";
 import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import type { AppState } from "../model";
 import { trashHref } from "../lib/router";
-import { Icon } from "../ui/Icon";
+import { Icon, type IconName } from "../ui/Icon";
 import { WorkspaceAvatar } from "../ui/WorkspaceAvatar";
 import type { PanelName } from "../lib/uiPreferences";
 
@@ -10,10 +10,37 @@ const collapsedKey = "kanbonk-sidebar-collapsed";
 
 const plainButton = "border-0 bg-transparent text-inherit hover:bg-brand-soft";
 const smallButton = `grid place-items-center p-1 ${plainButton}`;
-const linkLook =
-  "flex w-full gap-3 rounded-sm border-0 px-2.5 py-[9px] text-left font-bold text-brand hover:bg-brand-soft";
 const boardLook =
-  "flex w-full items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap rounded-sm border-0 py-[7px] pr-[9px] pl-[38px] text-left text-inherit hover:bg-brand-soft";
+  "flex w-full items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap rounded-sm border-0 py-[7px] pr-[9px] pl-[42px] text-left text-inherit hover:bg-brand-soft";
+
+/** A top link: its icon sits in the same 24px column as the workspace avatars; collapsed, only the icon shows. */
+function NavLink({
+  icon,
+  label,
+  active,
+  collapsed,
+  onClick,
+}: {
+  icon: IconName;
+  label: string;
+  active: boolean;
+  collapsed: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={`flex w-full items-center gap-3 rounded-sm border-0 p-1.5 text-left font-bold text-brand hover:bg-brand-soft ${active ? "bg-brand-soft" : "bg-transparent"} ${collapsed ? "justify-center" : ""}`}
+      onClick={onClick}
+      aria-label={label}
+      title={collapsed ? label : undefined}
+    >
+      <span className="grid size-6 flex-none place-items-center">
+        <Icon name={icon} className="size-5" />
+      </span>
+      {!collapsed && label}
+    </button>
+  );
+}
 
 /**
  * Links to Inbox, Planner, Workspaces and Trash, then every workspace with its boards. It collapses to a strip of
@@ -45,8 +72,6 @@ export function Sidebar({
   navigate: (href: string) => void;
 }) {
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(collapsedKey) === "true");
-  const linkClass = (active: boolean) => `${linkLook} ${active ? "bg-brand-soft" : "bg-transparent"}`;
-  const labelClass = collapsed ? "hidden" : undefined;
   function toggle() {
     localStorage.setItem(collapsedKey, String(!collapsed));
     setCollapsed(!collapsed);
@@ -68,18 +93,35 @@ export function Sidebar({
       >
         {collapsed ? "»" : "«"}
       </button>
-      <button className={linkClass(shownPanels.includes("inbox"))} onClick={() => onTogglePanel("inbox")}>
-        ☰ <span className={labelClass}>Inbox</span>
-      </button>
-      <button className={linkClass(shownPanels.includes("planner"))} onClick={() => onTogglePanel("planner")}>
-        ▦ <span className={labelClass}>Planner</span>
-      </button>
-      <button className={linkClass(page === "home")} onClick={() => navigate("/")}>
-        ▦ <span className={labelClass}>Workspaces</span>
-      </button>
-      <button className={linkClass(page === "trash")} onClick={() => navigate(trashHref())}>
-        🗑 <span className={labelClass}>Trash</span>
-      </button>
+      <NavLink
+        icon="inbox"
+        label="Inbox"
+        active={shownPanels.includes("inbox")}
+        collapsed={collapsed}
+        onClick={() => onTogglePanel("inbox")}
+      />
+      <NavLink
+        icon="calendar"
+        label="Planner"
+        active={shownPanels.includes("planner")}
+        collapsed={collapsed}
+        onClick={() => onTogglePanel("planner")}
+      />
+      <NavLink
+        icon="grid"
+        label="Workspaces"
+        active={page === "home"}
+        collapsed={collapsed}
+        onClick={() => navigate("/")}
+      />
+      <NavLink
+        icon="trash"
+        label="Trash"
+        active={page === "trash"}
+        collapsed={collapsed}
+        onClick={() => navigate(trashHref())}
+      />
+      {collapsed && <hr className="mx-1.5 my-2 border-0 border-t border-line" />}
       <div
         className={
           collapsed
@@ -95,14 +137,14 @@ export function Sidebar({
       {state.workspaces
         .filter((item) => item.id !== inboxWorkspaceId && !item.deletedAt)
         .map((workspace) => (
-          <div className="mb-[18px]" key={workspace.id}>
-            <div className={`flex items-center gap-2 px-1.5 py-[5px] ${collapsed ? "justify-center" : ""}`}>
+          <div className={collapsed ? undefined : "mb-3"} key={workspace.id}>
+            <div className={`flex items-center gap-2 p-1.5 ${collapsed ? "justify-center" : ""}`}>
               <WorkspaceAvatar name={workspace.name} />
               <button
                 className={
                   collapsed
                     ? "hidden"
-                    : `grid flex-1 place-items-center border-0 bg-transparent p-1 text-left font-bold hover:bg-brand-soft hover:text-brand ${workspace.id === workspaceId ? "text-brand" : "text-inherit"}`
+                    : `min-w-0 flex-1 truncate rounded-sm border-0 bg-transparent p-1 text-left font-bold hover:bg-brand-soft hover:text-brand ${workspace.id === workspaceId ? "text-brand" : "text-inherit"}`
                 }
                 onClick={() => navigate(`/w/${workspace.id}`)}
               >

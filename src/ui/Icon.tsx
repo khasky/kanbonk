@@ -1,10 +1,18 @@
-export function Icon({
-  name,
-  className,
-}: {
-  name: "plus" | "close" | "star" | "search" | "clip" | "clock" | "trash" | "history" | "info";
-  className?: string;
-}) {
+export type IconName =
+  | "plus"
+  | "close"
+  | "star"
+  | "search"
+  | "clip"
+  | "clock"
+  | "trash"
+  | "history"
+  | "info"
+  | "inbox"
+  | "calendar"
+  | "grid";
+
+export function Icon({ name, className }: { name: IconName; className?: string }) {
   const paths = {
     plus: <path d="M12 5v14M5 12h14" />,
     close: <path d="M18 6 6 18M6 6l12 12" />,
@@ -33,6 +41,26 @@ export function Icon({
       <>
         <circle cx="12" cy="12" r="9" />
         <path d="M12 11v5M12 8h.01" />
+      </>
+    ),
+    inbox: (
+      <>
+        <path d="M3 13h5l1.5 3h5l1.5-3h5" />
+        <path d="M5.5 5h13l2.5 8v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5l2.5-8Z" />
+      </>
+    ),
+    calendar: (
+      <>
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M3 10h18M8 3v4M16 3v4" />
+      </>
+    ),
+    grid: (
+      <>
+        <rect x="3" y="3" width="7" height="7" rx="1.5" />
+        <rect x="14" y="3" width="7" height="7" rx="1.5" />
+        <rect x="3" y="14" width="7" height="7" rx="1.5" />
+        <rect x="14" y="14" width="7" height="7" rx="1.5" />
       </>
     ),
   };
