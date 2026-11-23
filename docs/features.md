@@ -46,7 +46,7 @@ A card opened from a board appears as a modal on top of it; Esc or the close but
 - **Title**: a text field.
 - **Card color**: the cover picker has presets and a color picker; **Color the whole card** paints the whole tile, and the text switches between dark and light for contrast.
 - **Description**: visual Markdown editing with a formatting toolbar (bold, italic, strikethrough, headings, lists, quote, code, link, divider) and a toggle to edit the Markdown source. Ctrl+Enter saves, Esc cancels. Pasted text is inserted as plain text.
-- **Start and due dates**: native date-time inputs, a reminder time and an optional repeat (daily, weekly, monthly, yearly). Completing a repeating card moves the due date to the next occurrence.
+- **Start and due dates**: native date-time inputs and a reminder time.
 - **Labels**: Trello's 30 colors as presets, or any color from the color picker.
 - **Comments**: written in the same visual Markdown editor as the description.
 - **Members**: the **Members** button appears when the board has someone to assign: a trusted device (see [sync.md](sync.md#trusted-devices)) or a member imported from Trello.
@@ -55,7 +55,7 @@ A card opened from a board appears as a modal on top of it; Esc or the close but
 - **Share**: print the card, save it as PNG or JSON, copy its link (`/c/<id>`) or show a QR code of the link.
 - Checklists, attachments, links, stickers.
 - **Preview** opens a stored attachment in a dialog: images, PDF (in the browser's PDF viewer; not in the Android app), Markdown rendered as formatted text, plain text and code files (txt, json, csv, yaml, source code and similar, first 1 MB), video and audio. The type is taken from the file's MIME type or, for untyped files, its extension.
-- **Dependencies**: **Dependency** links the card to a card it depends on, on any board (as an item of the card's **Dependencies** checklist). The card shows **Depends on** and **Blocks** and is marked as blocked while a prerequisite is open. See [trash-and-dependencies.md](trash-and-dependencies.md).
+- **Dependencies**: **Dependency** links the card to a card it depends on, on any board (as an item of the card's **Dependencies** checklist). The card shows **Depends on** and **Blocks**. See [trash-and-dependencies.md](trash-and-dependencies.md).
 - **History**: every change is a revision; any earlier version can be restored.
 - The meta line shows the list, board, creation date and card ID.
 
@@ -85,12 +85,11 @@ The search box in the top bar searches all workspaces: workspace and board names
 | `name:`, `description:`, `checklist:`, `comment:` | with the text in that field |
 | `has:attachments`, `has:description`, `has:cover`, `has:members`, `has:stickers` | that have it |
 | `due:overdue`, `due:day`, `due:week`, `due:month` | due in that range |
-| `due:complete`, `due:incomplete` | by due completion |
 | `is:open`, `is:starred` | not in the trash, or on a starred board |
 
 Example: `board:"Release" label:bug -is:starred due:week`.
 
-The board **Filter** narrows the current board by text, label, member, status and due date.
+The board **Filter** narrows the current board by text, label, member and due date.
 
 ## Inbox and planner
 
@@ -105,7 +104,7 @@ Cards with a due date and a reminder time appear in **Reminders** in the top bar
 **Automation** in the board toolbar creates rules:
 
 - **Trigger**: a card moves to a chosen list, a due date arrives (at the due time or an hour, day or week before), or a custom button in the card is pressed.
-- **Action**: mark complete, move to the trash (with its sub-cards) or add a label.
+- **Action**: move to the trash (with its sub-cards) or add a label.
 
 Due rules run once per due date while the app is open or at the next start. Rules are saved with the board and copied with it.
 

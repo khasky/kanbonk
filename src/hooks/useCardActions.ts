@@ -19,7 +19,6 @@ import {
   unlinkDependency,
 } from "../model";
 import { saveFile } from "../lib/platform";
-import { applyDueRecurrence } from "../model/repeatingDue";
 import { loadAttachment, saveAttachment } from "../lib/storage";
 
 const nextPosition = (cards: Card[], listId: string) =>
@@ -40,16 +39,14 @@ export function useCardActions({
   deviceId: string;
   onError: (message: string) => void;
 }) {
-  /** Applies a change to a card, then its move rules and repeating due date. */
+  /** Applies a change to a card, then its move rules. */
   function updateCard(id: string, change: (item: Card) => Card) {
     setState((current) =>
       trashSubCards(
         recordRevision(
           {
             ...current,
-            cards: current.cards.map((item) =>
-              item.id === id ? applyDueRecurrence(item, applyMoveRules(current, item, change(item))) : item,
-            ),
+            cards: current.cards.map((item) => (item.id === id ? applyMoveRules(current, item, change(item)) : item)),
           },
           "card",
           id,
@@ -65,7 +62,7 @@ export function useCardActions({
     setState((current) => {
       const before = current.cards.find((item) => item.id === cardId);
       if (!before) return current;
-      const after = applyDueRecurrence(before, applyCardButton(current, before, ruleId));
+      const after = applyCardButton(current, before, ruleId);
       return after === before
         ? current
         : trashSubCards(
@@ -91,9 +88,7 @@ export function useCardActions({
       const before = current.cards.find((item) => item.id === id);
       const cards =
         !copy && before
-          ? transferred.cards.map((item) =>
-              item.id === id ? applyDueRecurrence(before, applyMoveRules(current, before, item)) : item,
-            )
+          ? transferred.cards.map((item) => (item.id === id ? applyMoveRules(current, before, item) : item))
           : transferred.cards;
       return trashSubCards(recordRevision({ ...transferred, cards }, "card", targetId, deviceId), targetId, deviceId);
     });
@@ -111,7 +106,6 @@ export function useCardActions({
       createdAt: new Date().toISOString(),
       position: nextPosition(state.cards, listId),
       labelIds: [],
-      completed: false,
       checklists: [],
       comments: [],
       attachments: [],
@@ -140,7 +134,6 @@ export function useCardActions({
         dueAt: item.due ? new Date(`${item.due}T12:00:00`).toISOString() : undefined,
         position: nextPosition(current.cards, item.listId) + index,
         labelIds: [],
-        completed: false,
         checklists: [],
         comments: [],
         attachments: [],
@@ -166,7 +159,6 @@ export function useCardActions({
         createdAt: new Date().toISOString(),
         position: nextPosition(current.cards, inboxListId),
         labelIds: [],
-        completed: false,
         checklists: [],
         comments: [],
         attachments: [],

@@ -18,7 +18,7 @@ export interface AutomationRule {
   name?: string;
   createdAt?: string;
   leadMinutes?: number;
-  action: "complete" | "trash" | "add-label";
+  action: "trash" | "add-label";
   labelId?: string;
 }
 
@@ -122,9 +122,7 @@ export interface Card extends Trashable {
   startAt?: string;
   dueAt?: string;
   dueReminderMinutes?: number;
-  dueRepeat?: { cadence: "daily" | "weekly" | "monthly" | "yearly"; anchor: string };
   automationRunKeys?: string[];
-  completed: boolean;
   checklists: Checklist[];
   comments: Comment[];
   attachments: Attachment[];
@@ -178,7 +176,6 @@ export interface BoardFilter {
   keyword: string;
   labelId: string;
   memberId?: string;
-  status: "all" | "complete" | "incomplete";
   due: "any" | "overdue" | "next-week" | "none";
 }
 
@@ -186,7 +183,6 @@ export const emptyBoardFilter = (): BoardFilter => ({
   keyword: "",
   labelId: "",
   memberId: "",
-  status: "all",
   due: "any",
 });
 

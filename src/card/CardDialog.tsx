@@ -174,19 +174,6 @@ export function CardDialog({
       <div className="grid min-h-0 grid-cols-[minmax(0,1.4fr)_minmax(290px,1fr)] overflow-auto max-tablet:block">
         <div className="overflow-auto px-8 pt-6 pb-8 max-tablet:overflow-visible max-phone:p-[18px]">
           <div className="flex items-center gap-3">
-            {!card.isTemplate && (
-              <button
-                className={
-                  card.completed
-                    ? "h-[22px] min-h-0! w-[22px] flex-none rounded-full border-2 border-success bg-success p-0 text-white"
-                    : "h-[22px] min-h-0! w-[22px] flex-none rounded-full border-2 border-ink-muted bg-white p-0"
-                }
-                onClick={() => onChange((item) => ({ ...item, completed: !item.completed }))}
-                aria-label={card.completed ? "Mark incomplete" : "Mark complete"}
-              >
-                {card.completed && "✓"}
-              </button>
-            )}
             <NameEditor
               // `!`: the dialog's phone rule would make the title 16px like the other fields.
               className="w-full min-w-0 border-0 bg-transparent p-1 text-[25px]! font-bold text-ink"
@@ -315,7 +302,6 @@ export function CardDialog({
           />
           {(prerequisiteCards.length > 0 || dependentCards.length > 0) && (
             <DependencySummary
-              card={card}
               prerequisiteCards={prerequisiteCards}
               dependentCards={dependentCards}
               onNavigateCard={onNavigateCard}

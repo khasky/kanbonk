@@ -28,13 +28,10 @@ export function filterBoardCards(state: AppState, boardId: string, filter: Board
     if (card.boardId !== boardId || card.deletedAt || trashedListIds.has(card.listId)) return false;
     if (filter.labelId && !card.labelIds.includes(filter.labelId)) return false;
     if (filter.memberId && !(card.memberIds ?? []).includes(filter.memberId)) return false;
-    if (filter.status === "complete" && !card.completed) return false;
-    if (filter.status === "incomplete" && card.completed) return false;
     const due = card.dueAt ? new Date(card.dueAt).getTime() : NaN;
     if (filter.due === "none" && card.dueAt) return false;
-    if (filter.due === "overdue" && (card.completed || !(due < now))) return false;
-    if (filter.due === "next-week" && (card.completed || !(due >= now && due <= now + 7 * 24 * 60 * 60 * 1000)))
-      return false;
+    if (filter.due === "overdue" && !(due < now)) return false;
+    if (filter.due === "next-week" && !(due >= now && due <= now + 7 * 24 * 60 * 60 * 1000)) return false;
     if (!keyword) return true;
     return cardText(card).includes(keyword);
   });
@@ -124,11 +121,9 @@ function searchMatch(
               : false;
   if (operator === "is") return value === "open" || (value === "starred" && board.starred);
   if (operator === "due") {
-    if (value === "complete") return Boolean(card.dueAt && card.completed);
-    if (value === "incomplete") return Boolean(card.dueAt && !card.completed);
     const due = Date.parse(card.dueAt ?? "");
     if (!Number.isFinite(due)) return false;
-    if (value === "overdue") return !card.completed && due < now;
+    if (value === "overdue") return due < now;
     const days =
       value === "day" ? 1 : value === "week" ? 7 : value === "month" ? 30 : /^\d+$/.test(value) ? Number(value) : NaN;
     return Number.isFinite(days) && days >= 0 && due >= now && due <= now + days * 86400000;

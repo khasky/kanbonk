@@ -41,7 +41,37 @@ function hasLegacyIds(state: AppState): boolean {
 
 /** Returns the state with legacy entity IDs renamed everywhere they are referenced; the same object when there are none. */
 export function migrateLegacyState<T extends AppState>(state: T): T {
-  return migrateArchived(hasLegacyIds(state) ? (renameDeep(state) as T) : state);
+  return migrateCompleted(migrateArchived(hasLegacyIds(state) ? (renameDeep(state) as T) : state));
+}
+
+/**
+ * Earlier versions could mark a card complete, by hand or with an automation rule, and repeat its due date on
+ * completion. Completion is gone: the card fields and the rules are dropped. As with archiving, no revision is
+ * recorded.
+ */
+export function migrateCompleted<T extends AppState>(state: T): T {
+  const legacyCard = (card: object) => "completed" in card || "dueRepeat" in card;
+  const legacyRule = (rule: { action: string }) => rule.action === "complete";
+  const cards = state.cards.some(legacyCard);
+  const rules = state.boards.some((board) => board.automationRules?.some(legacyRule));
+  if (!cards && !rules) return state;
+  return {
+    ...state,
+    cards: cards
+      ? state.cards.map((card) => {
+          if (!legacyCard(card)) return card;
+          const { completed, dueRepeat, ...rest } = card as typeof card & { completed?: boolean; dueRepeat?: unknown };
+          return rest;
+        })
+      : state.cards,
+    boards: rules
+      ? state.boards.map((board) =>
+          board.automationRules?.some(legacyRule)
+            ? { ...board, automationRules: board.automationRules.filter((rule) => !legacyRule(rule)) }
+            : board,
+        )
+      : state.boards,
+  };
 }
 
 /** Moves "listva-*" keys to "kanbonk-*", renaming entity IDs inside the values; an existing new key wins. */

@@ -114,7 +114,6 @@ export function BoardView({
               startAt: dates.startAt,
               dueAt: dates.dueAt,
               dueReminderMinutes: dates.dueAt ? current.dueReminderMinutes : undefined,
-              dueRepeat: dates.dueAt ? current.dueRepeat : undefined,
             }))
           }
           onDelete={onDeleteCard}

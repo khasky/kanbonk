@@ -11,7 +11,6 @@ const original = {
   description: "",
   position: 1,
   labelIds: [],
-  completed: false,
   checklists: [],
   comments: [],
   attachments: [],

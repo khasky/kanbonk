@@ -12,7 +12,6 @@ export function readBoardFilters(): Record<string, BoardFilter> {
           typeof filter.keyword === "string" &&
           typeof filter.labelId === "string" &&
           (filter.memberId === undefined || typeof filter.memberId === "string") &&
-          ["all", "complete", "incomplete"].includes(String(filter.status)) &&
           ["any", "overdue", "next-week", "none"].includes(String(filter.due))
         );
       }),

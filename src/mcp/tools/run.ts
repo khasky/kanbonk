@@ -54,7 +54,6 @@ function cardView(state: AppState, card: Card) {
     id: card.id,
     name: card.name,
     listId: card.listId,
-    completed: card.completed,
     startAt: card.startAt,
     dueAt: card.dueAt,
     labels,
@@ -276,7 +275,6 @@ export function runTool(
           position:
             Math.max(0, ...full.cards.filter((item) => item.listId === target.id).map((item) => item.position)) + 1,
           labelIds: [],
-          completed: false,
           checklists: [],
           comments: [],
           attachments: [],
@@ -306,7 +304,6 @@ export function runTool(
           description: text(args, "description") ?? item.description,
           startAt: startAt === undefined ? item.startAt : (startAt ?? undefined),
           dueAt: dueAt === undefined ? item.dueAt : (dueAt ?? undefined),
-          completed: typeof args.completed === "boolean" ? args.completed : item.completed,
           cover: color === undefined ? item.cover : color ? { color, size: "full" } : undefined,
         })),
         { ok: true },

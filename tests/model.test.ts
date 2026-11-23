@@ -53,7 +53,6 @@ it("marks received attachments and sticker images as local", () => {
     description: "",
     position: 1,
     labelIds: [],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [{ id: "file", name: "file.png", mimeType: "image/png", size: 3, status: "missing" }],
@@ -80,7 +79,6 @@ describe("entity versions", () => {
       description: "",
       position: 1,
       labelIds: [],
-      completed: false,
       checklists: [],
       comments: [],
       attachments: [],
@@ -109,7 +107,6 @@ it("records comments separately from card changes and includes a move on both bo
     description: "",
     position: 1,
     labelIds: [],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [],
@@ -148,7 +145,6 @@ it("places a dragged card before the target in the same or another list", () => 
     name: id,
     description: "",
     labelIds: [],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [],
@@ -168,7 +164,6 @@ it("sorts a whole list by name or due date without moving trashed or other-list 
     name,
     description: "",
     labelIds: [],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [],
@@ -227,7 +222,6 @@ it("searches across boards and card details while excluding trashed cards", () =
     name: id,
     description: "",
     labelIds: [],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [],
@@ -269,7 +263,6 @@ it("combines words and quoted field phrases while allowing exclusions", () => {
     name,
     description,
     labelIds: [],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [],
@@ -300,7 +293,6 @@ it("filters across boards by list, label, member and attachments", () => {
     description: "",
     labelIds: ["label-a"],
     memberIds: ["member-a"],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [{ id: "file", name: "photo.png", mimeType: "image/png", size: 1, status: "local" }],
@@ -348,8 +340,8 @@ it("filters across boards by list, label, member and attachments", () => {
   expect(searchCards(state, "board:board-b has:attachments")).toEqual([]);
 });
 
-it("filters upcoming, overdue and completed due dates", () => {
-  const card = (id: string, dueAt: string, completed = false): Card => ({
+it("filters upcoming and overdue due dates", () => {
+  const card = (id: string, dueAt: string): Card => ({
     id,
     boardId: "board",
     listId: "list",
@@ -357,7 +349,6 @@ it("filters upcoming, overdue and completed due dates", () => {
     name: id,
     description: "",
     labelIds: [],
-    completed,
     dueAt,
     checklists: [],
     comments: [],
@@ -368,16 +359,11 @@ it("filters upcoming, overdue and completed due dates", () => {
     boards: [
       { id: "board", workspaceId: "workspace", name: "Deadlines", description: "", background: "#fff", starred: false },
     ],
-    cards: [
-      card("late", "2025-12-31T00:00:00.000Z"),
-      card("soon", "2026-01-03T00:00:00.000Z"),
-      card("done", "2025-12-31T00:00:00.000Z", true),
-    ],
+    cards: [card("late", "2025-12-31T00:00:00.000Z"), card("soon", "2026-01-03T00:00:00.000Z")],
   };
   const now = Date.parse("2026-01-01T00:00:00.000Z");
   expect(searchCards(state, "due:overdue", now).map((item) => item.id)).toEqual(["late"]);
-  expect(searchCards(state, "due:week due:incomplete", now).map((item) => item.id)).toEqual(["soon"]);
-  expect(searchCards(state, "due:complete", now).map((item) => item.id)).toEqual(["done"]);
+  expect(searchCards(state, "due:week", now).map((item) => item.id)).toEqual(["soon"]);
 });
 
 it("hides cards of trashed lists from board filters and global search", () => {
@@ -389,7 +375,6 @@ it("hides cards of trashed lists from board filters and global search", () => {
     name: "Shared request",
     description: "",
     labelIds: [],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [],
@@ -409,7 +394,7 @@ it("hides cards of trashed lists from board filters and global search", () => {
   expect(filterBoardCards(state, "board", emptyBoardFilter()).map((item) => item.id)).toEqual(["visible"]);
 });
 
-it("filters cards inside one board by text, label, status and due date", () => {
+it("filters cards inside one board by text, label and due date", () => {
   const card = (id: string, boardId: string): Card => ({
     id,
     boardId,
@@ -418,7 +403,6 @@ it("filters cards inside one board by text, label, status and due date", () => {
     name: id,
     description: "",
     labelIds: [],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [],
@@ -434,24 +418,16 @@ it("filters cards inside one board by text, label, status and due date", () => {
         dueAt: "2026-01-03T00:00:00.000Z",
       },
       { ...card("late", "board-a"), dueAt: "2025-12-31T00:00:00.000Z" },
-      { ...card("done", "board-a"), completed: true, dueAt: "2025-12-31T00:00:00.000Z" },
       { ...card("other", "board-b"), labelIds: ["red"], dueAt: "2026-01-03T00:00:00.000Z" },
       { ...card("hidden", "board-a"), deletedAt: "2026-01-01T00:00:00.000Z" },
     ],
   };
   const now = Date.parse("2026-01-01T00:00:00.000Z");
-  expect(filterBoardCards(state, "board-a", emptyBoardFilter(), now).map((item) => item.id)).toEqual([
-    "soon",
-    "late",
-    "done",
-  ]);
+  expect(filterBoardCards(state, "board-a", emptyBoardFilter(), now).map((item) => item.id)).toEqual(["soon", "late"]);
   expect(
-    filterBoardCards(
-      state,
-      "board-a",
-      { keyword: "DOCUMENT", labelId: "red", status: "incomplete", due: "next-week" },
-      now,
-    ).map((item) => item.id),
+    filterBoardCards(state, "board-a", { keyword: "DOCUMENT", labelId: "red", due: "next-week" }, now).map(
+      (item) => item.id,
+    ),
   ).toEqual(["soon"]);
   expect(
     filterBoardCards(state, "board-a", { ...emptyBoardFilter(), memberId: "member-1" }, now).map((item) => item.id),

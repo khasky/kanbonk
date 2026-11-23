@@ -105,7 +105,7 @@ function CalendarWeek({
         return (
           <div
             key={card.id}
-            className={`group relative z-1 flex min-w-0 touch-none items-center gap-1 overflow-hidden border-l-4 border-l-brand-light px-1.5 py-0.5 text-left text-[12px] text-ellipsis whitespace-nowrap text-ink select-none max-[761px]:px-[3px] max-[761px]:py-px max-[761px]:text-[11px] ${segment.continuesBefore ? barStart.flush : barStart.own} ${segment.continuesAfter ? barEnd.flush : barEnd.own} ${card.completed ? "line-through opacity-60" : ""} ${dragging === card.id ? "cursor-grabbing bg-[#cce0ff] shadow-[0_2px_6px_#091e4240]" : "cursor-pointer bg-brand-soft hover:bg-[#cce0ff]"}`}
+            className={`group relative z-1 flex min-w-0 touch-none items-center gap-1 overflow-hidden border-l-4 border-l-brand-light px-1.5 py-0.5 text-left text-[12px] text-ellipsis whitespace-nowrap text-ink select-none max-[761px]:px-[3px] max-[761px]:py-px max-[761px]:text-[11px] ${segment.continuesBefore ? barStart.flush : barStart.own} ${segment.continuesAfter ? barEnd.flush : barEnd.own} ${dragging === card.id ? "cursor-grabbing bg-[#cce0ff] shadow-[0_2px_6px_#091e4240]" : "cursor-pointer bg-brand-soft hover:bg-[#cce0ff]"}`}
             style={{
               gridColumn: `${segment.column + 1} / span ${segment.span}`,
               gridRow: segment.lane + 2,
@@ -133,7 +133,6 @@ function CalendarWeek({
                 if (event.key === "Delete") onDelete(card);
               }}
             >
-              {card.completed ? "✓ " : ""}
               {card.name}
             </button>
             {!segment.continuesAfter && (
@@ -287,7 +286,7 @@ export function BoardCalendar({
                 {monthItems.slice(0, 8).map((item) => (
                   <button
                     key={item.card.id}
-                    className={`${chipBase} bg-brand-soft ${item.card.completed ? "line-through opacity-60" : ""}`}
+                    className={`${chipBase} bg-brand-soft`}
                     onClick={() => onOpen(item.card)}
                     title={item.card.name}
                   >

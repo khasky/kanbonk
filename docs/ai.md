@@ -8,7 +8,7 @@ Every board has a project document next to it: the **Doc** tab of the board tool
 
 - **Project doc** is Markdown, edited with the same visual editor as card descriptions (**Write** / **Edit**). It is stored in `Board.doc`, has revisions and syncs like the rest of the board.
 - **Link a card** inserts `[card name](/c/<cardId>)`. Links open the card modal, and the card shows **📄 Mentioned in the board doc** with a link back to the document.
-- **Board status** on the right is computed live from the cards: totals, a table of lists, overdue cards, cards blocked by dependencies and cards due in the next 7 days, each with links. **Insert status snapshot** appends it to the document as `## Status on <date>`, so the document keeps a dated history of the project.
+- **Board status** on the right is computed live from the cards: totals, a table of lists, overdue cards and cards due in the next 7 days, each with links. **Insert status snapshot** appends it to the document as `## Status on <date>`, so the document keeps a dated history of the project.
 
 ## Connecting an AI provider
 

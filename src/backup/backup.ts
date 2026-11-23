@@ -84,7 +84,7 @@ export function validState(state: Record<string, unknown>): boolean {
                     typeof rule.leadMinutes === "number" &&
                     [0, 60, 1440, 10080].includes(rule.leadMinutes))) &&
                 typeof rule.action === "string" &&
-                // "archive" comes from backups made before archiving was replaced by the trash.
+                // "archive" and "complete" come from backups made before archiving and completion were removed.
                 ["complete", "trash", "archive", "add-label"].includes(rule.action) &&
                 (rule.labelId === undefined || typeof rule.labelId === "string"),
             ))),
@@ -125,14 +125,8 @@ export function validState(state: Record<string, unknown>): boolean {
                   typeof sticker.name === "string" &&
                   (sticker.status === undefined || sticker.status === "local" || sticker.status === "missing")),
             ))) &&
-        (card.dueRepeat === undefined ||
-          (isRecord(card.dueRepeat) &&
-            ["daily", "weekly", "monthly", "yearly"].includes(String(card.dueRepeat.cadence)) &&
-            typeof card.dueRepeat.anchor === "string" &&
-            /^\d{4}-\d{2}-\d{2}$/.test(card.dueRepeat.anchor))) &&
         (card.automationRunKeys === undefined ||
           (Array.isArray(card.automationRunKeys) && card.automationRunKeys.every((key) => typeof key === "string"))) &&
-        typeof card.completed === "boolean" &&
         Array.isArray(card.checklists) &&
         card.checklists.every(
           (list) =>

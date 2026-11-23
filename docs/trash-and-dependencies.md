@@ -23,7 +23,7 @@ Before deleting, Kanbonk computes the impact (`trashImpact`): how many items wil
 - **Delete, keep dependents** — trash only the selected item; the dependent cards keep their link and show that their prerequisite is in the trash;
 - **Cancel**.
 
-A card "depends on" another card when it has a item in its **Dependencies** checklist linked to it (see [data-model.md](data-model.md#card-dependencies)). The card modal shows **Depends on** and **Blocks** summaries and marks a card as blocked while a prerequisite is not completed.
+A card "depends on" another card when it has a item in its **Dependencies** checklist linked to it (see [data-model.md](data-model.md#card-dependencies)). The card modal shows **Depends on** and **Blocks** summaries.
 
 ## The trash page
 

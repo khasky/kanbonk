@@ -10,7 +10,6 @@ const card: Card = {
   description: "",
   position: 1,
   labelIds: [],
-  completed: false,
   checklists: [],
   comments: [],
   attachments: [],
@@ -27,10 +26,7 @@ function fixture(): AppState {
         description: "",
         background: "#fff",
         starred: false,
-        automationRules: [
-          { id: "complete", listId: "done", action: "complete" },
-          { id: "label", listId: "done", action: "add-label", labelId: "important" },
-        ],
+        automationRules: [{ id: "label", listId: "done", action: "add-label", labelId: "important" }],
       },
     ],
     lists: [
@@ -46,12 +42,9 @@ describe("local move automation", () => {
   it("runs matching rules when a card enters a list", () => {
     const state = fixture();
     const moved = applyMoveRules(state, card, { ...card, listId: "done" });
-    expect(moved).toMatchObject({ completed: true, labelIds: ["important"] });
-    expect(applyMoveRules(state, card, { ...card, name: "Edited" })).toMatchObject({ completed: false, labelIds: [] });
-    expect(applyMoveRules(state, moved, { ...moved, listId: "todo" })).toMatchObject({
-      completed: true,
-      labelIds: ["important"],
-    });
+    expect(moved).toMatchObject({ labelIds: ["important"] });
+    expect(applyMoveRules(state, card, { ...card, name: "Edited" })).toMatchObject({ labelIds: [] });
+    expect(applyMoveRules(state, moved, { ...moved, listId: "todo" })).toMatchObject({ labelIds: ["important"] });
   });
 
   it("moves to the trash on entry and ignores labels from another board", () => {
@@ -176,24 +169,9 @@ describe("due date automation", () => {
     expect(applyDueRules(state, afterDue + 2 * 86_400_000, "device").cards[0].deletedAt).toBeTruthy();
   });
 
-  it("advances a recurring date once and can run at its next occurrence", () => {
-    const state = fixture();
-    state.cards[0] = { ...card, dueAt: due, dueRepeat: { cadence: "daily", anchor: "2026-11-16" } };
-    state.boards[0].automationRules = [
-      { id: "complete-due", listId: "", trigger: "due", createdAt: "2026-11-15T12:00:00.000Z", action: "complete" },
-    ];
-    const first = applyDueRules(state, afterDue, "device");
-    expect(first.cards[0]).toMatchObject({ dueAt: "2026-11-17T12:00:00.000Z", completed: false });
-    expect(applyDueRules(first, afterDue, "device")).toBe(first);
-    const second = applyDueRules(first, Date.parse("2026-11-17T12:00:01.000Z"), "device");
-    expect(second.cards[0]).toMatchObject({ dueAt: "2026-11-18T12:00:00.000Z", completed: false });
-  });
-
-  it("does not apply due rules during a move or to a completed card", () => {
+  it("does not apply due rules during a move", () => {
     const state = fixture();
     state.boards[0].automationRules = [{ id: "due-rule", listId: "", trigger: "due", action: "trash" }];
     expect(applyMoveRules(state, card, { ...card, listId: "done" }).deletedAt).toBeUndefined();
-    state.cards[0] = { ...card, dueAt: due, completed: true };
-    expect(applyDueRules(state, afterDue, "device")).toBe(state);
   });
 });

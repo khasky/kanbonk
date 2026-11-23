@@ -13,7 +13,7 @@ export function mentionedCardIds(markdown: string): Set<string> {
 const day = 86_400_000;
 
 /**
- * Live state of a board as markdown: lists with progress, overdue, blocked and upcoming cards. Every card is a link,
+ * Live state of a board as markdown: lists with card counts, overdue and upcoming cards. Every card is a link,
  * so each statement in the summary points at its source.
  */
 export function projectSummary(state: AppState, boardId: string, now = Date.now()): string {
@@ -26,30 +26,9 @@ export function projectSummary(state: AppState, boardId: string, now = Date.now(
   const cards = state.cards.filter(
     (item) => item.boardId === boardId && listIds.has(item.listId) && !item.deletedAt && !item.isTemplate,
   );
-  const byId = new Map(state.cards.map((item) => [item.id, item]));
-  const waitingFor = (card: Card) =>
-    [
-      ...new Set(
-        card.checklists.flatMap((list) =>
-          list.items.flatMap((entry) => (entry.linkedCardId ? [entry.linkedCardId] : [])),
-        ),
-      ),
-    ]
-      .map((id) => byId.get(id))
-      .filter((item): item is Card => Boolean(item && !item.completed && !item.deletedAt));
-  const done = cards.filter((item) => item.completed).length;
-  const lines = [
-    `**${cards.length}** ${cards.length === 1 ? "card" : "cards"}, **${done}** done${cards.length ? ` (${Math.round((100 * done) / cards.length)}%)` : ""}.`,
-    "",
-    "| List | Cards | Done |",
-    "|---|---:|---:|",
-  ];
-  for (const list of lists) {
-    const inList = cards.filter((item) => item.listId === list.id);
-    lines.push(
-      `| ${list.name.replace(/\|/g, "/")} | ${inList.length} | ${inList.filter((item) => item.completed).length} |`,
-    );
-  }
+  const lines = [`**${cards.length}** ${cards.length === 1 ? "card" : "cards"}.`, "", "| List | Cards |", "|---|---:|"];
+  for (const list of lists)
+    lines.push(`| ${list.name.replace(/\|/g, "/")} | ${cards.filter((item) => item.listId === list.id).length} |`);
   const section = (title: string, items: Card[], note: (card: Card) => string = () => "") => {
     if (!items.length) return;
     lines.push("", `### ${title} (${items.length})`);
@@ -60,19 +39,12 @@ export function projectSummary(state: AppState, boardId: string, now = Date.now(
   const date = (time: number) => new Date(time).toLocaleDateString("en-US");
   section(
     "Overdue",
-    cards.filter((item) => !item.completed && due(item) < now).sort((a, b) => due(a) - due(b)),
+    cards.filter((item) => due(item) < now).sort((a, b) => due(a) - due(b)),
     (item) => ` — due ${date(due(item))}`,
   );
   section(
-    "Blocked by dependencies",
-    cards.filter((item) => !item.completed && waitingFor(item).length > 0),
-    (item) => ` — waiting for ${waitingFor(item).map(cardRef).join(", ")}`,
-  );
-  section(
     "Due in the next 7 days",
-    cards
-      .filter((item) => !item.completed && due(item) >= now && due(item) <= now + 7 * day)
-      .sort((a, b) => due(a) - due(b)),
+    cards.filter((item) => due(item) >= now && due(item) <= now + 7 * day).sort((a, b) => due(a) - due(b)),
     (item) => ` — ${date(due(item))}`,
   );
   return lines.join("\n");

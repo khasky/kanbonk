@@ -12,7 +12,6 @@ export function dueReminders(state: AppState, now: number, dismissed: Record<str
         card.dueReminderMinutes === undefined ||
         !Number.isFinite(card.dueReminderMinutes) ||
         card.dueReminderMinutes < 0 ||
-        card.completed ||
         card.isTemplate ||
         !isCardAvailable(state, card)
       )

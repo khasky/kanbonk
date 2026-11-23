@@ -4,14 +4,7 @@ import { CardStickers } from "../card/CardStickers";
 import { readableTextColor } from "../model/labelColors";
 import type { Card, Label, Member } from "../model";
 import { Icon } from "../ui/Icon";
-import {
-  completeMarkClass,
-  tileClass,
-  tileMetaClass,
-  tileMetaIconClass,
-  tileMetaItemClass,
-  tileNameClass,
-} from "./tileLook";
+import { tileClass, tileMetaClass, tileMetaIconClass, tileMetaItemClass, tileNameClass } from "./tileLook";
 
 export interface TileActions {
   open: (id: string) => void;
@@ -77,10 +70,7 @@ export const CardTile = memo(function CardTile({
           })}
         </span>
       )}
-      <span className={tileNameClass(fullCover)}>
-        {item.completed && <span className={completeMarkClass}>✓</span>}
-        {item.name}
-      </span>
+      <span className={tileNameClass(fullCover)}>{item.name}</span>
       {item.isTemplate && (
         <span className="self-start rounded-[3px] bg-line px-[5px] py-0.5 text-[11px] font-bold text-ink-subtle">
           Template

@@ -6,7 +6,7 @@ import { Input, Select } from "../ui/Field";
 
 const labelClass = "grid gap-[5px] font-semibold";
 
-/** Filters the cards shown on a board by text, label, member, completion and due date. */
+/** Filters the cards shown on a board by text, label, member and due date. */
 export function BoardFilterPanel({
   state,
   board,
@@ -75,18 +75,6 @@ export function BoardFilterPanel({
         </Select>
       </label>
       <label className={labelClass}>
-        Status
-        <Select
-          size="sm"
-          value={filter.status}
-          onChange={(event) => onChange({ status: event.target.value as BoardFilter["status"] })}
-        >
-          <option value="all">All cards</option>
-          <option value="complete">Completed</option>
-          <option value="incomplete">Not completed</option>
-        </Select>
-      </label>
-      <label className={labelClass}>
         Due date
         <Select
           size="sm"
@@ -116,5 +104,4 @@ export const activeFilterCount = (filter: BoardFilter) =>
   Number(Boolean(filter.keyword.trim())) +
   Number(Boolean(filter.labelId)) +
   Number(Boolean(filter.memberId)) +
-  Number(filter.status !== "all") +
   Number(filter.due !== "any");

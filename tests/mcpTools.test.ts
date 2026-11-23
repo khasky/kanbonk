@@ -35,9 +35,9 @@ describe("MCP tools", () => {
     expect(board.lists.map((list) => list.name)).toEqual(["Done", "Todo"]);
     expect(board.lists[0].cards.map((card) => card.name)).toEqual(["B"]);
 
-    call("update_card", { cardId: a, dueAt: "", color: "#ff0000", completed: true });
+    call("update_card", { cardId: a, dueAt: "", color: "#ff0000" });
     const card = state().cards.find((item) => item.id === a)!;
-    expect([card.dueAt, card.cover, card.completed]).toEqual([undefined, { color: "#ff0000", size: "full" }, true]);
+    expect([card.dueAt, card.cover]).toEqual([undefined, { color: "#ff0000", size: "full" }]);
 
     const checklist = call("add_checklist", { cardId: a, name: "Steps", items: ["one", "two"] }) as unknown as {
       items: Array<{ id: string }>;

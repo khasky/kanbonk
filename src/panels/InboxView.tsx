@@ -6,14 +6,7 @@ import { emptyBoardFilter, filterBoardCards, type AppState, type BoardFilter } f
 import { Icon } from "../ui/Icon";
 import { Button } from "../ui/Button";
 import { Input, Select } from "../ui/Field";
-import {
-  completeMarkClass,
-  tileClass,
-  tileMetaClass,
-  tileMetaIconClass,
-  tileMetaItemClass,
-  tileNameClass,
-} from "../board/tileLook";
+import { tileClass, tileMetaClass, tileMetaIconClass, tileMetaItemClass, tileNameClass } from "../board/tileLook";
 
 const selectClass = "flex-[1_1_110px] max-phone:min-h-11";
 
@@ -28,10 +21,9 @@ export function InboxView({
 }) {
   const [draft, setDraft] = useState("");
   const [keyword, setKeyword] = useState("");
-  const [status, setStatus] = useState<BoardFilter["status"]>("all");
   const [due, setDue] = useState<BoardFilter["due"]>("any");
   const [sort, setSort] = useState<"newest" | "oldest" | "name">("newest");
-  const cards = filterBoardCards(state, inboxBoardId, { ...emptyBoardFilter(), keyword, status, due }).sort((a, b) =>
+  const cards = filterBoardCards(state, inboxBoardId, { ...emptyBoardFilter(), keyword, due }).sort((a, b) =>
     sort === "name"
       ? a.name.localeCompare(b.name)
       : sort === "newest"
@@ -85,17 +77,6 @@ export function InboxView({
         <Select
           size="sm"
           className={selectClass}
-          value={status}
-          onChange={(event) => setStatus(event.target.value as BoardFilter["status"])}
-          aria-label="Inbox status"
-        >
-          <option value="all">Any status</option>
-          <option value="complete">Completed</option>
-          <option value="incomplete">Not completed</option>
-        </Select>
-        <Select
-          size="sm"
-          className={selectClass}
           value={due}
           onChange={(event) => setDue(event.target.value as BoardFilter["due"])}
           aria-label="Inbox due date"
@@ -122,10 +103,7 @@ export function InboxView({
           <button className={tileClass()} key={card.id} onClick={() => onOpen(card.id)}>
             <CardCover card={card} />
             <CardStickers card={card} />
-            <span className={tileNameClass()}>
-              {card.completed && <span className={completeMarkClass}>✓</span>}
-              {card.name}
-            </span>
+            <span className={tileNameClass()}>{card.name}</span>
             <span className={tileMetaClass()}>
               {card.dueAt && (
                 <span className={tileMetaItemClass}>
@@ -149,7 +127,7 @@ export function InboxView({
         ))}
         {!cards.length && (
           <p className="p-[22px] text-center text-ink-muted">
-            {keyword || status !== "all" || due !== "any" ? "Nothing found" : "No cards in your inbox yet"}
+            {keyword || due !== "any" ? "Nothing found" : "No cards in your inbox yet"}
           </p>
         )}
       </div>

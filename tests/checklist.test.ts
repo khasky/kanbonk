@@ -9,7 +9,6 @@ const card: Card = {
   description: "",
   position: 1,
   labelIds: [],
-  completed: false,
   comments: [],
   attachments: [],
   checklists: [
@@ -58,7 +57,6 @@ it("converts a checklist item into a card directly below its parent and records 
     boardId: "board",
     listId: "list",
     position: 2,
-    completed: true,
   });
   expect(versioned.revisions.filter((item) => item.entityId === card.id)).toHaveLength(2);
   expect(versioned.revisions.filter((item) => item.entityId === "created")).toHaveLength(1);

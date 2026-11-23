@@ -20,8 +20,8 @@ function example(): AppState {
         backgroundImageId: "background-1",
         starred: false,
         automationRules: [
-          { id: "rule-1", listId: "list-1", action: "complete" },
-          { id: "button-1", listId: "", trigger: "button", name: "Complete", action: "complete" },
+          { id: "rule-1", listId: "list-1", action: "trash" },
+          { id: "button-1", listId: "", trigger: "button", name: "Discard", action: "trash" },
         ],
       },
     ],
@@ -35,9 +35,7 @@ function example(): AppState {
         description: "",
         position: 1,
         labelIds: [],
-        completed: false,
         dueAt: "2026-12-01T09:00:00.000Z",
-        dueRepeat: { cadence: "monthly", anchor: "2026-12-01" },
         checklists: [],
         comments: [],
         stickers: ["⭐"],
@@ -79,15 +77,17 @@ describe("Kanbonk backup", () => {
     expect(restored.state.cards[0].comments).toEqual(state.cards[0].comments);
   });
 
-  it("restores a due rule and its completed occurrence without replaying it", async () => {
+  it("restores a due rule and its fired occurrence without replaying it", async () => {
     const state = example();
+    state.labels = [{ id: "label-1", boardId: "board-1", name: "Due", color: "red" }];
     state.boards[0].automationRules!.push({
       id: "due-1",
       listId: "",
       trigger: "due",
       createdAt: "2026-11-15T09:00:00.000Z",
       leadMinutes: 60,
-      action: "complete",
+      action: "add-label",
+      labelId: "label-1",
     });
     const fired = applyDueRules(state, Date.parse("2026-12-01T09:00:01.000Z"), "device-1");
     const source = new Map<string, Blob>([
@@ -102,7 +102,7 @@ describe("Kanbonk backup", () => {
     );
     expect(restored.state.boards[0].automationRules).toContainEqual(state.boards[0].automationRules![2]);
     expect(restored.state.cards[0]).toMatchObject({
-      dueAt: "2027-01-01T09:00:00.000Z",
+      labelIds: ["label-1"],
       automationRunKeys: ["due-1:2026-12-01T09:00:00.000Z"],
     });
     expect(applyDueRules(restored.state, Date.parse("2026-12-01T09:00:02.000Z"), "device-2")).toBe(restored.state);
@@ -186,15 +186,34 @@ describe("Kanbonk backup", () => {
     expect(restored.state.workspaces[1].sourceTrelloId).toBe("trello-workspace");
     expect(restored.state.cards[0].attachments[0].status).toBe("local");
     expect(restored.state.cards[0].stickers).toEqual(["⭐"]);
-    expect(restored.state.cards[0].dueRepeat).toEqual({ cadence: "monthly", anchor: "2026-12-01" });
     expect(restored.state.boards[0].backgroundImageId).toBe("background-1");
-    expect(restored.state.boards[0].automationRules).toEqual([
-      { id: "rule-1", listId: "list-1", action: "complete" },
-      { id: "button-1", listId: "", trigger: "button", name: "Complete", action: "complete" },
-    ]);
+    expect(restored.state.boards[0].automationRules).toEqual(example().boards[0].automationRules);
     expect(restored.conflicts).toHaveLength(0);
     expect(await target.get("background-1")?.text()).toBe("image");
     expect(await target.get("attachment-1")?.text()).toBe("hello");
+  });
+
+  it("drops card completion from a backup made by an earlier version", async () => {
+    const legacy = example() as unknown as {
+      boards: Array<{ automationRules: Array<Record<string, unknown>> }>;
+      cards: Array<Record<string, unknown>>;
+    };
+    legacy.boards[0].automationRules.push({ id: "old", listId: "list-1", action: "complete" });
+    legacy.cards[0].completed = true;
+    legacy.cards[0].dueRepeat = { cadence: "monthly", anchor: "2026-12-01" };
+    const source = new Map<string, Blob>([
+      ["background-1", new Blob(["image"], { type: "image/png" })],
+      ["attachment-1", new Blob(["hello"], { type: "text/plain" })],
+    ]);
+    const restored = await restoreBackup(
+      await partsFor(legacy as unknown as AppState, source),
+      emptyState(),
+      async () => undefined,
+      async () => {},
+    );
+    expect(restored.state.boards[0].automationRules).toEqual(example().boards[0].automationRules);
+    expect(restored.state.cards[0]).not.toHaveProperty("completed");
+    expect(restored.state.cards[0]).not.toHaveProperty("dueRepeat");
   });
 
   it("rejects missing ZIP parts without writing any files", async () => {

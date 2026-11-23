@@ -66,7 +66,6 @@ export function PlannerView({ state, onOpen }: { state: AppState; onOpen: (card:
                   <small className="text-ink-subtle">
                     {state.boards.find((board) => board.id === card.boardId)?.name} ·{" "}
                     {new Date(card.dueAt!).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                    {card.completed ? " · done" : ""}
                   </small>
                 </button>
               ))}

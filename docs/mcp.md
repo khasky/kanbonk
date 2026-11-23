@@ -42,7 +42,7 @@ A relay room connects two devices, so while the agent is paired with one device,
 | `list_workspaces`, `get_board`, `get_card`, `search_cards` | Read workspaces, boards with lists and cards, a full card; search with the app's operators (`board:`, `label:`, `due:`, …) |
 | `board_summary`, `get_board_doc`, `update_board_doc` | The live project state, and the board document (see [ai.md](ai.md)) |
 | `create_workspace`, `create_board`, `create_list`, `move_list`, `create_zone` | Structure |
-| `create_card` (also sub-cards via `parentCardId`), `update_card`, `move_card`, `clone_card` | Cards: dates, description, completion, full-card colour |
+| `create_card` (also sub-cards via `parentCardId`), `update_card`, `move_card`, `clone_card` | Cards: dates, description, full-card colour |
 | `add_comment`, `add_checklist`, `set_checklist_item`, `add_dependency` | Card details |
 | `find_duplicates`, `merge_cards` | Cards with similar meaning across boards (the app's duplicate finder) and merging a pair |
 | `delete`, `restore`, `list_trash` | The trash: deletion is restorable for 30 days, restore brings back parents |

@@ -217,7 +217,6 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
       dueAt: string(entry.due) || undefined,
       dueReminderMinutes:
         typeof entry.dueReminder === "number" && entry.dueReminder >= 0 ? entry.dueReminder : undefined,
-      completed: Boolean(entry.dueComplete),
       checklists: checklistsByCard.get(trelloId) || [],
       comments: (commentsByCard.get(trelloId) || []).sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
       attachments: cardAttachments,

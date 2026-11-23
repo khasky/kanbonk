@@ -14,7 +14,6 @@ const card: Card = {
   labelIds: [],
   dueAt,
   dueReminderMinutes: 60,
-  completed: false,
   checklists: [],
   comments: [],
   attachments: [],
@@ -39,12 +38,9 @@ describe("local due reminders", () => {
     expect(dueReminders(state, now + 25 * 60 * 60 * 1000, {})).toEqual([]);
   });
 
-  it("hides dismissed, completed and unavailable cards", () => {
+  it("hides dismissed and unavailable cards", () => {
     const state = fixture();
     expect(dueReminders(state, now, { card: reminderSignature(card) })).toEqual([]);
-    state.cards[0] = { ...card, completed: true };
-    expect(dueReminders(state, now, {})).toEqual([]);
-    state.cards[0] = card;
     state.lists[0].deletedAt = "2026-01-01T00:00:00.000Z";
     expect(dueReminders(state, now, {})).toEqual([]);
   });

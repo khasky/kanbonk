@@ -22,7 +22,6 @@ const card = (id: string, listId: string, extra: Partial<Card> = {}): Card => ({
   description: "",
   position: 1,
   labelIds: [],
-  completed: false,
   checklists: [],
   comments: [],
   attachments: [],

@@ -12,12 +12,10 @@ const cardLinkClass = "cursor-pointer border-0 bg-transparent px-0 py-0.5 text-l
 
 /** Cards this card depends on and cards it blocks. */
 export function DependencySummary({
-  card,
   prerequisiteCards,
   dependentCards,
   onNavigateCard,
 }: {
-  card: Card;
   prerequisiteCards: Card[];
   dependentCards: Card[];
   onNavigateCard: (target: Card) => void;
@@ -30,14 +28,9 @@ export function DependencySummary({
           Depends on:{" "}
           {prerequisiteCards.map((item) => (
             <Button variant="secondary" key={item.id} onClick={() => onNavigateCard(item)}>
-              {item.completed ? "✓" : "⏳"} {item.name}
+              {item.name}
             </Button>
           ))}
-        </p>
-      )}
-      {prerequisiteCards.some((item) => !item.completed) && !card.completed && (
-        <p className={`${dependencyLineClass} font-semibold text-danger`}>
-          Card is blocked: not all dependencies are complete.
         </p>
       )}
       {dependentCards.length > 0 && (
@@ -90,7 +83,6 @@ export function SubCards({
           {childCards.map((item) => (
             <li key={item.id}>
               <button className={cardLinkClass} onClick={() => onNavigateCard(item)}>
-                {item.completed ? "✓ " : ""}
                 {item.name}
               </button>
             </li>

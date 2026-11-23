@@ -24,7 +24,7 @@ interface AppState {
 | `Workspace` | `name` | — |
 | `Board` | `name`, `description`, `background`, `starred`, `members`, `automationRules`, `zones`, `doc` (Markdown project document) | workspace (`workspaceId`) |
 | `BoardList` | `name`, `position`, `zoneId` | board (`boardId`) |
-| `Card` | `name`, `description` (Markdown), `position`, `createdAt`, `startAt`, `dueAt`, `labelIds`, `memberIds`, `checklists`, `comments`, `attachments`, `cover`, `stickers`, `isTemplate`, `completed`, `parentCardId` (sub-card of another card) | list (`listId`) and board (`boardId`) |
+| `Card` | `name`, `description` (Markdown), `position`, `createdAt`, `startAt`, `dueAt`, `labelIds`, `memberIds`, `checklists`, `comments`, `attachments`, `cover`, `stickers`, `isTemplate`, `parentCardId` (sub-card of another card) | list (`listId`) and board (`boardId`) |
 | `Label` | `name`, `color` | board |
 | `Zone` | `name`, `color` (stored inside `Board.zones`) | board |
 

@@ -1,9 +1,7 @@
 import { isCardAvailable, newId, recordRevision, type AppState, type AutomationRule, type Card } from "./index";
 import { trashSubCards } from "./trash";
-import { applyDueRecurrence } from "./repeatingDue";
 
 function applyAction(state: AppState, boardId: string, card: Card, rule: AutomationRule): Card {
-  if (rule.action === "complete") return card.completed ? card : { ...card, completed: true };
   // The rule trashes only the card; trashSubCards then sends its sub-cards along, as deleting it by hand does.
   if (rule.action === "trash")
     return card.deletedAt ? card : { ...card, deletedAt: new Date().toISOString(), deletedBatch: newId() };
@@ -31,7 +29,7 @@ export function applyMoveRules(state: AppState, before: Card, after: Card): Card
 export function applyDueRules(state: AppState, now: number, deviceId: string): AppState {
   let next = state;
   for (const original of state.cards) {
-    if (!original.dueAt || original.completed || original.isTemplate || !isCardAvailable(state, original)) continue;
+    if (!original.dueAt || original.isTemplate || !isCardAvailable(state, original)) continue;
     const due = Date.parse(original.dueAt);
     if (!Number.isFinite(due)) continue;
     const board = state.boards.find((item) => item.id === original.boardId);
@@ -50,7 +48,6 @@ export function applyDueRules(state: AppState, now: number, deviceId: string): A
       };
     }
     if (card === original) continue;
-    card = applyDueRecurrence(original, card);
     next = trashSubCards(
       recordRevision(
         { ...next, cards: next.cards.map((item) => (item.id === card.id ? card : item)) },

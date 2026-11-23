@@ -101,7 +101,6 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
       url: cardUrl(card),
       start: card.startAt ?? null,
       due: card.dueAt ?? null,
-      dueComplete: card.completed,
       dueReminder: card.dueReminderMinutes ?? null,
       idLabels: card.labelIds,
       labels: labels.filter((item) => card.labelIds.includes(item.id)).map(label),
@@ -224,7 +223,8 @@ export function exportTrelloCsv(state: AppState, boardId: string): string {
       board.name,
       card.deletedAt ? "true" : "false",
       card.startAt ?? "",
-      card.completed ? "true" : "false",
+      // Trello's column layout is kept; Kanbonk cards have no completion.
+      "false",
     ]
       .map(csvCell)
       .join(",");
@@ -353,7 +353,6 @@ export function parseTrelloCsv(text: string, workspaceId: string, fallbackName =
       memberIds,
       startAt: date(get(row, "Start Date")),
       dueAt: date(get(row, "Due Date")),
-      completed: get(row, "Due Complete").toLowerCase() === "true",
       ...closedInTrello(get(row, "Archived").toLowerCase() === "true", id),
       checklists: [],
       comments: [],

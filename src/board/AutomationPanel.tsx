@@ -32,15 +32,13 @@ export function AutomationPanel({
   const [trigger, setTrigger] = useState<"move" | "button" | "due">("move");
   const [name, setName] = useState("");
   const [listId, setListId] = useState(lists[0]?.id ?? "");
-  const [action, setAction] = useState<AutomationRule["action"]>("complete");
+  const [action, setAction] = useState<AutomationRule["action"]>("trash");
   const [labelId, setLabelId] = useState(labels[0]?.id ?? "");
   const [leadMinutes, setLeadMinutes] = useState(0);
   const actionText = (rule: AutomationRule) =>
-    rule.action === "complete"
-      ? "mark complete"
-      : rule.action === "trash"
-        ? "move to trash"
-        : `add label “${labels.find((item) => item.id === rule.labelId)?.name ?? "unavailable"}”`;
+    rule.action === "trash"
+      ? "move to trash"
+      : `add label “${labels.find((item) => item.id === rule.labelId)?.name ?? "unavailable"}”`;
   return (
     <SidePanel title="Automation" label="Board automation" closeLabel="Close automation" onClose={onClose}>
       <p className="text-ink-muted">
@@ -112,7 +110,6 @@ export function AutomationPanel({
             value={action}
             onChange={(event) => setAction(event.target.value as AutomationRule["action"])}
           >
-            <option value="complete">Mark complete</option>
             <option value="trash">Move to trash</option>
             <option value="add-label">Add label</option>
           </Select>

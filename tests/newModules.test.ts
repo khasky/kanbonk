@@ -27,7 +27,6 @@ const card = (id: string, extra: Partial<Card> = {}): Card => ({
   description: "",
   position: 1,
   labelIds: [],
-  completed: false,
   checklists: [],
   comments: [],
   attachments: [],
@@ -137,7 +136,7 @@ function board(): AppState {
           },
         ],
       }),
-      card("c2", { listId: "l2", name: "Report", completed: true }),
+      card("c2", { listId: "l2", name: "Report" }),
     ],
   };
 }
@@ -167,7 +166,6 @@ describe("Trello formats", () => {
     ]);
     expect(imported.labels).toMatchObject([{ name: "Important", color: "#f87168" }]);
     expect(imported.board.members?.map((member) => member.name)).toEqual(["Anna"]);
-    expect(imported.cards.find((item) => item.name === "Report")).toMatchObject({ completed: true });
     expect(imported.cards.find((item) => item.name === "Report")?.deletedAt).toBeUndefined();
   });
 
@@ -188,7 +186,6 @@ describe("Trello formats", () => {
       memberIds: [imported.board.members![0].id],
     });
     expect(imported.labels).toMatchObject([{ name: "Important", color: "#f87168" }]);
-    expect(imported.cards[1]).toMatchObject({ completed: true });
     expect(imported.cards[1].deletedAt).toBeUndefined();
   });
 });

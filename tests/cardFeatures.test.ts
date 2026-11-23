@@ -19,7 +19,6 @@ const card = (id: string, position: number, extra: Partial<Card> = {}): Card => 
   description: "",
   position,
   labelIds: [],
-  completed: false,
   checklists: [{ id: `k-${id}`, name: "K", items: [{ id: `i-${id}`, name: "x", checked: true }] }],
   comments: [],
   attachments: [],

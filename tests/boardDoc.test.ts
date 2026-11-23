@@ -11,7 +11,6 @@ const card = (id: string, listId: string, extra: Partial<Card> = {}): Card => ({
   description: "",
   position: 1,
   labelIds: [],
-  completed: false,
   checklists: [],
   comments: [],
   attachments: [],
@@ -31,16 +30,16 @@ const state: AppState = {
     card("blocked", "l1", {
       checklists: [{ id: "k", name: "deps", items: [{ id: "i", name: "late", checked: false, linkedCardId: "late" }] }],
     }),
-    card("done", "l2", { completed: true }),
+    card("done", "l2"),
   ],
 };
 
 it("summarises a board with linked sources", () => {
   const summary = projectSummary(state, "b1", now);
-  expect(summary).toContain("**4** cards, **1** done (25%)");
-  expect(summary).toContain("| Todo | 3 | 0 |");
+  expect(summary).toContain("**4** cards.");
+  expect(summary).toContain("| Todo | 3 |");
+  expect(summary).toContain("| Done | 1 |");
   expect(summary).toMatch(/### Overdue \(1\)\n- \[Card late\]\(\/c\/late\)/);
-  expect(summary).toContain("- [Card blocked](/c/blocked) — waiting for [Card late](/c/late)");
   expect(summary).toMatch(/### Due in the next 7 days \(1\)\n- \[Card soon\]/);
 });
 

@@ -129,7 +129,6 @@ export const tools: ToolDefinition[] = [
         description: str("Markdown description"),
         startAt: str("ISO date-time or empty"),
         dueAt: str("ISO date-time or empty"),
-        completed: { type: "boolean" },
         color: str("Card colour #rrggbb or empty"),
       },
       ["cardId"],

@@ -9,14 +9,11 @@ export const tileClass = (fullCover = false) =>
     ? `${tileBase} relative isolate min-h-[170px] justify-end overflow-hidden text-white before:absolute before:inset-0 before:-z-1 before:bg-[linear-gradient(transparent,#172b4dcc)] before:content-['']`
     : `${tileBase} text-ink`;
 
-/** The title line, with the complete mark in front. */
+/** The title line. */
 export const tileNameClass = (fullCover = false) =>
   fullCover
     ? "flex items-center gap-[5px] wrap-anywhere text-[18px] font-bold"
     : "flex items-center gap-[5px] wrap-anywhere";
-
-export const completeMarkClass =
-  "h-[17px] w-[17px] rounded-[50%] border border-success text-center text-[11px] text-success";
 
 /**
  * The line of due date, attachments, comments and checklists; hidden when empty (the Inbox always renders it).

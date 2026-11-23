@@ -15,7 +15,6 @@ it("matches attachments by Trello ID when filenames repeat", async () => {
     description: "",
     position: 1,
     labelIds: [],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [

@@ -188,7 +188,6 @@ export function createSubCard(
     createdAt: now,
     position: next ? (after + next.position) / 2 : after + 1,
     labelIds: [],
-    completed: false,
     checklists: [],
     comments: [],
     attachments: [],
@@ -242,7 +241,6 @@ export function createCardFromTemplate(
                 startAt: undefined,
                 dueAt: undefined,
                 dueReminderMinutes: undefined,
-                dueRepeat: undefined,
                 comments: [],
               }
             : card,
@@ -297,7 +295,6 @@ export function convertChecklistItem(
     position: following ? (source.position + following.position) / 2 : source.position + 1,
     createdAt: new Date().toISOString(),
     labelIds: [],
-    completed: item.checked,
     checklists: [],
     comments: [],
     attachments: [],

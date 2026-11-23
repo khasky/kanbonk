@@ -49,7 +49,7 @@ Attachments are matched by Trello ID in the ZIP path; a match by file name is ac
 
 From the board menu:
 
-- **Export JSON (Trello)** writes a Trello-shaped board JSON: `id`, `name`, `desc`, `closed`, `prefs`, `labels` with Trello color names, `lists`, `cards` with `idList`, `idLabels`, `idMembers`, `start`, `due`, `dueComplete`, `shortLink`, `url`, `checklists`, `members` and `actions` (`createCard`, `commentCard`). Kanbonk can import its own export. Attachment bytes are not included; use a backup for that.
+- **Export JSON (Trello)** writes a Trello-shaped board JSON: `id`, `name`, `desc`, `closed`, `prefs`, `labels` with Trello color names, `lists`, `cards` with `idList`, `idLabels`, `idMembers`, `start`, `due`, `shortLink`, `url`, `checklists`, `members` and `actions` (`createCard`, `commentCard`). Kanbonk can import its own export. Attachment bytes are not included; use a backup for that.
 - **Export CSV (Trello)** writes one row per card with Trello's CSV columns:
 
 | # | Column | # | Column |
@@ -65,6 +65,8 @@ From the board menu:
 | 9 | Attachment Links | 20 | Start Date |
 | 10 | Checklist Item Total Count | 21 | Due Complete |
 | 11 | Checklist Item Completed Count | | |
+
+Kanbonk cards have no completion, so **Due Complete** is always `false`, and the column is ignored on import.
 
 The file is UTF-8 with a BOM so spreadsheet apps detect the encoding. Quoting follows RFC 4180.
 

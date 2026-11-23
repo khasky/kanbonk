@@ -135,12 +135,12 @@ export function boardContext(
       .map((item) => item.name)
       .join(" | ")}`,
     "",
-    "Cards (id | list | status | due date | title | description):",
+    "Cards (id | list | due date | title | description):",
   ];
   let size = lines.join("\n").length;
   let included = 0;
   for (const card of cards) {
-    const line = `${card.id} | ${lists.get(card.listId)?.name} | ${card.completed ? "done" : "open"} | ${card.dueAt?.slice(0, 10) ?? "-"} | ${card.name} | ${card.description.replace(/\s+/g, " ").slice(0, 300)}`;
+    const line = `${card.id} | ${lists.get(card.listId)?.name} | ${card.dueAt?.slice(0, 10) ?? "-"} | ${card.name} | ${card.description.replace(/\s+/g, " ").slice(0, 300)}`;
     if (size + line.length > limitChars) break;
     lines.push(line);
     size += line.length + 1;

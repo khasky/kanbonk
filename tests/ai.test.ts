@@ -10,7 +10,6 @@ const card = (id: string, name: string): Card => ({
   description: "",
   position: 1,
   labelIds: [],
-  completed: false,
   checklists: [],
   comments: [],
   attachments: [],
@@ -121,7 +120,7 @@ it("writes a document with OpenAI and marks citations to unknown cards", async (
   });
   expect(calls[0].url).toContain("api.openai.com/v1/chat/completions");
   expect((calls[0].body.response_format as { type: string }).type).toBe("json_schema");
-  expect(JSON.stringify(calls[0].body.messages)).toContain("api | Todo | open");
+  expect(JSON.stringify(calls[0].body.messages)).toContain("api | Todo | ");
 });
 
 it("uses JSON mode and the configured address for compatible servers", async () => {

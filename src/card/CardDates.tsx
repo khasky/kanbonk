@@ -18,7 +18,7 @@ const reminderOptions = [
   { minutes: 10080, label: "1 week before" },
 ];
 
-/** Start and due dates, the due reminder and the repeat cadence. */
+/** Start and due dates and the due reminder. */
 export function CardDates({ card, onChange }: { card: Card; onChange: (change: (card: Card) => Card) => void }) {
   return (
     <section className={detailSectionClass}>
@@ -53,7 +53,6 @@ export function CardDates({ card, onChange }: { card: Card; onChange: (change: (
                 ...item,
                 dueAt: event.target.value ? new Date(event.target.value).toISOString() : undefined,
                 dueReminderMinutes: event.target.value ? item.dueReminderMinutes : undefined,
-                dueRepeat: event.target.value ? item.dueRepeat : undefined,
               }))
             }
             aria-label="Card due date"
@@ -83,29 +82,6 @@ export function CardDates({ card, onChange }: { card: Card; onChange: (change: (
               !reminderOptions.some((option) => option.minutes === card.dueReminderMinutes) && (
                 <option value={card.dueReminderMinutes}>{card.dueReminderMinutes} minutes before</option>
               )}
-          </Select>
-        </label>
-        <label className={labelClass}>
-          Repeat
-          <Select
-            size="sm"
-            value={card.dueRepeat?.cadence ?? ""}
-            onChange={(event) => {
-              const cadence = event.target.value as NonNullable<Card["dueRepeat"]>["cadence"] | "";
-              onChange((item) => ({
-                ...item,
-                dueRepeat:
-                  cadence && item.dueAt ? { cadence, anchor: localDateTime(item.dueAt).slice(0, 10) } : undefined,
-              }));
-            }}
-            disabled={!card.dueAt}
-            aria-label="Repeat card due date"
-          >
-            <option value="">Don't repeat</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="yearly">Yearly</option>
           </Select>
         </label>
       </div>
