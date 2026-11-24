@@ -2,17 +2,15 @@ import { useState } from "react";
 import { type AppState, type Card, isCardAvailable, newId } from "../model";
 import { Button } from "../ui/Button";
 import { Input, Select } from "../ui/Field";
-import { pickerBoxClass, pickerLabelClass, pickerRowClass } from "./cardLook";
+import { pickerBoxClass, pickerLabelClass } from "./cardLook";
 
 /** Adds a checklist to the card, optionally copying the items of another checklist on the board. */
 export function ChecklistComposer({
-  open,
   card,
   state,
   onChange,
   onClose,
 }: {
-  open: boolean;
   card: Card;
   state: AppState;
   onChange: (change: (card: Card) => Card) => void;
@@ -20,7 +18,6 @@ export function ChecklistComposer({
 }) {
   const [checklistName, setChecklistName] = useState("Checklist");
   const [copyChecklistId, setCopyChecklistId] = useState("");
-  if (!open) return null;
   const availableChecklists = state.cards
     .filter((item) => item.boardId === card.boardId && isCardAvailable(state, item))
     .flatMap((item) => item.checklists.map((checklist) => ({ checklist, cardName: item.name })));
@@ -40,12 +37,11 @@ export function ChecklistComposer({
   }
   return (
     <section className={pickerBoxClass} aria-label="New checklist">
-      <strong>New checklist</strong>
       <label className={pickerLabelClass}>
         Title
         <Input
           size="sm"
-          className="w-[70%] min-w-0"
+          className="w-full min-w-0"
           value={checklistName}
           onChange={(event) => setChecklistName(event.target.value)}
           aria-label="New checklist title"
@@ -55,7 +51,7 @@ export function ChecklistComposer({
         Copy items from
         <Select
           size="sm"
-          className="w-[70%] min-w-0"
+          className="w-full min-w-0"
           value={copyChecklistId}
           onChange={(event) => {
             setCopyChecklistId(event.target.value);
@@ -72,14 +68,9 @@ export function ChecklistComposer({
           ))}
         </Select>
       </label>
-      <div className={pickerRowClass}>
-        <Button variant="primary" onClick={addChecklist}>
-          Add checklist
-        </Button>
-        <Button variant="secondary" size="lg" onClick={onClose}>
-          Cancel
-        </Button>
-      </div>
+      <Button variant="primary" onClick={addChecklist}>
+        Add checklist
+      </Button>
     </section>
   );
 }

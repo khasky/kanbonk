@@ -10,7 +10,25 @@ export type IconName =
   | "info"
   | "inbox"
   | "calendar"
-  | "grid";
+  | "grid"
+  | "image"
+  | "tag"
+  | "check-square"
+  | "user-plus"
+  | "text"
+  | "message"
+  | "link"
+  | "smile"
+  | "copy"
+  | "share"
+  | "pencil"
+  | "layers"
+  | "sub-cards"
+  | "dependency"
+  | "chevron-left"
+  | "chevron-right"
+  | "chevrons-left"
+  | "chevrons-right";
 
 export function Icon({ name, className }: { name: IconName; className?: string }) {
   const paths = {
@@ -63,6 +81,90 @@ export function Icon({ name, className }: { name: IconName; className?: string }
         <rect x="14" y="14" width="7" height="7" rx="1.5" />
       </>
     ),
+    image: (
+      <>
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <circle cx="9" cy="9" r="1.8" />
+        <path d="m21 15-4.5-4.5L6 21" />
+      </>
+    ),
+    tag: (
+      <>
+        <path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9-9-9Z" />
+        <circle cx="8" cy="8" r="1.5" />
+      </>
+    ),
+    "check-square": (
+      <>
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <path d="m8 12 3 3 5-6" />
+      </>
+    ),
+    "user-plus": (
+      <>
+        <circle cx="10" cy="8" r="4" />
+        <path d="M3 21a7 7 0 0 1 12-5M19 15v6M16 18h6" />
+      </>
+    ),
+    text: <path d="M4 6h16M4 12h16M4 18h10" />,
+    message: (
+      <>
+        <path d="M4 4h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9l-5 4V5a1 1 0 0 1 1-1Z" />
+        <path d="M8 9h8M8 13h5" />
+      </>
+    ),
+    link: (
+      <>
+        <path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1" />
+        <path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1" />
+      </>
+    ),
+    smile: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M8.5 14.5a4.5 4.5 0 0 0 7 0M9 9.5h.01M15 9.5h.01" />
+      </>
+    ),
+    copy: (
+      <>
+        <rect x="8" y="8" width="13" height="13" rx="2" />
+        <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" />
+      </>
+    ),
+    share: (
+      <>
+        <circle cx="18" cy="5" r="2.5" />
+        <circle cx="6" cy="12" r="2.5" />
+        <circle cx="18" cy="19" r="2.5" />
+        <path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4" />
+      </>
+    ),
+    pencil: <path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" />,
+    layers: (
+      <>
+        <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+        <path d="m3 13 9 5 9-5" />
+      </>
+    ),
+    "sub-cards": (
+      <>
+        <rect x="3" y="3" width="8" height="6" rx="1.5" />
+        <rect x="13" y="15" width="8" height="6" rx="1.5" />
+        <path d="M7 9v6a3 3 0 0 0 3 3h3" />
+      </>
+    ),
+    dependency: (
+      <>
+        <circle cx="6" cy="6" r="2.5" />
+        <circle cx="18" cy="18" r="2.5" />
+        <path d="M8.5 6H14a4 4 0 0 1 4 4v5.5" />
+        <path d="m15 13 3 3 3-3" />
+      </>
+    ),
+    "chevron-left": <path d="m15 18-6-6 6-6" />,
+    "chevron-right": <path d="m9 18 6-6-6-6" />,
+    "chevrons-left": <path d="m11 17-5-5 5-5M18 17l-5-5 5-5" />,
+    "chevrons-right": <path d="m6 17 5-5-5-5M13 17l5-5-5-5" />,
   };
   return (
     <svg

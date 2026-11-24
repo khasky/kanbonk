@@ -1,23 +1,36 @@
 import type { ButtonHTMLAttributes, Ref } from "react";
 
-export type ButtonVariant = "primary" | "primary-danger" | "secondary" | "danger" | "link" | "icon" | "toolbar";
+export type ButtonVariant =
+  | "primary"
+  | "primary-danger"
+  | "secondary"
+  | "outline"
+  | "danger"
+  | "link"
+  | "icon"
+  | "toolbar";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const sized: Partial<Record<ButtonVariant, { look: string; size: ButtonSize }>> = {
   primary: {
-    look: "rounded-[3px] border-0 bg-brand font-semibold text-white hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50",
+    look: "text-[14px] rounded-[3px] border-0 bg-brand font-semibold text-white hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50",
     size: "lg",
   },
   "primary-danger": {
-    look: "rounded-[3px] border-0 bg-[#c9372c] font-semibold text-white hover:bg-danger disabled:cursor-not-allowed disabled:opacity-50",
+    look: "text-[14px] rounded-[3px] border-0 bg-[#c9372c] font-semibold text-white hover:bg-danger disabled:cursor-not-allowed disabled:opacity-50",
     size: "lg",
   },
   secondary: {
-    look: "rounded-sm border-0 bg-surface-sunken font-normal text-ink hover:bg-line disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-surface-sunken",
+    look: "text-[14px] rounded-sm border-0 bg-surface-sunken font-normal text-ink hover:bg-line disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-surface-sunken",
     size: "sm",
   },
+  // An open popover's button (`aria-expanded`) turns dark, so it is clear which button the popover belongs to.
+  outline: {
+    look: "text-[14px] flex items-center gap-1.5 rounded-sm border border-line bg-white font-medium text-ink hover:bg-surface-sunken aria-expanded:border-ink-subtle aria-expanded:bg-ink-subtle aria-expanded:text-white disabled:cursor-not-allowed disabled:opacity-50",
+    size: "md",
+  },
   danger: {
-    look: "rounded-sm border-0 bg-danger-soft font-normal text-danger disabled:cursor-not-allowed disabled:opacity-50",
+    look: "text-[14px] rounded-sm border-0 bg-danger-soft font-normal text-danger disabled:cursor-not-allowed disabled:opacity-50",
     size: "md",
   },
 };
@@ -45,13 +58,15 @@ export function buttonClass(variant: ButtonVariant, size?: ButtonSize, className
 
 /**
  * The app's buttons. `primary` is the main action of a form or dialog, `primary-danger` a confirmed destructive one,
- * `secondary` a grey one for every other action (also the Cancel or Close of a dialog footer), `danger` a soft red
+ * `secondary` a grey one for every other action (also the Cancel or Close of a dialog footer), `outline` a white
+ * framed one with an optional icon (the card's quick actions and section buttons), `danger` a soft red
  * destructive one, `link` an inline text link, `icon` a borderless icon button, `toolbar` a button on the board's
  * colored toolbar.
  *
- * `size` sets the padding of `primary`, `primary-danger`, `secondary` and `danger`: `sm` 6×9px (rows, section titles,
- * small forms; default of `secondary`), `md` 7×11px (the card's actions; default of `danger`), `lg` 8×12px (dialog
+ * `size` sets the padding of `primary`, `primary-danger`, `secondary`, `outline` and `danger`: `sm` 6×9px (rows, section titles,
+ * small forms; default of `secondary`), `md` 7×11px (the card's actions; default of `outline` and `danger`), `lg` 8×12px (dialog
  * footers and forms; default of the primaries).
+ * Their text is always 14px, so a button in a section title matches the others.
  * The other variants have one size. `className` may only add layout (margins, flex, width, display).
  */
 export function Button({

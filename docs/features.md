@@ -43,10 +43,12 @@ A zone groups adjacent lists of a board, for example **Development** = Todo + In
 
 A card opened from a board appears as a modal on top of it; Esc or the close button returns to the board. Opened by link, it is a page of its own.
 
+- **Layout**: the header holds the card's list (choosing another moves the card), the cover button, the **⋯** menu (Move / copy, Clone, Make template, Share, Card history, Move to trash) and the close button. Under the title, **Add**, **Labels**, **Dates**, **Checklist** and **Members** open small popovers next to the button; **Add** lists everything that can be added to the card (also attachments, links, dependencies, cover and stickers). The card's members, labels and dates show as chips under these buttons; a chip opens its popover. Esc closes a popover without closing the card.
+
 - **Title**: a text field.
 - **Card color**: the cover picker has presets and a color picker; **Color the whole card** paints the whole tile, and the text switches between dark and light for contrast.
 - **Description**: visual Markdown editing with a formatting toolbar (bold, italic, strikethrough, headings, lists, quote, code, link, divider) and a toggle to edit the Markdown source. Ctrl+Enter saves, Esc cancels. Pasted text is inserted as plain text.
-- **Start and due dates**: native date-time inputs and a reminder time.
+- **Start and due dates**: the **Dates** popover has a month calendar, a start date, a due date and time and a reminder; a day picked in the calendar goes to the date field last focused. **Save** applies the dates, **Remove** clears them. The date chip turns red once the due date has passed.
 - **Labels**: Trello's 30 colors as presets, or any color from the color picker.
 - **Comments**: written in the same visual Markdown editor as the description.
 - **Members**: the **Members** button appears when the board has someone to assign: a trusted device (see [sync.md](sync.md#trusted-devices)) or a member imported from Trello.

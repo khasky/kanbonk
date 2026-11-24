@@ -3,6 +3,19 @@ import { Checkbox } from "../ui/Field";
 import { Hint } from "../ui/Hint";
 import { labelPickerClass } from "./LabelPicker";
 
+/** A member's initials in a circle. */
+export function MemberAvatar({ member }: { member: Member }) {
+  return (
+    <span
+      className="grid size-8 flex-none place-items-center rounded-full bg-[#1d7a8c] text-[12px] font-bold text-white"
+      title={member.name}
+      aria-label={member.name}
+    >
+      {member.name.slice(0, 2).toUpperCase()}
+    </span>
+  );
+}
+
 /**
  * Assigns members to the card. `assignable` lists board members first, then trusted devices and imported members
  * that are not on the board yet; choosing one of those adds it to the board.
@@ -24,9 +37,12 @@ export function MemberPicker({
 }) {
   return (
     <div className={labelPickerClass}>
-      <strong>Board members</strong>
+      <div className="mb-0.5 text-[12px] font-semibold text-ink-subtle">Board members</div>
       {assignable.map((member) => (
-        <label className="flex items-center gap-2" key={member.id}>
+        <label
+          className="flex cursor-pointer items-center gap-2.5 rounded-sm px-1.5 py-1 hover:bg-surface-sunken"
+          key={member.id}
+        >
           <Checkbox
             checked={(card.memberIds ?? []).includes(member.id)}
             onChange={() =>
@@ -40,8 +56,11 @@ export function MemberPicker({
                 : onAddMember(member)
             }
           />
-          {member.name}
-          {member.id === currentDeviceId ? " (you)" : ""}
+          <MemberAvatar member={member} />
+          <span className="min-w-0 wrap-anywhere">
+            {member.name}
+            {member.id === currentDeviceId ? " (you)" : ""}
+          </span>
         </label>
       ))}
       <Hint as="small">Members are trusted devices and members imported from Trello.</Hint>
@@ -49,26 +68,10 @@ export function MemberPicker({
   );
 }
 
-/** Initials of the card's members. */
+/** The card's members as avatars, for a row of the card's details. */
 export function CardMemberAvatars({ card, boardMembers }: { card: Card; boardMembers: Member[] }) {
-  if (!(card.memberIds ?? []).length) return null;
-  return (
-    <div className="mt-3 ml-[34px] flex flex-wrap gap-1" aria-label="Card members">
-      {(card.memberIds ?? []).map((id) => {
-        const member = boardMembers.find((item) => item.id === id);
-        return (
-          member && (
-            <span
-              className="grid h-[30px] w-[30px] place-items-center rounded-full bg-line text-[11px] font-bold text-ink"
-              key={id}
-              title={member.name}
-              aria-label={member.name}
-            >
-              {member.name.slice(0, 2).toUpperCase()}
-            </span>
-          )
-        );
-      })}
-    </div>
-  );
+  return (card.memberIds ?? []).map((id) => {
+    const member = boardMembers.find((item) => item.id === id);
+    return member && <MemberAvatar key={id} member={member} />;
+  });
 }

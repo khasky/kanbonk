@@ -1,7 +1,7 @@
 import type { Card } from "../model";
 import { FileButton } from "../ui/FileButton";
 
-const rowClass = "mt-2.5 flex flex-wrap gap-2";
+const rowClass = "flex flex-wrap gap-2";
 const stickerClass = "min-h-11 min-w-11 rounded-md border border-line bg-surface-soft text-[25px] hover:bg-brand-soft";
 
 const stickerChoices = [
@@ -24,11 +24,7 @@ export function StickerPicker({
   onAddStickerImage: (file: File | null) => void;
 }) {
   return (
-    <section
-      className="mb-[15px] ml-[34px] rounded-md border border-line bg-white p-3 max-phone:ml-0"
-      aria-label="Card stickers"
-    >
-      <strong>Stickers</strong>
+    <section className="grid gap-2.5" aria-label="Card stickers">
       <div className={rowClass}>
         {stickerChoices.map(({ symbol, name }) => (
           <button
@@ -43,7 +39,6 @@ export function StickerPicker({
       </div>
       <FileButton
         size="md"
-        className="mt-2.5"
         accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
         onFiles={(files) => onAddStickerImage(files[0] ?? null)}
       >

@@ -3,7 +3,8 @@ import { MarkdownEditor } from "../ui/MarkdownEditor";
 import { MarkdownText } from "../ui/MarkdownText";
 import type { Card } from "../model";
 import { Button } from "../ui/Button";
-import { detailSectionClass, detailTitleClass, placeholderClass } from "./cardLook";
+import { detailSectionClass, placeholderClass } from "./cardLook";
+import { DetailTitle } from "./DetailTitle";
 
 /** The card description as Markdown; a double click or the Edit button opens the editor. */
 export function CardDescription({
@@ -20,14 +21,14 @@ export function CardDescription({
   const [editingDescription, setEditingDescription] = useState(false);
   return (
     <section className={`card-markdown ${detailSectionClass}`}>
-      <h3 className={detailTitleClass}>
+      <DetailTitle icon="text">
         Description
         {card.description && !editingDescription && (
-          <Button variant="secondary" className="ml-auto" onClick={() => setEditingDescription(true)}>
+          <Button variant="outline" size="sm" className="ml-auto" onClick={() => setEditingDescription(true)}>
             Edit
           </Button>
         )}
-      </h3>
+      </DetailTitle>
       {editingDescription ? (
         <MarkdownEditor
           value={card.description}
@@ -39,7 +40,7 @@ export function CardDescription({
           onCancel={() => setEditingDescription(false)}
         />
       ) : card.description ? (
-        <div className="rounded-sm bg-surface-sunken p-2.5" onDoubleClick={() => setEditingDescription(true)}>
+        <div onDoubleClick={() => setEditingDescription(true)}>
           <MarkdownText text={card.description} localCardForUrl={localCardForUrl} onNavigateCard={onNavigateCard} />
         </div>
       ) : (

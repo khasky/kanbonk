@@ -5,11 +5,20 @@ test("edits a card: label, checklist, sub-card, comment and description", async 
   await page.getByRole("button", { name: /Card from Trello/ }).click();
   const card = page.getByRole("dialog", { name: "Card from Trello" });
 
-  await card.getByRole("button", { name: "Labels" }).click();
+  await card.getByRole("button", { name: "Labels", exact: true }).click();
   await card.getByLabel("New label").fill("Urgent");
   await card.locator(".label-picker").getByRole("button", { name: "Add" }).click();
-  await card.getByRole("button", { name: "Labels" }).click();
+  await card.getByRole("button", { name: "Labels", exact: true }).click();
   await expect(page.getByRole("button", { name: /Important Urgent Card from Trello/ })).toBeVisible();
+
+  await card.locator(".card-actions").getByRole("button", { name: "Dates" }).click();
+  await card.getByLabel("Card due date", { exact: true }).fill("1/5/2030");
+  await card.getByLabel("Card due time").fill("9:30 AM");
+  await card.getByRole("button", { name: "Save" }).click();
+  await card.getByRole("button", { name: "Dates: Jan 5, 9:30 AM" }).click();
+  await expect(card.getByRole("button", { name: "Saturday, January 5, 2030" })).toHaveAttribute("aria-pressed", "true");
+  await card.getByRole("button", { name: "Remove" }).click();
+  await expect(card.getByRole("button", { name: /^Dates:/ })).toHaveCount(0);
 
   await card.getByLabel("Check item Remaining").check();
   await expect(card.getByText("100%")).toBeVisible();
@@ -45,6 +54,7 @@ test("previews a Markdown attachment and offers no preview for an archive", asyn
   await importTrelloBoard(page);
   await page.getByRole("button", { name: /Card from Trello/ }).click();
   const card = page.getByRole("dialog", { name: "Card from Trello" });
+  await card.locator(".card-actions").getByRole("button", { name: "Add", exact: true }).click();
   await card.locator("label.file-button input[type=file]").setInputFiles([
     { name: "notes.md", mimeType: "", buffer: Buffer.from("# Release plan\n\n- ship it") },
     { name: "bundle.zip", mimeType: "application/zip", buffer: Buffer.from("PK") },

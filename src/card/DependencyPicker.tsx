@@ -21,7 +21,6 @@ export function DependencyPicker({
   );
   return (
     <section className={pickerBoxClass} aria-label="Add dependency">
-      <strong>Depends on card</strong>
       <CardPicker
         label="Dependency card"
         candidates={availableDependencies}

@@ -1,6 +1,5 @@
 import { ColorInput } from "../ui/ColorInput";
 import type { Card } from "../model";
-import { SectionTitle } from "../ui/SectionTitle";
 import { Button } from "../ui/Button";
 import { Select } from "../ui/Field";
 
@@ -19,28 +18,14 @@ const coverColors = [
   "#626f86",
 ];
 
-export function CoverPicker({
-  card,
-  onChange,
-  onClose,
-}: {
-  card: Card;
-  onChange: (change: (card: Card) => Card) => void;
-  onClose: () => void;
-}) {
+export function CoverPicker({ card, onChange }: { card: Card; onChange: (change: (card: Card) => Card) => void }) {
   const images = card.attachments.filter((item) => item.status === "local" && item.mimeType.startsWith("image/"));
   return (
-    <div className="mb-[15px] ml-[34px] grid gap-3 rounded-md border border-line p-3 max-phone:ml-0">
-      <SectionTitle>
-        <strong>Cover</strong>
-        <Button variant="secondary" onClick={onClose}>
-          Close
-        </Button>
-      </SectionTitle>
+    <div className="grid gap-3">
       <div className="flex flex-wrap gap-1.5">
         {coverColors.map((color) => (
           <button
-            className={`h-[30px] w-[38px] rounded-sm border-2 border-transparent ${pressedClass}`}
+            className={`h-8 w-[50px] rounded-sm border-2 border-transparent ${pressedClass}`}
             key={color}
             style={{ background: color }}
             aria-label={`Cover ${color}`}
@@ -49,7 +34,7 @@ export function CoverPicker({
           />
         ))}
         <label
-          className="inline-flex h-[30px] w-[38px] cursor-pointer items-center gap-2 overflow-hidden rounded-sm bg-[conic-gradient(red,yellow,lime,cyan,blue,magenta,red)]"
+          className="inline-flex h-8 w-[50px] cursor-pointer items-center gap-2 overflow-hidden rounded-sm bg-[conic-gradient(red,yellow,lime,cyan,blue,magenta,red)]"
           title="Custom color"
         >
           <ColorInput

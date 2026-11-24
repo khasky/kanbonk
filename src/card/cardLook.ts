@@ -1,29 +1,25 @@
-/** Shared looks of the card dialog: its sections, the boxes the action buttons open, and their small forms. */
+/** Shared looks of the card dialog: its sections, the popovers its buttons open, and their small forms. */
 
-/** A section of the card's details (dates, description, checklists…). */
-export const detailSectionClass = "my-[22px]";
+/** A section of the card's details (dates, description, checklists…). Its title's icon sits in the left gutter. */
+export const detailSectionClass = "my-6";
 
-/** The heading of a detail section or of the activity panel, with its controls inline. */
-export const detailTitleClass = "mt-0 mb-3 flex items-center gap-2.5 text-[15px]";
+/** The heading of the activity panel, with its controls inline. */
+export const detailTitleClass = "mt-0 mb-3 flex min-h-8 items-center gap-3 text-[16px] font-semibold";
 
 /**
- * A grey "click to write" field: the empty description and "Write a comment…". `!`: the card dialog makes its buttons
- * 44px high on phones, which must not shrink this one.
+ * A grey "click to write" field: the empty description. `!`: the card dialog makes its buttons 44px high on phones,
+ * which must not shrink this one.
  */
 export const placeholderClass =
-  "min-h-14! w-full cursor-text rounded-sm border-0 bg-surface-sunken p-2.5 text-left text-ink-subtle";
+  "min-h-14! w-full cursor-text rounded-sm border-0 bg-surface-sunken p-2.5 text-left text-ink-subtle hover:bg-line";
 
-/**
- * The framed box an action button opens under the actions (move, share, checklist, link, dependency, cover,
- * stickers).
- */
-export const pickerBoxClass =
-  "mb-[15px] ml-[34px] flex flex-col gap-2 rounded-md border border-line p-3 max-phone:ml-0";
+/** The content of a popover opened by a card button (move, share, checklist, link, dependency, cover, stickers). */
+export const pickerBoxClass = "flex flex-col gap-3";
 
-/** A labelled field in a picker box: the label on the left, the field on the right. */
-export const pickerLabelClass = "flex items-center justify-between gap-2.5";
+/** A labelled field in a popover: a small bold label above a full-width field. */
+export const pickerLabelClass = "grid gap-1 text-[12px] font-semibold text-ink-subtle";
 
-/** A row of buttons in a picker box. */
+/** A row of buttons in a popover. */
 export const pickerRowClass = "flex gap-2";
 
 /** A one-line form under a list (new sub-card, new checklist items, labels): a `sm` field and its buttons. */

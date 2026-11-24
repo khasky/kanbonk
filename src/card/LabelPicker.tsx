@@ -3,17 +3,16 @@ import { labelColorOptions, readableTextColor } from "../model/labelColors";
 import type { Card, Label } from "../model";
 import { Button } from "../ui/Button";
 import { Checkbox, Input } from "../ui/Field";
-import { inlineFormClass } from "./cardLook";
+import { Icon } from "../ui/Icon";
 
-/** The box of the label and member pickers; `label-picker` is a hook for tests. */
-export const labelPickerClass =
-  "label-picker mb-[15px] ml-[34px] flex flex-col gap-1.5 rounded-md border border-line p-3 max-phone:ml-0";
+/** The label and member pickers; `label-picker` is a hook for tests. */
+export const labelPickerClass = "label-picker flex flex-col gap-1.5";
 
 const colorFieldClass = "h-8 w-[42px] min-w-0 flex-none self-center rounded-sm border border-ink-faint bg-white p-0.5";
+const groupTitleClass = "mt-1.5 mb-0.5 text-[12px] font-semibold text-ink-subtle";
 
 /** Toggles the board's labels on the card, and creates, edits and deletes labels. */
 export function LabelPicker({
-  open,
   card,
   boardLabels,
   onChange,
@@ -21,7 +20,6 @@ export function LabelPicker({
   onEditLabel,
   onDeleteLabel,
 }: {
-  open: boolean;
   card: Card;
   boardLabels: Label[];
   onChange: (change: (card: Card) => Card) => void;
@@ -29,18 +27,29 @@ export function LabelPicker({
   onEditLabel: (id: string, name: string, color: string) => void;
   onDeleteLabel: (id: string) => void;
 }) {
+  const [search, setSearch] = useState("");
   const [labelName, setLabelName] = useState("");
   const [labelColor, setLabelColor] = useState("#4bce97");
   const [editingLabelId, setEditingLabelId] = useState<string | null>(null);
   const [editingLabelName, setEditingLabelName] = useState("");
   const [editingLabelColor, setEditingLabelColor] = useState("#4bce97");
-  if (!open) return null;
+  const query = search.trim().toLocaleLowerCase();
+  const shown = boardLabels.filter((label) => label.name.toLocaleLowerCase().includes(query));
   return (
     <div className={labelPickerClass}>
-      <strong>Labels</strong>
-      {boardLabels.map((label) => (
+      {boardLabels.length > 0 && (
+        <Input
+          size="sm"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search labels…"
+          aria-label="Search labels"
+        />
+      )}
+      {shown.length > 0 && <div className={groupTitleClass}>Labels</div>}
+      {shown.map((label) => (
         <div className="flex items-center gap-2" key={label.id}>
-          <label className="flex min-w-0 flex-1 items-center gap-2">
+          <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5">
             <Checkbox
               checked={card.labelIds.includes(label.id)}
               onChange={() =>
@@ -53,7 +62,7 @@ export function LabelPicker({
               }
             />
             <span
-              className="flex-1 rounded-sm px-2.5 py-[7px]"
+              className="flex min-h-8 flex-1 items-center rounded-sm px-3 font-semibold wrap-anywhere"
               style={{
                 background: label.color || "#dfe1e6",
                 color: readableTextColor(label.color || "#dfe1e6"),
@@ -63,7 +72,7 @@ export function LabelPicker({
             </span>
           </label>
           <Button
-            variant="secondary"
+            variant="icon"
             type="button"
             onClick={() => {
               setEditingLabelId(label.id);
@@ -72,12 +81,12 @@ export function LabelPicker({
             }}
             aria-label={`Edit label ${label.name}`}
           >
-            Edit
+            <Icon name="pencil" className="size-4" />
           </Button>
         </div>
       ))}
       {editingLabelId && (
-        <div className={inlineFormClass}>
+        <div className="mt-2 flex flex-wrap gap-1.5 rounded-sm bg-surface-soft p-2">
           <Input
             size="sm"
             className="min-w-0 flex-1"
@@ -93,41 +102,46 @@ export function LabelPicker({
             onChange={(event) => setEditingLabelColor(event.target.value)}
             aria-label="Edited label color"
           />
-          <Button
-            variant="secondary"
-            disabled={!editingLabelName.trim()}
-            onClick={() => {
-              onEditLabel(editingLabelId, editingLabelName.trim(), editingLabelColor);
-              setEditingLabelId(null);
-            }}
-          >
-            Save
-          </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => {
-              if (editingLabelId && confirm("Remove this label from all cards?")) {
-                onDeleteLabel(editingLabelId);
+          <div className="flex w-full gap-1.5">
+            <Button
+              variant="primary"
+              size="sm"
+              disabled={!editingLabelName.trim()}
+              onClick={() => {
+                onEditLabel(editingLabelId, editingLabelName.trim(), editingLabelColor);
                 setEditingLabelId(null);
-              }
-            }}
-            aria-label="Delete label"
-          >
-            Delete
-          </Button>
-          <Button variant="secondary" onClick={() => setEditingLabelId(null)}>
-            Cancel
-          </Button>
+              }}
+            >
+              Save
+            </Button>
+            <Button variant="secondary" onClick={() => setEditingLabelId(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              className="ml-auto"
+              onClick={() => {
+                if (editingLabelId && confirm("Remove this label from all cards?")) {
+                  onDeleteLabel(editingLabelId);
+                  setEditingLabelId(null);
+                }
+              }}
+              aria-label="Delete label"
+            >
+              Delete
+            </Button>
+          </div>
         </div>
       )}
-      <div className={inlineFormClass}>
+      <div className={groupTitleClass}>New label</div>
+      <div className="flex gap-1.5">
         <Input
           size="sm"
           className="min-w-0 flex-1"
           value={labelName}
           onChange={(event) => setLabelName(event.target.value)}
-          placeholder="New label"
+          placeholder="Label name"
           aria-label="New label"
         />
         <input
@@ -161,28 +175,23 @@ export function LabelPicker({
   );
 }
 
-/** The card's labels as colored chips. */
+/** The card's labels as colored chips, for a row of the card's details. */
 export function CardLabelChips({ card, boardLabels }: { card: Card; boardLabels: Label[] }) {
-  if (!card.labelIds.length) return null;
-  return (
-    <div className="ml-[34px] flex flex-wrap gap-1">
-      {card.labelIds.map((id) => {
-        const label = boardLabels.find((item) => item.id === id);
-        return (
-          label && (
-            <span
-              className="min-w-10 rounded-[3px] px-2 py-0.5 text-[11px] font-bold"
-              key={id}
-              style={{
-                background: label.color || "#dfe1e6",
-                color: readableTextColor(label.color || "#dfe1e6"),
-              }}
-            >
-              {label.name}
-            </span>
-          )
-        );
-      })}
-    </div>
-  );
+  return card.labelIds.map((id) => {
+    const label = boardLabels.find((item) => item.id === id);
+    return (
+      label && (
+        <span
+          className="flex h-8 min-w-12 items-center rounded-sm px-3 font-semibold"
+          key={id}
+          style={{
+            background: label.color || "#dfe1e6",
+            color: readableTextColor(label.color || "#dfe1e6"),
+          }}
+        >
+          {label.name}
+        </span>
+      )
+    );
+  });
 }

@@ -4,7 +4,8 @@ import type { relatedCards } from "../model/links";
 import { type AppState, type Card, isCardAvailable, parentCandidates } from "../model";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
-import { detailSectionClass, detailTitleClass, inlineFormClass } from "./cardLook";
+import { detailSectionClass, inlineFormClass } from "./cardLook";
+import { DetailTitle } from "./DetailTitle";
 
 const dependencyLineClass = "my-1.5 flex flex-wrap items-center gap-1.5";
 /** A sub-card or the parent card, as a blue text link. */
@@ -22,7 +23,7 @@ export function DependencySummary({
 }) {
   return (
     <section className={detailSectionClass}>
-      <h3 className={detailTitleClass}>Dependencies</h3>
+      <DetailTitle icon="dependency">Dependencies</DetailTitle>
       {prerequisiteCards.length > 0 && (
         <p className={dependencyLineClass}>
           Depends on:{" "}
@@ -69,7 +70,7 @@ export function SubCards({
   const [choosingParent, setChoosingParent] = useState(false);
   return (
     <section className={detailSectionClass}>
-      <h3 className={detailTitleClass}>Sub-cards</h3>
+      <DetailTitle icon="sub-cards">Sub-cards</DetailTitle>
       {parentCard && (
         <p>
           Parent:{" "}
@@ -162,7 +163,7 @@ export function RelatedCards({
 }) {
   return (
     <section className={detailSectionClass}>
-      <h3 className={detailTitleClass}>Linked cards</h3>
+      <DetailTitle icon="link">Linked cards</DetailTitle>
       {related.map((link, index) => (
         <div className="flex items-center gap-2.5 border-b border-line py-2 wrap-anywhere" key={`${link.url}-${index}`}>
           <span className="min-w-[70px] text-[12px] text-ink-muted">{link.source}</span>

@@ -4,9 +4,13 @@ import { MarkdownEditor } from "../ui/MarkdownEditor";
 import { MarkdownText } from "../ui/MarkdownText";
 import { type AppState, type Card, canEditComment, newId } from "../model";
 import { Button } from "../ui/Button";
-import { detailTitleClass, placeholderClass } from "./cardLook";
+import { detailTitleClass } from "./cardLook";
+import { Icon } from "../ui/Icon";
 
-const dateClass = "block text-[11px] text-ink-muted";
+const dateClass = "text-[12px] text-ink-muted";
+const avatarClass = "grid size-8 flex-none place-items-center rounded-full font-bold";
+const commentPlaceholderClass =
+  "w-full cursor-text rounded-lg border-0 bg-white px-3 py-2.5 text-left text-ink-subtle shadow-tile hover:bg-surface-soft";
 const commentActionClass =
   "cursor-pointer border-0 bg-transparent px-0 py-[3px] text-[12px] text-ink-subtle hover:underline";
 
@@ -71,14 +75,18 @@ export function CardActivity({
     if (editingCommentId === id) setEditingCommentId(null);
   }
   return (
-    <aside className="activity-panel card-markdown overflow-auto border-l border-line bg-surface-soft px-[18px] py-6 max-tablet:overflow-visible max-tablet:border-t max-tablet:border-l-0">
+    <aside className="activity-panel card-markdown overflow-auto border-l border-line bg-surface-sunken px-4 py-5 max-tablet:overflow-visible max-tablet:border-t max-tablet:border-l-0">
       <h3 className={detailTitleClass}>
+        <span className="grid size-6 flex-none place-items-center text-ink-subtle">
+          <Icon name="message" />
+        </span>
         Comments and activity
         <Button
-          variant="secondary"
+          variant="outline"
+          size="sm"
           className="ml-auto"
           type="button"
-          aria-expanded={showActivityDetails}
+          aria-pressed={showActivityDetails}
           onClick={() => setShowActivityDetails((value) => !value)}
         >
           {showActivityDetails ? "Hide details" : "Show details"}
@@ -94,27 +102,30 @@ export function CardActivity({
           onCancel={() => setWritingComment(false)}
         />
       ) : (
-        <button className={placeholderClass} onClick={() => setWritingComment(true)}>
+        <button className={commentPlaceholderClass} onClick={() => setWritingComment(true)}>
           Write a comment…
         </button>
       )}
-      <div className="mt-6">
+      <div className="mt-4 grid gap-4">
         {activityFeed.map((item) => {
           if (item.kind === "change")
             return (
-              <article className="mb-5 block border-b border-line py-[9px] wrap-anywhere" key={item.id}>
-                <strong className="block font-normal">{item.event.summary}</strong>
-                <small className={`${dateClass} mt-1`}>{new Date(item.createdAt).toLocaleString("en-US")}</small>
+              <article className="flex gap-2.5 wrap-anywhere" key={item.id}>
+                <span className={`${avatarClass} bg-line text-ink-subtle`} aria-hidden="true">
+                  <Icon name="history" className="size-4" />
+                </span>
+                <div className="min-w-0 pt-1.5">
+                  {item.event.summary}
+                  <small className={`${dateClass} block`}>{new Date(item.createdAt).toLocaleString("en-US")}</small>
+                </div>
               </article>
             );
           const entry = item.comment;
           return (
-            <article className="mb-5 flex gap-2.5" key={item.id}>
-              <span className="grid h-7 w-7 flex-none place-items-center rounded-full bg-[#1d7a8c] text-white">
-                {entry.author.slice(0, 1)}
-              </span>
-              <div className="min-w-0">
-                <strong>{entry.author}</strong>
+            <article className="flex gap-2.5" key={item.id}>
+              <span className={`${avatarClass} bg-[#1d7a8c] text-white`}>{entry.author.slice(0, 1)}</span>
+              <div className="min-w-0 flex-1 pt-1.5">
+                <strong>{entry.author}</strong>{" "}
                 <small className={dateClass}>{new Date(entry.createdAt).toLocaleString("en-US")}</small>
                 {editingCommentId === entry.id ? (
                   <div>

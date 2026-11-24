@@ -6,19 +6,16 @@ import { pickerBoxClass, pickerLabelClass, pickerRowClass } from "./cardLook";
 
 /** Moves or copies the card to a list on any open board. */
 export function TransferPicker({
-  open,
   card,
   state,
   onTransfer,
 }: {
-  open: boolean;
   card: Card;
   state: AppState;
   onTransfer: (targetListId: string, copy: boolean) => void;
 }) {
   const [destinationBoardId, setDestinationBoardId] = useState(card.boardId);
   const [destinationListId, setDestinationListId] = useState(card.listId);
-  if (!open) return null;
   const availableBoards = state.boards.filter(
     (item) => !item.deletedAt && state.lists.some((list) => list.boardId === item.id && !list.deletedAt),
   );
@@ -27,12 +24,11 @@ export function TransferPicker({
     .sort((a, b) => a.position - b.position);
   return (
     <section className={pickerBoxClass} aria-label="Move or copy card">
-      <strong>Choose a destination</strong>
       <label className={pickerLabelClass}>
         Board
         <Select
           size="sm"
-          className="w-[70%] min-w-0"
+          className="w-full min-w-0"
           value={destinationBoardId}
           onChange={(event) => {
             const id = event.target.value;
@@ -55,7 +51,7 @@ export function TransferPicker({
         List
         <Select
           size="sm"
-          className="w-[70%] min-w-0"
+          className="w-full min-w-0"
           value={destinationListId}
           onChange={(event) => setDestinationListId(event.target.value)}
         >
@@ -67,12 +63,18 @@ export function TransferPicker({
         </Select>
       </label>
       <div className={pickerRowClass}>
-        <Button variant="primary" onClick={() => onTransfer(destinationListId, false)} disabled={!destinationListId}>
+        <Button
+          variant="primary"
+          className="flex-1"
+          onClick={() => onTransfer(destinationListId, false)}
+          disabled={!destinationListId}
+        >
           Move
         </Button>
         <Button
           variant="secondary"
           size="lg"
+          className="flex-1"
           onClick={() => onTransfer(destinationListId, true)}
           disabled={!destinationListId}
         >

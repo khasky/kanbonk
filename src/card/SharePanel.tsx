@@ -6,12 +6,10 @@ import { cardLink, downloadCardJson, downloadCardPng, printCard, qrSvg } from ".
 
 /** Print, save or copy a link to the card. `dialog` is the element saved as an image. */
 export function SharePanel({
-  open,
   card,
   state,
   dialog,
 }: {
-  open: boolean;
   card: Card;
   state: AppState;
   dialog: RefObject<HTMLDivElement | null>;
@@ -34,11 +32,9 @@ export function SharePanel({
       setShareStatus(`Something went wrong: ${cause instanceof Error ? cause.message : String(cause)}`);
     }
   }
-  if (!open) return null;
   return (
     <section className={pickerBoxClass} aria-label="Share card" data-share-skip>
-      <strong>Share</strong>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <Button variant="secondary" size="lg" onClick={() => void share("print")}>
           Print
         </Button>
@@ -51,7 +47,13 @@ export function SharePanel({
         <Button variant="secondary" size="lg" onClick={() => void share("link")}>
           Copy link
         </Button>
-        <Button variant="secondary" size="lg" onClick={() => setShowQr(!showQr)} aria-pressed={showQr}>
+        <Button
+          variant="secondary"
+          size="lg"
+          className="col-span-2"
+          onClick={() => setShowQr(!showQr)}
+          aria-pressed={showQr}
+        >
           QR code
         </Button>
       </div>
@@ -66,7 +68,11 @@ export function SharePanel({
           <figcaption className="text-center text-[12px] break-all">{cardLink(card.id)}</figcaption>
         </figure>
       )}
-      {shareStatus && <p role="status">{shareStatus}</p>}
+      {shareStatus && (
+        <p className="m-0" role="status">
+          {shareStatus}
+        </p>
+      )}
     </section>
   );
 }

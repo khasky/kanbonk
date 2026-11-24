@@ -6,18 +6,15 @@ import { pickerBoxClass, pickerLabelClass } from "./cardLook";
 
 /** Attaches a website link to the card. */
 export function LinkEditor({
-  open,
   onChange,
   onClose,
 }: {
-  open: boolean;
   onChange: (change: (card: Card) => Card) => void;
   onClose: () => void;
 }) {
   const [linkUrl, setLinkUrl] = useState("");
   const [linkName, setLinkName] = useState("");
   const [linkError, setLinkError] = useState("");
-  if (!open) return null;
   function addUrlAttachment() {
     try {
       const url = new URL(linkUrl.trim());
@@ -46,12 +43,11 @@ export function LinkEditor({
   }
   return (
     <section className={pickerBoxClass} aria-label="Add link">
-      <strong>Website link</strong>
       <label className={pickerLabelClass}>
         URL
         <Input
           size="sm"
-          className="w-[70%] min-w-0"
+          className="w-full min-w-0"
           type="url"
           value={linkUrl}
           onChange={(event) => {
@@ -65,7 +61,7 @@ export function LinkEditor({
         Title
         <Input
           size="sm"
-          className="w-[70%] min-w-0"
+          className="w-full min-w-0"
           value={linkName}
           onChange={(event) => setLinkName(event.target.value)}
           placeholder="Optional"
@@ -76,7 +72,7 @@ export function LinkEditor({
           {linkError}
         </p>
       )}
-      <Button variant="primary" className="self-start" disabled={!linkUrl.trim()} onClick={addUrlAttachment}>
+      <Button variant="primary" disabled={!linkUrl.trim()} onClick={addUrlAttachment}>
         Add link
       </Button>
     </section>

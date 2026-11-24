@@ -4,7 +4,8 @@ import { Button } from "../ui/Button";
 import { SectionTitle } from "../ui/SectionTitle";
 import { Checkbox, Textarea } from "../ui/Field";
 import { Menu, MenuItem } from "../ui/Menu";
-import { detailSectionClass, detailTitleClass, inlineFormClass } from "./cardLook";
+import { detailSectionClass, inlineFormClass } from "./cardLook";
+import { Icon } from "../ui/Icon";
 
 /** The "⋯" button of a checklist's and an item's menu. */
 const menuButtonClass =
@@ -104,8 +105,10 @@ export function ChecklistSection({
       onDrop={(event) => dropItem(event)}
     >
       <SectionTitle>
-        <h3 className={`${detailTitleClass} mr-auto min-w-0`}>
-          ☑{" "}
+        <h3 className="m-0 mr-auto -ml-9 flex min-h-8 min-w-0 items-center gap-3 text-[16px] font-semibold">
+          <span className="grid size-6 flex-none place-items-center text-ink-subtle">
+            <Icon name="check-square" />
+          </span>
           <input
             className="w-[min(240px,35vw)] min-w-0 border-0 bg-transparent p-0.5 text-inherit focus:bg-white"
             value={titleDraft}
