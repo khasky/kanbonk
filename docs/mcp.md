@@ -45,7 +45,7 @@ A relay room connects two devices, so while the agent is paired with one device,
 | `create_card` (also sub-cards via `parentCardId`), `update_card`, `move_card`, `clone_card` | Cards: dates, description, full-card colour |
 | `add_comment`, `add_checklist`, `set_checklist_item`, `add_dependency` | Card details |
 | `find_duplicates`, `merge_cards` | Cards with similar meaning across boards (the app's duplicate finder) and merging a pair |
-| `delete`, `restore`, `list_trash` | The trash: deletion is restorable for 30 days, restore brings back parents |
+| `delete`, `restore`, `list_trash` | The trash: deletion is restorable for the trash period (30 days by default), restore brings back parents |
 | `sync_status`, `sync_now` | Connection to the app |
 
 Read-only tools are annotated with `readOnlyHint`, `delete` and `merge_cards` with `destructiveHint`, so clients can ask before running them. Every change is a normal revision signed by the agent's device ID, so it appears in the card history and can be rolled back.

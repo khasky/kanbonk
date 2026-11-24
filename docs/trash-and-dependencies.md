@@ -39,9 +39,9 @@ A card "depends on" another card when it has a item in its **Dependencies** chec
 
 The function returns the list of restored items, and the UI reports how many extra items came back.
 
-## Retention: 30 days
+## Retention: 30 days by default
 
-Items stay in the trash for 30 days. The trash page shows how many days each item has left. `purgeExpired(state, deviceId, now)` runs at start-up and every 30 seconds while the app is open and deletes permanently everything trashed more than 30 days ago, with the items below it, exactly as **Delete forever** does.
+Items stay in the trash for 30 days unless **⋯ → Settings → Trash** sets another period (7, 14, 30, 60 or 90 days; stored on the device). The trash page shows the period and how many days each item has left; a trashed card opens there read-only. `purgeExpired(state, deviceId, now, days)` runs at start-up and every 30 seconds while the app is open, once the setting is read, and deletes permanently everything trashed more than `days` ago, with the items below it, exactly as **Delete forever** does.
 
 ## Deleting permanently
 

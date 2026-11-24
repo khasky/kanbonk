@@ -1,4 +1,5 @@
 import { Dialog } from "../ui/Modal";
+import { useTrashRetention } from "../lib/trashRetention";
 import { trashRetentionDays, type TrashImpact, type TrashKind } from "../model/trash";
 import { Button } from "../ui/Button";
 import { dialogFooterClass, dialogTitleClass } from "./dialogLook";
@@ -19,6 +20,7 @@ export function DeleteDialog({
   onCancel: () => void;
 }) {
   const cards = impact.cardIds.length - (kind === "card" ? 1 : 0);
+  const days = useTrashRetention() ?? trashRetentionDays;
   return (
     <Dialog label="Move to trash" size="md" role="alertdialog" onDismiss={onCancel}>
       <h2 className={dialogTitleClass}>
@@ -26,7 +28,7 @@ export function DeleteDialog({
       </h2>
       <p>
         It will be moved to the trash{cards > 0 ? ` along with ${cards} ${cards === 1 ? "card" : "cards"}` : ""}. You
-        can restore it from the Trash page for {trashRetentionDays} days.
+        can restore it from the Trash page for {days} days.
       </p>
       {impact.dependents.length > 0 && (
         <div className="mt-2.5 rounded-md border border-warning bg-[#fff7d6] px-3 py-2.5" role="alert">

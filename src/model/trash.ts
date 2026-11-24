@@ -237,17 +237,17 @@ export function emptyTrash(state: AppState, deviceId: string, now = new Date().t
   return refs.length ? purgeRefs(state, refs, deviceId, now) : state;
 }
 
-/** Items stay in the trash this many days, then are purged for good. */
+/** Items stay in the trash this many days by default, then are purged for good; Settings can change it. */
 export const trashRetentionDays = 30;
 const dayMs = 86_400_000;
 
-export function trashDaysLeft(deletedAt: string, now = Date.now()): number {
-  return Math.max(0, Math.ceil((Date.parse(deletedAt) + trashRetentionDays * dayMs - now) / dayMs));
+export function trashDaysLeft(deletedAt: string, now = Date.now(), days = trashRetentionDays): number {
+  return Math.max(0, Math.ceil((Date.parse(deletedAt) + days * dayMs - now) / dayMs));
 }
 
-/** Purges everything that has been in the trash longer than the retention period. */
-export function purgeExpired(state: AppState, deviceId: string, now = Date.now()): AppState {
-  const cutoff = now - trashRetentionDays * dayMs;
+/** Purges everything that has been in the trash longer than the retention period of `days`. */
+export function purgeExpired(state: AppState, deviceId: string, now = Date.now(), days = trashRetentionDays): AppState {
+  const cutoff = now - days * dayMs;
   const refs: Ref[] = [];
   for (const kind of Object.keys(collectionKey) as TrashKind[]) {
     for (const item of state[collectionKey[kind]] as TrashEntity[])

@@ -21,6 +21,7 @@ import {
   platform,
   type BackupFolder,
 } from "../lib/platform";
+import { setTrashRetention, trashRetentionChoices, useTrashRetention } from "../lib/trashRetention";
 import { Button } from "../ui/Button";
 import { Checkbox, Input, Select } from "../ui/Field";
 import { Hint } from "../ui/Hint";
@@ -42,7 +43,10 @@ const frequencies: Array<[BackupFrequency, string]> = [
   ["off", "Off"],
 ];
 
-/** App settings: where, how often and how many automatic full backups (data and files) are kept outside the app. */
+/**
+ * App settings: where, how often and how many automatic full backups (data and files) are kept outside the app, and
+ * how long deleted items stay in the trash.
+ */
 export function SettingsDialog({ getState, onClose }: { getState: () => AppState; onClose: () => void }) {
   const [settings, setSettings] = useState<AutoBackupSettings>(defaultAutoBackup);
   const [folder, setFolder] = useState<BackupFolder>();
@@ -50,6 +54,7 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
   const [last, setLast] = useState<string>();
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
+  const retentionDays = useTrashRetention();
 
   useEffect(() => {
     void (async () => {
@@ -218,6 +223,29 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
             {status}
           </p>
         )}
+      </section>
+      <section className={dialogListClass}>
+        <h3>Trash</h3>
+        <label className={fieldLabelClass}>
+          Delete items in the trash forever after
+          <Select
+            value={retentionDays ?? ""}
+            disabled={retentionDays === undefined}
+            onChange={(event) =>
+              void setTrashRetention(Number(event.target.value)).catch((cause) => setStatus(String(cause)))
+            }
+          >
+            {trashRetentionChoices.map((days) => (
+              <option key={days} value={days}>
+                {days} days
+              </option>
+            ))}
+          </Select>
+        </label>
+        <Hint>
+          This device deletes them; the deletion then syncs to your other devices, so the shortest period among them
+          applies.
+        </Hint>
       </section>
       <div className={dialogFooterClass}>
         <Button variant="secondary" size="lg" type="button" onClick={onClose} disabled={busy}>

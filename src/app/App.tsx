@@ -34,6 +34,7 @@ import { useBoardView } from "./useBoardView";
 import { useClock } from "./useClock";
 import { useNotice } from "./useNotice";
 import { useOverlays } from "./useOverlays";
+import { loadTrashRetention, useTrashRetention } from "../lib/trashRetention";
 import "../styles/index.css";
 
 /**
@@ -83,8 +84,12 @@ function App() {
     onNotice: setNotice,
   });
 
-  // Reminders, due-date rules and the 30-day trash purge follow the clock.
+  // Reminders, due-date rules and the trash purge (after the days set in Settings) follow the clock.
   const clock = useClock();
+  const retentionDays = useTrashRetention();
+  useEffect(() => {
+    loadTrashRetention().catch((cause) => reportError(`Could not read the trash settings: ${String(cause)}`));
+  }, []);
   const [dismissedReminders, setDismissedReminders] = useState<Record<string, string>>(readDismissedReminders);
   const reportError = useEffectEvent(setError);
   useEffect(() => {
@@ -96,9 +101,12 @@ function App() {
   }, [dismissedReminders]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: cards and boards are triggers, so new due dates and rules apply at once.
   useEffect(() => {
-    if (ready)
-      setState((current) => purgeExpired(applyDueRules(current, clock.now, localDeviceId), localDeviceId, clock.now));
-  }, [ready, clock.now, state.boards, state.cards]);
+    if (!ready) return;
+    setState((current) => {
+      const next = applyDueRules(current, clock.now, localDeviceId);
+      return retentionDays === undefined ? next : purgeExpired(next, localDeviceId, clock.now, retentionDays);
+    });
+  }, [ready, clock.now, state.boards, state.cards, retentionDays]);
   const reminders = useMemo(
     () => dueReminders(state, clock.now, dismissedReminders),
     [state, clock.now, dismissedReminders],

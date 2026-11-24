@@ -129,4 +129,4 @@ Every change is applied to the screen and saved on the device immediately; sync 
 
 ## Trash and backups
 
-Deleted items stay in the trash for 30 days, then are deleted for good. See [trash-and-dependencies.md](trash-and-dependencies.md) and [backups.md](backups.md).
+Deleted items stay in the trash for 30 days by default, then are deleted for good; **⋯ → Settings → Trash** sets 7, 14, 30, 60 or 90 days, and the Trash page shows the period next to **Empty trash**. A trashed card opens read-only from the Trash page: it can be restored, deleted forever or have its files downloaded. Questions before an action (copy a list, delete forever, remove a zone and the like) appear in the app's own dialog, never in a browser one. See [trash-and-dependencies.md](trash-and-dependencies.md) and [backups.md](backups.md).

@@ -133,3 +133,13 @@ it("purges items 30 days after deletion and reports days left", () => {
   expect(purged.tombstones?.["card:c1"]).toBeDefined();
   expect(trashEntries(purged).map((item) => item.id)).toEqual(["c3"]);
 });
+
+it("purges after the period set in Settings instead of 30 days", () => {
+  const day = 86_400_000;
+  const deleted = Date.parse("2026-10-01T00:00:00.000Z");
+  const state = moveToTrash(sample(), "card", "c3", "d", { now: new Date(deleted).toISOString() });
+  expect(trashDaysLeft(new Date(deleted).toISOString(), deleted + day, 7)).toBe(6);
+  expect(purgeExpired(state, "d", deleted + 6 * day, 7)).toBe(state);
+  expect(purgeExpired(state, "d", deleted + 7 * day, 7).cards.map((item) => item.id)).not.toContain("c3");
+  expect(purgeExpired(state, "d", deleted + 60 * day, 90)).toBe(state);
+});

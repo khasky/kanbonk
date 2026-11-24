@@ -33,7 +33,7 @@ Kanbonk keeps every workspace, board, list, card and attachment on your own devi
 
 **Your data stays yours**
 
-- **Trash** — deleted workspaces, boards, lists and cards are kept for 30 days. Restoring an item also restores the parents and dependencies it needs.
+- **Trash** — deleted workspaces, boards, lists and cards are kept for 30 days (adjustable in Settings). Restoring an item also restores the parents and dependencies it needs.
 - **Automatic backups** — version snapshots every 10 minutes and a full ZIP with all files every 6 hours, day or week, written to Downloads, Documents or a folder you choose; the newest N are kept.
 - **Duplicate finder** — finds similar cards across boards entirely on the device and merges them in one click.
 - **History** — full revision history for every workspace, board, list and card.

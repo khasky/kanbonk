@@ -18,3 +18,38 @@ test("moves a list to the trash and restores it", async ({ page }) => {
   await expect(page.getByLabel("List title Plans")).toBeVisible();
   await expect(page.getByRole("button", { name: /Card from Trello/ })).toBeVisible();
 });
+
+test("shows a trashed card read-only, follows the trash period from Settings and deletes it forever", async ({
+  page,
+}) => {
+  await importTrelloBoard(page);
+  await page.getByRole("button", { name: /Card from Trello/ }).click();
+  await page.getByLabel("Card actions").click();
+  await page.getByRole("button", { name: "Move to trash" }).click();
+  await page.getByRole("alertdialog", { name: "Move to trash" }).getByRole("button", { name: "Delete" }).click();
+
+  await page.getByLabel("App menu").click();
+  await page.getByRole("button", { name: "Settings" }).click();
+  const settings = page.getByRole("dialog", { name: "Settings" });
+  await settings.getByLabel("Delete items in the trash forever after").selectOption("14");
+  await settings.getByRole("button", { name: "Close" }).click();
+
+  await page.getByRole("link", { name: /Trash:/ }).click();
+  const main = page.getByRole("main");
+  await expect(main).toContainText("Items are deleted forever 14 days after they were moved here.");
+  await expect(main).toContainText("deleted in 14 days");
+  await main.getByRole("button", { name: "Card from Trello" }).click();
+  const viewed = page.getByRole("dialog", { name: "Card from Trello" });
+  await expect(viewed).toContainText("will be deleted forever in 14 days");
+  await expect(viewed.getByRole("checkbox", { name: "Remaining" })).toBeDisabled();
+  await expect(viewed.getByRole("textbox")).toHaveCount(0);
+
+  await viewed.getByRole("button", { name: "Delete forever" }).click();
+  const ask = page.getByRole("alertdialog", { name: "Delete “Card from Trello” forever?" });
+  await ask.getByRole("button", { name: "Cancel" }).click();
+  await expect(viewed).toBeVisible();
+  await viewed.getByRole("button", { name: "Delete forever" }).click();
+  await ask.getByRole("button", { name: "Delete forever" }).click();
+  await expect(viewed).toBeHidden();
+  await expect(main).not.toContainText("Card from Trello");
+});

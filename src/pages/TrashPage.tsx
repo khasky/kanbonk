@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useTrashRetention } from "../lib/trashRetention";
 import type { AppState } from "../model";
 import { trashDaysLeft, trashEntries, trashRetentionDays, type TrashKind } from "../model/trash";
 import { Button } from "../ui/Button";
@@ -5,6 +7,7 @@ import { Hint } from "../ui/Hint";
 import { PanelRow, PanelRowNote, PanelRowText, RowActions } from "../ui/PanelRow";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
 import { emptyClass, pageClass, pageHeaderClass } from "./pageLook";
+import { TrashedCardDialog } from "./TrashedCardDialog";
 
 const kindNames: Record<TrashKind, string> = { workspace: "Workspaces", board: "Boards", list: "Lists", card: "Cards" };
 
@@ -23,12 +26,20 @@ export function TrashPage({
   onPurge: (kind: TrashKind, id: string) => void;
   onEmpty: () => void;
 }) {
+  const days = useTrashRetention() ?? trashRetentionDays;
+  const [viewedCardId, setViewedCardId] = useState<string>();
+  const viewedCard = state.cards.find((item) => item.id === viewedCardId && item.deletedAt);
   const all = trashEntries(state);
   const entries = kind ? all.filter((item) => item.kind === kind) : all;
   return (
     <section className={pageClass} aria-label="Trash">
       <header className={pageHeaderClass}>
-        <h1 className="m-0 flex-1 text-[24px]">Trash</h1>
+        <div className="flex-1">
+          <h1 className="m-0 text-[24px]">Trash</h1>
+          <p className="mt-1 mb-0 text-[13px] text-ink-subtle">
+            Items are deleted forever {days} days after they were moved here. Change it in ⋯ → Settings.
+          </p>
+        </div>
         {all.length > 0 && (
           <Button variant="danger" onClick={onEmpty}>
             Empty trash
@@ -50,12 +61,23 @@ export function TrashPage({
           {entries.map((entry) => (
             <PanelRow look="boxed" key={`${entry.kind}:${entry.id}`}>
               <PanelRowText className="flex flex-col gap-[3px]">
-                <strong>{entry.name}</strong>
+                {entry.kind === "card" ? (
+                  <button
+                    type="button"
+                    className="self-start border-0 bg-transparent p-0 text-left font-semibold text-ink hover:underline"
+                    onClick={() => setViewedCardId(entry.id)}
+                  >
+                    {entry.name}
+                  </button>
+                ) : (
+                  <strong>{entry.name}</strong>
+                )}
                 <PanelRowNote>
                   {kindNames[entry.kind]}
                   {entry.context ? ` · ${entry.context}` : ""} · trashed{" "}
                   {new Date(entry.deletedAt).toLocaleString("en-US")}
-                  {entry.withParent ? " · with its parent" : ""} · deleted in {trashDaysLeft(entry.deletedAt)} days
+                  {entry.withParent ? " · with its parent" : ""} · deleted in{" "}
+                  {trashDaysLeft(entry.deletedAt, undefined, days)} days
                 </PanelRowNote>
               </PanelRowText>
               <RowActions as="span" className="min-w-0 wrap-anywhere">
@@ -73,10 +95,21 @@ export function TrashPage({
         <p className={emptyClass}>Trash is empty.</p>
       )}
       <Hint>
-        Items stay in the trash for {trashRetentionDays} days, then are deleted forever. Restoring cascades: an item
-        comes back together with its deleted parents (workspace, board, list), everything deleted along with it, and the
-        cards it depends on.
+        Open a card to see its contents; it can be edited again once restored. Restoring cascades: an item comes back
+        together with its deleted parents (workspace, board, list), everything deleted along with it, and the cards it
+        depends on.
       </Hint>
+      {viewedCard && (
+        <TrashedCardDialog
+          card={viewedCard}
+          state={state}
+          daysLeft={trashDaysLeft(viewedCard.deletedAt!, undefined, days)}
+          // The dialog closes by itself once the card leaves the trash.
+          onRestore={() => onRestore("card", viewedCard.id)}
+          onPurge={() => onPurge("card", viewedCard.id)}
+          onClose={() => setViewedCardId(undefined)}
+        />
+      )}
     </section>
   );
 }
