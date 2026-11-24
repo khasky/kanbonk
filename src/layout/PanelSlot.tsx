@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { PanelLayout } from "../hooks/usePanelLayout";
+import { t } from "../i18n";
 import type { PanelName } from "../lib/uiPreferences";
 
 const panelLook = {
@@ -22,7 +23,7 @@ export function PanelSlot({ name, layout, children }: { name: PanelName; layout:
         className="w-2 flex-none cursor-col-resize touch-none bg-line hover:bg-brand hover:outline-none focus-visible:bg-brand focus-visible:outline-none max-tablet:hidden"
         role="separator"
         tabIndex={0}
-        aria-label={`Resize panel ${name === "inbox" ? "Inbox" : "Planner"}`}
+        aria-label={t("layout.resizePanel", { name: t(name === "inbox" ? "layout.inbox" : "layout.planner") })}
         aria-orientation="vertical"
         aria-valuemin={220}
         aria-valuemax={layout.widthLimit}

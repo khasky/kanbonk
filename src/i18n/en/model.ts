@@ -1,0 +1,20 @@
+/** Messages of src/model: errors of board operations, link sources and the board document summary. */
+export const model = {
+  cardOrListUnavailable: "The card or target list is unavailable.",
+  cardNotFound: "Card not found.",
+  templateOrListUnavailable: "The template or target list is unavailable.",
+  listCannotBeCopied: "The list cannot be copied.",
+  boardOrWorkspaceUnavailable: "The board or workspace is unavailable.",
+  dependencyUnavailable: "The cards for the dependency are unavailable.",
+  sourceTitle: "Title",
+  sourceDescription: "Description",
+  sourceAttachment: "Attachment",
+  summaryCards: { one: "**{count}** card.", other: "**{count}** cards." },
+  summaryList: "List",
+  summaryCardsColumn: "Cards",
+  summaryOverdue: "Overdue",
+  summaryDueSoon: "Due in the next 7 days",
+  summaryMore: { other: "…and {count} more" },
+  summaryDueOn: "due {date}",
+  statusOn: "Status on {date}",
+};

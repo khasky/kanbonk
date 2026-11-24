@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { t } from "../i18n";
 import { Dialog, submitWith } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
@@ -15,7 +16,7 @@ export function CreationDialog({
   onClose: () => void;
 }) {
   const [name, setName] = useState("");
-  const title = kind === "board" ? "Create board" : "Create workspace";
+  const title = kind === "board" ? t("dialogs.createBoard") : t("dialogs.createWorkspace");
   return (
     <Dialog
       label={title}
@@ -26,15 +27,15 @@ export function CreationDialog({
     >
       <h2 className={dialogTitleClass}>{title}</h2>
       <label className={fieldLabelClass}>
-        Title
+        {t("dialogs.titleField")}
         <Input autoFocus value={name} onChange={(event) => setName(event.target.value)} required maxLength={120} />
       </label>
       <div className={dialogFooterClass}>
         <Button variant="secondary" size="lg" type="button" onClick={onClose}>
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button variant="primary" type="submit">
-          Create
+          {t("dialogs.create")}
         </Button>
       </div>
     </Dialog>

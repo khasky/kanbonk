@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { transferCard } from "./cards";
 import { newId } from "./ids";
 import type { AppState, Board } from "./types";
@@ -9,7 +10,7 @@ export function copyList(
 ): { state: AppState; listId: string; cardIds: string[] } {
   const source = state.lists.find((list) => list.id === listId && !list.deletedAt);
   if (!source || !state.boards.some((board) => board.id === source.boardId && !board.deletedAt))
-    throw new Error("The list cannot be copied.");
+    throw new Error(t("model.listCannotBeCopied"));
   const following = state.lists
     .filter((list) => list.boardId === source.boardId && !list.deletedAt && list.position > source.position)
     .sort((a, b) => a.position - b.position)[0];
@@ -39,7 +40,7 @@ export function copyBoard(
     !options.name.trim() ||
     !state.workspaces.some((workspace) => workspace.id === options.workspaceId && !workspace.deletedAt)
   )
-    throw new Error("The board or workspace is unavailable.");
+    throw new Error(t("model.boardOrWorkspaceUnavailable"));
   const board: Board = {
     ...structuredClone(source),
     id: copyId,

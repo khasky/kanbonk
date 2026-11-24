@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk Trello インポート"
+  },
+  "appDescription": {
+    "message": "Trello ボードをすべてのファイルとともに Kanbonk 用にエクスポートし、localhost の Kanbonk が Trello の添付ファイルを取得できるようにします。"
+  },
+  "panelTitle": {
+    "message": "Kanbonk エクスポート"
+  },
+  "panelCollapse": {
+    "message": "折りたたむ"
+  },
+  "panelExpand": {
+    "message": "展開"
+  },
+  "panelIntro": {
+    "message": "このボードをすべてのファイルとともに Kanbonk 用にエクスポートします。"
+  },
+  "panelHint": {
+    "message": "約 100 MB ごとの ZIP パートがダウンロード フォルダに保存されます。ブラウザに確認された場合は、このサイトに複数ファイルのダウンロードを許可してください。"
+  },
+  "exportBoard": {
+    "message": "ボードをエクスポート"
+  },
+  "exportAgain": {
+    "message": "もう一度エクスポート"
+  },
+  "exportCancel": {
+    "message": "キャンセル"
+  },
+  "progressBoard": {
+    "message": "ボードを読み込み中…"
+  },
+  "progressComments": {
+    "message": "コメントを読み込み中… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "ステッカーを読み込み中…"
+  },
+  "progressSaving": {
+    "message": "パート $PART$ を保存中…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ / $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "ファイル $DONE$ / $TOTAL$ · $SIZE$\nパート $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "完了: $PARTS$ パート、ファイル $FILES$ / $TOTAL$ 件。\nKanbonk で ⋯ → Trello からインポート を開き、すべてのパートをまとめて選択してください。",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "完了: $PARTS$ パート、ファイル $FILES$ / $TOTAL$ 件。\nKanbonk で ⋯ → Trello からインポート を開き、すべてのパートをまとめて選択してください。",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "エクスポートされなかった項目: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "エクスポートをキャンセルしました。"
+  },
+  "warningWorkspaceName": {
+    "message": "ワークスペース名: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "コメント履歴は直近 1000 件のアクションに限られます: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "ステッカー: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Trello からの応答が無効です"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "コメント履歴の続きを取得できませんでした"
+  },
+  "labelBoardBackground": {
+    "message": "ボードの背景"
+  },
+  "labelSticker": {
+    "message": "ステッカー $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "無効な URL"
+  },
+  "errorUnknownImageType": {
+    "message": "不明な画像形式"
+  },
+  "errorInvalidImageSize": {
+    "message": "無効な画像サイズ"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello がファイルの代わりにページを返しました。もう一度サインインしてください"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Trello のコメント履歴が無効です。"
+  },
+  "errorUnknownRequest": {
+    "message": "不明なリクエストです。"
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello が添付ファイルの代わりにページを返しました。アカウントにサインインしてください。"
+  },
+  "errorLargeAttachment": {
+    "message": "Trello は大きな添付ファイルの分割ダウンロードに対応していません。ZIP を使用してください。"
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello は分割ダウンロードに対応していません: HTTP $STATUS$。ZIP を使用してください。",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello が添付ファイルのチャンクのサイズを返しませんでした。"
+  },
+  "errorInvalidRange": {
+    "message": "Trello が無効な添付ファイルの範囲を返しました。"
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello が不完全な添付ファイルのチャンクを返しました。"
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Trello の添付ファイルの URL が無効です。"
+  },
+  "errorOpenTrelloTab": {
+    "message": "この Chrome プロファイルで Trello のタブを開いてください。"
+  },
+  "errorTabNoResponse": {
+    "message": "Trello のタブが応答しませんでした。再読み込みしてください。"
+  },
+  "errorInvalidHistoryId": {
+    "message": "Trello の履歴 ID が無効です。"
+  },
+  "errorInvalidOffset": {
+    "message": "添付ファイルのオフセットが無効です。"
+  }
+}

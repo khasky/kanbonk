@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { Icon } from "../ui/Icon";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
+import { t } from "../i18n";
 import { addListClass, composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
 import { endDrag, startDrag } from "./dragState";
 
@@ -37,7 +38,7 @@ export function ZoneFrame({
     <section
       className="flex max-h-full flex-none flex-col rounded-[14px] border-2 border-solid bg-[#ffffff26]"
       style={{ borderColor: zone.color, display: hidden ? "none" : undefined }}
-      aria-label={`Zone ${zone.name}`}
+      aria-label={t("board.zoneOf", { name: zone.name })}
       data-zone-id={zone.id}
       data-zone-empty={children ? undefined : ""}
     >
@@ -48,7 +49,7 @@ export function ZoneFrame({
         <span
           className={dragHandleClass}
           draggable
-          title="Drag zone"
+          title={t("board.dragZone")}
           onDragStart={(event) => {
             event.dataTransfer.setData("text/kanbonk-zone", zone.id);
             const frame = event.currentTarget.closest("section")!;
@@ -61,7 +62,7 @@ export function ZoneFrame({
         </span>
         <input
           className="rounded-sm border-0 bg-transparent px-1.5 py-1 font-bold text-white focus:bg-[#0003]"
-          aria-label="Zone name"
+          aria-label={t("board.zoneName")}
           size={Math.max(6, zone.name.length + 1)}
           defaultValue={zone.name}
           key={zone.name}
@@ -74,18 +75,18 @@ export function ZoneFrame({
             if (event.key === "Enter") event.currentTarget.blur();
           }}
         />
-        <small title="Cards in zone">{cardCount}</small>
+        <small title={t("board.cardsInZone")}>{cardCount}</small>
         <ColorInput
           className="h-[22px] w-[22px] rounded-sm border-2 border-solid border-white bg-transparent p-0"
-          label={`Zone color ${zone.name}`}
+          label={t("board.zoneColorOf", { name: zone.name })}
           value={zone.color}
           onCommit={onColor}
         />
         <button
           className="rounded-sm border-0 bg-transparent px-1.5 py-0 text-[16px] text-white hover:bg-[#0003]"
           onClick={onDelete}
-          aria-label={`Remove zone ${zone.name}`}
-          title="Remove zone (lists stay)"
+          aria-label={t("board.removeZoneOf", { name: zone.name })}
+          title={t("board.removeZoneHint")}
         >
           ×
         </button>
@@ -99,7 +100,7 @@ export function ZoneFrame({
                 : "grid min-h-24 w-[272px] place-items-center rounded-xl border-2 border-dashed border-[#ffffffb3] font-semibold text-white"
             }
           >
-            Drag lists here
+            {t("board.dragListsHere")}
           </div>
         )}
       </div>
@@ -113,7 +114,7 @@ export function ZoneComposer({ onCreate }: { onCreate: (name: string) => void })
   if (name === undefined)
     return (
       <button className={addListClass} onClick={() => setName("")}>
-        <Icon name="plus" /> New zone
+        <Icon name="plus" /> {t("board.newZone")}
       </button>
     );
   const submit = () => {
@@ -125,20 +126,20 @@ export function ZoneComposer({ onCreate }: { onCreate: (name: string) => void })
       <Input
         className="w-full"
         autoFocus
-        aria-label="Zone name"
+        aria-label={t("board.zoneName")}
         value={name}
         onChange={(event) => setName(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === "Enter") submit();
           if (event.key === "Escape") setName(undefined);
         }}
-        placeholder="Zone name, e.g. Development"
+        placeholder={t("board.zoneNamePlaceholder")}
       />
       <div className={composeActionsClass}>
         <Button variant="primary" onClick={submit}>
-          Add zone
+          {t("board.addZone")}
         </Button>
-        <Button variant="icon" onClick={() => setName(undefined)} aria-label="Cancel">
+        <Button variant="icon" onClick={() => setName(undefined)} aria-label={t("common.cancel")}>
           <Icon name="close" />
         </Button>
       </div>

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { CardLabelChips } from "../card/LabelPicker";
 import { useCardActionsContext } from "../card/CardActionsContext";
 import { dialogFooterClass } from "../dialogs/dialogLook";
+import { formatDateTime, t } from "../i18n";
 import type { AppState, Card } from "../model";
 import { Button } from "../ui/Button";
 import { Icon, type IconName } from "../ui/Icon";
@@ -20,7 +21,7 @@ function Section({ icon, title, children }: { icon: IconName; title: string; chi
   );
 }
 
-const when = (value: string) => new Date(value).toLocaleString("en-US");
+const when = (value: string) => formatDateTime(value);
 
 /**
  * A card in the trash, read-only: its title, labels, dates, description, checklists, attachments and comments. It can
@@ -49,25 +50,30 @@ export function TrashedCardDialog({
   return (
     <Dialog label={card.name} size="lg" onDismiss={onClose}>
       <p className="mt-0 mb-3 rounded-sm bg-danger-soft px-3 py-2 text-danger" role="note">
-        This card is in the trash and will be deleted forever in {daysLeft} {daysLeft === 1 ? "day" : "days"}. Restore
-        it to edit it.
+        {t("pages.cardInTrash", { count: daysLeft })}
       </p>
       <h2 className="mx-0 mt-0 mb-1 text-[22px] wrap-anywhere">{card.name}</h2>
       <p className="m-0 text-[12px] text-ink-subtle">
-        {list ? `in list “${list.name}”` : ""}
-        {board ? ` · ${board.name}` : ""} · trashed {card.deletedAt ? when(card.deletedAt) : ""}
+        {list ? t("pages.inList", { name: list.name }) : ""}
+        {board ? ` · ${board.name}` : ""} · {t("pages.trashedAt", { time: card.deletedAt ? when(card.deletedAt) : "" })}
       </p>
       {(card.labelIds.length > 0 || card.startAt || card.dueAt) && (
         <div className="mt-4 flex flex-wrap items-center gap-1.5">
           <CardLabelChips card={card} boardLabels={labels} />
           {card.startAt && (
-            <span className="rounded-sm bg-surface-sunken px-3 py-1.5">Start: {when(card.startAt)}</span>
+            <span className="rounded-sm bg-surface-sunken px-3 py-1.5">
+              {t("pages.start", { time: when(card.startAt) })}
+            </span>
           )}
-          {card.dueAt && <span className="rounded-sm bg-surface-sunken px-3 py-1.5">Due: {when(card.dueAt)}</span>}
+          {card.dueAt && (
+            <span className="rounded-sm bg-surface-sunken px-3 py-1.5">
+              {t("pages.due", { time: when(card.dueAt) })}
+            </span>
+          )}
         </div>
       )}
       {card.description.trim() && (
-        <Section icon="text" title="Description">
+        <Section icon="text" title={t("pages.description")}>
           <MarkdownText text={card.description} />
         </Section>
       )}
@@ -84,19 +90,19 @@ export function TrashedCardDialog({
         </Section>
       ))}
       {files.length > 0 && (
-        <Section icon="clip" title="Attachments">
+        <Section icon="clip" title={t("pages.attachments")}>
           <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
             {files.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-3">
                 <span className="min-w-0 wrap-anywhere">{item.name}</span>
                 {item.status === "link" && item.sourceUrl ? (
                   <a href={item.sourceUrl} target="_blank" rel="noreferrer">
-                    Open link
+                    {t("pages.openLink")}
                   </a>
                 ) : (
                   item.status === "local" && (
                     <Button variant="secondary" onClick={() => void downloadAttachment(item.id, item.name)}>
-                      Download
+                      {t("pages.download")}
                     </Button>
                   )
                 )}
@@ -106,7 +112,7 @@ export function TrashedCardDialog({
         </Section>
       )}
       {card.comments.length > 0 && (
-        <Section icon="message" title="Comments">
+        <Section icon="message" title={t("pages.comments")}>
           <div className="flex flex-col gap-3">
             {card.comments.map((comment) => (
               <div key={comment.id}>
@@ -121,13 +127,13 @@ export function TrashedCardDialog({
       )}
       <div className={dialogFooterClass}>
         <Button variant="secondary" size="lg" onClick={onClose}>
-          Close
+          {t("common.close")}
         </Button>
         <Button variant="danger" size="lg" onClick={onPurge}>
-          Delete forever
+          {t("pages.deleteForever")}
         </Button>
         <Button variant="primary" onClick={onRestore} autoFocus>
-          Restore
+          {t("common.restore")}
         </Button>
       </div>
     </Dialog>

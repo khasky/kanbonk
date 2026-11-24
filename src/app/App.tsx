@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { readAiSettings, type AiSettings } from "../ai/ai";
+import { t } from "../i18n";
 import type { TileActions } from "../board/CardTile";
 import { CardActionsContext } from "../card/CardActionsContext";
 import { CardDialog } from "../card/CardDialog";
@@ -88,7 +89,7 @@ function App() {
   const clock = useClock();
   const retentionDays = useTrashRetention();
   useEffect(() => {
-    loadTrashRetention().catch((cause) => reportError(`Could not read the trash settings: ${String(cause)}`));
+    loadTrashRetention().catch((cause) => reportError(t("app.trashSettingsError", { cause: String(cause) })));
   }, []);
   const [dismissedReminders, setDismissedReminders] = useState<Record<string, string>>(readDismissedReminders);
   const reportError = useEffectEvent(setError);
@@ -96,7 +97,7 @@ function App() {
     try {
       localStorage.setItem("kanbonk-dismissed-reminders", JSON.stringify(dismissedReminders));
     } catch (cause) {
-      reportError(`Could not save reminders: ${String(cause)}`);
+      reportError(t("app.remindersSaveError", { cause: String(cause) }));
     }
   }, [dismissedReminders]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: cards and boards are triggers, so new due dates and rules apply at once.
@@ -124,6 +125,9 @@ function App() {
       ),
     [fullState],
   );
+  useEffect(() => {
+    document.title = t("app.documentTitle");
+  }, []);
 
   function setBoardId(id: string | null) {
     navigate(id ? boardHref(id) : "/");
@@ -200,7 +204,7 @@ function App() {
     },
   };
   const team: Member[] = [
-    { id: localDeviceId, name: localAuthor || "This device" },
+    { id: localDeviceId, name: localAuthor || t("app.thisDevice") },
     ...sync.trustedDevices.map((device) => ({ id: device.deviceId, name: device.name })),
   ];
   const cardDialog = card ? (
@@ -266,7 +270,7 @@ function App() {
     setLocalAuthor,
   };
 
-  if (!ready) return <main className="grid min-h-dvh place-items-center">{error || "Loading local data…"}</main>;
+  if (!ready) return <main className="grid min-h-dvh place-items-center">{error || t("app.loading")}</main>;
   return (
     <AppContext value={services}>
       <CardActionsContext value={cardActionsWithFilters}>

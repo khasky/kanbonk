@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Tarayıcınızda yerel Kanban panoları: veriler uzantıda kalır ve bulut olmadan bilgisayarınız ve telefonunuzla eşitlenir."
+  },
+  "actionTitle": {
+    "message": "Kanbonk'u aç"
+  }
+}

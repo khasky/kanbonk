@@ -5,6 +5,7 @@ import { NameEditor } from "../ui/NameEditor";
 import { BoardMenu, type BoardMenuActions } from "./BoardMenu";
 import { Button } from "../ui/Button";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
+import { t } from "../i18n";
 
 /** The bar above a board: title, favorite, description, view switch, search, filter and the board menu. */
 export function BoardToolbar({
@@ -41,32 +42,32 @@ export function BoardToolbar({
       <NameEditor
         key={board.id}
         className="w-[min(360px,32vw)] min-w-[120px] rounded-[3px] border-0 bg-transparent px-[9px] py-1.5 text-[18px] font-bold text-white hover:bg-[#ffffff2b] focus:bg-[#ffffff2b] max-tablet:w-[170px] max-phone:min-h-11 max-phone:w-auto max-phone:min-w-20 max-phone:grow max-phone:basis-[120px]"
-        label="Board title"
+        label={t("board.boardTitle")}
         value={board.name}
         onCommit={(name) => onUpdate((item) => ({ ...item, name }))}
       />
       <Button
         variant="toolbar"
         onClick={() => onUpdate((item) => ({ ...item, starred: !item.starred }))}
-        aria-label={board.starred ? "Remove from favorites" : "Add to favorites"}
+        aria-label={board.starred ? t("board.removeFromFavorites") : t("board.addToFavorites")}
       >
         <Icon name="star" className={board.starred ? "fill-warning text-warning" : undefined} />
       </Button>
-      <Button variant="toolbar" onClick={onOpenAbout} aria-label="Board description">
-        <Icon name="info" /> Description
+      <Button variant="toolbar" onClick={onOpenAbout} aria-label={t("board.boardDescription")}>
+        <Icon name="info" /> {t("board.description")}
       </Button>
-      <Segmented label="Board view" tone="toolbar">
+      <Segmented label={t("board.boardView")} tone="toolbar">
         <SegmentedTab selected={view === "lists"} onClick={() => navigate(boardHref(board.id))}>
-          Lists
+          {t("board.viewLists")}
         </SegmentedTab>
         <SegmentedTab
           selected={view === "calendar"}
           onClick={() => navigate(boardHref(board.id, { view: "calendar", scale }))}
         >
-          Calendar
+          {t("board.viewCalendar")}
         </SegmentedTab>
         <SegmentedTab selected={view === "doc"} onClick={() => navigate(boardHref(board.id, { view: "doc" }))}>
-          Doc
+          {t("board.viewDoc")}
         </SegmentedTab>
       </Segmented>
       <span className="flex-1 in-[.panel-open]:flex-[1_0_4px] max-phone:hidden" />
@@ -75,16 +76,16 @@ export function BoardToolbar({
         className="h-8 w-[200px] max-w-[32vw] rounded-md border border-[#ffffff55] bg-[#ffffff33] px-2.5 py-0 text-inherit placeholder:text-inherit placeholder:opacity-80 focus:bg-white focus:text-ink focus:outline-2 focus:outline-brand"
         value={keyword}
         onChange={(event) => onKeyword(event.target.value)}
-        placeholder="Search this board"
-        aria-label="Search cards on this board"
+        placeholder={t("board.searchBoard")}
+        aria-label={t("board.searchBoardLabel")}
       />
       <Button
         variant="toolbar"
         aria-expanded={filterOpen}
-        aria-label={filterCount ? `Board filter, active: ${filterCount}` : "Board filter"}
+        aria-label={filterCount ? t("board.boardFilterActive", { count: filterCount }) : t("board.boardFilter")}
         onClick={onToggleFilter}
       >
-        <Icon name="search" /> Filter{filterCount ? ` (${filterCount})` : ""}
+        <Icon name="search" /> {filterCount ? t("board.filterCount", { count: filterCount }) : t("board.filter")}
       </Button>
       <BoardMenu background={board.background} actions={menu} />
     </div>

@@ -5,6 +5,7 @@ import { MarkdownText } from "../ui/MarkdownText";
 import { type AppState, type Card, canEditComment, newId } from "../model";
 import { Button } from "../ui/Button";
 import { detailTitleClass } from "./cardLook";
+import { formatDateTime, t } from "../i18n";
 import { Icon } from "../ui/Icon";
 
 const dateClass = "text-[12px] text-ink-muted";
@@ -80,7 +81,7 @@ export function CardActivity({
         <span className="grid size-6 flex-none place-items-center text-ink-subtle">
           <Icon name="message" />
         </span>
-        Comments and activity
+        {t("card.commentsAndActivity")}
         <Button
           variant="outline"
           size="sm"
@@ -89,21 +90,21 @@ export function CardActivity({
           aria-pressed={showActivityDetails}
           onClick={() => setShowActivityDetails((value) => !value)}
         >
-          {showActivityDetails ? "Hide details" : "Show details"}
+          {showActivityDetails ? t("card.hideDetails") : t("card.showDetails")}
         </Button>
       </h3>
       {writingComment ? (
         <MarkdownEditor
           value=""
           look="comment"
-          label="New comment"
-          saveLabel="Send"
+          label={t("card.newComment")}
+          saveLabel={t("card.send")}
           onSave={addComment}
           onCancel={() => setWritingComment(false)}
         />
       ) : (
         <button className={commentPlaceholderClass} onClick={() => setWritingComment(true)}>
-          Write a comment…
+          {t("card.writeComment")}
         </button>
       )}
       <div className="mt-4 grid gap-4">
@@ -116,7 +117,7 @@ export function CardActivity({
                 </span>
                 <div className="min-w-0 pt-1.5">
                   {item.event.summary}
-                  <small className={`${dateClass} block`}>{new Date(item.createdAt).toLocaleString("en-US")}</small>
+                  <small className={`${dateClass} block`}>{formatDateTime(item.createdAt)}</small>
                 </div>
               </article>
             );
@@ -125,14 +126,13 @@ export function CardActivity({
             <article className="flex gap-2.5" key={item.id}>
               <span className={`${avatarClass} bg-[#1d7a8c] text-white`}>{entry.author.slice(0, 1)}</span>
               <div className="min-w-0 flex-1 pt-1.5">
-                <strong>{entry.author}</strong>{" "}
-                <small className={dateClass}>{new Date(entry.createdAt).toLocaleString("en-US")}</small>
+                <strong>{entry.author}</strong> <small className={dateClass}>{formatDateTime(entry.createdAt)}</small>
                 {editingCommentId === entry.id ? (
                   <div>
                     <MarkdownEditor
                       look="comment-edit"
                       value={commentDraft}
-                      label="Edit comment"
+                      label={t("card.editComment")}
                       onSave={saveComment}
                       onCancel={() => setEditingCommentId(null)}
                     />
@@ -154,10 +154,10 @@ export function CardActivity({
                             setCommentDraft(entry.text);
                           }}
                         >
-                          Edit
+                          {t("common.edit")}
                         </button>
                         <button className={commentActionClass} onClick={() => deleteComment(entry.id)}>
-                          Delete
+                          {t("common.delete")}
                         </button>
                       </div>
                     )}

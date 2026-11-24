@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk – นำเข้าจาก Trello"
+  },
+  "appDescription": {
+    "message": "ส่งออกบอร์ด Trello พร้อมไฟล์ทั้งหมดสำหรับ Kanbonk และให้ Kanbonk บน localhost ดึงไฟล์แนบจาก Trello ได้"
+  },
+  "panelTitle": {
+    "message": "ส่งออกไปยัง Kanbonk"
+  },
+  "panelCollapse": {
+    "message": "ยุบ"
+  },
+  "panelExpand": {
+    "message": "ขยาย"
+  },
+  "panelIntro": {
+    "message": "ส่งออกบอร์ดนี้พร้อมไฟล์ทั้งหมดสำหรับ Kanbonk"
+  },
+  "panelHint": {
+    "message": "ไฟล์ ZIP แต่ละส่วนขนาดประมาณ 100 MB จะถูกบันทึกในโฟลเดอร์ดาวน์โหลด หากเบราว์เซอร์ถาม ให้อนุญาตเว็บไซต์นี้ดาวน์โหลดหลายไฟล์"
+  },
+  "exportBoard": {
+    "message": "ส่งออกบอร์ด"
+  },
+  "exportAgain": {
+    "message": "ส่งออกอีกครั้ง"
+  },
+  "exportCancel": {
+    "message": "ยกเลิก"
+  },
+  "progressBoard": {
+    "message": "กำลังอ่านบอร์ด…"
+  },
+  "progressComments": {
+    "message": "กำลังอ่านความคิดเห็น… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "กำลังอ่านสติกเกอร์…"
+  },
+  "progressSaving": {
+    "message": "กำลังบันทึกส่วนที่ $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ จาก $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "ไฟล์ $DONE$ จาก $TOTAL$ · $SIZE$\nส่วนที่ $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "เสร็จแล้ว: $PARTS$ ส่วน, ไฟล์ $FILES$ จาก $TOTAL$\nใน Kanbonk ให้เปิด ⋯ → นำเข้าจาก Trello แล้วเลือกทุกส่วนพร้อมกัน",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "เสร็จแล้ว: $PARTS$ ส่วน, ไฟล์ $FILES$ จาก $TOTAL$\nใน Kanbonk ให้เปิด ⋯ → นำเข้าจาก Trello แล้วเลือกทุกส่วนพร้อมกัน",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "ไม่ได้ส่งออก: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "ยกเลิกการส่งออกแล้ว"
+  },
+  "warningWorkspaceName": {
+    "message": "ชื่อเวิร์กสเปซ: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "ประวัติความคิดเห็นจำกัดไว้ที่ 1000 การดำเนินการล่าสุด: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "สติกเกอร์: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "การตอบกลับจาก Trello ไม่ถูกต้อง"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "ไม่สามารถอ่านประวัติความคิดเห็นต่อได้"
+  },
+  "labelBoardBackground": {
+    "message": "พื้นหลังบอร์ด"
+  },
+  "labelSticker": {
+    "message": "สติกเกอร์ $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "URL ไม่ถูกต้อง"
+  },
+  "errorUnknownImageType": {
+    "message": "ไม่รู้จักประเภทรูปภาพ"
+  },
+  "errorInvalidImageSize": {
+    "message": "ขนาดรูปภาพไม่ถูกต้อง"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello ส่งหน้าเว็บกลับมาแทนไฟล์ โปรดลงชื่อเข้าใช้อีกครั้ง"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "ประวัติความคิดเห็นของ Trello ไม่ถูกต้อง"
+  },
+  "errorUnknownRequest": {
+    "message": "คำขอที่ไม่รู้จัก"
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello ส่งหน้าเว็บกลับมาแทนไฟล์แนบ โปรดลงชื่อเข้าใช้บัญชีของคุณ"
+  },
+  "errorLargeAttachment": {
+    "message": "Trello ไม่รองรับการดาวน์โหลดไฟล์แนบขนาดใหญ่ทีละส่วน โปรดใช้ ZIP"
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello ไม่รองรับการดาวน์โหลดทีละส่วน: HTTP $STATUS$ โปรดใช้ ZIP",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello ไม่ได้ระบุขนาดของส่วนไฟล์แนบ"
+  },
+  "errorInvalidRange": {
+    "message": "Trello ส่งช่วงข้อมูลของไฟล์แนบที่ไม่ถูกต้องกลับมา"
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello ส่งส่วนของไฟล์แนบที่ไม่ครบถ้วนกลับมา"
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "URL ไฟล์แนบของ Trello ไม่ถูกต้อง"
+  },
+  "errorOpenTrelloTab": {
+    "message": "โปรดเปิดแท็บ Trello ในโปรไฟล์ Chrome นี้"
+  },
+  "errorTabNoResponse": {
+    "message": "แท็บ Trello ไม่ตอบสนอง โปรดโหลดซ้ำ"
+  },
+  "errorInvalidHistoryId": {
+    "message": "ตัวระบุประวัติของ Trello ไม่ถูกต้อง"
+  },
+  "errorInvalidOffset": {
+    "message": "ตำแหน่งเริ่มต้นของไฟล์แนบไม่ถูกต้อง"
+  }
+}

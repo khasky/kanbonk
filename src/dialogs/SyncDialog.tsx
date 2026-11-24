@@ -1,5 +1,7 @@
 import { askConfirm } from "../ui/AskDialog";
 import { Dialog } from "../ui/Modal";
+import { formatDate, formatDateTime, t } from "../i18n";
+import { tNodes } from "../i18n/nodes";
 import type { SyncTransport } from "../sync/devices";
 import type { DeviceSync } from "../hooks/useDeviceSync";
 import { newRoomCode } from "../sync/lanSync";
@@ -28,45 +30,57 @@ export function SyncDialog({ sync, onClose }: { sync: DeviceSync; onClose: () =>
   const { transport, trustedDevices } = sync;
   const bundleCode = sync.bundleCode.trim().toLowerCase();
   return (
-    <Dialog label="Device sync" size="lg" className="max-h-[calc(100dvh-96px)] overflow-auto" onDismiss={onClose}>
-      <h2 className={dialogTitleClass}>Device sync</h2>
+    <Dialog
+      label={t("dialogs.syncTitle")}
+      size="lg"
+      className="max-h-[calc(100dvh-96px)] overflow-auto"
+      onDismiss={onClose}
+    >
+      <h2 className={dialogTitleClass}>{t("dialogs.syncTitle")}</h2>
       <label className={fieldLabelClass}>
-        Sync method
+        {t("dialogs.syncMethod")}
         <Select value={transport} onChange={(event) => sync.setTransport(event.target.value as SyncTransport)}>
-          <option value="wifi">Wi-Fi / local network</option>
-          <option value="internet">Internet: direct P2P connection (WebRTC)</option>
-          <option value="file">File: Bluetooth / USB / messenger</option>
+          <option value="wifi">{t("dialogs.syncWifi")}</option>
+          <option value="internet">{t("dialogs.syncInternet")}</option>
+          <option value="file">{t("dialogs.syncFile")}</option>
         </Select>
       </label>
       <Hint tone="subtle">
-        Tabs and windows in this browser sync automatically. For the desktop app and a browser on the same computer, run{" "}
-        <code>pnpm serve:lan</code> and connect to{" "}
-        <Button variant="link" onClick={() => sync.setServerUrl("http://127.0.0.1:4173")}>
-          http://127.0.0.1:4173
-        </Button>
-        .
+        {tNodes("dialogs.syncTabsHint", {
+          command: <code>pnpm serve:lan</code>,
+          url: (
+            <Button variant="link" onClick={() => sync.setServerUrl("http://127.0.0.1:4173")}>
+              http://127.0.0.1:4173
+            </Button>
+          ),
+        })}
       </Hint>
       {trustedDevices.length > 0 && (
         <section className={dialogListClass}>
-          <h3>Trusted devices</h3>
+          <h3>{t("dialogs.trustedDevices")}</h3>
           {trustedDevices.map((device) => (
             <PanelRow wrap key={device.deviceId}>
               <PanelRowText className="flex flex-col">
                 <strong>{device.name}</strong>
                 <PanelRowNote>
-                  {device.deviceId.slice(0, 8)} · added {new Date(device.pairedAt).toLocaleDateString("en-US")}
-                  {device.lastSyncAt ? ` · synced ${new Date(device.lastSyncAt).toLocaleString("en-US")}` : ""}
+                  {device.lastSyncAt
+                    ? t("dialogs.deviceAddedSynced", {
+                        id: device.deviceId.slice(0, 8),
+                        date: formatDate(device.pairedAt),
+                        time: formatDateTime(device.lastSyncAt),
+                      })
+                    : t("dialogs.deviceAdded", { id: device.deviceId.slice(0, 8), date: formatDate(device.pairedAt) })}
                 </PanelRowNote>
               </PanelRowText>
               <RowActions as="span" className="min-w-0 wrap-anywhere">
                 {transport === "wifi" && (
                   <Button variant="secondary" className="flex-none" onClick={() => sync.setRoomCode(device.code)}>
-                    Pairing code
+                    {t("dialogs.pairingCode")}
                   </Button>
                 )}
                 {transport === "file" && (
                   <Button variant="secondary" className="flex-none" onClick={() => void sync.shareBundle(device.code)}>
-                    Send package
+                    {t("dialogs.sendPackage")}
                   </Button>
                 )}
                 <Button
@@ -75,15 +89,15 @@ export function SyncDialog({ sync, onClose }: { sync: DeviceSync; onClose: () =>
                   onClick={async () => {
                     if (
                       await askConfirm({
-                        title: `Remove “${device.name}” from trusted devices?`,
-                        confirm: "Remove",
+                        title: t("dialogs.removeDeviceTitle", { name: device.name }),
+                        confirm: t("common.remove"),
                         danger: true,
                       })
                     )
                       sync.removeDevice(device);
                   }}
                 >
-                  Delete
+                  {t("common.delete")}
                 </Button>
               </RowActions>
             </PanelRow>
@@ -92,13 +106,10 @@ export function SyncDialog({ sync, onClose }: { sync: DeviceSync; onClose: () =>
       )}
       {transport === "file" && (
         <section className={localSyncClass.section}>
-          <h3 className="m-0">Sync package</h3>
-          <p className={localSyncClass.text}>
-            An encrypted file with your data and attachments. Send it via Bluetooth (the Share menu on your phone), USB
-            or a messenger; only a device that knows the pairing code can open it.
-          </p>
+          <h3 className="m-0">{t("dialogs.syncPackageTitle")}</h3>
+          <p className={localSyncClass.text}>{t("dialogs.syncPackageIntro")}</p>
           <label className={fieldLabelClass}>
-            Pairing code (for a new device)
+            {t("dialogs.pairingCodeNewDevice")}
             <Input
               value={sync.bundleCode}
               onChange={(event) => sync.setBundleCode(event.target.value)}
@@ -108,25 +119,25 @@ export function SyncDialog({ sync, onClose }: { sync: DeviceSync; onClose: () =>
           </label>
           <div className={localSyncClass.actions}>
             <Button variant="secondary" size="lg" onClick={() => sync.setBundleCode(newRoomCode())}>
-              Create code
+              {t("dialogs.createCode")}
             </Button>
             <Button
               variant="primary"
               disabled={!pairingCode.test(bundleCode)}
               onClick={() => void sync.shareBundle(bundleCode)}
             >
-              Send package with code
+              {t("dialogs.sendPackageWithCode")}
             </Button>
           </div>
           <div className={fieldLabelClass}>
-            Open received package
+            {t("dialogs.openPackage")}
             <FileButton
               size="lg"
               className="self-start"
               accept=".kanbonk-sync,application/octet-stream"
               onFiles={(files) => void sync.openBundle(files[0] ?? null)}
             >
-              Choose package
+              {t("dialogs.choosePackage")}
             </FileButton>
           </div>
         </section>
@@ -143,15 +154,13 @@ export function SyncDialog({ sync, onClose }: { sync: DeviceSync; onClose: () =>
       {transport !== "file" && (
         <>
           <p className={dialogIntroClass}>
-            {transport === "internet"
-              ? "Direct connection over the internet: devices exchange an invitation and a response through any channel (messenger, email). Data flows directly and is encrypted (DTLS); the public STUN server only sees network addresses, not data. Only someone you sent the invitation to can connect, and only after you confirm trust."
-              : "If both browsers support WebRTC, you can connect directly over the local network. Exchange an invitation and a response."}
+            {transport === "internet" ? t("dialogs.internetIntro") : t("dialogs.localIntro")}
           </p>
           <Button variant="primary" className={sideButtonClass} onClick={sync.createOffer}>
-            Create invitation
+            {t("dialogs.createInvitation")}
           </Button>
           <label className={fieldLabelClass}>
-            Invitation: send it to the second device or paste the one you received
+            {t("dialogs.invitationField")}
             <Textarea
               className="min-h-[70px] w-full"
               value={sync.signal}
@@ -165,10 +174,10 @@ export function SyncDialog({ sync, onClose }: { sync: DeviceSync; onClose: () =>
             onClick={sync.acceptOffer}
             disabled={!sync.signal}
           >
-            Accept invitation
+            {t("dialogs.acceptInvitation")}
           </Button>
           <label className={fieldLabelClass}>
-            Response: send it to the first device or paste the one you received
+            {t("dialogs.responseField")}
             <Textarea
               className="min-h-[70px] w-full"
               value={sync.response}
@@ -182,12 +191,12 @@ export function SyncDialog({ sync, onClose }: { sync: DeviceSync; onClose: () =>
             onClick={sync.acceptAnswer}
             disabled={!sync.response}
           >
-            Connect with response
+            {t("dialogs.connectWithResponse")}
           </Button>
         </>
       )}
       <Button variant="secondary" size="lg" className={sideButtonClass} onClick={sync.syncNow}>
-        Sync now
+        {t("dialogs.syncNow")}
       </Button>
       {sync.status && (
         <p className={reportClass} role="status">
@@ -198,14 +207,14 @@ export function SyncDialog({ sync, onClose }: { sync: DeviceSync; onClose: () =>
         <ConflictChoice
           key={`${conflict.kind}-${conflict.id}`}
           name={conflict.local.name}
-          localLabel="My version"
-          remoteLabel="Other device's version"
+          localLabel={t("dialogs.myVersion")}
+          remoteLabel={t("dialogs.otherVersion")}
           onChoose={(version) => sync.resolveConflict(conflict, version)}
         />
       ))}
       <div className={dialogFooterClass}>
         <Button variant="secondary" size="lg" onClick={onClose}>
-          Close
+          {t("common.close")}
         </Button>
       </div>
     </Dialog>

@@ -1,4 +1,5 @@
 import { useEffect, useEffectEvent, useState } from "react";
+import { t } from "../i18n";
 import { loadAttachment } from "../lib/storage";
 
 /** An object URL for the board's background image; reloads when `fileVersion` changes (files were restored). */
@@ -20,7 +21,7 @@ export function useBoardBackground(
         url = URL.createObjectURL(blob);
         setImage({ id: imageId, url });
       })
-      .catch((cause) => reportError(`Could not open the board background: ${String(cause)}`));
+      .catch((cause) => reportError(t("app.backgroundOpenError", { cause: String(cause) })));
     return () => {
       cancelled = true;
       if (url) URL.revokeObjectURL(url);

@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Helyi Kanban-táblák a böngészőben: az adatok a bővítményben maradnak, és felhő nélkül szinkronizálódnak gépével és telefonjával."
+  },
+  "actionTitle": {
+    "message": "Kanbonk megnyitása"
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk Trello 匯入"
+  },
+  "appDescription": {
+    "message": "將 Trello 看板連同所有檔案匯出供 Kanbonk 使用，並讓 localhost 上的 Kanbonk 取得 Trello 附件。"
+  },
+  "panelTitle": {
+    "message": "Kanbonk 匯出"
+  },
+  "panelCollapse": {
+    "message": "收合"
+  },
+  "panelExpand": {
+    "message": "展開"
+  },
+  "panelIntro": {
+    "message": "將此看板連同所有檔案匯出供 Kanbonk 使用。"
+  },
+  "panelHint": {
+    "message": "約 100 MB 的 ZIP 分卷會儲存到你的下載資料夾。如果瀏覽器詢問，請允許此網站下載多個檔案。"
+  },
+  "exportBoard": {
+    "message": "匯出看板"
+  },
+  "exportAgain": {
+    "message": "再次匯出"
+  },
+  "exportCancel": {
+    "message": "取消"
+  },
+  "progressBoard": {
+    "message": "正在讀取看板…"
+  },
+  "progressComments": {
+    "message": "正在讀取留言… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "正在讀取貼紙…"
+  },
+  "progressSaving": {
+    "message": "正在儲存第 $PART$ 個分卷…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ / $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "檔案 $DONE$ / $TOTAL$ · $SIZE$\n分卷 $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "完成：共 $PARTS$ 個分卷，已匯出 $FILES$ / $TOTAL$ 個檔案。\n在 Kanbonk 中開啟 ⋯ → 從 Trello 匯入，然後一次選取所有分卷。",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "完成：共 $PARTS$ 個分卷，已匯出 $FILES$ / $TOTAL$ 個檔案。\n在 Kanbonk 中開啟 ⋯ → 從 Trello 匯入，然後一次選取所有分卷。",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "未匯出：$COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "已取消匯出。"
+  },
+  "warningWorkspaceName": {
+    "message": "工作區名稱：$ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "留言記錄僅限最近 1000 筆動作：$ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "貼紙：$ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Trello 回應無效"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "無法繼續讀取留言記錄"
+  },
+  "labelBoardBackground": {
+    "message": "看板背景"
+  },
+  "labelSticker": {
+    "message": "貼紙 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "URL 無效"
+  },
+  "errorUnknownImageType": {
+    "message": "未知的圖片類型"
+  },
+  "errorInvalidImageSize": {
+    "message": "圖片大小無效"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello 傳回了網頁而不是檔案；請重新登入"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Trello 留言記錄無效。"
+  },
+  "errorUnknownRequest": {
+    "message": "未知的要求。"
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello 傳回了網頁而不是附件；請登入你的帳戶。"
+  },
+  "errorLargeAttachment": {
+    "message": "Trello 不支援分段下載大型附件。請使用 ZIP。"
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello 不支援分段下載：HTTP $STATUS$。請使用 ZIP。",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello 未回報附件區塊的大小。"
+  },
+  "errorInvalidRange": {
+    "message": "Trello 傳回了無效的附件範圍。"
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello 傳回了不完整的附件區塊。"
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Trello 附件 URL 無效。"
+  },
+  "errorOpenTrelloTab": {
+    "message": "請在此 Chrome 設定檔中開啟 Trello 分頁。"
+  },
+  "errorTabNoResponse": {
+    "message": "Trello 分頁沒有回應；請重新載入。"
+  },
+  "errorInvalidHistoryId": {
+    "message": "Trello 記錄識別碼無效。"
+  },
+  "errorInvalidOffset": {
+    "message": "附件位移無效。"
+  }
+}

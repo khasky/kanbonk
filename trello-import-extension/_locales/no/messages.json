@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk Trello-import"
+  },
+  "appDescription": {
+    "message": "Eksporterer en Trello-tavle med alle filer til Kanbonk og lar Kanbonk på localhost hente Trello-vedlegg."
+  },
+  "panelTitle": {
+    "message": "Kanbonk-eksport"
+  },
+  "panelCollapse": {
+    "message": "Skjul"
+  },
+  "panelExpand": {
+    "message": "Vis"
+  },
+  "panelIntro": {
+    "message": "Eksporter denne tavlen med alle filene til Kanbonk."
+  },
+  "panelHint": {
+    "message": "ZIP-deler på omtrent 100 MB havner i nedlastingsmappen. Hvis nettleseren spør, gir du dette nettstedet tillatelse til å laste ned flere filer."
+  },
+  "exportBoard": {
+    "message": "Eksporter tavle"
+  },
+  "exportAgain": {
+    "message": "Eksporter på nytt"
+  },
+  "exportCancel": {
+    "message": "Avbryt"
+  },
+  "progressBoard": {
+    "message": "Leser tavlen…"
+  },
+  "progressComments": {
+    "message": "Leser kommentarer… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Leser klistremerker…"
+  },
+  "progressSaving": {
+    "message": "Lagrer del $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ av $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Filer $DONE$ av $TOTAL$ · $SIZE$\nDel $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Ferdig: $PARTS$ del, $FILES$ av $TOTAL$ filer.\nÅpne ⋯ → Importer fra Trello i Kanbonk, og velg alle delene samtidig.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Ferdig: $PARTS$ deler, $FILES$ av $TOTAL$ filer.\nÅpne ⋯ → Importer fra Trello i Kanbonk, og velg alle delene samtidig.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Ikke eksportert: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Eksporten ble avbrutt."
+  },
+  "warningWorkspaceName": {
+    "message": "Navn på arbeidsområde: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "Kommentarhistorikken er begrenset til de siste 1000 handlingene: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Klistremerker: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Ugyldig svar fra Trello"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Kunne ikke fortsette å hente kommentarhistorikken"
+  },
+  "labelBoardBackground": {
+    "message": "Tavlebakgrunn"
+  },
+  "labelSticker": {
+    "message": "Klistremerke $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Ugyldig URL"
+  },
+  "errorUnknownImageType": {
+    "message": "Ukjent bildetype"
+  },
+  "errorInvalidImageSize": {
+    "message": "Ugyldig bildestørrelse"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello returnerte en side i stedet for filen; logg på igjen"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Ugyldig kommentarhistorikk fra Trello."
+  },
+  "errorUnknownRequest": {
+    "message": "Ukjent forespørsel."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello returnerte en side i stedet for vedlegget; logg på kontoen din."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello støtter ikke delvis nedlasting av et stort vedlegg. Bruk en ZIP-fil."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello støtter ikke delvis nedlasting: HTTP $STATUS$. Bruk en ZIP-fil.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello oppga ikke størrelsen på vedleggsdelen."
+  },
+  "errorInvalidRange": {
+    "message": "Trello returnerte et ugyldig område av vedlegget."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello returnerte en ufullstendig del av vedlegget."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Ugyldig URL for Trello-vedlegg."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Åpne en Trello-fane i denne Chrome-profilen."
+  },
+  "errorTabNoResponse": {
+    "message": "Trello-fanen svarte ikke; last den inn på nytt."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Ugyldig ID for Trello-historikk."
+  },
+  "errorInvalidOffset": {
+    "message": "Ugyldig forskyvning i vedlegget."
+  }
+}

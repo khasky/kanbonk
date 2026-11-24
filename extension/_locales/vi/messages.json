@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Bảng Kanban cục bộ trong trình duyệt: dữ liệu nằm trong tiện ích và đồng bộ với máy tính, điện thoại mà không cần đám mây."
+  },
+  "actionTitle": {
+    "message": "Mở Kanbonk"
+  }
+}

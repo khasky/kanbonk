@@ -1,3 +1,4 @@
+import { t } from "../../i18n";
 import {
   newId,
   recordRevisions,
@@ -51,7 +52,7 @@ function legacyTrelloFields(source: TrelloRecord): TrelloRecord {
 export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResult {
   const source = legacyTrelloFields(object(raw));
   if (!string(source.id) || !string(source.name) || !Array.isArray(source.lists) || !Array.isArray(source.cards)) {
-    throw new Error("The file does not look like a Trello board JSON export.");
+    throw new Error(t("trello.notTrelloJson"));
   }
   const boardId = newId();
   const organizationId = string(source.idOrganization);
@@ -260,18 +261,12 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
     });
   }
   const warnings: string[] = [];
-  if (attachments.length) warnings.push("Attachments need a separate download or a ZIP with files.");
-  if (stickers.length) warnings.push("Trello sticker images need a ZIP with files.");
-  if (organization && !organization.name)
-    warnings.push("The workspace name is not included in the Trello JSON; you can rename it after import.");
-  if (string(prefs.backgroundImage))
-    warnings.push(
-      "Background image of the Trello board was not transferred. Save it to your computer and choose it via “Background from file”.",
-    );
+  if (attachments.length) warnings.push(t("trello.attachmentsNeedDownload"));
+  if (stickers.length) warnings.push(t("trello.stickersNeedZip"));
+  if (organization && !organization.name) warnings.push(t("trello.workspaceNameMissing"));
+  if (string(prefs.backgroundImage)) warnings.push(t("trello.backgroundNotTransferred"));
   if (array(source.actions).length >= 1000)
-    warnings.push(
-      `A Trello JSON export contains only the last 1000 actions: part of the history${completeComments ? "" : " and older comments"} may be missing.`,
-    );
+    warnings.push(t(completeComments ? "trello.historyTruncated" : "trello.historyAndCommentsTruncated"));
   return { organization, board, lists, cards, labels, activity, attachments, stickers, warnings };
 }
 

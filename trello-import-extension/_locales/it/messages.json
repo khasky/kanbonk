@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk – Importazione da Trello"
+  },
+  "appDescription": {
+    "message": "Esporta una bacheca Trello con tutti i file per Kanbonk e consente a Kanbonk su localhost di scaricare gli allegati di Trello."
+  },
+  "panelTitle": {
+    "message": "Esportazione Kanbonk"
+  },
+  "panelCollapse": {
+    "message": "Comprimi"
+  },
+  "panelExpand": {
+    "message": "Espandi"
+  },
+  "panelIntro": {
+    "message": "Esporta questa bacheca con tutti i suoi file per Kanbonk."
+  },
+  "panelHint": {
+    "message": "Le parti ZIP di circa 100 MB vengono salvate nella cartella dei download. Se il browser lo chiede, consenti a questo sito di scaricare più file."
+  },
+  "exportBoard": {
+    "message": "Esporta bacheca"
+  },
+  "exportAgain": {
+    "message": "Esporta di nuovo"
+  },
+  "exportCancel": {
+    "message": "Annulla"
+  },
+  "progressBoard": {
+    "message": "Lettura della bacheca…"
+  },
+  "progressComments": {
+    "message": "Lettura dei commenti… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Lettura degli sticker…"
+  },
+  "progressSaving": {
+    "message": "Salvataggio della parte $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ di $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "File $DONE$ di $TOTAL$ · $SIZE$\nParte $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Fatto: $PARTS$ parte, $FILES$ file su $TOTAL$.\nIn Kanbonk apri ⋯ → Importa da Trello e scegli tutte le parti insieme.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Fatto: $PARTS$ parti, $FILES$ file su $TOTAL$.\nIn Kanbonk apri ⋯ → Importa da Trello e scegli tutte le parti insieme.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Non esportati: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Esportazione annullata."
+  },
+  "warningWorkspaceName": {
+    "message": "Nome dello spazio di lavoro: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "La cronologia dei commenti è limitata alle ultime 1000 azioni: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Sticker: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Risposta di Trello non valida"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Impossibile proseguire la cronologia dei commenti"
+  },
+  "labelBoardBackground": {
+    "message": "Sfondo della bacheca"
+  },
+  "labelSticker": {
+    "message": "Sticker $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "URL non valido"
+  },
+  "errorUnknownImageType": {
+    "message": "Tipo di immagine sconosciuto"
+  },
+  "errorInvalidImageSize": {
+    "message": "Dimensione dell'immagine non valida"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello ha restituito una pagina invece del file; accedi di nuovo"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Cronologia dei commenti di Trello non valida."
+  },
+  "errorUnknownRequest": {
+    "message": "Richiesta sconosciuta."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello ha restituito una pagina invece dell'allegato; accedi al tuo account."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello non supporta il download parziale di un allegato grande. Usa uno ZIP."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello non supporta il download parziale: HTTP $STATUS$. Usa uno ZIP.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello non ha indicato la dimensione del blocco dell'allegato."
+  },
+  "errorInvalidRange": {
+    "message": "Trello ha restituito un intervallo dell'allegato non valido."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello ha restituito un blocco dell'allegato incompleto."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "URL dell'allegato di Trello non valido."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Apri una scheda di Trello in questo profilo di Chrome."
+  },
+  "errorTabNoResponse": {
+    "message": "La scheda di Trello non ha risposto; ricaricala."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Identificatore della cronologia di Trello non valido."
+  },
+  "errorInvalidOffset": {
+    "message": "Offset dell'allegato non valido."
+  }
+}

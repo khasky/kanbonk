@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import type { AppState } from "../model";
 import { inboxWorkspaceId } from "../model/inbox";
 import { Button } from "../ui/Button";
@@ -15,8 +16,8 @@ export function HomePage({
 }) {
   const workspaces = state.workspaces.filter((item) => item.id !== inboxWorkspaceId && !item.deletedAt);
   return (
-    <section className={pageClass} aria-label="Workspaces">
-      <h1 className={pageTitleClass}>Workspaces</h1>
+    <section className={pageClass} aria-label={t("pages.workspaces")}>
+      <h1 className={pageTitleClass}>{t("pages.workspaces")}</h1>
       {workspaces.length ? (
         <div className={tileGridClass}>
           {workspaces.map((workspace) => {
@@ -31,20 +32,20 @@ export function HomePage({
                         .slice(0, 3)
                         .map((board) => board.name)
                         .join(", ") + (boards.length > 3 ? "…" : "")
-                    : "No boards"}
+                    : t("pages.noBoards")}
                 </small>
               </button>
             );
           })}
           <button className={createTileClass} onClick={onCreate}>
-            + Create workspace
+            {t("pages.createWorkspaceTile")}
           </button>
         </div>
       ) : (
         <div className={emptyClass}>
-          <p>No workspaces yet.</p>
+          <p>{t("pages.noWorkspaces")}</p>
           <Button variant="primary" onClick={onCreate}>
-            Add workspace
+            {t("pages.addWorkspace")}
           </Button>
         </div>
       )}

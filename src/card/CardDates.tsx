@@ -1,23 +1,25 @@
 import { type MouseEvent, useState } from "react";
+import { formatDate, formatDateTime, type MessageKey, t } from "../i18n";
 import type { Card } from "../model";
 import { Button } from "../ui/Button";
 import { Input, Select } from "../ui/Field";
 import { Icon, type IconName } from "../ui/Icon";
 import { pickerLabelClass } from "./cardLook";
 
-const reminderOptions = [
-  { minutes: 0, label: "At due time" },
-  { minutes: 5, label: "5 minutes before" },
-  { minutes: 10, label: "10 minutes before" },
-  { minutes: 15, label: "15 minutes before" },
-  { minutes: 60, label: "1 hour before" },
-  { minutes: 120, label: "2 hours before" },
-  { minutes: 1440, label: "1 day before" },
-  { minutes: 2880, label: "2 days before" },
-  { minutes: 10080, label: "1 week before" },
+const reminderOptions: Array<{ minutes: number; label: MessageKey; count?: number }> = [
+  { minutes: 0, label: "card.atDueTime" },
+  { minutes: 5, label: "card.minutesBefore", count: 5 },
+  { minutes: 10, label: "card.minutesBefore", count: 10 },
+  { minutes: 15, label: "card.minutesBefore", count: 15 },
+  { minutes: 60, label: "card.hoursBefore", count: 1 },
+  { minutes: 120, label: "card.hoursBefore", count: 2 },
+  { minutes: 1440, label: "card.daysBefore", count: 1 },
+  { minutes: 2880, label: "card.daysBefore", count: 2 },
+  { minutes: 10080, label: "card.weeksBefore", count: 1 },
 ];
 
-const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+/** Sunday to Saturday: 7 January 2024 was a Sunday. */
+const weekdays = Array.from({ length: 7 }, (_, index) => new Date(2024, 0, 7 + index));
 
 function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -166,18 +168,18 @@ export function DatesForm({
     <div className="flex flex-col gap-3">
       <div>
         <div className="flex items-center">
-          <MonthButton icon="chevrons-left" label="Previous year" onClick={() => shift(-12)} />
-          <MonthButton icon="chevron-left" label="Previous month" onClick={() => shift(-1)} />
+          <MonthButton icon="chevrons-left" label={t("card.previousYear")} onClick={() => shift(-12)} />
+          <MonthButton icon="chevron-left" label={t("card.previousMonth")} onClick={() => shift(-1)} />
           <span className="flex-1 text-center text-[14px] font-semibold" aria-live="polite">
-            {month.toLocaleString("en-US", { month: "long", year: "numeric" })}
+            {formatDateTime(month, { month: "long", year: "numeric" })}
           </span>
-          <MonthButton icon="chevron-right" label="Next month" onClick={() => shift(1)} />
-          <MonthButton icon="chevrons-right" label="Next year" onClick={() => shift(12)} />
+          <MonthButton icon="chevron-right" label={t("card.nextMonth")} onClick={() => shift(1)} />
+          <MonthButton icon="chevrons-right" label={t("card.nextYear")} onClick={() => shift(12)} />
         </div>
-        <div className="mt-1 grid grid-cols-7 gap-y-0.5" role="grid" aria-label="Calendar">
-          {weekdays.map((name) => (
-            <span key={name} className="py-1 text-center text-[12px] font-semibold text-ink-subtle">
-              {name}
+        <div className="mt-1 grid grid-cols-7 gap-y-0.5" role="grid" aria-label={t("card.calendar")}>
+          {weekdays.map((weekday) => (
+            <span key={weekday.getDay()} className="py-1 text-center text-[12px] font-semibold text-ink-subtle">
+              {formatDate(weekday, { weekday: "short" })}
             </span>
           ))}
           {days.map((day) => {
@@ -193,7 +195,7 @@ export function DatesForm({
                 onClick={() => pick(day)}
                 aria-pressed={selected}
                 aria-current={isToday ? "date" : undefined}
-                aria-label={day.toLocaleDateString("en-US", {
+                aria-label={formatDate(day, {
                   weekday: "long",
                   month: "long",
                   day: "numeric",
@@ -210,7 +212,7 @@ export function DatesForm({
         </div>
       </div>
       <div className={pickerLabelClass}>
-        Start date
+        {t("card.startDate")}
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -223,7 +225,7 @@ export function DatesForm({
                 if (!parseDay(startInput)) setStartInput(dayText(due && due < today ? due : today));
               } else setTarget("due");
             }}
-            aria-label="Start date"
+            aria-label={t("card.startDate")}
           />
           <Input
             size="sm"
@@ -234,12 +236,12 @@ export function DatesForm({
             onFocus={() => setTarget("start")}
             onChange={(event) => typed(event.target.value, setStartInput)}
             aria-invalid={startInvalid || reversed}
-            aria-label="Card start date"
+            aria-label={t("card.cardStartDate")}
           />
         </div>
       </div>
       <div className={pickerLabelClass}>
-        Due date
+        {t("card.dueDate")}
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -249,7 +251,7 @@ export function DatesForm({
               setDueOn(event.target.checked);
               setTarget(event.target.checked || !startOn ? "due" : "start");
             }}
-            aria-label="Due date"
+            aria-label={t("card.dueDate")}
           />
           <Input
             size="sm"
@@ -260,7 +262,7 @@ export function DatesForm({
             onFocus={() => setTarget("due")}
             onChange={(event) => typed(event.target.value, setDueInput)}
             aria-invalid={dueInvalid || reversed}
-            aria-label="Card due date"
+            aria-label={t("card.cardDueDate")}
           />
           <Input
             size="sm"
@@ -271,34 +273,34 @@ export function DatesForm({
             onFocus={() => setTarget("due")}
             onChange={(event) => setTimeInput(event.target.value)}
             aria-invalid={timeInvalid}
-            aria-label="Card due time"
+            aria-label={t("card.cardDueTime")}
           />
         </div>
       </div>
-      {reversed && <p className="m-0 text-[12px] text-danger">The start date is after the due date.</p>}
+      {reversed && <p className="m-0 text-[12px] text-danger">{t("card.startAfterDue")}</p>}
       <label className={pickerLabelClass}>
-        Set due date reminder
+        {t("card.setReminder")}
         <Select
           size="sm"
           value={dueOn ? (reminder ?? "") : ""}
           onChange={(event) => setReminder(event.target.value === "" ? undefined : Number(event.target.value))}
           disabled={!dueOn}
-          aria-label="Card due date reminder"
+          aria-label={t("card.cardDueReminder")}
         >
-          <option value="">None</option>
+          <option value="">{t("card.none")}</option>
           {reminderOptions.map((option) => (
             <option key={option.minutes} value={option.minutes}>
-              {option.label}
+              {t(option.label, option.count === undefined ? undefined : { count: option.count })}
             </option>
           ))}
           {reminder !== undefined && !reminderOptions.some((option) => option.minutes === reminder) && (
-            <option value={reminder}>{reminder} minutes before</option>
+            <option value={reminder}>{t("card.minutesBefore", { count: reminder })}</option>
           )}
         </Select>
       </label>
       <div className="flex flex-col gap-2">
         <Button variant="primary" onClick={save} disabled={!valid}>
-          Save
+          {t("common.save")}
         </Button>
         <Button
           variant="secondary"
@@ -309,7 +311,7 @@ export function DatesForm({
             onClose();
           }}
         >
-          Remove
+          {t("common.remove")}
         </Button>
       </div>
     </div>
@@ -317,7 +319,7 @@ export function DatesForm({
 }
 
 function shortDate(value: string) {
-  return new Date(value).toLocaleString("en-US", {
+  return formatDateTime(value, {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -350,10 +352,12 @@ export function DatesChip({
       }
       onClick={onClick}
       aria-expanded={expanded}
-      aria-label={`Dates: ${text}`}
+      aria-label={t("card.datesLabel", { text })}
     >
       {text}
-      {overdue && <span className="rounded-[3px] bg-danger px-1 text-[12px] font-semibold text-white">Overdue</span>}
+      {overdue && (
+        <span className="rounded-[3px] bg-danger px-1 text-[12px] font-semibold text-white">{t("card.overdue")}</span>
+      )}
     </button>
   );
 }

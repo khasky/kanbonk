@@ -1,0 +1,56 @@
+/** Messages of src/pages. */
+export const pages = {
+  workspaces: "Workspaces",
+  noBoards: "No boards",
+  createWorkspaceTile: "+ Create workspace",
+  noWorkspaces: "No workspaces yet.",
+  addWorkspace: "Add workspace",
+
+  notFound: "Not found",
+  workspaceNotFound: "Workspace not found",
+  missingHint: "It may have been moved to the trash or not synced to this device yet.",
+  goHome: "Go home",
+  openTrash: "Open trash",
+
+  cardInTrash: {
+    one: "This card is in the trash and will be deleted forever in {count} day. Restore it to edit it.",
+    other: "This card is in the trash and will be deleted forever in {count} days. Restore it to edit it.",
+  },
+  inList: "in list “{name}”",
+  trashedAt: "trashed {time}",
+  start: "Start: {time}",
+  due: "Due: {time}",
+  description: "Description",
+  attachments: "Attachments",
+  openLink: "Open link",
+  download: "Download",
+  comments: "Comments",
+  deleteForever: "Delete forever",
+
+  trash: "Trash",
+  kindWorkspaces: "Workspaces",
+  kindBoards: "Boards",
+  kindLists: "Lists",
+  kindCards: "Cards",
+  trashPeriod: {
+    one: "Items are deleted forever {count} day after they were moved here. Change it in ⋯ → Settings.",
+    other: "Items are deleted forever {count} days after they were moved here. Change it in ⋯ → Settings.",
+  },
+  emptyTrash: "Empty trash",
+  category: "Category",
+  allCount: "All ({count})",
+  kindCount: "{kind} ({count})",
+  withParent: "with its parent",
+  deletedIn: { one: "deleted in {count} day", other: "deleted in {count} days" },
+  trashEmpty: "Trash is empty.",
+  trashHint:
+    "Open a card to see its contents; it can be edited again once restored. Restoring cascades: an item comes back together with its deleted parents (workspace, board, list), everything deleted along with it, and the cards it depends on.",
+
+  workspaceName: "Workspace name",
+  moveToTrash: "Move to trash",
+  boards: "Boards",
+  starred: "Starred",
+  createBoardTile: "+ Create board",
+  noBoardsYet: "This workspace has no boards yet.",
+  addBoard: "Add board",
+};

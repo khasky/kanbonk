@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatDateTime, type MessageKey, t } from "../i18n";
 import { useTrashRetention } from "../lib/trashRetention";
 import type { AppState } from "../model";
 import { trashDaysLeft, trashEntries, trashRetentionDays, type TrashKind } from "../model/trash";
@@ -9,7 +10,12 @@ import { Segmented, SegmentedTab } from "../ui/Segmented";
 import { emptyClass, pageClass, pageHeaderClass } from "./pageLook";
 import { TrashedCardDialog } from "./TrashedCardDialog";
 
-const kindNames: Record<TrashKind, string> = { workspace: "Workspaces", board: "Boards", list: "Lists", card: "Cards" };
+const kindNames: Record<TrashKind, MessageKey> = {
+  workspace: "pages.kindWorkspaces",
+  board: "pages.kindBoards",
+  list: "pages.kindLists",
+  card: "pages.kindCards",
+};
 
 export function TrashPage({
   state,
@@ -32,27 +38,28 @@ export function TrashPage({
   const all = trashEntries(state);
   const entries = kind ? all.filter((item) => item.kind === kind) : all;
   return (
-    <section className={pageClass} aria-label="Trash">
+    <section className={pageClass} aria-label={t("pages.trash")}>
       <header className={pageHeaderClass}>
         <div className="flex-1">
-          <h1 className="m-0 text-[24px]">Trash</h1>
-          <p className="mt-1 mb-0 text-[13px] text-ink-subtle">
-            Items are deleted forever {days} days after they were moved here. Change it in ⋯ → Settings.
-          </p>
+          <h1 className="m-0 text-[24px]">{t("pages.trash")}</h1>
+          <p className="mt-1 mb-0 text-[13px] text-ink-subtle">{t("pages.trashPeriod", { count: days })}</p>
         </div>
         {all.length > 0 && (
           <Button variant="danger" onClick={onEmpty}>
-            Empty trash
+            {t("pages.emptyTrash")}
           </Button>
         )}
       </header>
-      <Segmented label="Category">
+      <Segmented label={t("pages.category")}>
         <SegmentedTab selected={!kind} onClick={() => onKind(undefined)}>
-          All ({all.length})
+          {t("pages.allCount", { count: all.length })}
         </SegmentedTab>
         {(Object.keys(kindNames) as TrashKind[]).map((item) => (
           <SegmentedTab key={item} selected={kind === item} onClick={() => onKind(item)}>
-            {kindNames[item]} ({all.filter((entry) => entry.kind === item).length})
+            {t("pages.kindCount", {
+              kind: t(kindNames[item]),
+              count: all.filter((entry) => entry.kind === item).length,
+            })}
           </SegmentedTab>
         ))}
       </Segmented>
@@ -73,32 +80,28 @@ export function TrashPage({
                   <strong>{entry.name}</strong>
                 )}
                 <PanelRowNote>
-                  {kindNames[entry.kind]}
-                  {entry.context ? ` · ${entry.context}` : ""} · trashed{" "}
-                  {new Date(entry.deletedAt).toLocaleString("en-US")}
-                  {entry.withParent ? " · with its parent" : ""} · deleted in{" "}
-                  {trashDaysLeft(entry.deletedAt, undefined, days)} days
+                  {t(kindNames[entry.kind])}
+                  {entry.context ? ` · ${entry.context}` : ""} ·{" "}
+                  {t("pages.trashedAt", { time: formatDateTime(entry.deletedAt) })}
+                  {entry.withParent ? ` · ${t("pages.withParent")}` : ""} ·{" "}
+                  {t("pages.deletedIn", { count: trashDaysLeft(entry.deletedAt, undefined, days) })}
                 </PanelRowNote>
               </PanelRowText>
               <RowActions as="span" className="min-w-0 wrap-anywhere">
                 <Button variant="secondary" className="flex-none" onClick={() => onRestore(entry.kind, entry.id)}>
-                  Restore
+                  {t("common.restore")}
                 </Button>
                 <Button variant="danger" size="sm" className="flex-none" onClick={() => onPurge(entry.kind, entry.id)}>
-                  Delete forever
+                  {t("pages.deleteForever")}
                 </Button>
               </RowActions>
             </PanelRow>
           ))}
         </div>
       ) : (
-        <p className={emptyClass}>Trash is empty.</p>
+        <p className={emptyClass}>{t("pages.trashEmpty")}</p>
       )}
-      <Hint>
-        Open a card to see its contents; it can be edited again once restored. Restoring cascades: an item comes back
-        together with its deleted parents (workspace, board, list), everything deleted along with it, and the cards it
-        depends on.
-      </Hint>
+      <Hint>{t("pages.trashHint")}</Hint>
       {viewedCard && (
         <TrashedCardDialog
           card={viewedCard}

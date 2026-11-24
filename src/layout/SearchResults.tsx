@@ -1,4 +1,5 @@
 import { useDeferredValue, useMemo } from "react";
+import { t } from "../i18n";
 import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import { type AppState, type Card, searchCards } from "../model";
 
@@ -31,18 +32,18 @@ export function SearchResults({
   return (
     <section
       className="fixed top-[43px] left-1/2 z-[90] max-h-[60dvh] w-[min(540px,calc(100vw_-_20px))] -translate-x-1/2 overflow-auto rounded-md border border-line bg-white p-2.5 text-ink shadow-overlay max-phone:top-20"
-      aria-label="Search results"
+      aria-label={t("layout.searchResults")}
     >
-      <strong className="block px-2 pt-[5px] pb-[9px]">Search results</strong>
+      <strong className="block px-2 pt-[5px] pb-[9px]">{t("layout.searchResults")}</strong>
       {workspaces.map((item) => (
         <button key={item.id} className={resultClass} onClick={() => onOpenWorkspace(item.id)}>
-          <small className="text-ink-muted">Workspace</small>
+          <small className="text-ink-muted">{t("layout.workspace")}</small>
           {item.name}
         </button>
       ))}
       {boards.map((item) => (
         <button key={item.id} className={resultClass} onClick={() => onOpenBoard(item.id)}>
-          <small className="text-ink-muted">Board</small>
+          <small className="text-ink-muted">{t("layout.board")}</small>
           {item.name}
         </button>
       ))}
@@ -52,7 +53,9 @@ export function SearchResults({
           {item.name}
         </button>
       ))}
-      {!workspaces.length && !boards.length && !cards.length && <p className="p-2 text-ink-muted">Nothing found</p>}
+      {!workspaces.length && !boards.length && !cards.length && (
+        <p className="p-2 text-ink-muted">{t("layout.nothingFound")}</p>
+      )}
     </section>
   );
 }

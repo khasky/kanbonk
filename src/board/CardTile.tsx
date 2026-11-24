@@ -4,6 +4,8 @@ import { CardStickers } from "../card/CardStickers";
 import { readableTextColor } from "../model/labelColors";
 import type { Card, Label, Member } from "../model";
 import { Icon } from "../ui/Icon";
+import { formatDate, t } from "../i18n";
+import { useLocale } from "../i18n/nodes";
 import { endDrag, startDrag } from "./dragState";
 import { tileClass, tileMetaClass, tileMetaIconClass, tileMetaItemClass, tileNameClass } from "./tileLook";
 
@@ -28,6 +30,8 @@ export const CardTile = memo(function CardTile({
   /** Hidden while it is dragged to another place, which the board shows instead. */
   hidden?: boolean;
 }) {
+  // A memoised tile still renders again in a newly chosen language.
+  useLocale();
   const full = item.cover?.size === "full";
   const fullCover = full && Boolean(item.cover?.attachmentId);
   return (
@@ -71,16 +75,16 @@ export const CardTile = memo(function CardTile({
       <span className={tileNameClass(fullCover)}>{item.name}</span>
       {item.isTemplate && (
         <span className="self-start rounded-[3px] bg-line px-[5px] py-0.5 text-[11px] font-bold text-ink-subtle">
-          Template
+          {t("board.template")}
         </span>
       )}
       {parentName && (
-        <span className="truncate text-[12px] opacity-75" title="Parent card">
+        <span className="truncate text-[12px] opacity-75" title={t("board.parentCard")}>
           ↳ {parentName}
         </span>
       )}
       {(item.memberIds ?? []).length > 0 && (
-        <span className="flex flex-wrap gap-1 self-end" aria-label="Card members">
+        <span className="flex flex-wrap gap-1 self-end" aria-label={t("board.cardMembers")}>
           {(item.memberIds ?? []).map((id) => {
             const member = members?.find((entry) => entry.id === id);
             return (
@@ -103,7 +107,7 @@ export const CardTile = memo(function CardTile({
           {item.dueAt && (
             <span className={tileMetaItemClass}>
               <Icon name="clock" className={tileMetaIconClass} />
-              {new Date(item.dueAt).toLocaleDateString()}
+              {formatDate(item.dueAt)}
             </span>
           )}
           {item.attachments.length > 0 && (

@@ -4,6 +4,7 @@ import type { ProposedCard } from "../board/AiPanel";
 import { BoardView } from "../board/BoardView";
 import type { TileActions } from "../board/CardTile";
 import { exportTrelloCsv, exportTrelloJson } from "../trello/formats";
+import { t } from "../i18n";
 import { saveFile } from "../lib/platform";
 import { trashHref } from "../lib/router";
 import { saveAttachment } from "../lib/storage";
@@ -36,7 +37,7 @@ export function MainContent({
 
   function downloadText(content: string, name: string, type: string) {
     saveFile(new Blob([content], { type }), name).catch((cause) =>
-      app.setError(`Could not save “${name}”: ${String(cause)}`),
+      app.setError(t("app.fileSaveError", { name, cause: String(cause) })),
     );
   }
 
@@ -55,7 +56,7 @@ export function MainContent({
   async function uploadBoardBackground(file: File | null) {
     if (!board || !file) return;
     if (!file.type.startsWith("image/")) {
-      app.setError("Choose an image for the background.");
+      app.setError(t("app.backgroundNotImage"));
       return;
     }
     const id = newId();
@@ -63,13 +64,13 @@ export function MainContent({
       await saveAttachment(id, file);
       boardActions.updateBoard(board.id, (item) => ({ ...item, backgroundImageId: id }));
     } catch (cause) {
-      app.setError(`Could not save the board background: ${String(cause)}`);
+      app.setError(t("app.backgroundSaveError", { cause: String(cause) }));
     }
   }
 
   function createProposedCards(items: ProposedCard[]) {
     app.cardActions.createProposedCards(items);
-    app.setNotice(`Cards created: ${items.length}`);
+    app.setNotice(t("app.cardsCreated", { count: items.length }));
   }
 
   return (
@@ -101,7 +102,7 @@ export function MainContent({
             onCopy: () =>
               overlays.open({
                 boardCopy: {
-                  name: `${board.name} (copy)`,
+                  name: t("app.boardCopyName", { name: board.name }),
                   workspaceId: board.workspaceId,
                   keepCards: true,
                   keepTemplates: true,
@@ -124,7 +125,7 @@ export function MainContent({
           onDeleteList={(listId) => app.trash.requestDelete("list", listId)}
         />
       ) : page.page === "board" ? (
-        <MissingPage what="Board not found" />
+        <MissingPage what={t("app.boardNotFound")} />
       ) : page.page === "workspace" ? (
         <WorkspacePage
           state={state}
@@ -156,9 +157,9 @@ export function MainContent({
           onEmpty={app.trash.empty}
         />
       ) : page.page === "card" ? (
-        (cardPage ?? <MissingPage what="Card not found" />)
+        (cardPage ?? <MissingPage what={t("app.cardNotFound")} />)
       ) : page.page === "not-found" ? (
-        <MissingPage what="Page not found" />
+        <MissingPage what={t("app.pageNotFound")} />
       ) : (
         <HomePage
           state={state}

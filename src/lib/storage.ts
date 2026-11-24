@@ -1,5 +1,6 @@
 import { ancestryFromRevisions, emptyState, newId, rememberStateIds, type AppState } from "../model";
 import { migrateLegacyState } from "../model/legacy";
+import { t } from "../i18n";
 
 const databaseName = "kanbonk";
 const legacyDatabaseName = "listva";
@@ -146,7 +147,7 @@ export function readLocalAuthor(): string {
 
 export function saveLocalAuthor(value: string): string {
   const name = value.trim();
-  if (!name || name.length > 60) throw new Error("Enter a name up to 60 characters long.");
+  if (!name || name.length > 60) throw new Error(t("lib.authorNameInvalid"));
   localStorage.setItem("kanbonk-author-name", name);
   return name;
 }

@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk Trello-import"
+  },
+  "appDescription": {
+    "message": "Exporterar en Trello-tavla med alla filer till Kanbonk och låter Kanbonk på localhost hämta Trello-bilagor."
+  },
+  "panelTitle": {
+    "message": "Kanbonk-export"
+  },
+  "panelCollapse": {
+    "message": "Fäll ihop"
+  },
+  "panelExpand": {
+    "message": "Fäll ut"
+  },
+  "panelIntro": {
+    "message": "Exportera den här tavlan med alla filer till Kanbonk."
+  },
+  "panelHint": {
+    "message": "ZIP-delar på cirka 100 MB hamnar i din mapp för hämtade filer. Om webbläsaren frågar tillåter du den här webbplatsen att ladda ned flera filer."
+  },
+  "exportBoard": {
+    "message": "Exportera tavla"
+  },
+  "exportAgain": {
+    "message": "Exportera igen"
+  },
+  "exportCancel": {
+    "message": "Avbryt"
+  },
+  "progressBoard": {
+    "message": "Läser tavlan…"
+  },
+  "progressComments": {
+    "message": "Läser kommentarer… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Läser klistermärken…"
+  },
+  "progressSaving": {
+    "message": "Sparar del $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ av $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Filer $DONE$ av $TOTAL$ · $SIZE$\nDel $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Klart: $PARTS$ del, $FILES$ av $TOTAL$ filer.\nÖppna ⋯ → Importera från Trello i Kanbonk och välj alla delar på en gång.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Klart: $PARTS$ delar, $FILES$ av $TOTAL$ filer.\nÖppna ⋯ → Importera från Trello i Kanbonk och välj alla delar på en gång.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Inte exporterade: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Exporten avbröts."
+  },
+  "warningWorkspaceName": {
+    "message": "Arbetsytans namn: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "Kommentarshistoriken är begränsad till de senaste 1000 åtgärderna: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Klistermärken: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Ogiltigt svar från Trello"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Det gick inte att fortsätta hämta kommentarshistoriken"
+  },
+  "labelBoardBackground": {
+    "message": "Tavlans bakgrund"
+  },
+  "labelSticker": {
+    "message": "Klistermärke $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Ogiltig URL"
+  },
+  "errorUnknownImageType": {
+    "message": "Okänd bildtyp"
+  },
+  "errorInvalidImageSize": {
+    "message": "Ogiltig bildstorlek"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello returnerade en sida i stället för filen; logga in igen"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Ogiltig kommentarshistorik från Trello."
+  },
+  "errorUnknownRequest": {
+    "message": "Okänd begäran."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello returnerade en sida i stället för bilagan; logga in på ditt konto."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello stöder inte delvis nedladdning av en stor bilaga. Använd en ZIP-fil."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello stöder inte delvis nedladdning: HTTP $STATUS$. Använd en ZIP-fil.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello angav inte storleken på bilagans del."
+  },
+  "errorInvalidRange": {
+    "message": "Trello returnerade ett ogiltigt intervall av bilagan."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello returnerade en ofullständig del av bilagan."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Ogiltig URL för Trello-bilaga."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Öppna en Trello-flik i den här Chrome-profilen."
+  },
+  "errorTabNoResponse": {
+    "message": "Trello-fliken svarade inte; läs in den igen."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Ogiltigt ID för Trello-historik."
+  },
+  "errorInvalidOffset": {
+    "message": "Ogiltig förskjutning i bilagan."
+  }
+}

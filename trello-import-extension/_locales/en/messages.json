@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk Trello Import"
+  },
+  "appDescription": {
+    "message": "Exports a Trello board with all its files for Kanbonk and lets Kanbonk on localhost fetch Trello attachments."
+  },
+  "panelTitle": {
+    "message": "Kanbonk export"
+  },
+  "panelCollapse": {
+    "message": "Collapse"
+  },
+  "panelExpand": {
+    "message": "Expand"
+  },
+  "panelIntro": {
+    "message": "Export this board with all its files for Kanbonk."
+  },
+  "panelHint": {
+    "message": "ZIP parts of about 100 MB go to your downloads folder. If the browser asks, allow this site to download multiple files."
+  },
+  "exportBoard": {
+    "message": "Export board"
+  },
+  "exportAgain": {
+    "message": "Export again"
+  },
+  "exportCancel": {
+    "message": "Cancel"
+  },
+  "progressBoard": {
+    "message": "Reading the board…"
+  },
+  "progressComments": {
+    "message": "Reading comments… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Reading stickers…"
+  },
+  "progressSaving": {
+    "message": "Saving part $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ of $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Files $DONE$ of $TOTAL$ · $SIZE$\nPart $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Done: $PARTS$ part, $FILES$ of $TOTAL$ files.\nIn Kanbonk open ⋯ → Import from Trello and choose all the parts at once.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Done: $PARTS$ parts, $FILES$ of $TOTAL$ files.\nIn Kanbonk open ⋯ → Import from Trello and choose all the parts at once.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Not exported: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Export cancelled."
+  },
+  "warningWorkspaceName": {
+    "message": "Workspace name: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "Comment history is limited to the last 1000 actions: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Stickers: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Invalid Trello response"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Could not continue the comment history"
+  },
+  "labelBoardBackground": {
+    "message": "Board background"
+  },
+  "labelSticker": {
+    "message": "Sticker $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Invalid URL"
+  },
+  "errorUnknownImageType": {
+    "message": "Unknown image type"
+  },
+  "errorInvalidImageSize": {
+    "message": "Invalid image size"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello returned a page instead of the file; sign in again"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Invalid Trello comment history."
+  },
+  "errorUnknownRequest": {
+    "message": "Unknown request."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello returned a page instead of the attachment; sign in to your account."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello does not support partial download of a large attachment. Use a ZIP."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello does not support partial download: HTTP $STATUS$. Use a ZIP.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello did not report the size of the attachment chunk."
+  },
+  "errorInvalidRange": {
+    "message": "Trello returned an invalid attachment range."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello returned an incomplete attachment chunk."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Invalid Trello attachment URL."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Open a Trello tab in this Chrome profile."
+  },
+  "errorTabNoResponse": {
+    "message": "The Trello tab did not respond; reload it."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Invalid Trello history identifier."
+  },
+  "errorInvalidOffset": {
+    "message": "Invalid attachment offset."
+  }
+}

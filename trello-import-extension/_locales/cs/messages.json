@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk: import z Trella"
+  },
+  "appDescription": {
+    "message": "Exportuje nástěnku Trello se všemi soubory pro Kanbonk a umožňuje Kanbonku na localhostu stahovat přílohy z Trella."
+  },
+  "panelTitle": {
+    "message": "Export pro Kanbonk"
+  },
+  "panelCollapse": {
+    "message": "Sbalit"
+  },
+  "panelExpand": {
+    "message": "Rozbalit"
+  },
+  "panelIntro": {
+    "message": "Exportujte tuto nástěnku se všemi soubory pro Kanbonk."
+  },
+  "panelHint": {
+    "message": "Části ZIP o velikosti asi 100 MB se uloží do složky stažených souborů. Pokud se prohlížeč zeptá, povolte tomuto webu stahovat více souborů."
+  },
+  "exportBoard": {
+    "message": "Exportovat nástěnku"
+  },
+  "exportAgain": {
+    "message": "Exportovat znovu"
+  },
+  "exportCancel": {
+    "message": "Zrušit"
+  },
+  "progressBoard": {
+    "message": "Načítání nástěnky…"
+  },
+  "progressComments": {
+    "message": "Načítání komentářů… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Načítání nálepek…"
+  },
+  "progressSaving": {
+    "message": "Ukládání části $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ z $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Soubory: $DONE$ z $TOTAL$ · $SIZE$\nČást $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Hotovo. Počet částí: $PARTS$, souborů: $FILES$ z $TOTAL$.\nV Kanbonku otevřete ⋯ → Import z Trella a vyberte všechny části najednou.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Hotovo. Počet částí: $PARTS$, souborů: $FILES$ z $TOTAL$.\nV Kanbonku otevřete ⋯ → Import z Trella a vyberte všechny části najednou.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Neexportováno: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Export byl zrušen."
+  },
+  "warningWorkspaceName": {
+    "message": "Název pracovního prostoru: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "Historie komentářů je omezena na posledních 1000 akcí: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Nálepky: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Neplatná odpověď Trella"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Historii komentářů nelze dál načítat"
+  },
+  "labelBoardBackground": {
+    "message": "Pozadí nástěnky"
+  },
+  "labelSticker": {
+    "message": "Nálepka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Neplatná adresa URL"
+  },
+  "errorUnknownImageType": {
+    "message": "Neznámý typ obrázku"
+  },
+  "errorInvalidImageSize": {
+    "message": "Neplatná velikost obrázku"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello místo souboru vrátilo stránku; přihlaste se znovu"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Neplatná historie komentářů z Trella."
+  },
+  "errorUnknownRequest": {
+    "message": "Neznámý požadavek."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello místo přílohy vrátilo stránku; přihlaste se ke svému účtu."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello nepodporuje částečné stahování velké přílohy. Použijte ZIP."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello nepodporuje částečné stahování: HTTP $STATUS$. Použijte ZIP.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello neuvedlo velikost části přílohy."
+  },
+  "errorInvalidRange": {
+    "message": "Trello vrátilo neplatný rozsah přílohy."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello vrátilo neúplnou část přílohy."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Neplatná adresa URL přílohy Trello."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Otevřete kartu s Trellem v tomto profilu Chrome."
+  },
+  "errorTabNoResponse": {
+    "message": "Karta s Trellem neodpověděla; načtěte ji znovu."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Neplatný identifikátor historie Trello."
+  },
+  "errorInvalidOffset": {
+    "message": "Neplatný posun přílohy."
+  }
+}

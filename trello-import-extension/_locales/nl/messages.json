@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk Trello-import"
+  },
+  "appDescription": {
+    "message": "Exporteert een Trello-bord met alle bestanden voor Kanbonk en laat Kanbonk op localhost Trello-bijlagen ophalen."
+  },
+  "panelTitle": {
+    "message": "Kanbonk-export"
+  },
+  "panelCollapse": {
+    "message": "Inklappen"
+  },
+  "panelExpand": {
+    "message": "Uitklappen"
+  },
+  "panelIntro": {
+    "message": "Exporteer dit bord met al zijn bestanden voor Kanbonk."
+  },
+  "panelHint": {
+    "message": "ZIP-delen van ongeveer 100 MB komen in je downloadmap. Als de browser erom vraagt, sta deze site toe meerdere bestanden te downloaden."
+  },
+  "exportBoard": {
+    "message": "Bord exporteren"
+  },
+  "exportAgain": {
+    "message": "Opnieuw exporteren"
+  },
+  "exportCancel": {
+    "message": "Annuleren"
+  },
+  "progressBoard": {
+    "message": "Bord lezen…"
+  },
+  "progressComments": {
+    "message": "Opmerkingen lezen… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Stickers lezen…"
+  },
+  "progressSaving": {
+    "message": "Deel $PART$ opslaan…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ van $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Bestanden $DONE$ van $TOTAL$ · $SIZE$\nDeel $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Klaar: $PARTS$ deel, $FILES$ van $TOTAL$ bestanden.\nOpen in Kanbonk ⋯ → Importeren uit Trello en kies alle delen tegelijk.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Klaar: $PARTS$ delen, $FILES$ van $TOTAL$ bestanden.\nOpen in Kanbonk ⋯ → Importeren uit Trello en kies alle delen tegelijk.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Niet geëxporteerd: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Export geannuleerd."
+  },
+  "warningWorkspaceName": {
+    "message": "Naam van werkruimte: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "De opmerkingengeschiedenis is beperkt tot de laatste 1000 acties: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Stickers: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Ongeldig antwoord van Trello"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Kan de opmerkingengeschiedenis niet verder ophalen"
+  },
+  "labelBoardBackground": {
+    "message": "Bordachtergrond"
+  },
+  "labelSticker": {
+    "message": "Sticker $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Ongeldige URL"
+  },
+  "errorUnknownImageType": {
+    "message": "Onbekend afbeeldingstype"
+  },
+  "errorInvalidImageSize": {
+    "message": "Ongeldige afbeeldingsgrootte"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello gaf een pagina terug in plaats van het bestand; log opnieuw in"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Ongeldige opmerkingengeschiedenis van Trello."
+  },
+  "errorUnknownRequest": {
+    "message": "Onbekend verzoek."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello gaf een pagina terug in plaats van de bijlage; log in op je account."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello ondersteunt geen gedeeltelijke download van een grote bijlage. Gebruik een ZIP."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello ondersteunt geen gedeeltelijke download: HTTP $STATUS$. Gebruik een ZIP.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello heeft de grootte van het bijlagedeel niet doorgegeven."
+  },
+  "errorInvalidRange": {
+    "message": "Trello gaf een ongeldig bereik van de bijlage terug."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello gaf een onvolledig deel van de bijlage terug."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Ongeldige URL van Trello-bijlage."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Open een Trello-tabblad in dit Chrome-profiel."
+  },
+  "errorTabNoResponse": {
+    "message": "Het Trello-tabblad reageerde niet; laad het opnieuw."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Ongeldige Trello-geschiedenis-ID."
+  },
+  "errorInvalidOffset": {
+    "message": "Ongeldige bijlage-offset."
+  }
+}

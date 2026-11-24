@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk Trello -tuonti"
+  },
+  "appDescription": {
+    "message": "Vie Trello-taulun kaikkine tiedostoineen Kanbonkiin ja antaa localhostissa toimivan Kanbonkin hakea Trellon liitteitä."
+  },
+  "panelTitle": {
+    "message": "Kanbonk-vienti"
+  },
+  "panelCollapse": {
+    "message": "Pienennä"
+  },
+  "panelExpand": {
+    "message": "Laajenna"
+  },
+  "panelIntro": {
+    "message": "Vie tämä taulu kaikkine tiedostoineen Kanbonkia varten."
+  },
+  "panelHint": {
+    "message": "Noin 100 Mt:n ZIP-osat tallentuvat latauskansioosi. Jos selain kysyy, salli tämän sivuston ladata useita tiedostoja."
+  },
+  "exportBoard": {
+    "message": "Vie taulu"
+  },
+  "exportAgain": {
+    "message": "Vie uudelleen"
+  },
+  "exportCancel": {
+    "message": "Peruuta"
+  },
+  "progressBoard": {
+    "message": "Luetaan taulua…"
+  },
+  "progressComments": {
+    "message": "Luetaan kommentteja… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Luetaan tarroja…"
+  },
+  "progressSaving": {
+    "message": "Tallennetaan osaa $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ Mt",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$/$TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Tiedostot $DONE$/$TOTAL$ · $SIZE$\nOsa $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Valmis. Osia: $PARTS$, tiedostoja: $FILES$/$TOTAL$.\nAvaa Kanbonkissa ⋯ → Tuo Trellosta ja valitse kaikki osat kerralla.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Valmis. Osia: $PARTS$, tiedostoja: $FILES$/$TOTAL$.\nAvaa Kanbonkissa ⋯ → Tuo Trellosta ja valitse kaikki osat kerralla.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Ei viety: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Vienti peruutettiin."
+  },
+  "warningWorkspaceName": {
+    "message": "Työtilan nimi: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "Kommenttihistoria on rajattu viimeisimpiin 1000 toimintoon: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Tarrat: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Virheellinen vastaus Trellolta"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Kommenttihistorian hakemista ei voitu jatkaa"
+  },
+  "labelBoardBackground": {
+    "message": "Taulun tausta"
+  },
+  "labelSticker": {
+    "message": "Tarra $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Virheellinen URL"
+  },
+  "errorUnknownImageType": {
+    "message": "Tuntematon kuvatyyppi"
+  },
+  "errorInvalidImageSize": {
+    "message": "Virheellinen kuvan koko"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello palautti sivun tiedoston sijaan; kirjaudu uudelleen"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Virheellinen Trellon kommenttihistoria."
+  },
+  "errorUnknownRequest": {
+    "message": "Tuntematon pyyntö."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello palautti sivun liitteen sijaan; kirjaudu tilillesi."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello ei tue suuren liitteen osittaista latausta. Käytä ZIP-tiedostoa."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello ei tue osittaista latausta: HTTP $STATUS$. Käytä ZIP-tiedostoa.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello ei ilmoittanut liitteen osan kokoa."
+  },
+  "errorInvalidRange": {
+    "message": "Trello palautti virheellisen liitteen alueen."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello palautti puutteellisen liitteen osan."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Virheellinen Trello-liitteen URL."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Avaa Trello-välilehti tässä Chrome-profiilissa."
+  },
+  "errorTabNoResponse": {
+    "message": "Trello-välilehti ei vastannut; lataa se uudelleen."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Virheellinen Trellon historiatunniste."
+  },
+  "errorInvalidOffset": {
+    "message": "Virheellinen liitteen siirtymä."
+  }
+}

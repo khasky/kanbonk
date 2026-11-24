@@ -127,6 +127,10 @@ Every change is applied to the screen and saved on the device immediately; sync 
 - The board document and the AI assistant (your own Claude, ChatGPT, Gemini or compatible key): [ai.md](ai.md).
 - The MCP server that lets AI agents work with your boards: [mcp.md](mcp.md).
 
+## Language
+
+Kanbonk speaks the 21 languages Trello supports: English, Čeština, Deutsch, Español, Français, Italiano, Magyar, Nederlands, Norsk bokmål, Polski, Português (Brasil), Suomi, Svenska, Tiếng Việt, Türkçe, Русский, Українська, ไทย, 日本語, 简体中文 and 繁體中文. By default it follows the system or browser language (the first supported one in its preference list, else English); **⋯ → Settings → Language** picks another one on this device. Dates and times follow the chosen language. The browser extensions take their name and descriptions from the browser's language. Board content, AI prompts and the MCP server stay as they are.
+
 ## Trash and backups
 
 Deleted items stay in the trash for 30 days by default, then are deleted for good; **⋯ → Settings → Trash** sets 7, 14, 30, 60 or 90 days, and the Trash page shows the period next to **Empty trash**. A trashed card opens read-only from the Trash page: it can be restored, deleted forever or have its files downloaded. Questions before an action (copy a list, delete forever, remove a zone and the like) appear in the app's own dialog, never in a browser one. See [trash-and-dependencies.md](trash-and-dependencies.md) and [backups.md](backups.md).

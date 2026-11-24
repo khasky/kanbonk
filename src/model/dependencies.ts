@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { isCardAvailable } from "./cards";
 import { newId } from "./ids";
 import type { AppState } from "./types";
@@ -12,7 +13,7 @@ export function linkDependency(state: AppState, dependentId: string, prerequisit
     !isCardAvailable(state, dependent) ||
     !isCardAvailable(state, prerequisite)
   )
-    throw new Error("The cards for the dependency are unavailable.");
+    throw new Error(t("model.dependencyUnavailable"));
   const checklist = dependent.checklists.find((item) => item.name === "Dependencies");
   if (
     checklist?.items.some((item) => item.linkedCardId === prerequisiteId) &&

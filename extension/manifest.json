@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Kanbonk",
-  "description": "Local Kanban boards in your browser: data stays in the extension and syncs with your computer and phone without a cloud.",
+  "name": "__MSG_appName__",
+  "description": "__MSG_appDescription__",
+  "default_locale": "en",
   "version": "0.1.0",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArixtLMp71KrUDYuXdY+6wHL66ngCpetT6PKEEObzgdBPw8KG13gnera4GDI8StMuM9eJmNhS3wtu2jC/lApMuLrprn3C3iIp105vriW0vz7c11YJNN3AqMfVxSpAtGohAv2N6ynkZPaePao4yGpJE5pCQ3d9Bni+6CHbPk6OB7gfoBYixp2qwUdXdL3BxCZ+znB78qW6FoeNxxWiCbM5e9hbDsfhK4YS0A4iC+KJsoz50FoxU+fzhlRSDIBqUTIPhM5b20ppfNsfRmdrzttdZe89ACWffS2u69IJylS1PvnbtJOi5o4o3wrSirwDm3jOVX3oXD2lPnIXwXBxl3FTBQIDAQAB",
   "icons": { "32": "icons/32.png", "128": "icons/128.png" },
-  "action": { "default_title": "Open Kanbonk", "default_icon": { "32": "icons/32.png" } },
+  "action": { "default_title": "__MSG_actionTitle__", "default_icon": { "32": "icons/32.png" } },
   "permissions": ["unlimitedStorage", "downloads"],
   "background": { "service_worker": "background.js" }
 }

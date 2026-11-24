@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Quadros Kanban locais no navegador: os dados ficam na extensão e sincronizam com seu computador e celular sem nuvem."
+  },
+  "actionTitle": {
+    "message": "Abrir o Kanbonk"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Tableaux Kanban locaux dans le navigateur : les données restent dans l’extension et se synchronisent sans cloud avec PC et mobile."
+  },
+  "actionTitle": {
+    "message": "Ouvrir Kanbonk"
+  }
+}

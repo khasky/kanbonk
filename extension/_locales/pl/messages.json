@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Lokalne tablice Kanban w przeglądarce: dane zostają w rozszerzeniu i synchronizują się z komputerem i telefonem bez chmury."
+  },
+  "actionTitle": {
+    "message": "Otwórz Kanbonk"
+  }
+}

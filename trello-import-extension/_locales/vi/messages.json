@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk – Nhập từ Trello"
+  },
+  "appDescription": {
+    "message": "Xuất bảng Trello kèm mọi tệp cho Kanbonk và cho phép Kanbonk trên localhost tải tệp đính kèm Trello."
+  },
+  "panelTitle": {
+    "message": "Xuất cho Kanbonk"
+  },
+  "panelCollapse": {
+    "message": "Thu gọn"
+  },
+  "panelExpand": {
+    "message": "Mở rộng"
+  },
+  "panelIntro": {
+    "message": "Xuất bảng này kèm mọi tệp cho Kanbonk."
+  },
+  "panelHint": {
+    "message": "Các phần ZIP khoảng 100 MB được lưu vào thư mục tải xuống. Nếu trình duyệt hỏi, hãy cho phép trang này tải xuống nhiều tệp."
+  },
+  "exportBoard": {
+    "message": "Xuất bảng"
+  },
+  "exportAgain": {
+    "message": "Xuất lại"
+  },
+  "exportCancel": {
+    "message": "Hủy"
+  },
+  "progressBoard": {
+    "message": "Đang đọc bảng…"
+  },
+  "progressComments": {
+    "message": "Đang đọc bình luận… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Đang đọc nhãn dán…"
+  },
+  "progressSaving": {
+    "message": "Đang lưu phần $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$/$TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Tệp $DONE$/$TOTAL$ · $SIZE$\nPhần $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Xong: $PARTS$ phần, $FILES$/$TOTAL$ tệp.\nTrong Kanbonk, mở ⋯ → Nhập từ Trello và chọn tất cả các phần cùng lúc.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Xong: $PARTS$ phần, $FILES$/$TOTAL$ tệp.\nTrong Kanbonk, mở ⋯ → Nhập từ Trello và chọn tất cả các phần cùng lúc.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Chưa xuất: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Đã hủy xuất."
+  },
+  "warningWorkspaceName": {
+    "message": "Tên không gian làm việc: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "Lịch sử bình luận chỉ gồm 1000 hoạt động gần nhất: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Nhãn dán: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Phản hồi của Trello không hợp lệ"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Không thể tiếp tục tải lịch sử bình luận"
+  },
+  "labelBoardBackground": {
+    "message": "Hình nền bảng"
+  },
+  "labelSticker": {
+    "message": "Nhãn dán $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "URL không hợp lệ"
+  },
+  "errorUnknownImageType": {
+    "message": "Loại hình ảnh không xác định"
+  },
+  "errorInvalidImageSize": {
+    "message": "Kích thước hình ảnh không hợp lệ"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello trả về một trang thay vì tệp; hãy đăng nhập lại"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Lịch sử bình luận Trello không hợp lệ."
+  },
+  "errorUnknownRequest": {
+    "message": "Yêu cầu không xác định."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello trả về một trang thay vì tệp đính kèm; hãy đăng nhập vào tài khoản của bạn."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello không hỗ trợ tải xuống từng phần cho tệp đính kèm lớn. Hãy dùng ZIP."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello không hỗ trợ tải xuống từng phần: HTTP $STATUS$. Hãy dùng ZIP.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello không cho biết kích thước của đoạn tệp đính kèm."
+  },
+  "errorInvalidRange": {
+    "message": "Trello trả về phạm vi tệp đính kèm không hợp lệ."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello trả về đoạn tệp đính kèm không đầy đủ."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "URL tệp đính kèm Trello không hợp lệ."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Hãy mở một thẻ Trello trong hồ sơ Chrome này."
+  },
+  "errorTabNoResponse": {
+    "message": "Thẻ Trello không phản hồi; hãy tải lại thẻ."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Mã định danh lịch sử Trello không hợp lệ."
+  },
+  "errorInvalidOffset": {
+    "message": "Vị trí bắt đầu của tệp đính kèm không hợp lệ."
+  }
+}

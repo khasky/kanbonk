@@ -1,0 +1,32 @@
+/** Messages of src/trello: Trello import errors and the warnings of the import report. */
+export const trello = {
+  extensionNotInstalled: "The Kanbonk Trello Import extension is not installed.",
+  extensionNoResponse: "The extension did not respond.",
+  commentsFetchFailed: "The extension could not fetch comments.",
+  commentsIncomplete: "Could not continue exporting Trello comments.",
+  attachmentFetchFailed: "The extension could not fetch the attachment.",
+  invalidAttachmentChunk: "Received an invalid chunk of a Trello attachment.",
+  boardNotFound: "Board not found.",
+  csvEmpty: "The CSV file is empty.",
+  csvNotTrello: "The CSV does not look like a Trello export: the “Card Name” and “List Name” columns are required.",
+  csvIncomplete: "A Trello CSV does not include comments or checklist items; use JSON for a complete transfer.",
+  notTrelloJson: "The file does not look like a Trello board JSON export.",
+  attachmentsNeedDownload: "Attachments need a separate download or a ZIP with files.",
+  stickersNeedZip: "Trello sticker images need a ZIP with files.",
+  workspaceNameMissing: "The workspace name is not included in the Trello JSON; you can rename it after import.",
+  backgroundNotTransferred:
+    "Background image of the Trello board was not transferred. Save it to your computer and choose it via “Background from file”.",
+  historyTruncated: "A Trello JSON export contains only the last 1000 actions: part of the history may be missing.",
+  historyAndCommentsTruncated:
+    "A Trello JSON export contains only the last 1000 actions: part of the history and older comments may be missing.",
+  attachmentNotDownloaded: "Could not download attachment “{name}”.",
+  stickerNotDownloaded: "Could not download sticker “{name}”.",
+  zipBoardNotImported: "The board from the ZIP was not found among imported boards.",
+  invalidManifest: "The export part has an invalid manifest.",
+  zipUnreadable: "Could not read the ZIP “{name}”.",
+  severalBoardsInParts: "The chosen ZIP files contain several board JSON files; choose the parts of one export.",
+  differentExports: "The chosen ZIP files belong to different exports; choose the parts of one export.",
+  lastPartMissing: "The last part of the export was not chosen.",
+  partsMissing: "Not all parts of the export were chosen; missing: {parts}.",
+  severalBoardsInZip: "The ZIP contains several board JSON files.",
+};

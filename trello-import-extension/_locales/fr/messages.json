@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk – Import Trello"
+  },
+  "appDescription": {
+    "message": "Exporte un tableau Trello et ses fichiers pour Kanbonk et permet à Kanbonk sur localhost de récupérer les pièces jointes Trello."
+  },
+  "panelTitle": {
+    "message": "Export Kanbonk"
+  },
+  "panelCollapse": {
+    "message": "Réduire"
+  },
+  "panelExpand": {
+    "message": "Développer"
+  },
+  "panelIntro": {
+    "message": "Exportez ce tableau avec tous ses fichiers pour Kanbonk."
+  },
+  "panelHint": {
+    "message": "Les parties ZIP d’environ 100 Mo sont enregistrées dans votre dossier de téléchargements. Si le navigateur le demande, autorisez ce site à télécharger plusieurs fichiers."
+  },
+  "exportBoard": {
+    "message": "Exporter le tableau"
+  },
+  "exportAgain": {
+    "message": "Exporter à nouveau"
+  },
+  "exportCancel": {
+    "message": "Annuler"
+  },
+  "progressBoard": {
+    "message": "Lecture du tableau…"
+  },
+  "progressComments": {
+    "message": "Lecture des commentaires… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Lecture des autocollants…"
+  },
+  "progressSaving": {
+    "message": "Enregistrement de la partie $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ Mo",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ sur $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Fichiers : $DONE$ sur $TOTAL$ · $SIZE$\nPartie $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Terminé : $PARTS$ partie, $FILES$ fichiers sur $TOTAL$.\nDans Kanbonk, ouvrez ⋯ → Importer depuis Trello et choisissez toutes les parties en même temps.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Terminé : $PARTS$ parties, $FILES$ fichiers sur $TOTAL$.\nDans Kanbonk, ouvrez ⋯ → Importer depuis Trello et choisissez toutes les parties en même temps.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Non exportés : $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Export annulé."
+  },
+  "warningWorkspaceName": {
+    "message": "Nom de l’espace de travail : $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "L’historique des commentaires est limité aux 1000 dernières actions : $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Autocollants : $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Réponse de Trello non valide"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Impossible de poursuivre l’historique des commentaires"
+  },
+  "labelBoardBackground": {
+    "message": "Arrière-plan du tableau"
+  },
+  "labelSticker": {
+    "message": "Autocollant $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "URL non valide"
+  },
+  "errorUnknownImageType": {
+    "message": "Type d’image inconnu"
+  },
+  "errorInvalidImageSize": {
+    "message": "Taille d’image non valide"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello a renvoyé une page au lieu du fichier ; reconnectez-vous"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Historique des commentaires Trello non valide."
+  },
+  "errorUnknownRequest": {
+    "message": "Requête inconnue."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello a renvoyé une page au lieu de la pièce jointe ; connectez-vous à votre compte."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello ne prend pas en charge le téléchargement partiel d’une grande pièce jointe. Utilisez un ZIP."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello ne prend pas en charge le téléchargement partiel : HTTP $STATUS$. Utilisez un ZIP.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello n’a pas indiqué la taille du fragment de pièce jointe."
+  },
+  "errorInvalidRange": {
+    "message": "Trello a renvoyé une plage de pièce jointe non valide."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello a renvoyé un fragment de pièce jointe incomplet."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "URL de pièce jointe Trello non valide."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Ouvrez un onglet Trello dans ce profil Chrome."
+  },
+  "errorTabNoResponse": {
+    "message": "L’onglet Trello n’a pas répondu ; rechargez-le."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Identifiant d’historique Trello non valide."
+  },
+  "errorInvalidOffset": {
+    "message": "Décalage de pièce jointe non valide."
+  }
+}

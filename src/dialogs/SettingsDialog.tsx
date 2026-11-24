@@ -22,6 +22,9 @@ import {
   type BackupFolder,
 } from "../lib/platform";
 import { setTrashRetention, trashRetentionChoices, useTrashRetention } from "../lib/trashRetention";
+import { chooseLocale, chosenLocale, formatDateTime, type MessageKey, t } from "../i18n";
+import { isLocaleCode, locales, matchLocale } from "../i18n/locales";
+import { tNodes, useLocale } from "../i18n/nodes";
 import { Button } from "../ui/Button";
 import { Checkbox, Input, Select } from "../ui/Field";
 import { Hint } from "../ui/Hint";
@@ -36,15 +39,39 @@ import {
 
 const optionClass = `${optionLabelClass} font-normal`;
 
-const frequencies: Array<[BackupFrequency, string]> = [
-  ["6h", "Every 6 hours"],
-  ["day", "Every day"],
-  ["week", "Every week"],
-  ["off", "Off"],
+const frequencies: Array<[BackupFrequency, MessageKey]> = [
+  ["6h", "settings.every6h"],
+  ["day", "settings.everyDay"],
+  ["week", "settings.everyWeek"],
+  ["off", "settings.off"],
 ];
 
+/** The interface language of this device: one of the supported languages, or the system's. */
+function LanguageField() {
+  useLocale();
+  const chosen = chosenLocale();
+  const system = matchLocale(navigator.languages ?? [navigator.language]);
+  const systemName = locales.find((item) => item.code === system)?.name ?? system;
+  return (
+    <label className={fieldLabelClass}>
+      {t("settings.language")}
+      <Select
+        value={chosen ?? ""}
+        onChange={(event) => void chooseLocale(isLocaleCode(event.target.value) ? event.target.value : undefined)}
+      >
+        <option value="">{t("settings.languageSystem", { name: systemName })}</option>
+        {locales.map((item) => (
+          <option key={item.code} value={item.code} lang={item.code}>
+            {item.name}
+          </option>
+        ))}
+      </Select>
+    </label>
+  );
+}
+
 /**
- * App settings: where, how often and how many automatic full backups (data and files) are kept outside the app, and
+ * App settings: the interface language, where, how often and how many automatic full backups (data and files) are kept outside the app, and
  * how long deleted items stay in the trash.
  */
 export function SettingsDialog({ getState, onClose }: { getState: () => AppState; onClose: () => void }) {
@@ -82,13 +109,13 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
       // Earlier backups are not moved: they stay where they were written.
       if (
         await askConfirm({
-          title: `Write a backup to “${label}” now?`,
-          message: "Earlier backups are not moved; they stay where they are.",
-          confirm: "Back up now",
+          title: t("settings.writeNowTitle", { folder: label }),
+          message: t("settings.writeNowMessage"),
+          confirm: t("settings.backUpNow"),
         })
       )
         await backupNow(next);
-      else setStatus(`The next backup will be written to ${label}.`);
+      else setStatus(t("settings.nextBackupTo", { folder: label }));
     } catch (cause) {
       setStatus(String(cause instanceof Error ? cause.message : cause));
     }
@@ -96,9 +123,9 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
 
   async function backupNow(current = settings) {
     setBusy(true);
-    setStatus("Writing the backup…");
+    setStatus(t("settings.writing"));
     try {
-      setStatus(`Written to ${await writeAutoBackup(getState(), current, true)}`);
+      setStatus(t("settings.writtenTo", { report: await writeAutoBackup(getState(), current, true) }));
       setLast(await lastAutoBackup());
     } catch (cause) {
       setStatus(String(cause instanceof Error ? cause.message : cause));
@@ -109,37 +136,33 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
 
   const available = Boolean(defaultLabel) || backupFolderSupported;
   return (
-    <Dialog label="Settings" onDismiss={busy ? undefined : onClose}>
-      <h2 className={dialogTitleClass}>Settings</h2>
+    <Dialog label={t("settings.title")} onDismiss={busy ? undefined : onClose}>
+      <h2 className={dialogTitleClass}>{t("settings.title")}</h2>
       <section className={dialogListClass}>
-        <h3>Automatic backups</h3>
-        {platform === "extension" && (
-          <Hint>
-            Boards and files live inside this browser extension. Removing the extension deletes them; automatic backups
-            keep a copy outside the browser.
-          </Hint>
-        )}
+        <LanguageField />
+        <Hint>{t("settings.languageHint")}</Hint>
+      </section>
+      <section className={dialogListClass}>
+        <h3>{t("settings.backupsTitle")}</h3>
+        {platform === "extension" && <Hint>{t("settings.extensionHint")}</Hint>}
         {available ? (
           <>
-            <p>
-              A full backup with all files is written as ZIP parts. To restore, choose all parts of one backup in ⋯ →
-              Backup.
-            </p>
+            <p>{t("settings.backupIntro")}</p>
             <label className={fieldLabelClass}>
-              Frequency
+              {t("settings.frequency")}
               <Select
                 value={settings.frequency}
                 onChange={(event) => void change({ ...settings, frequency: event.target.value as BackupFrequency })}
               >
                 {frequencies.map(([value, label]) => (
                   <option key={value} value={value}>
-                    {label}
+                    {t(label)}
                   </option>
                 ))}
               </Select>
             </label>
             <fieldset className="m-0 grid gap-2 rounded-md border border-line px-3 pt-2 pb-3">
-              <legend className="px-1 font-semibold">Location</legend>
+              <legend className="px-1 font-semibold">{t("settings.location")}</legend>
               {defaultLabel && (
                 <label className={optionClass}>
                   <Checkbox
@@ -149,7 +172,7 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
                     onChange={() => void change({ ...settings, target: "default" })}
                   />
                   <span className="wrap-anywhere">
-                    Default: <strong>{defaultLabel}</strong>
+                    {tNodes("settings.defaultLocation", { place: <strong>{defaultLabel}</strong> })}
                   </span>
                 </label>
               )}
@@ -163,7 +186,9 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
                     onChange={() => void change({ ...settings, target: "folder" })}
                   />
                   <span className="wrap-anywhere">
-                    Folder: <strong>{folder ? backupFolderLabel(folder) : "not chosen"}</strong>
+                    {tNodes("settings.folderLocation", {
+                      place: <strong>{folder ? backupFolderLabel(folder) : t("settings.notChosen")}</strong>,
+                    })}
                   </span>
                 </label>
               )}
@@ -176,47 +201,41 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
                   onClick={() => void chooseFolder()}
                   disabled={busy}
                 >
-                  {folder ? "Choose another folder" : "Choose folder"}
+                  {folder ? t("settings.chooseAnotherFolder") : t("settings.chooseFolder")}
                 </Button>
               )}
-              {platform === "web" && settings.target === "default" && (
-                <Hint>
-                  A web page cannot delete or replace files in Downloads: every backup is a new download. Choose a
-                  folder to keep only the newest copies.
-                </Hint>
-              )}
+              {platform === "web" && settings.target === "default" && <Hint>{t("settings.webDownloadsHint")}</Hint>}
             </fieldset>
             <label className={optionClass}>
-              Keep the newest
-              <Input
-                size="sm"
-                className="w-[72px]"
-                type="number"
-                min={1}
-                max={100}
-                value={settings.keep}
-                onChange={(event) => {
-                  const keep = Number(event.target.value);
-                  if (Number.isInteger(keep) && keep >= 1 && keep <= 100) void change({ ...settings, keep });
-                }}
-              />{" "}
-              backups
+              {tNodes("settings.keepNewest", {
+                field: (
+                  <Input
+                    size="sm"
+                    className="w-[72px]"
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={settings.keep}
+                    onChange={(event) => {
+                      const keep = Number(event.target.value);
+                      if (Number.isInteger(keep) && keep >= 1 && keep <= 100) void change({ ...settings, keep });
+                    }}
+                  />
+                ),
+              })}
             </label>
-            <Hint>
-              Backups run while Kanbonk is open. Last backup:{" "}
-              {last ? new Date(last).toLocaleString("en-US") : "none yet"}.
-            </Hint>
+            <Hint>{t("settings.lastBackup", { time: last ? formatDateTime(last) : t("settings.noneYet") })}</Hint>
             <Button
               type="button"
               variant="primary"
               onClick={() => void backupNow()}
               disabled={busy || (settings.target === "folder" && !folder)}
             >
-              {busy ? "Please wait…" : "Back up now"}
+              {busy ? t("common.pleaseWait") : t("settings.backUpNow")}
             </Button>
           </>
         ) : (
-          <p>Automatic backups to files are not available in this app. Use ⋯ → Backup or sync with another device.</p>
+          <p>{t("settings.unavailable")}</p>
         )}
         {status && (
           <p className={plainReportClass} role="status">
@@ -225,9 +244,9 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
         )}
       </section>
       <section className={dialogListClass}>
-        <h3>Trash</h3>
+        <h3>{t("settings.trashTitle")}</h3>
         <label className={fieldLabelClass}>
-          Delete items in the trash forever after
+          {t("settings.trashAfter")}
           <Select
             value={retentionDays ?? ""}
             disabled={retentionDays === undefined}
@@ -237,19 +256,16 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
           >
             {trashRetentionChoices.map((days) => (
               <option key={days} value={days}>
-                {days} days
+                {t("common.days", { count: days })}
               </option>
             ))}
           </Select>
         </label>
-        <Hint>
-          This device deletes them; the deletion then syncs to your other devices, so the shortest period among them
-          applies.
-        </Hint>
+        <Hint>{t("settings.trashHint")}</Hint>
       </section>
       <div className={dialogFooterClass}>
         <Button variant="secondary" size="lg" type="button" onClick={onClose} disabled={busy}>
-          Close
+          {t("common.close")}
         </Button>
       </div>
     </Dialog>

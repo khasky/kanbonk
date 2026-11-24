@@ -1,3 +1,4 @@
+import { formatDate, t } from "../i18n";
 import type { AppState, Card } from "./index";
 
 /** Markdown link to a card; the app resolves `/c/<id>` links to the card itself (see links.ts). */
@@ -26,24 +27,29 @@ export function projectSummary(state: AppState, boardId: string, now = Date.now(
   const cards = state.cards.filter(
     (item) => item.boardId === boardId && listIds.has(item.listId) && !item.deletedAt && !item.isTemplate,
   );
-  const lines = [`**${cards.length}** ${cards.length === 1 ? "card" : "cards"}.`, "", "| List | Cards |", "|---|---:|"];
+  const lines = [
+    t("model.summaryCards", { count: cards.length }),
+    "",
+    `| ${t("model.summaryList")} | ${t("model.summaryCardsColumn")} |`,
+    "|---|---:|",
+  ];
   for (const list of lists)
     lines.push(`| ${list.name.replace(/\|/g, "/")} | ${cards.filter((item) => item.listId === list.id).length} |`);
   const section = (title: string, items: Card[], note: (card: Card) => string = () => "") => {
     if (!items.length) return;
     lines.push("", `### ${title} (${items.length})`);
     for (const item of items.slice(0, 15)) lines.push(`- ${cardRef(item)}${note(item)}`);
-    if (items.length > 15) lines.push(`- …and ${items.length - 15} more`);
+    if (items.length > 15) lines.push(`- ${t("model.summaryMore", { count: items.length - 15 })}`);
   };
   const due = (item: Card) => Date.parse(item.dueAt ?? "");
-  const date = (time: number) => new Date(time).toLocaleDateString("en-US");
+  const date = (time: number) => formatDate(time);
   section(
-    "Overdue",
+    t("model.summaryOverdue"),
     cards.filter((item) => due(item) < now).sort((a, b) => due(a) - due(b)),
-    (item) => ` — due ${date(due(item))}`,
+    (item) => ` — ${t("model.summaryDueOn", { date: date(due(item)) })}`,
   );
   section(
-    "Due in the next 7 days",
+    t("model.summaryDueSoon"),
     cards.filter((item) => due(item) >= now && due(item) <= now + 7 * day).sort((a, b) => due(a) - due(b)),
     (item) => ` — ${date(due(item))}`,
   );
@@ -52,5 +58,5 @@ export function projectSummary(state: AppState, boardId: string, now = Date.now(
 
 /** Appends a dated snapshot of the summary to the board document, so the doc keeps a history of the project state. */
 export function withSummarySnapshot(doc: string, summary: string, now = new Date()): string {
-  return `${doc.trimEnd()}${doc.trim() ? "\n\n" : ""}## Status on ${now.toLocaleDateString("en-US")}\n\n${summary}\n`;
+  return `${doc.trimEnd()}${doc.trim() ? "\n\n" : ""}## ${t("model.statusOn", { date: formatDate(now) })}\n\n${summary}\n`;
 }

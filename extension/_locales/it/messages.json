@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Bacheche Kanban locali nel browser: i dati restano nell'estensione e si sincronizzano con computer e telefono senza cloud."
+  },
+  "actionTitle": {
+    "message": "Apri Kanbonk"
+  }
+}

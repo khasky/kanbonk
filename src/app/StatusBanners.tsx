@@ -1,5 +1,6 @@
 import { Icon } from "../ui/Icon";
 import { Button } from "../ui/Button";
+import { t } from "../i18n";
 
 /** The messages over the app: a notice that may open a card, the automatic backup question and the last error. */
 export function StatusBanners({
@@ -39,13 +40,13 @@ export function StatusBanners({
                 onOpenCard(noticeCardId);
               }}
             >
-              Open
+              {t("app.open")}
             </button>
           )}
           <button
             className="border-0 bg-transparent text-inherit"
             onClick={onDismissNotice}
-            aria-label="Dismiss message"
+            aria-label={t("app.dismissMessage")}
           >
             <Icon name="close" />
           </button>
@@ -55,15 +56,15 @@ export function StatusBanners({
         <div
           className="fixed right-5 bottom-5 z-[110] grid max-w-[340px] gap-2.5 rounded-md border border-line bg-white px-3.5 py-3 text-[14px] text-ink shadow-popover"
           role="alertdialog"
-          aria-label="Automatic backup"
+          aria-label={t("app.automaticBackup")}
         >
-          <span>An automatic backup is due. Your browser may ask where to save it.</span>
+          <span>{t("app.backupDue")}</span>
           <div className="flex items-center gap-3">
             <Button variant="primary" onClick={onSaveBackup}>
-              Save backup
+              {t("app.saveBackup")}
             </Button>
             <Button variant="link" onClick={onSkipBackup}>
-              Skip
+              {t("app.skip")}
             </Button>
           </div>
         </div>
@@ -77,7 +78,7 @@ export function StatusBanners({
           <button
             className="border-0 bg-transparent text-inherit"
             onClick={onDismissError}
-            aria-label="Dismiss message"
+            aria-label={t("app.dismissMessage")}
           >
             <Icon name="close" />
           </button>

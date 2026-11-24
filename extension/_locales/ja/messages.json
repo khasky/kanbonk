@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "ブラウザで使えるローカルのカンバンボード。データは拡張機能内に保存され、クラウドを使わずにパソコンやスマートフォンと同期します。"
+  },
+  "actionTitle": {
+    "message": "Kanbonk を開く"
+  }
+}

@@ -1,5 +1,6 @@
 import qrcode from "qrcode-generator";
 import type { AppState, Card } from "../model";
+import { t } from "../i18n";
 import { linkHref } from "../lib/router";
 import { saveFile } from "../lib/platform";
 
@@ -60,7 +61,7 @@ export async function downloadCardPng(element: HTMLElement, card: Card): Promise
     pixelRatio: 2,
     filter: (node) => !(node instanceof HTMLElement && node.dataset.shareSkip !== undefined),
   });
-  if (!blob) throw new Error("Could not create the image.");
+  if (!blob) throw new Error(t("card.imageFailed"));
   return saveFile(blob, fileName(card, "png"));
 }
 

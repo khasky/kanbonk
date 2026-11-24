@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk: імпорт із Trello"
+  },
+  "appDescription": {
+    "message": "Експортує дошку Trello з усіма файлами для Kanbonk і дає Kanbonk на localhost завантажувати вкладення Trello."
+  },
+  "panelTitle": {
+    "message": "Експорт у Kanbonk"
+  },
+  "panelCollapse": {
+    "message": "Згорнути"
+  },
+  "panelExpand": {
+    "message": "Розгорнути"
+  },
+  "panelIntro": {
+    "message": "Експортуйте цю дошку з усіма файлами для Kanbonk."
+  },
+  "panelHint": {
+    "message": "ZIP-частини приблизно по 100 МБ зберігаються в теку завантажень. Якщо браузер запитає, дозвольте цьому сайту завантажувати кілька файлів."
+  },
+  "exportBoard": {
+    "message": "Експортувати дошку"
+  },
+  "exportAgain": {
+    "message": "Експортувати знову"
+  },
+  "exportCancel": {
+    "message": "Скасувати"
+  },
+  "progressBoard": {
+    "message": "Читання дошки…"
+  },
+  "progressComments": {
+    "message": "Читання коментарів… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Читання наліпок…"
+  },
+  "progressSaving": {
+    "message": "Збереження частини $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ МБ",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ із $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Файли: $DONE$ із $TOTAL$ · $SIZE$\nЧастина $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Готово. Частин: $PARTS$, файлів: $FILES$ із $TOTAL$.\nУ Kanbonk відкрийте ⋯ → Імпорт із Trello й виберіть усі частини одразу.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Готово. Частин: $PARTS$, файлів: $FILES$ із $TOTAL$.\nУ Kanbonk відкрийте ⋯ → Імпорт із Trello й виберіть усі частини одразу.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Не експортовано: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Експорт скасовано."
+  },
+  "warningWorkspaceName": {
+    "message": "Назва робочого простору: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "Історію коментарів обмежено останніми 1000 діями: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Наліпки: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Некоректна відповідь Trello"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Не вдалося продовжити завантаження історії коментарів"
+  },
+  "labelBoardBackground": {
+    "message": "Фон дошки"
+  },
+  "labelSticker": {
+    "message": "Наліпка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Некоректна URL-адреса"
+  },
+  "errorUnknownImageType": {
+    "message": "Невідомий тип зображення"
+  },
+  "errorInvalidImageSize": {
+    "message": "Неприпустимий розмір зображення"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello повернув сторінку замість файлу; увійдіть знову"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Некоректна історія коментарів Trello."
+  },
+  "errorUnknownRequest": {
+    "message": "Невідомий запит."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello повернув сторінку замість вкладення; увійдіть у свій обліковий запис."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello не підтримує часткове завантаження великого вкладення. Використайте ZIP."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello не підтримує часткове завантаження: HTTP $STATUS$. Використайте ZIP.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello не повідомив розмір фрагмента вкладення."
+  },
+  "errorInvalidRange": {
+    "message": "Trello повернув некоректний діапазон вкладення."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello повернув неповний фрагмент вкладення."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Некоректна URL-адреса вкладення Trello."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Відкрийте вкладку Trello в цьому профілі Chrome."
+  },
+  "errorTabNoResponse": {
+    "message": "Вкладка Trello не відповіла; перезавантажте її."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Некоректний ідентифікатор історії Trello."
+  },
+  "errorInvalidOffset": {
+    "message": "Некоректний зсув вкладення."
+  }
+}

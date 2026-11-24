@@ -1,5 +1,6 @@
 import { type RefObject, useState } from "react";
 import type { AppState, Card } from "../model";
+import { t } from "../i18n";
 import { Button } from "../ui/Button";
 import { pickerBoxClass } from "./cardLook";
 import { cardLink, downloadCardJson, downloadCardPng, printCard, qrSvg } from "./share";
@@ -21,22 +22,22 @@ export function SharePanel({
     try {
       if (action === "print") printCard();
       else if (action === "png") {
-        if (dialog.current && (await downloadCardPng(dialog.current, card))) setShareStatus("Image saved.");
+        if (dialog.current && (await downloadCardPng(dialog.current, card))) setShareStatus(t("card.imageSaved"));
       } else if (action === "json") {
-        if (await downloadCardJson(state, card)) setShareStatus("JSON saved.");
+        if (await downloadCardJson(state, card)) setShareStatus(t("card.jsonSaved"));
       } else {
         await navigator.clipboard.writeText(cardLink(card.id));
-        setShareStatus("Link copied.");
+        setShareStatus(t("card.linkCopied"));
       }
     } catch (cause) {
-      setShareStatus(`Something went wrong: ${cause instanceof Error ? cause.message : String(cause)}`);
+      setShareStatus(t("card.shareFailed", { error: cause instanceof Error ? cause.message : String(cause) }));
     }
   }
   return (
-    <section className={pickerBoxClass} aria-label="Share card" data-share-skip>
+    <section className={pickerBoxClass} aria-label={t("card.shareCard")} data-share-skip>
       <div className="grid grid-cols-2 gap-2">
         <Button variant="secondary" size="lg" onClick={() => void share("print")}>
-          Print
+          {t("card.print")}
         </Button>
         <Button variant="secondary" size="lg" onClick={() => void share("png")}>
           PNG
@@ -45,7 +46,7 @@ export function SharePanel({
           JSON
         </Button>
         <Button variant="secondary" size="lg" onClick={() => void share("link")}>
-          Copy link
+          {t("card.copyLink")}
         </Button>
         <Button
           variant="secondary"
@@ -54,7 +55,7 @@ export function SharePanel({
           onClick={() => setShowQr(!showQr)}
           aria-pressed={showQr}
         >
-          QR code
+          {t("card.qrCode")}
         </Button>
       </div>
       {showQr && (
@@ -62,7 +63,7 @@ export function SharePanel({
           <span
             className="block h-[180px] w-[180px] bg-white [&_svg]:h-full [&_svg]:w-full"
             role="img"
-            aria-label="QR code for the card link"
+            aria-label={t("card.qrCodeLabel")}
             dangerouslySetInnerHTML={{ __html: qrSvg(cardLink(card.id)) }}
           />
           <figcaption className="text-center text-[12px] break-all">{cardLink(card.id)}</figcaption>

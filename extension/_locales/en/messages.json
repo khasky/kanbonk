@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Local Kanban boards in your browser: data stays in the extension and syncs with your computer and phone without a cloud."
+  },
+  "actionTitle": {
+    "message": "Open Kanbonk"
+  }
+}

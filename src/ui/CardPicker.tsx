@@ -1,6 +1,7 @@
 import { Input } from "./Field";
 import { useState } from "react";
 import type { Card } from "../model";
+import { t } from "../i18n";
 
 const resultClass =
   "cursor-pointer rounded-sm border-0 bg-transparent px-1.5 py-[5px] text-left text-ink hover:bg-brand-soft focus:bg-brand-soft";
@@ -34,10 +35,14 @@ export function CardPicker({
         autoFocus
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder="Find a card"
+        placeholder={t("ui.findCard")}
         aria-label={label}
       />
-      <div className="flex max-h-[220px] flex-col overflow-auto" role="listbox" aria-label={`${label}: results`}>
+      <div
+        className="flex max-h-[220px] flex-col overflow-auto"
+        role="listbox"
+        aria-label={t("ui.pickerResults", { label })}
+      >
         {matches.map((item) => (
           <button
             className={resultClass}
@@ -49,7 +54,7 @@ export function CardPicker({
             {describe(item)}
           </button>
         ))}
-        {!matches.length && <small>No matches</small>}
+        {!matches.length && <small>{t("ui.noMatches")}</small>}
       </div>
     </div>
   );

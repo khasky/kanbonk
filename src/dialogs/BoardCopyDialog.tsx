@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { t } from "../i18n";
 import type { Workspace } from "../model";
 import { Dialog, submitWith } from "../ui/Modal";
 import { Button } from "../ui/Button";
@@ -30,16 +31,16 @@ export function BoardCopyDialog({
   const change = (patch: Partial<BoardCopyOptions>) => setOptions((current) => ({ ...current, ...patch }));
   return (
     <Dialog
-      label="Copy board"
+      label={t("dialogs.copyBoardTitle")}
       className="grid gap-3.5"
       onDismiss={onClose}
       onSubmit={submitWith(() => {
         if (options.name.trim()) onCopy(options);
       })}
     >
-      <h2 className="mx-0 mt-0 mb-1 text-[20px]">Copy board</h2>
+      <h2 className="mx-0 mt-0 mb-1 text-[20px]">{t("dialogs.copyBoardTitle")}</h2>
       <label className={fieldLabelClass}>
-        Title
+        {t("dialogs.titleField")}
         <Input
           autoFocus
           value={options.name}
@@ -49,7 +50,7 @@ export function BoardCopyDialog({
         />
       </label>
       <label className={fieldLabelClass}>
-        Workspace
+        {t("dialogs.workspaceField")}
         <Select value={options.workspaceId} onChange={(event) => change({ workspaceId: event.target.value })}>
           {workspaces.map((item) => (
             <option key={item.id} value={item.id}>
@@ -60,22 +61,22 @@ export function BoardCopyDialog({
       </label>
       <label className={optionClass}>
         <Checkbox checked={options.keepCards} onChange={(event) => change({ keepCards: event.target.checked })} />
-        Keep cards
+        {t("dialogs.keepCards")}
       </label>
       <label className={optionClass}>
         <Checkbox
           checked={options.keepTemplates}
           onChange={(event) => change({ keepTemplates: event.target.checked })}
         />
-        Keep card templates
+        {t("dialogs.keepTemplates")}
       </label>
-      <p className="m-0 text-[13px] text-ink-muted">Comments, members and cards in the trash are not copied.</p>
+      <p className="m-0 text-[13px] text-ink-muted">{t("dialogs.copyBoardNote")}</p>
       <div className="mt-1 flex justify-end gap-2">
         <Button variant="secondary" size="lg" type="button" onClick={onClose}>
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button variant="primary" type="submit">
-          Create copy
+          {t("dialogs.createCopy")}
         </Button>
       </div>
     </Dialog>

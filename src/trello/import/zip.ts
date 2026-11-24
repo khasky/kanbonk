@@ -1,4 +1,5 @@
 import { strFromU8, unzipSync } from "fflate";
+import { t } from "../../i18n";
 import { object, string } from "./records";
 
 export function backgroundEntry(files: Record<string, Uint8Array>, trelloId: string): [string, Uint8Array] | undefined {
@@ -47,7 +48,7 @@ export function exportManifest(files: Record<string, Uint8Array>): ExportManifes
     !Number.isSafeInteger(value.part) ||
     (value.parts !== undefined && !Number.isSafeInteger(value.parts))
   )
-    throw new Error("The export part has an invalid manifest.");
+    throw new Error(t("trello.invalidManifest"));
   return {
     exportId: string(value.exportId),
     boardId: string(value.boardId),
@@ -114,7 +115,7 @@ export async function readZip(zipFile: File, filter?: (path: string) => boolean)
       filter ? { filter: (file) => filter(file.name) } : undefined,
     );
   } catch {
-    throw new Error(`Could not read the ZIP “${zipFile.name}”.`);
+    throw new Error(t("trello.zipUnreadable", { name: zipFile.name }));
   }
 }
 
@@ -137,24 +138,23 @@ export async function readTrelloExport(zipFiles: File[]): Promise<{ json?: unkno
     if (manifest) manifests.push(manifest);
     for (const [, data] of boardJsonEntries(files)) boards.push(JSON.parse(strFromU8(data)));
   }
-  if (boards.length > 1)
-    throw new Error("The chosen ZIP files contain several board JSON files; choose the parts of one export.");
+  if (boards.length > 1) throw new Error(t("trello.severalBoardsInParts"));
   if (manifests.length) {
     if (manifests.some((item) => item.exportId !== manifests[0].exportId))
-      throw new Error("The chosen ZIP files belong to different exports; choose the parts of one export.");
+      throw new Error(t("trello.differentExports"));
     const parts = manifests.find((item) => item.parts)?.parts;
     const present = new Set(manifests.map((item) => item.part));
     const missing = parts
       ? Array.from({ length: parts }, (_, index) => index + 1).filter((part) => !present.has(part))
       : [];
-    if (!parts) throw new Error("The last part of the export was not chosen.");
-    if (missing.length) throw new Error(`Not all parts of the export were chosen; missing: ${missing.join(", ")}.`);
+    if (!parts) throw new Error(t("trello.lastPartMissing"));
+    if (missing.length) throw new Error(t("trello.partsMissing", { parts: missing.join(", ") }));
   }
   return { json: boards[0], boardId: string(object(boards[0]).id) || manifests[0]?.boardId || "" };
 }
 
 export function trelloBoardIdInZip(files: Record<string, Uint8Array>): string {
   const boardIds = boardJsonEntries(files).map(([, data]) => string(object(JSON.parse(strFromU8(data))).id));
-  if (boardIds.length > 1) throw new Error("The ZIP contains several board JSON files.");
+  if (boardIds.length > 1) throw new Error(t("trello.severalBoardsInZip"));
   return boardIds[0] ?? "";
 }

@@ -3,6 +3,7 @@ import { Icon } from "../ui/Icon";
 import { Button } from "../ui/Button";
 import { SectionTitle } from "../ui/SectionTitle";
 import { Input, Select } from "../ui/Field";
+import { t } from "../i18n";
 
 const labelClass = "grid gap-[5px] font-semibold";
 
@@ -28,28 +29,33 @@ export function BoardFilterPanel({
   return (
     <section
       className="absolute top-[58px] right-3 z-20 grid w-[min(320px,calc(100vw-24px))] gap-3 rounded-lg border border-line bg-white p-4 text-ink shadow-overlay"
-      aria-label="Board filter"
+      aria-label={t("board.boardFilter")}
     >
       <SectionTitle>
-        <strong>Board filter</strong>
-        <Button variant="secondary" className="grid place-items-center" onClick={onClose} aria-label="Close filter">
+        <strong>{t("board.boardFilter")}</strong>
+        <Button
+          variant="secondary"
+          className="grid place-items-center"
+          onClick={onClose}
+          aria-label={t("board.closeFilter")}
+        >
           <Icon name="close" />
         </Button>
       </SectionTitle>
       <label className={labelClass}>
-        Text
+        {t("board.filterText")}
         <Input
           type="search"
           size="sm"
           value={filter.keyword}
           onChange={(event) => onChange({ keyword: event.target.value })}
-          placeholder="Title or content"
+          placeholder={t("board.filterTextPlaceholder")}
         />
       </label>
       <label className={labelClass}>
-        Label
+        {t("board.label")}
         <Select size="sm" value={filter.labelId} onChange={(event) => onChange({ labelId: event.target.value })}>
-          <option value="">All labels</option>
+          <option value="">{t("board.allLabels")}</option>
           {state.labels
             .filter((item) => item.boardId === board.id && !item.deleted)
             .map((item) => (
@@ -60,13 +66,13 @@ export function BoardFilterPanel({
         </Select>
       </label>
       <label className={labelClass}>
-        Member
+        {t("board.member")}
         <Select
           size="sm"
           value={filter.memberId ?? ""}
           onChange={(event) => onChange({ memberId: event.target.value })}
         >
-          <option value="">All members</option>
+          <option value="">{t("board.allMembers")}</option>
           {(board.members ?? []).map((member) => (
             <option key={member.id} value={member.id}>
               {member.name}
@@ -75,24 +81,22 @@ export function BoardFilterPanel({
         </Select>
       </label>
       <label className={labelClass}>
-        Due date
+        {t("board.dueDate")}
         <Select
           size="sm"
           value={filter.due}
           onChange={(event) => onChange({ due: event.target.value as BoardFilter["due"] })}
         >
-          <option value="any">Any due date</option>
-          <option value="overdue">Overdue</option>
-          <option value="next-week">Next 7 days</option>
-          <option value="none">No due date</option>
+          <option value="any">{t("board.anyDueDate")}</option>
+          <option value="overdue">{t("board.overdue")}</option>
+          <option value="next-week">{t("board.next7Days")}</option>
+          <option value="none">{t("board.noDueDate")}</option>
         </Select>
       </label>
       <div className="flex items-center justify-between gap-2 text-ink-subtle">
-        <span>
-          Showing {shown} of {total}
-        </span>
+        <span>{t("board.showingOf", { shown, total })}</span>
         <Button variant="secondary" onClick={() => onChange(emptyBoardFilter())}>
-          Reset
+          {t("board.reset")}
         </Button>
       </div>
     </section>

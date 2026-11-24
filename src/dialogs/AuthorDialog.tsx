@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { t } from "../i18n";
 import { Dialog, submitWith } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
@@ -16,19 +17,19 @@ export function AuthorDialog({
 }) {
   const [draft, setDraft] = useState(name);
   return (
-    <Dialog label="My name" onDismiss={onClose} onSubmit={submitWith(() => onSave(draft))}>
-      <h2 className={dialogTitleClass}>My name</h2>
-      <p>Your name is stored only on this device and shown on new comments.</p>
+    <Dialog label={t("dialogs.authorTitle")} onDismiss={onClose} onSubmit={submitWith(() => onSave(draft))}>
+      <h2 className={dialogTitleClass}>{t("dialogs.authorTitle")}</h2>
+      <p>{t("dialogs.authorIntro")}</p>
       <label className={fieldLabelClass}>
-        Name
+        {t("dialogs.authorName")}
         <Input autoFocus value={draft} onChange={(event) => setDraft(event.target.value)} maxLength={60} required />
       </label>
       <div className={dialogFooterClass}>
         <Button variant="secondary" size="lg" type="button" onClick={onClose}>
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button variant="primary" disabled={!draft.trim()}>
-          Save
+          {t("common.save")}
         </Button>
       </div>
     </Dialog>

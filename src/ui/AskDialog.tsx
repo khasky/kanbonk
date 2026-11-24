@@ -1,4 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { t } from "../i18n";
 import { Button } from "./Button";
 import { Input } from "./Field";
 import { Dialog, submitWith } from "./Modal";
@@ -69,10 +70,10 @@ function TextAsk({ ask, onCancel }: { ask: Extract<Ask, { kind: "text" }>; onCan
       </label>
       <div className="mt-6 flex justify-end gap-2">
         <Button variant="secondary" size="lg" type="button" onClick={onCancel}>
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button variant="primary" type="submit" disabled={!text.trim()}>
-          {ask.confirm ?? "OK"}
+          {ask.confirm ?? t("common.ok")}
         </Button>
       </div>
     </Dialog>
@@ -109,7 +110,7 @@ export function AskDialogHost() {
       {ask.message && <p className="m-0 leading-normal text-ink-subtle">{ask.message}</p>}
       <div className="mt-6 flex justify-end gap-2">
         <Button variant="secondary" size="lg" type="button" onClick={() => cancel(ask)}>
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button
           variant={ask.danger ? "primary-danger" : "primary"}
@@ -120,7 +121,7 @@ export function AskDialogHost() {
             ask.resolve(true);
           }}
         >
-          {ask.confirm ?? "OK"}
+          {ask.confirm ?? t("common.ok")}
         </Button>
       </div>
     </Dialog>

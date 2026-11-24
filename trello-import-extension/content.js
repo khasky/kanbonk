@@ -1,3 +1,9 @@
+// Localized text from _locales; falls back to the English text where chrome.i18n is unavailable (tests).
+function t(key, fallback, ...values) {
+  const text = globalThis.chrome?.i18n?.getMessage?.(key, values.map(String));
+  return text || fallback.replace(/\$(\d)/g, (_, index) => String(values[index - 1]));
+}
+
 function base64(bytes) {
   let encoded = "";
   for (let offset = 0; offset < bytes.length; offset += 32768)
@@ -20,7 +26,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       });
       if (!response.ok) throw new Error(`Trello HTTP ${response.status}`);
       const actions = await response.json();
-      if (!Array.isArray(actions) || actions.length > 1000) throw new Error("Invalid Trello comment history.");
+      if (!Array.isArray(actions) || actions.length > 1000)
+        throw new Error(t("errorInvalidCommentHistory", "Invalid Trello comment history."));
       return {
         ok: true,
         actions,
@@ -28,7 +35,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         nextBefore: actions.length === 1000 ? actions.at(-1)?.id : undefined,
       };
     }
-    if (message?.type !== "download") throw new Error("Unknown request.");
+    if (message?.type !== "download") throw new Error(t("errorUnknownRequest", "Unknown request."));
     const offset = message.offset;
     const response = await fetch(message.url, {
       credentials: "include",
@@ -36,25 +43,34 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     });
     const mimeType = response.headers.get("content-type")?.split(";")[0] ?? "";
     if (mimeType === "text/html")
-      throw new Error("Trello returned a page instead of the attachment; sign in to your account.");
+      throw new Error(
+        t("errorPageInsteadOfAttachment", "Trello returned a page instead of the attachment; sign in to your account."),
+      );
     if (response.status === 200 && offset === 0) {
       const limit = 12 * 1024 * 1024;
       if (Number(response.headers.get("content-length")) > limit)
-        throw new Error("Trello does not support partial download of a large attachment. Use a ZIP.");
+        throw new Error(
+          t("errorLargeAttachment", "Trello does not support partial download of a large attachment. Use a ZIP."),
+        );
       const bytes = new Uint8Array(await response.arrayBuffer());
       if (!bytes.length || bytes.length > limit)
-        throw new Error("Trello does not support partial download of a large attachment. Use a ZIP.");
+        throw new Error(
+          t("errorLargeAttachment", "Trello does not support partial download of a large attachment. Use a ZIP."),
+        );
       return { ok: true, data: base64(bytes), mimeType, offset, total: bytes.length };
     }
     if (response.status !== 206)
-      throw new Error(`Trello does not support partial download: HTTP ${response.status}. Use a ZIP.`);
+      throw new Error(
+        t("errorNoPartialDownload", "Trello does not support partial download: HTTP $1. Use a ZIP.", response.status),
+      );
     const range = /^bytes (\d+)-(\d+)\/(\d+)$/.exec(response.headers.get("content-range") ?? "");
-    if (!range) throw new Error("Trello did not report the size of the attachment chunk.");
+    if (!range) throw new Error(t("errorNoChunkSize", "Trello did not report the size of the attachment chunk."));
     const [, start, end, total] = range.map(Number);
     if (start !== offset || end < start || end >= total || end - start + 1 > chunkSize)
-      throw new Error("Trello returned an invalid attachment range.");
+      throw new Error(t("errorInvalidRange", "Trello returned an invalid attachment range."));
     const bytes = new Uint8Array(await response.arrayBuffer());
-    if (bytes.length !== end - start + 1) throw new Error("Trello returned an incomplete attachment chunk.");
+    if (bytes.length !== end - start + 1)
+      throw new Error(t("errorIncompleteChunk", "Trello returned an incomplete attachment chunk."));
     return { ok: true, data: base64(bytes), mimeType, offset, total };
   })().then(sendResponse, (error) => sendResponse({ ok: false, error: String(error) }));
   return true;

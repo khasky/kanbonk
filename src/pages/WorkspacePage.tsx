@@ -1,4 +1,5 @@
 import { MissingPage } from "./MissingPage";
+import { t } from "../i18n";
 import type { AppState } from "../model";
 import { inboxWorkspaceId } from "../model/inbox";
 import { Button } from "../ui/Button";
@@ -29,7 +30,7 @@ export function WorkspacePage({
   onDelete: () => void;
 }) {
   const workspace = state.workspaces.find((item) => item.id === workspaceId);
-  if (!workspace) return <MissingPage what="Workspace not found" />;
+  if (!workspace) return <MissingPage what={t("pages.workspaceNotFound")} />;
   const boards = state.boards.filter((board) => board.workspaceId === workspace.id && !board.deletedAt);
   return (
     <section className={pageClass} aria-label={workspace.name}>
@@ -37,7 +38,7 @@ export function WorkspacePage({
         <WorkspaceAvatar name={workspace.name} size="lg" />
         <input
           className="flex-1 rounded-sm border border-transparent px-2 py-1.5 text-[22px] font-bold text-ink hover:border-ink-faint focus:border-ink-faint"
-          aria-label="Workspace name"
+          aria-label={t("pages.workspaceName")}
           defaultValue={workspace.name}
           key={workspace.name}
           onBlur={(event) => {
@@ -51,11 +52,11 @@ export function WorkspacePage({
         />
         {workspace.id !== inboxWorkspaceId && (
           <Button variant="danger" onClick={onDelete}>
-            Move to trash
+            {t("pages.moveToTrash")}
           </Button>
         )}
       </header>
-      <h2 className={pageHeadingClass}>Boards</h2>
+      <h2 className={pageHeadingClass}>{t("pages.boards")}</h2>
       {boards.length ? (
         <div className={tileGridClass}>
           {boards.map((board) => (
@@ -66,18 +67,18 @@ export function WorkspacePage({
               onClick={() => onOpenBoard(board.id)}
             >
               <strong>{board.name}</strong>
-              {board.starred && <span aria-label="Starred">★</span>}
+              {board.starred && <span aria-label={t("pages.starred")}>★</span>}
             </button>
           ))}
           <button className={createTileClass} onClick={onCreateBoard}>
-            + Create board
+            {t("pages.createBoardTile")}
           </button>
         </div>
       ) : (
         <div className={emptyClass}>
-          <p>This workspace has no boards yet.</p>
+          <p>{t("pages.noBoardsYet")}</p>
           <Button variant="primary" onClick={onCreateBoard}>
-            Add board
+            {t("pages.addBoard")}
           </Button>
         </div>
       )}

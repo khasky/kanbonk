@@ -8,6 +8,7 @@ import { Checkbox, Input, Select, Textarea } from "../ui/Field";
 import { Hint } from "../ui/Hint";
 import { RowActions } from "../ui/PanelRow";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
+import { t } from "../i18n";
 
 const panelClass = "mt-5 flex flex-col gap-2 border-t border-line pt-3";
 
@@ -49,13 +50,10 @@ export function AiPanel({
   if (!settings)
     return (
       <section className={panelClass}>
-        <h3>AI assistant</h3>
-        <Hint>
-          Connect your own API key (Claude, ChatGPT, Gemini or a compatible server) to triage incoming tasks and keep a
-          project doc with links to cards. The key is stored only on this device.
-        </Hint>
+        <h3>{t("board.aiAssistant")}</h3>
+        <Hint>{t("board.aiConnectHint")}</Hint>
         <Button variant="secondary" size="lg" className="self-start" onClick={onOpenSettings}>
-          Connect AI
+          {t("board.connectAi")}
         </Button>
       </section>
     );
@@ -73,22 +71,22 @@ export function AiPanel({
   }
   const provider = aiProviders[settings.provider].name;
   return (
-    <section className={panelClass} aria-label="AI assistant">
+    <section className={panelClass} aria-label={t("board.aiAssistant")}>
       <header className="flex items-baseline gap-2">
-        <h3 className="m-0">AI assistant</h3>
+        <h3 className="m-0">{t("board.aiAssistant")}</h3>
         <small className="mr-auto text-ink-muted">
           {provider} · {settings.model}
         </small>
         <Button variant="secondary" onClick={onOpenSettings}>
-          Settings
+          {t("board.aiSettings")}
         </Button>
       </header>
-      <Segmented label="AI action">
+      <Segmented label={t("board.aiAction")}>
         {(
           [
-            ["triage", "Triage inbox"],
-            ["doc", "Update doc"],
-            ["ask", "Ask about this board"],
+            ["triage", "board.triageInbox"],
+            ["doc", "board.updateDoc"],
+            ["ask", "board.askBoard"],
           ] as const
         ).map(([id, name]) => (
           <SegmentedTab
@@ -100,7 +98,7 @@ export function AiPanel({
               setDraft(null);
             }}
           >
-            {name}
+            {t(name)}
           </SegmentedTab>
         ))}
       </Segmented>
@@ -110,8 +108,8 @@ export function AiPanel({
             className="w-full"
             value={inbound}
             onChange={(event) => setInbound(event.target.value)}
-            placeholder="Paste emails, meeting notes, chat messages…"
-            aria-label="Incoming messages"
+            placeholder={t("board.inboundPlaceholder")}
+            aria-label={t("board.incomingMessages")}
             rows={6}
           />
           <Button
@@ -129,7 +127,7 @@ export function AiPanel({
               )
             }
           >
-            {busy ? "Triaging…" : `Triage (sends text to ${provider})`}
+            {busy ? t("board.triaging") : t("board.triageSend", { provider })}
           </Button>
           {proposals.length > 0 && (
             <div className="flex flex-col gap-2">
@@ -145,7 +143,7 @@ export function AiPanel({
                           ),
                         )
                       }
-                      aria-label={`Create card ${item.title}`}
+                      aria-label={t("board.createCardOf", { title: item.title })}
                     />
                     <Input
                       size="sm"
@@ -158,7 +156,7 @@ export function AiPanel({
                           ),
                         )
                       }
-                      aria-label="Card title"
+                      aria-label={t("board.cardTitle")}
                     />
                   </label>
                   <Select
@@ -171,7 +169,7 @@ export function AiPanel({
                         ),
                       )
                     }
-                    aria-label="List"
+                    aria-label={t("board.list")}
                   >
                     {lists.map((list) => (
                       <option key={list.id} value={list.id}>
@@ -179,7 +177,7 @@ export function AiPanel({
                       </option>
                     ))}
                   </Select>
-                  {item.due && <small>Due date: {item.due}</small>}
+                  {item.due && <small>{t("board.dueDateValue", { date: item.due })}</small>}
                   <blockquote className="m-0 border-l-[3px] border-line pl-2 text-[12px] text-ink-subtle">
                     {item.source}
                   </blockquote>
@@ -194,7 +192,7 @@ export function AiPanel({
                   setInbound("");
                 }}
               >
-                Create selected ({proposals.filter((item) => item.selected).length})
+                {t("board.createSelected", { count: proposals.filter((item) => item.selected).length })}
               </Button>
             </div>
           )}
@@ -202,8 +200,9 @@ export function AiPanel({
       )}
       {mode !== "triage" && context && (
         <Hint>
-          Will be sent to {provider}: {context.cards} cards from the board and the doc
-          {context.truncated ? `; ${context.truncated} cards did not fit` : ""}.
+          {context.truncated
+            ? t("board.willBeSentTruncated", { provider, count: context.cards, truncated: context.truncated })
+            : t("board.willBeSent", { provider, count: context.cards })}
         </Hint>
       )}
       {mode === "doc" && (
@@ -224,7 +223,7 @@ export function AiPanel({
             )
           }
         >
-          {busy ? "Writing…" : "Draft a new version of the doc"}
+          {busy ? t("board.writing") : t("board.draftDoc")}
         </Button>
       )}
       {mode === "ask" && (
@@ -234,8 +233,8 @@ export function AiPanel({
             className="min-w-0 flex-1"
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
-            placeholder="For example: what is blocking the release?"
-            aria-label="Ask about this board"
+            placeholder={t("board.askPlaceholder")}
+            aria-label={t("board.askBoard")}
           />
           <Button
             variant="secondary"
@@ -254,7 +253,7 @@ export function AiPanel({
               )
             }
           >
-            {busy ? "Thinking…" : "Ask"}
+            {busy ? t("board.thinking") : t("board.ask")}
           </Button>
         </div>
       )}
@@ -266,8 +265,9 @@ export function AiPanel({
       {draft && (
         <div className="rounded-lg border border-dashed border-brand px-3 py-2">
           <Hint>
-            Card links: {draft.cited}
-            {draft.invalid ? `; links to missing cards: ${draft.invalid} (marked)` : ""}.
+            {draft.invalid
+              ? t("board.draftLinksInvalid", { cited: draft.cited, invalid: draft.invalid })
+              : t("board.draftLinks", { cited: draft.cited })}
           </Hint>
           <MarkdownText text={draft.markdown} localCardForUrl={cardForUrl} onNavigateCard={onOpenCard} />
           <RowActions>
@@ -279,7 +279,7 @@ export function AiPanel({
                   setDraft(null);
                 }}
               >
-                Replace doc
+                {t("board.replaceDoc")}
               </Button>
             )}
             <Button
@@ -292,10 +292,10 @@ export function AiPanel({
                 setDraft(null);
               }}
             >
-              Append to doc
+              {t("board.appendToDoc")}
             </Button>
             <Button variant="secondary" size="lg" onClick={() => setDraft(null)}>
-              Discard
+              {t("board.discard")}
             </Button>
           </RowActions>
         </div>

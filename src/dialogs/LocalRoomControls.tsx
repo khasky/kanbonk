@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { newRoomCode } from "../sync/lanSync";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
@@ -18,14 +19,10 @@ export function LocalRoomControls({
 }) {
   return (
     <section className={localSyncClass.section}>
-      <h3 className="m-0">Via a local server</h3>
-      <p className={localSyncClass.text}>
-        Open Kanbonk on both devices using the computer's Wi-Fi address. Enter the address of the running Kanbonk server
-        and share the room code with the second device. Changes sync automatically; the server only receives encrypted
-        data.
-      </p>
+      <h3 className="m-0">{t("dialogs.localServerTitle")}</h3>
+      <p className={localSyncClass.text}>{t("dialogs.localServerIntro")}</p>
       <label className={fieldLabelClass}>
-        Server address
+        {t("dialogs.serverAddress")}
         <Input
           type="url"
           value={serverUrl}
@@ -34,7 +31,7 @@ export function LocalRoomControls({
         />
       </label>
       <label className={fieldLabelClass}>
-        Room code
+        {t("dialogs.roomCode")}
         <Input
           value={roomCode}
           onChange={(event) => onCodeChange(event.target.value)}
@@ -44,10 +41,10 @@ export function LocalRoomControls({
       </label>
       <div className={localSyncClass.actions}>
         <Button variant="secondary" size="lg" onClick={() => onCodeChange(newRoomCode())}>
-          Create code
+          {t("dialogs.createCode")}
         </Button>
         <Button variant="primary" onClick={onConnect} disabled={!serverUrl || !roomCode}>
-          Connect with code
+          {t("dialogs.connectWithCode")}
         </Button>
       </div>
     </section>

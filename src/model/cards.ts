@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { newId } from "./ids";
 import type { AppState, BoardList, Card } from "./types";
 
@@ -56,7 +57,7 @@ export function transferCard(
   const source = state.cards.find((card) => card.id === cardId && !card.deletedAt);
   const targetList = state.lists.find((list) => list.id === targetListId && !list.deletedAt);
   const targetBoard = state.boards.find((board) => board.id === targetList?.boardId && !board.deletedAt);
-  if (!source || !targetList || !targetBoard) throw new Error("The card or target list is unavailable.");
+  if (!source || !targetList || !targetBoard) throw new Error(t("model.cardOrListUnavailable"));
 
   const crossBoard = source.boardId !== targetBoard.id;
   const labels = [...state.labels];
@@ -132,7 +133,7 @@ export function transferCard(
 /** "<name> - Clone", with one more " - Clone" for each card of the board that already has the name. */
 export function cloneCardName(state: AppState, cardId: string): string {
   const source = state.cards.find((card) => card.id === cardId);
-  if (!source) throw new Error("Card not found.");
+  if (!source) throw new Error(t("model.cardNotFound"));
   const taken = new Set(state.cards.filter((card) => card.boardId === source.boardId).map((card) => card.name));
   let name = `${source.name} - Clone`;
   while (taken.has(name)) name += " - Clone";
@@ -142,7 +143,7 @@ export function cloneCardName(state: AppState, cardId: string): string {
 /** Copies a card under the name from `cloneCardName` right below the original in the same list. */
 export function cloneCard(state: AppState, cardId: string, copyId = newId()): { state: AppState; cardId: string } {
   const source = state.cards.find((card) => card.id === cardId);
-  if (!source) throw new Error("Card not found.");
+  if (!source) throw new Error(t("model.cardNotFound"));
   const copied = transferCard(state, cardId, source.listId, true, copyId).state;
   const next = copied.cards
     .filter(
@@ -171,7 +172,7 @@ export function createSubCard(
   now = new Date().toISOString(),
 ): AppState {
   const parent = state.cards.find((card) => card.id === parentId);
-  if (!parent) throw new Error("Card not found.");
+  if (!parent) throw new Error(t("model.cardNotFound"));
   const siblings = state.cards.filter((card) => card.listId === parent.listId && !card.deletedAt);
   const after = Math.max(
     parent.position,
@@ -224,7 +225,7 @@ export function createCardFromTemplate(
   const template = state.cards.find((card) => card.id === templateId && card.isTemplate);
   const target = state.lists.find((list) => list.id === targetListId && !list.deletedAt);
   if (!template || !target || template.boardId !== target.boardId)
-    throw new Error("The template or target list is unavailable.");
+    throw new Error(t("model.templateOrListUnavailable"));
   const result = transferCard(state, templateId, targetListId, true, copyId);
   return {
     state: {

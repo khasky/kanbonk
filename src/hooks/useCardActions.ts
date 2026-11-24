@@ -3,6 +3,7 @@ import type { TriageItem } from "../ai/ai";
 import { applyCardButton, applyMoveRules } from "../model/automation";
 import { trashSubCards } from "../model/trash";
 import { inboxBoardId, inboxListId } from "../model/inbox";
+import { t } from "../i18n";
 import {
   type AppState,
   type Card,
@@ -302,7 +303,7 @@ export function useCardActions({
           cover: current.cover ?? (file.type.startsWith("image/") ? { attachmentId: id, size: "normal" } : undefined),
         }));
       } catch (cause) {
-        onError(`Could not save ${file.name}: ${String(cause)}`);
+        onError(t("hooks.fileSaveFailed", { name: file.name, error: String(cause) }));
       }
     }
   }
@@ -310,7 +311,7 @@ export function useCardActions({
   async function addStickerImage(target: Card, file: File | null) {
     if (!file) return;
     if (!["image/png", "image/jpeg", "image/webp", "image/gif", "image/avif"].includes(file.type)) {
-      onError("Choose a PNG, JPEG, WebP, GIF or AVIF image for the sticker.");
+      onError(t("hooks.stickerType"));
       return;
     }
     const id = newId();
@@ -321,7 +322,7 @@ export function useCardActions({
         stickers: [...(current.stickers ?? []), { imageId: id, name: file.name }],
       }));
     } catch (cause) {
-      onError(`Could not save the sticker: ${String(cause)}`);
+      onError(t("hooks.stickerSaveFailed", { error: String(cause) }));
     }
   }
 
@@ -329,12 +330,12 @@ export function useCardActions({
     try {
       const blob = await loadAttachment(id);
       if (!blob) {
-        onError(`File “${name}” is not available on this device.`);
+        onError(t("hooks.fileUnavailable", { name }));
         return;
       }
       await saveFile(blob, name);
     } catch (cause) {
-      onError(`Could not open file “${name}”: ${String(cause)}`);
+      onError(t("hooks.fileOpenFailed", { name, error: String(cause) }));
     }
   }
 

@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Lokale Kanban-tavler i nettleseren: dataene blir i utvidelsen og synkroniseres med datamaskinen og telefonen uten sky."
+  },
+  "actionTitle": {
+    "message": "Åpne Kanbonk"
+  }
+}

@@ -20,7 +20,21 @@
     .error { color: #ae2e24; }
   `;
 
-  const megabytes = (bytes) => `${(bytes / 1024 / 1024).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0)} MB`;
+  // Localized text from _locales; falls back to the English text where chrome.i18n is unavailable.
+  function t(key, fallback, ...values) {
+    const text = globalThis.chrome?.i18n?.getMessage?.(key, values.map(String));
+    return text || fallback.replace(/\$(\d)/g, (_, index) => String(values[index - 1]));
+  }
+  const escapeHtml = (text) => text.replace(/[&<>"]/g, (char) => `&#${char.charCodeAt(0)};`);
+  const megabytes = (bytes) => {
+    const digits = bytes < 10 * 1024 * 1024 ? 1 : 0;
+    const size = (bytes / 1024 / 1024).toLocaleString(globalThis.chrome?.i18n?.getUILanguage?.() || "en", {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+      useGrouping: false,
+    });
+    return t("sizeMegabytes", "$1 MB", size);
+  };
   const boardLink = () => location.pathname.match(/^\/b\/([^/]+)/)?.[1];
 
   let host;
@@ -31,14 +45,14 @@
     host = document.createElement("div");
     const root = host.attachShadow({ mode: "open" });
     root.innerHTML = `<style>${styles}</style>
-      <section class="panel" role="region" aria-label="Kanbonk export">
-        <header><span>Kanbonk export</span><button class="toggle" title="Collapse">–</button></header>
+      <section class="panel" role="region" aria-label="${escapeHtml(t("panelTitle", "Kanbonk export"))}">
+        <header><span>${escapeHtml(t("panelTitle", "Kanbonk export"))}</span><button class="toggle" title="${escapeHtml(t("panelCollapse", "Collapse"))}">–</button></header>
         <div class="body">
-          <div class="status">Export this board with all its files for Kanbonk.</div>
+          <div class="status">${escapeHtml(t("panelIntro", "Export this board with all its files for Kanbonk."))}</div>
           <progress hidden max="1" value="0"></progress>
-          <div class="hint">ZIP parts of about 100 MB go to your downloads folder. If the browser asks, allow this site to download multiple files.</div>
+          <div class="hint">${escapeHtml(t("panelHint", "ZIP parts of about 100 MB go to your downloads folder. If the browser asks, allow this site to download multiple files."))}</div>
           <details hidden><summary></summary><ul></ul></details>
-          <div><button class="primary start">Export board</button> <button class="cancel" hidden>Cancel</button></div>
+          <div><button class="primary start">${escapeHtml(t("exportBoard", "Export board"))}</button> <button class="cancel" hidden>${escapeHtml(t("exportCancel", "Cancel"))}</button></div>
         </div>
       </section>`;
     parts = {
@@ -53,7 +67,7 @@
     parts.toggle.addEventListener("click", () => {
       const collapsed = parts.panel.classList.toggle("collapsed");
       parts.toggle.textContent = collapsed ? "+" : "–";
-      parts.toggle.title = collapsed ? "Expand" : "Collapse";
+      parts.toggle.title = collapsed ? t("panelExpand", "Expand") : t("panelCollapse", "Collapse");
     });
     parts.start.addEventListener("click", start);
     parts.cancel.addEventListener("click", () => controller?.abort());
@@ -61,18 +75,21 @@
   }
 
   function show(state) {
-    if (state.step === "board") parts.status.textContent = "Reading the board…";
-    else if (state.step === "comments") parts.status.textContent = `Reading comments… ${state.count}`;
-    else if (state.step === "stickers") parts.status.textContent = "Reading stickers…";
-    else if (state.step === "saving") parts.status.textContent = `Saving part ${state.part}…`;
+    if (state.step === "board") parts.status.textContent = t("progressBoard", "Reading the board…");
+    else if (state.step === "comments")
+      parts.status.textContent = t("progressComments", "Reading comments… $1", state.count);
+    else if (state.step === "stickers") parts.status.textContent = t("progressStickers", "Reading stickers…");
+    else if (state.step === "saving") parts.status.textContent = t("progressSaving", "Saving part $1…", state.part);
     else if (state.step === "files") {
       parts.progress.hidden = false;
       parts.progress.max = Math.max(1, state.total);
       parts.progress.value = state.done;
       const size = state.totalBytes
-        ? `${megabytes(state.downloadedBytes)} of ${megabytes(state.totalBytes)}`
+        ? t("sizeOfTotal", "$1 of $2", megabytes(state.downloadedBytes), megabytes(state.totalBytes))
         : megabytes(state.downloadedBytes);
-      parts.status.textContent = `Files ${state.done} of ${state.total} · ${size}\nPart ${state.part}${state.current ? ` · ${state.current}` : ""}`;
+      parts.status.textContent =
+        t("progressFiles", "Files $1 of $2 · $3\nPart $4", state.done, state.total, size, state.part) +
+        (state.current ? ` · ${state.current}` : "");
     }
   }
 
@@ -115,8 +132,23 @@
         progress: show,
         signal: controller.signal,
       });
-      parts.status.textContent = `Done: ${result.parts} ${result.parts === 1 ? "part" : "parts"}, ${result.files} of ${result.total} files.\nIn Kanbonk open ⋯ → Import from Trello and choose all the parts at once.`;
-      list(`Not exported: ${result.failures.length + result.warnings.length}`, [
+      parts.status.textContent =
+        result.parts === 1
+          ? t(
+              "doneOnePart",
+              "Done: $1 part, $2 of $3 files.\nIn Kanbonk open ⋯ → Import from Trello and choose all the parts at once.",
+              result.parts,
+              result.files,
+              result.total,
+            )
+          : t(
+              "doneManyParts",
+              "Done: $1 parts, $2 of $3 files.\nIn Kanbonk open ⋯ → Import from Trello and choose all the parts at once.",
+              result.parts,
+              result.files,
+              result.total,
+            );
+      list(t("notExported", "Not exported: $1", result.failures.length + result.warnings.length), [
         ...result.failures,
         ...result.warnings,
       ]);
@@ -126,7 +158,7 @@
     } finally {
       window.removeEventListener("beforeunload", warnOnLeave);
       parts.start.disabled = false;
-      parts.start.textContent = "Export again";
+      parts.start.textContent = t("exportAgain", "Export again");
       parts.cancel.hidden = true;
       controller = undefined;
     }

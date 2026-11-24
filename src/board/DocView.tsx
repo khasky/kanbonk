@@ -7,6 +7,7 @@ import { cardRef, projectSummary, withSummarySnapshot } from "../model/boardDoc"
 import { kanbonkCardForUrl } from "../model/links";
 import { Button } from "../ui/Button";
 import { Hint } from "../ui/Hint";
+import { t } from "../i18n";
 
 const paneClass = "min-w-0 rounded-[10px] bg-white px-5 py-4 shadow-tile";
 
@@ -34,7 +35,7 @@ export function DocView({
   const [editing, setEditing] = useState(false);
   const [linking, setLinking] = useState(false);
   const doc = board.doc ?? "";
-  const summary = useMemo(() => projectSummary(state, board.id), [state, board.id]);
+  const summary = projectSummary(state, board.id);
   const cardForUrl = (url: string) => kanbonkCardForUrl(url, state);
   const boardCards = useMemo(
     () => state.cards.filter((item) => item.boardId === board.id && !item.deletedAt),
@@ -43,21 +44,21 @@ export function DocView({
   return (
     <section
       className="grid h-full grid-cols-[minmax(0,1fr)_minmax(280px,420px)] items-start gap-4 overflow-auto p-4 max-[901px]:grid-cols-[1fr]"
-      aria-label="Board doc"
+      aria-label={t("board.boardDoc")}
     >
       <article className={paneClass}>
         <header className="flex flex-wrap items-center gap-2">
-          <h2 className="my-0 mr-auto ml-0 text-[18px]">Project doc</h2>
+          <h2 className="my-0 mr-auto ml-0 text-[18px]">{t("board.projectDoc")}</h2>
           {!editing && (
             <>
               <Button variant="secondary" onClick={() => setEditing(true)}>
-                {doc ? "Edit" : "Write"}
+                {doc ? t("common.edit") : t("board.write")}
               </Button>
               <Button variant="secondary" onClick={() => setLinking(!linking)} aria-expanded={linking}>
-                Link a card
+                {t("board.linkCard")}
               </Button>
               <Button variant="secondary" onClick={() => onChange(withSummarySnapshot(doc, summary))}>
-                Insert status snapshot
+                {t("board.insertSnapshot")}
               </Button>
             </>
           )}
@@ -65,7 +66,7 @@ export function DocView({
         {linking && !editing && (
           <div className={linkBoxClass}>
             <CardPicker
-              label="Card to link"
+              label={t("board.cardToLink")}
               candidates={boardCards}
               onPick={(card) => {
                 onChange(`${doc.trimEnd()}${doc.trim() ? "\n" : ""}- ${cardRef(card)}\n`);
@@ -77,7 +78,7 @@ export function DocView({
         {editing ? (
           <MarkdownEditor
             value={doc}
-            label="Board doc"
+            label={t("board.boardDoc")}
             onSave={(value) => {
               if (value !== doc) onChange(value);
               setEditing(false);
@@ -89,16 +90,14 @@ export function DocView({
             <MarkdownText text={doc} localCardForUrl={cardForUrl} onNavigateCard={onOpenCard} />
           </div>
         ) : (
-          <Hint>
-            Describe goals, decisions and agreements. Card links open cards right from here, and a status snapshot
-            records where the project stands now.
-          </Hint>
+          <Hint>{t("board.docHint")}</Hint>
         )}
         {assistant}
       </article>
-      <aside className={paneClass} aria-label="Board status">
+      <aside className={paneClass} aria-label={t("board.boardStatus")}>
         <h2 className="mx-0 mt-0 mb-2 text-[16px]">
-          Board status <small className="text-[12px] font-normal text-ink-muted">updates automatically</small>
+          {t("board.boardStatus")}{" "}
+          <small className="text-[12px] font-normal text-ink-muted">{t("board.updatesAutomatically")}</small>
         </h2>
         <MarkdownText text={summary} look="summary" localCardForUrl={cardForUrl} onNavigateCard={onOpenCard} />
       </aside>

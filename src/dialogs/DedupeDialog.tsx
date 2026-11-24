@@ -1,5 +1,6 @@
 import { SidePanel } from "../ui/Modal";
 import { useMemo, useState } from "react";
+import { t } from "../i18n";
 import type { AppState, Card } from "../model";
 import { findDuplicates, pairKey, type DuplicatePair } from "../model/dedupe";
 import { inboxBoardId } from "../model/inbox";
@@ -37,10 +38,16 @@ export function DedupeDialog({
   const where = (card: Card) =>
     `${state.boards.find((board) => board.id === card.boardId)?.name ?? ""} / ${state.lists.find((list) => list.id === card.listId)?.name ?? ""}`;
   return (
-    <SidePanel title="Duplicates across boards" label="Find duplicates" width="wide" closeIcon="×" onClose={onClose}>
-      <Hint>Text similarity (word stems, n-grams, TF-IDF) is computed locally; no data leaves this device.</Hint>
+    <SidePanel
+      title={t("dialogs.duplicatesTitle")}
+      label={t("dialogs.duplicatesLabel")}
+      width="wide"
+      closeIcon="×"
+      onClose={onClose}
+    >
+      <Hint>{t("dialogs.duplicatesHint")}</Hint>
       <label className="flex flex-wrap items-center gap-2">
-        Similarity threshold: {Math.round(threshold * 100)}%
+        {t("dialogs.similarityThreshold", { percent: Math.round(threshold * 100) })}
         <input
           className="accent-brand"
           type="range"
@@ -53,9 +60,9 @@ export function DedupeDialog({
       </label>
       <label className={`${optionLabelClass} mt-2`}>
         <Checkbox checked={sameBoard} onChange={(event) => setSameBoard(event.target.checked)} />
-        Also search within the same board
+        {t("dialogs.sameBoard")}
       </label>
-      <p className="text-ink-muted">Pairs found: {pairs.length}</p>
+      <p className="text-ink-muted">{t("dialogs.pairsFound", { count: pairs.length })}</p>
       {pairs.slice(0, 100).map((pair) => (
         <div className="my-2 grid gap-1.5 rounded-md border border-line p-2" key={pairKey(pair.a.id, pair.b.id)}>
           <strong>{Math.round(pair.score * 100)}%</strong>
@@ -73,15 +80,15 @@ export function DedupeDialog({
             <Button
               variant="secondary"
               onClick={() => onMerge(pair.a.id, pair.b.id)}
-              title="Move the second card’s comments, checklists and attachments into the first, and the second card to the trash"
+              title={t("dialogs.mergeIntoFirstTitle")}
             >
-              Merge into first
+              {t("dialogs.mergeIntoFirst")}
             </Button>
             <Button variant="secondary" onClick={() => onMerge(pair.b.id, pair.a.id)}>
-              Merge into second
+              {t("dialogs.mergeIntoSecond")}
             </Button>
             <Button variant="secondary" onClick={() => onIgnore(pair)}>
-              Not a duplicate
+              {t("dialogs.notDuplicate")}
             </Button>
           </RowActions>
         </div>

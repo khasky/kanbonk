@@ -1,4 +1,5 @@
 import { loadSetting, saveSetting } from "./storage";
+import { t } from "../i18n";
 
 /**
  * The only place that knows which shell runs the shared React app: web page, browser extension,
@@ -81,7 +82,7 @@ export const backupFolderSupported =
 export async function pickBackupFolder(): Promise<BackupFolder | undefined> {
   if (platform === "desktop") {
     const { open } = await import("@tauri-apps/plugin-dialog");
-    const path = await open({ directory: true, title: "Folder for automatic backups" });
+    const path = await open({ directory: true, title: t("lib.backupFolderTitle") });
     return typeof path === "string" ? { kind: "path", path } : undefined;
   }
   const picker = (
@@ -123,8 +124,7 @@ export async function folderDestination(folder: BackupFolder, interactive: boole
   const handle = folder.handle as DirectoryHandle;
   let permission = await handle.queryPermission({ mode: "readwrite" });
   if (permission !== "granted" && interactive) permission = await handle.requestPermission({ mode: "readwrite" });
-  if (permission !== "granted")
-    throw new BackupAccessError(`Kanbonk may no longer write to the folder “${handle.name}”.`);
+  if (permission !== "granted") throw new BackupAccessError(t("lib.folderAccessLost", { name: handle.name }));
   return {
     label: handle.name,
     write: async (name, blob) => {
@@ -172,7 +172,7 @@ function extensionDownloads(): BackupDestination {
   const present = async (id: number) =>
     (await chrome.downloads.search({ id })).some((item) => item.exists && item.state === "complete");
   return {
-    label: `Downloads/${folder}`,
+    label: t("lib.downloadsFolder", { folder }),
     write: async (name, blob) => {
       const url = URL.createObjectURL(blob);
       // Listen before starting: a small file can finish before download() resolves with its ID.
@@ -197,7 +197,7 @@ function extensionDownloads(): BackupDestination {
           (await new Promise<string>((resolve) => {
             settle = resolve;
           }));
-        if (state !== "complete") throw new Error(`The browser did not save ${name}.`);
+        if (state !== "complete") throw new Error(t("lib.browserDidNotSave", { name }));
         const ids = await recorded();
         await saveSetting("backup-downloads", { ...ids, [name]: [...(ids[name] ?? []), id] });
       } finally {
@@ -241,7 +241,7 @@ export async function defaultBackupDestination(): Promise<BackupDestination | un
   // A web page cannot write files silently: each backup is an ordinary download, and old ones stay.
   if (platform === "web")
     return {
-      label: "Downloads",
+      label: t("lib.downloads"),
       write: async (name, blob) => {
         await saveFile(blob, name);
       },

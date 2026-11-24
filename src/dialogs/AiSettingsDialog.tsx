@@ -1,6 +1,7 @@
 import { Dialog, submitWith } from "../ui/Modal";
 import { useState } from "react";
 import { aiProviders, type AiProvider, type AiSettings } from "../ai/ai";
+import { t } from "../i18n";
 import { Button } from "../ui/Button";
 import { Hint } from "../ui/Hint";
 import { Input, Select } from "../ui/Field";
@@ -24,7 +25,7 @@ export function AiSettingsDialog({
   const [baseUrl, setBaseUrl] = useState(settings?.baseUrl ?? "");
   return (
     <Dialog
-      label="AI settings"
+      label={t("dialogs.aiSettingsLabel")}
       onDismiss={onClose}
       onSubmit={submitWith(() =>
         onSave({
@@ -35,9 +36,9 @@ export function AiSettingsDialog({
         }),
       )}
     >
-      <h2 className={dialogTitleClass}>AI assistant</h2>
+      <h2 className={dialogTitleClass}>{t("dialogs.aiTitle")}</h2>
       <label className={labelClass}>
-        Provider
+        {t("dialogs.aiProvider")}
         <Select
           value={provider}
           onChange={(event) => {
@@ -56,7 +57,7 @@ export function AiSettingsDialog({
       </label>
       {provider === "compatible" && (
         <label className={labelClass}>
-          API URL
+          {t("dialogs.aiApiUrl")}
           <Input
             type="url"
             required
@@ -67,7 +68,7 @@ export function AiSettingsDialog({
         </label>
       )}
       <label className={labelClass}>
-        API key
+        {t("dialogs.aiApiKey")}
         <Input
           type="password"
           required={provider !== "compatible"}
@@ -77,29 +78,25 @@ export function AiSettingsDialog({
         />
       </label>
       <label className={labelClass}>
-        Model
+        {t("dialogs.aiModel")}
         <Input
           required
           value={model}
           onChange={(event) => setModel(event.target.value)}
-          placeholder={provider === "anthropic" ? "claude-opus-5-5" : "Model name at the provider"}
+          placeholder={provider === "anthropic" ? "claude-opus-5-5" : t("dialogs.aiModelPlaceholder")}
         />
       </label>
-      <Hint>
-        The key is stored only in this browser (never synced, never in backups). Board data is sent to the provider only
-        when you click an AI action button.
-        {provider === "anthropic" ? " Claude models use a server-side fallback in case the model refuses." : ""}
-      </Hint>
+      <Hint>{t(provider === "anthropic" ? "dialogs.aiKeyHintClaude" : "dialogs.aiKeyHint")}</Hint>
       <div className={dialogFooterClass}>
         {settings && (
           <Button type="button" variant="danger" size="lg" onClick={() => onSave(null)}>
-            Remove key
+            {t("dialogs.aiRemoveKey")}
           </Button>
         )}
         <Button variant="secondary" size="lg" type="button" onClick={onClose}>
-          Cancel
+          {t("common.cancel")}
         </Button>
-        <Button variant="primary">Save</Button>
+        <Button variant="primary">{t("common.save")}</Button>
       </div>
     </Dialog>
   );

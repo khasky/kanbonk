@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { ColorInput } from "../ui/ColorInput";
 import { Menu, MenuItem, menuItemClass } from "../ui/Menu";
+import { t } from "../i18n";
 
 /** Background presets offered in the board menu; the first one is the default for new boards. */
 export const boardColors = ["#147d86", "#0c66e4", "#5e4db2", "#a54800", "#216e4e"];
@@ -25,29 +26,26 @@ export function BoardMenu({ background, actions }: { background: string; actions
   return (
     <Menu
       ref={menu}
-      label="Board menu"
+      label={t("board.boardMenu")}
       className="z-20"
       summaryClassName="flex min-h-8 min-w-10 items-center justify-center gap-1.5 rounded-[3px] border-0 bg-[#ffffff26] px-2 py-1 text-[22px] leading-none text-white group-open/menu:bg-[#ffffff45] hover:bg-[#ffffff45] max-phone:min-h-11 max-phone:min-w-11 max-phone:flex-none"
       keepOpen={(target) => target.getAttribute("type") === "color"}
     >
-      <MenuItem onClick={actions.onCopy}>Copy board</MenuItem>
-      <MenuItem onClick={actions.onAutomation}>Automation</MenuItem>
-      <MenuItem onClick={actions.onActivity}>Activity</MenuItem>
-      <MenuItem onClick={actions.onHistory}>History</MenuItem>
-      <MenuItem
-        onClick={() => actions.onExport("trello-json")}
-        title="Trello JSON export format, without attachment files"
-      >
-        Export JSON (Trello)
+      <MenuItem onClick={actions.onCopy}>{t("board.copyBoard")}</MenuItem>
+      <MenuItem onClick={actions.onAutomation}>{t("board.automation")}</MenuItem>
+      <MenuItem onClick={actions.onActivity}>{t("board.activity")}</MenuItem>
+      <MenuItem onClick={actions.onHistory}>{t("board.history")}</MenuItem>
+      <MenuItem onClick={() => actions.onExport("trello-json")} title={t("board.exportJsonHint")}>
+        {t("board.exportJson")}
       </MenuItem>
-      <MenuItem onClick={() => actions.onExport("csv")} title="Trello CSV export columns">
-        Export CSV (Trello)
+      <MenuItem onClick={() => actions.onExport("csv")} title={t("board.exportCsvHint")}>
+        {t("board.exportCsv")}
       </MenuItem>
-      <MenuItem onClick={actions.onTrash}>Move board to trash</MenuItem>
+      <MenuItem onClick={actions.onTrash}>{t("board.moveBoardToTrash")}</MenuItem>
       <label
         className={`${menuItemClass} relative has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-brand`}
       >
-        Background from file
+        {t("board.backgroundFromFile")}
         <input
           type="file"
           className="sr-only"
@@ -59,11 +57,11 @@ export function BoardMenu({ background, actions }: { background: string; actions
         />
       </label>
       <label className="mt-[3px] grid w-full cursor-default gap-1.5 rounded-none border-x-0 border-b-0 border-t border-line bg-transparent p-2.5 text-left text-inherit">
-        Background color
+        {t("board.backgroundColor")}
         <ColorInput
           value={/^#[\da-f]{6}$/i.test(background) ? background : "#0c66e4"}
           presets={boardColors}
-          label="Board background color"
+          label={t("board.boardBackgroundColor")}
           onCommit={(color) => {
             actions.onBackgroundColor(color);
             if (menu.current) menu.current.open = false;

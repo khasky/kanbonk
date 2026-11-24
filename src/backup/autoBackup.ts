@@ -1,6 +1,7 @@
 import { sha256 } from "@noble/hashes/sha2.js";
 import { newId, type AppState } from "../model";
 import { createBackupParts } from "./backup";
+import { t } from "../i18n";
 import { deviceId, listSnapshots, loadSetting, saveSetting, saveSnapshot, type SnapshotMeta } from "../lib/storage";
 import {
   defaultBackupDestination,
@@ -151,11 +152,11 @@ export function backupsToDelete(names: string[], keep: number, device: string): 
 async function destination(settings: AutoBackupSettings, interactive: boolean): Promise<BackupDestination> {
   if (settings.target === "folder") {
     const folder = await backupFolder();
-    if (!folder) throw new Error("No backup folder is chosen.");
+    if (!folder) throw new Error(t("backup.noFolder"));
     return folderDestination(folder, interactive);
   }
   const fallback = await defaultBackupDestination();
-  if (!fallback) throw new Error("This app has no default backup location; choose a folder.");
+  if (!fallback) throw new Error(t("backup.noDefaultLocation"));
   return fallback;
 }
 
@@ -182,5 +183,11 @@ export async function writeAutoBackup(
       removed++;
     }
   }
-  return `${target.label}: ${written} ZIP${removed ? `, ${removed} older ${removed === 1 ? "file" : "files"} deleted` : ""}.`;
+  return removed
+    ? t("backup.writtenAndDeleted", {
+        place: target.label,
+        count: written,
+        deleted: t("backup.olderDeleted", { count: removed }),
+      })
+    : t("backup.written", { place: target.label, count: written });
 }

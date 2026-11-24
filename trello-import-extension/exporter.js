@@ -13,6 +13,12 @@
   };
   const encoder = new TextEncoder();
 
+  // Localized text from _locales; falls back to the English text where chrome.i18n is unavailable (tests).
+  function t(key, fallback, ...values) {
+    const text = globalThis.chrome?.i18n?.getMessage?.(key, values.map(String));
+    return text || fallback.replace(/\$(\d)/g, (_, index) => String(values[index - 1]));
+  }
+
   const crcTable = Array.from({ length: 256 }, (_, index) => {
     let value = index;
     for (let bit = 0; bit < 8; bit++) value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
@@ -85,13 +91,13 @@
 
   async function readImage(fetch, value, credentials) {
     const url = new URL(value);
-    if (url.protocol !== "https:") throw new Error("Invalid URL");
+    if (url.protocol !== "https:") throw new Error(t("errorInvalidUrl", "Invalid URL"));
     const response = await fetch(url, { credentials: credentials(url) });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const extension = imageExtensions[response.headers.get("content-type")?.split(";")[0] ?? ""];
-    if (!extension) throw new Error("Unknown image type");
+    if (!extension) throw new Error(t("errorUnknownImageType", "Unknown image type"));
     const data = new Uint8Array(await response.arrayBuffer());
-    if (!data.length || data.length > maxImageBytes) throw new Error("Invalid image size");
+    if (!data.length || data.length > maxImageBytes) throw new Error(t("errorInvalidImageSize", "Invalid image size"));
     return { data, extension };
   }
 
@@ -110,7 +116,7 @@
     now = () => new Date(),
   }) {
     const cancelled = () => {
-      if (signal?.aborted) throw new Error("Export cancelled.");
+      if (signal?.aborted) throw new Error(t("exportCancelled", "Export cancelled."));
     };
     progress({ step: "board" });
     const board = await readJson(fetch, `/b/${encodeURIComponent(shortLink)}.json`);
@@ -124,7 +130,7 @@
         if (details.organization?.id === board.idOrganization && details.organization.displayName)
           board.kanbonkOrganizationName = details.organization.displayName;
       } catch (error) {
-        warnings.push(`Workspace name: ${String(error)}`);
+        warnings.push(t("warningWorkspaceName", "Workspace name: $1", error));
       }
     }
     cancelled();
@@ -137,19 +143,20 @@
           fetch,
           `/1/boards/${encodeURIComponent(board.id)}/actions?filter=commentCard&limit=1000${before ? `&before=${encodeURIComponent(before)}` : ""}`,
         );
-        if (!Array.isArray(page)) throw new Error("Invalid Trello response");
+        if (!Array.isArray(page)) throw new Error(t("errorInvalidTrelloResponse", "Invalid Trello response"));
         comments.push(...page);
         progress({ step: "comments", count: comments.length });
         if (page.length < 1000) break;
         const last = page.at(-1)?.id;
-        if (!last || last === before) throw new Error("Could not continue the comment history");
+        if (!last || last === before)
+          throw new Error(t("errorCommentHistoryStuck", "Could not continue the comment history"));
         before = last;
         cancelled();
       }
       board.kanbonkComments = comments;
       board.kanbonkCommentsComplete = true;
     } catch (error) {
-      warnings.push(`Comment history is limited to the last 1000 actions: ${String(error)}`);
+      warnings.push(t("warningCommentHistory", "Comment history is limited to the last 1000 actions: $1", error));
     }
     cancelled();
     progress({ step: "stickers" });
@@ -158,7 +165,7 @@
         fetch,
         `/1/boards/${encodeURIComponent(board.id)}/cards?filter=all&fields=id&stickers=true&limit=1000`,
       );
-      if (!Array.isArray(cards)) throw new Error("Invalid Trello response");
+      if (!Array.isArray(cards)) throw new Error(t("errorInvalidTrelloResponse", "Invalid Trello response"));
       const byId = new Map(cards.map((card) => [card.id, card.stickers]));
       for (const card of board.cards || []) {
         if (!byId.has(card.id))
@@ -166,17 +173,22 @@
         card.stickers = byId.get(card.id);
       }
     } catch (error) {
-      warnings.push(`Stickers: ${String(error)}`);
+      warnings.push(t("warningStickers", "Stickers: $1", error));
     }
 
     const files = [];
     if (board.prefs?.backgroundImage)
-      files.push({ kind: "background", label: "Board background", url: board.prefs.backgroundImage, bytes: 0 });
+      files.push({
+        kind: "background",
+        label: t("labelBoardBackground", "Board background"),
+        url: board.prefs.backgroundImage,
+        bytes: 0,
+      });
     for (const sticker of (board.cards || []).flatMap((card) => card.stickers || []))
       if (sticker.id && sticker.imageUrl)
         files.push({
           kind: "sticker",
-          label: `Sticker ${sticker.image || sticker.id}`,
+          label: t("labelSticker", "Sticker $1", sticker.image || sticker.id),
           id: sticker.id,
           url: sticker.imageUrl,
           bytes: 0,
@@ -237,11 +249,12 @@
         let entry;
         if (file.kind === "attachment") {
           const url = new URL(file.url);
-          if (url.protocol !== "https:" || url.hostname !== "trello.com") throw new Error("Invalid URL");
+          if (url.protocol !== "https:" || url.hostname !== "trello.com")
+            throw new Error(t("errorInvalidUrl", "Invalid URL"));
           const response = await fetch(url, { credentials: "include" });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           if (response.headers?.get("content-type")?.startsWith("text/html"))
-            throw new Error("Trello returned a page instead of the file; sign in again");
+            throw new Error(t("errorPageInsteadOfFile", "Trello returned a page instead of the file; sign in again"));
           entry = {
             path: `attachments/${file.id}/${safeName(file.name, "file")}`,
             data: new Uint8Array(await response.arrayBuffer()),
@@ -258,7 +271,7 @@
         partBytes += entry.data.length;
         downloadedBytes += entry.data.length;
       } catch (error) {
-        if (signal?.aborted) throw new Error("Export cancelled.");
+        if (signal?.aborted) throw new Error(t("exportCancelled", "Export cancelled."));
         failures.push(`${file.label}: ${String(error)}`);
       }
       done++;

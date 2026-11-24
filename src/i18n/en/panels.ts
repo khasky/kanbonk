@@ -1,0 +1,40 @@
+/** Messages of src/panels. */
+export const panels = {
+  aboutBoard: "About this board",
+  boardDescription: "Board description",
+  closeBoardDescription: "Close board description",
+  description: "Description",
+  descriptionPlaceholder: "Add a board description…",
+
+  versionHistory: "Version history",
+  versionsKept: "The last 30 versions of each item are kept.",
+
+  inbox: "Inbox",
+  inboxIntro: "Collect ideas and tasks here, then move them to a board.",
+  addCard: "Add a card",
+  newInboxCard: "New card in inbox",
+  searchInbox: "Search inbox",
+  inboxDue: "Inbox due date",
+  anyDue: "Any due date",
+  overdue: "Overdue",
+  nextWeekDue: "Next 7 days",
+  noDue: "No due date",
+  inboxSorting: "Inbox sorting",
+  newestFirst: "Newest first",
+  oldestFirst: "Oldest first",
+  byTitle: "By title",
+  nothingFound: "Nothing found",
+  inboxEmpty: "No cards in your inbox yet",
+
+  planner: "Planner",
+  plannerIntro: "Cards with due dates from your boards and inbox.",
+  previousWeek: "Previous week",
+  today: "Today",
+  nextWeek: "Next week",
+
+  reminders: "Reminders",
+  closeReminders: "Close reminders",
+  dismissReminder: "Dismiss reminder {name}",
+  dismiss: "Dismiss",
+  noReminders: "No new reminders.",
+};

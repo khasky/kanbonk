@@ -3,6 +3,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { mediaReferences, newId, type AppState } from "../model";
 import { loadAttachment, saveAttachment } from "../lib/storage";
 import { mergeStates, type SyncConflict } from "../sync/sync";
+import { t } from "../i18n";
 
 interface BackupFile {
   id: string;
@@ -220,7 +221,7 @@ export async function* createBackupParts(
   const files: BackupFile[] = [];
   for (const id of ids) {
     const blob = await read(id);
-    if (!blob) throw new Error(`Local file ${id} is missing. The backup was not created.`);
+    if (!blob) throw new Error(t("backup.fileMissing", { id }));
     files.push({ id, type: blob.type, size: blob.size, hash: await hash(blob) });
   }
   const groups = groupFiles(files, maxBytes);
@@ -241,10 +242,9 @@ export async function* createBackupParts(
     for (const file of groups[index]) {
       const blob = await read(file.id);
       if (!blob || blob.size !== file.size || blob.type !== file.type)
-        throw new Error(`File ${file.id} changed during export. Create the backup again.`);
+        throw new Error(t("backup.fileChanged", { id: file.id }));
       const data = new Uint8Array(await blob.arrayBuffer());
-      if ((await hash(data)) !== file.hash)
-        throw new Error(`File ${file.id} changed during export. Create the backup again.`);
+      if ((await hash(data)) !== file.hash) throw new Error(t("backup.fileChanged", { id: file.id }));
       entries[`files/${file.id}`] = data;
     }
     const archive = zipSync(entries, { level: 0 });
@@ -269,9 +269,9 @@ function readManifest(raw: unknown): BackupManifest {
     !Array.isArray(raw.files) ||
     !isRecord(raw.state)
   )
-    throw new Error("The archive is not a Kanbonk backup.");
+    throw new Error(t("backup.notBackup"));
   const state = raw.state;
-  if (!validState(state)) throw new Error("The state in the backup is corrupted.");
+  if (!validState(state)) throw new Error(t("backup.stateCorrupted"));
   const files = raw.files;
   if (
     !files.every(
@@ -288,14 +288,14 @@ function readManifest(raw: unknown): BackupManifest {
           : typeof file.hash === "string" && /^[a-f0-9]{64}$/.test(file.hash)),
     )
   )
-    throw new Error("The file list in the backup is corrupted.");
+    throw new Error(t("backup.fileListCorrupted"));
   const ids = files.map((file) => file.id);
-  if (new Set(ids).size !== ids.length) throw new Error("The backup contains duplicate file IDs.");
+  if (new Set(ids).size !== ids.length) throw new Error(t("backup.duplicateIds"));
   if (!Number.isSafeInteger(raw.unavailable) || (raw.unavailable as number) < 0)
-    throw new Error("The backup manifest is corrupted.");
+    throw new Error(t("backup.manifestCorrupted"));
   const referenced = backupFiles(state as unknown as AppState).ids;
   if (referenced.length !== ids.length || referenced.some((id) => !ids.includes(id)))
-    throw new Error("The file list does not match the backup data.");
+    throw new Error(t("backup.fileListMismatch"));
   return raw as unknown as BackupManifest;
 }
 
@@ -311,7 +311,7 @@ export async function restoreBackup(
   read = loadAttachment,
   write = saveAttachment,
 ): Promise<{ state: AppState; conflicts: SyncConflict[]; files: number; unavailable: number }> {
-  if (!parts.length) throw new Error("Select all ZIP parts of the backup.");
+  if (!parts.length) throw new Error(t("backup.selectParts"));
   let manifest: BackupManifest | undefined;
   let backupId = "";
   const found = new Map<string, { size: number; hash: string }>();
@@ -320,39 +320,38 @@ export async function restoreBackup(
     try {
       entries = unzipSync(new Uint8Array(await part.arrayBuffer()));
     } catch {
-      throw new Error(`Could not read ZIP “${part.name}”.`);
+      throw new Error(t("backup.zipUnreadable", { name: part.name }));
     }
     const id = entries["backup-id.txt"] ? strFromU8(entries["backup-id.txt"]) : "";
-    if (!id || (backupId && id !== backupId)) throw new Error("The selected ZIP files belong to different backups.");
+    if (!id || (backupId && id !== backupId)) throw new Error(t("backup.differentBackups"));
     backupId = id;
     const manifestEntry = entries[manifestName] ?? entries[legacyManifestName];
     if (manifestEntry) {
-      if (manifest) throw new Error("The backup contains several manifests.");
+      if (manifest) throw new Error(t("backup.severalManifests"));
       try {
         manifest = readManifest(JSON.parse(strFromU8(manifestEntry)));
       } catch (cause) {
-        throw new Error(`Could not read the manifest: ${String(cause)}`);
+        throw new Error(t("backup.manifestUnreadable", { error: String(cause) }));
       }
     }
     for (const [path, data] of Object.entries(entries)) {
       if (path === "backup-id.txt" || path === manifestName || path === legacyManifestName) continue;
       const fileId = path.match(/^files\/([a-z0-9-]+)$/i)?.[1];
-      if (!fileId || found.has(fileId)) throw new Error(`Invalid or duplicate file in ZIP: ${path}`);
+      if (!fileId || found.has(fileId)) throw new Error(t("backup.invalidFile", { path }));
       found.set(fileId, { size: data.length, hash: await hash(data) });
     }
   }
   if (!manifest || manifest.id !== backupId || manifest.parts !== parts.length)
-    throw new Error("Not all parts of the same backup were selected.");
+    throw new Error(t("backup.partsMissing"));
   const expected = new Map(manifest.files.map((file) => [file.id, file]));
-  if (found.size !== expected.size) throw new Error("The backup has missing or extra files.");
+  if (found.size !== expected.size) throw new Error(t("backup.filesMismatch"));
   for (const [id, meta] of found) {
     const file = expected.get(id);
-    if (!file || file.size !== meta.size) throw new Error(`The size of file ${id} does not match the manifest.`);
-    if (file.hash && file.hash !== meta.hash)
-      throw new Error(`The checksum of file ${id} does not match the manifest.`);
+    if (!file || file.size !== meta.size) throw new Error(t("backup.sizeMismatch", { id }));
+    if (file.hash && file.hash !== meta.hash) throw new Error(t("backup.checksumMismatch", { id }));
     const existing = await read(id);
     if (existing && (existing.size !== meta.size || (await hash(existing)) !== meta.hash))
-      throw new Error(`File ${id} already exists with different content. Import stopped.`);
+      throw new Error(t("backup.fileConflict", { id }));
   }
   const merged = mergeStates(current, manifest.state);
   for (const part of parts) {

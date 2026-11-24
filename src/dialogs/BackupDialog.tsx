@@ -3,6 +3,8 @@ import { Dialog } from "../ui/Modal";
 import { useState } from "react";
 import { autoSnapshot } from "../backup/autoBackup";
 import { createBackupParts, restoreBackup } from "../backup/backup";
+import { formatDateTime, t } from "../i18n";
+import { tNodes } from "../i18n/nodes";
 import { type AppState, rememberStateIds } from "../model";
 import { saveFile } from "../lib/platform";
 import { loadSnapshot, type SnapshotMeta } from "../lib/storage";
@@ -62,18 +64,17 @@ export function BackupDialog({
       let unavailable = 0;
       for await (const part of createBackupParts(getState())) {
         if (!(await saveFile(part.blob, part.name))) {
-          setReport(`Saving canceled after ${count} parts.`);
+          setReport(t("dialogs.backupSavingCanceled", { count }));
           return;
         }
         count++;
         unavailable = part.unavailable;
-        setReport(`Downloaded ${count} of ${part.total} parts.`);
+        setReport(t("dialogs.backupDownloadedParts", { done: count, count: part.total }));
       }
-      setReport(
-        `Backup downloaded: ${count} ZIP files.${unavailable ? ` Missing attachments: ${unavailable}; fetch them from Trello first.` : ""}`,
-      );
+      const done = t("dialogs.backupDownloaded", { count });
+      setReport(unavailable ? `${done} ${t("dialogs.backupMissingAttachments", { count: unavailable })}` : done);
     } catch (cause) {
-      setReport(`Backup failed: ${String(cause)}`);
+      setReport(t("dialogs.backupFailed", { error: String(cause) }));
     } finally {
       setBusy(false);
     }
@@ -86,67 +87,76 @@ export function BackupDialog({
       const restored = await restoreBackup(files, getState());
       onRestored(restored.state);
       onConflictsFound(restored.conflicts);
+      const done = t("dialogs.backupRestored", { files: restored.files, conflicts: restored.conflicts.length });
       setReport(
-        `Files restored: ${restored.files}. Conflicts: ${restored.conflicts.length}.${restored.unavailable ? ` Attachments missing from the original backup: ${restored.unavailable}.` : ""}`,
+        restored.unavailable ? `${done} ${t("dialogs.backupRestoredMissing", { count: restored.unavailable })}` : done,
       );
     } catch (cause) {
-      setReport(`Restore failed: ${String(cause)}`);
+      setReport(t("dialogs.restoreFailed", { error: String(cause) }));
     } finally {
       setBusy(false);
     }
   }
 
   async function restoreSnapshot(meta: SnapshotMeta) {
-    const time = new Date(meta.createdAt).toLocaleString("en-US");
+    const time = formatDateTime(meta.createdAt);
     if (
       !(await askConfirm({
-        title: `Restore all data to the state from ${time}?`,
-        message: "The current state is saved as a separate backup first.",
-        confirm: "Restore",
+        title: t("dialogs.restoreSnapshotTitle", { time }),
+        message: t("dialogs.restoreSnapshotMessage"),
+        confirm: t("common.restore"),
       }))
     )
       return;
     try {
       await autoSnapshot(getState());
       const snapshot = await loadSnapshot(meta.id);
-      if (!snapshot) throw new Error("Backup not found.");
+      if (!snapshot) throw new Error(t("dialogs.backupNotFound"));
       rememberStateIds(snapshot);
       onRestored(snapshot);
-      setReport("Data restored from the automatic backup.");
+      setReport(t("dialogs.snapshotRestored"));
       await onRefreshSnapshots();
     } catch (cause) {
-      setReport(`Restore failed: ${String(cause)}`);
+      setReport(t("dialogs.restoreFailed", { error: String(cause) }));
     }
   }
 
   return (
-    <Dialog label="Backup" className="max-h-[calc(100dvh-96px)] overflow-auto" onDismiss={busy ? undefined : onClose}>
-      <h2 className={dialogTitleClass}>Backup</h2>
-      <p className={dialogIntroClass}>
-        Save all boards and available local files to ZIP. To restore, select all parts of one backup at once. Existing
-        data is kept; conflicting changes will ask you to choose a version.
-      </p>
+    <Dialog
+      label={t("dialogs.backupTitle")}
+      className="max-h-[calc(100dvh-96px)] overflow-auto"
+      onDismiss={busy ? undefined : onClose}
+    >
+      <h2 className={dialogTitleClass}>{t("dialogs.backupTitle")}</h2>
+      <p className={dialogIntroClass}>{t("dialogs.backupIntro")}</p>
       <Button variant="primary" onClick={exportBackup} disabled={busy}>
-        {busy ? "Please wait…" : "Download backup"}
+        {busy ? t("common.pleaseWait") : t("dialogs.downloadBackup")}
       </Button>
       <div className={`${fieldLabelClass} my-3.5`}>
-        Backup ZIP parts
-        <FileButton size="lg" accept=".zip,application/zip" multiple placeholder="No files chosen" onFiles={setFiles}>
-          Choose files
+        {t("dialogs.backupZipParts")}
+        <FileButton
+          size="lg"
+          accept=".zip,application/zip"
+          multiple
+          placeholder={t("dialogs.noFilesChosen")}
+          onFiles={setFiles}
+        >
+          {t("dialogs.chooseFiles")}
         </FileButton>
       </div>
       <Button variant="secondary" size="lg" onClick={importBackup} disabled={busy || !files.length}>
-        Restore from ZIP
+        {t("dialogs.restoreFromZip")}
       </Button>
       <section className={dialogListClass}>
-        <h3>Snapshots</h3>
+        <h3>{t("dialogs.snapshotsTitle")}</h3>
         <p>
-          Every 10 minutes, if anything changed, a snapshot of all data is saved inside the app (the last 20, plus one
-          per day for 30 days). Full backups with files outside the app are set up in{" "}
-          <Button type="button" variant="link" onClick={onOpenSettings}>
-            Settings
-          </Button>
-          .
+          {tNodes("dialogs.snapshotsIntro", {
+            settings: (
+              <Button type="button" variant="link" onClick={onOpenSettings}>
+                {t("settings.title")}
+              </Button>
+            ),
+          })}
         </p>
         <Button
           variant="secondary"
@@ -154,26 +164,30 @@ export function BackupDialog({
           className="self-start"
           onClick={() => void autoSnapshot(getState()).then(onRefreshSnapshots)}
         >
-          Create snapshot now
+          {t("dialogs.createSnapshotNow")}
         </Button>
         {snapshots.length ? (
           <div className="flex max-h-[220px] flex-col gap-1 overflow-auto">
             {snapshots.map((meta) => (
               <PanelRow wrap key={meta.id}>
                 <PanelRowText className="flex flex-col">
-                  <strong>{new Date(meta.createdAt).toLocaleString("en-US")}</strong>
+                  <strong>{formatDateTime(meta.createdAt)}</strong>
                   <PanelRowNote>
-                    boards: {meta.boards}, cards: {meta.cards}, {Math.round(meta.size / 1024)} KB
+                    {t("dialogs.snapshotStats", {
+                      boards: meta.boards,
+                      cards: meta.cards,
+                      size: Math.round(meta.size / 1024),
+                    })}
                   </PanelRowNote>
                 </PanelRowText>
                 <Button variant="secondary" className="flex-none" onClick={() => void restoreSnapshot(meta)}>
-                  Restore
+                  {t("common.restore")}
                 </Button>
               </PanelRow>
             ))}
           </div>
         ) : (
-          <p>No snapshots yet.</p>
+          <p>{t("dialogs.noSnapshots")}</p>
         )}
       </section>
       {report && (
@@ -185,14 +199,14 @@ export function BackupDialog({
         <ConflictChoice
           key={`${conflict.kind}-${conflict.id}`}
           name={conflict.local.name}
-          localLabel="Current version"
-          remoteLabel="Backup version"
+          localLabel={t("dialogs.currentVersion")}
+          remoteLabel={t("dialogs.backupVersion")}
           onChoose={(version) => onChooseConflict(conflict, version)}
         />
       ))}
       <div className={dialogFooterClass}>
         <Button variant="secondary" size="lg" onClick={onClose} disabled={busy}>
-          Close
+          {t("common.close")}
         </Button>
       </div>
     </Dialog>

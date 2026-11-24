@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "瀏覽器中的本機看板：資料保存在擴充功能中，無須雲端即可與電腦和手機同步。"
+  },
+  "actionTitle": {
+    "message": "開啟 Kanbonk"
+  }
+}

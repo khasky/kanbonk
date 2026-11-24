@@ -4,6 +4,7 @@ import { Icon } from "../ui/Icon";
 import { Button } from "../ui/Button";
 import { addCardClass, composeActionsClass } from "./boardLook";
 import { Input, Select } from "../ui/Field";
+import { t } from "../i18n";
 
 export function TemplateComposer({
   templates,
@@ -27,13 +28,13 @@ export function TemplateComposer({
           setOpen(true);
         }}
       >
-        Create from template
+        {t("board.createFromTemplate")}
       </button>
     );
   return (
     <div className="grid flex-col gap-2">
       <label className="grid gap-1 text-[12px] font-semibold">
-        Template
+        {t("board.template")}
         <Select
           className="w-full"
           value={selected.id}
@@ -62,7 +63,7 @@ export function TemplateComposer({
             setOpen(false);
           }
         }}
-        aria-label="New card title"
+        aria-label={t("board.newCardTitle")}
       />
       <div className={composeActionsClass}>
         <Button
@@ -73,9 +74,9 @@ export function TemplateComposer({
             setOpen(false);
           }}
         >
-          Create card
+          {t("board.createCard")}
         </Button>
-        <Button variant="icon" onClick={() => setOpen(false)} aria-label="Cancel">
+        <Button variant="icon" onClick={() => setOpen(false)} aria-label={t("common.cancel")}>
           <Icon name="close" />
         </Button>
       </div>

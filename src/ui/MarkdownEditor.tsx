@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { htmlToMarkdown, type MdNode } from "../lib/htmlToMarkdown";
+import { type MessageKey, t } from "../i18n";
 import { Button } from "./Button";
 
 function markdownToHtml(text: string): string {
@@ -14,20 +15,20 @@ function markdownToHtml(text: string): string {
   );
 }
 
-const tools: Array<{ label: string; title: string; run: () => void }> = [
-  { label: "B", title: "Bold", run: () => document.execCommand("bold") },
-  { label: "I", title: "Italic", run: () => document.execCommand("italic") },
-  { label: "S", title: "Strikethrough", run: () => document.execCommand("strikeThrough") },
-  { label: "H1", title: "Heading 1", run: () => document.execCommand("formatBlock", false, "h1") },
-  { label: "H2", title: "Heading 2", run: () => document.execCommand("formatBlock", false, "h2") },
-  { label: "H3", title: "Heading 3", run: () => document.execCommand("formatBlock", false, "h3") },
-  { label: "¶", title: "Normal text", run: () => document.execCommand("formatBlock", false, "p") },
-  { label: "•", title: "Bulleted list", run: () => document.execCommand("insertUnorderedList") },
-  { label: "1.", title: "Numbered list", run: () => document.execCommand("insertOrderedList") },
-  { label: "❝", title: "Quote", run: () => document.execCommand("formatBlock", false, "blockquote") },
+const tools: Array<{ label: string; title: MessageKey; run: () => void }> = [
+  { label: "B", title: "ui.bold", run: () => document.execCommand("bold") },
+  { label: "I", title: "ui.italic", run: () => document.execCommand("italic") },
+  { label: "S", title: "ui.strikethrough", run: () => document.execCommand("strikeThrough") },
+  { label: "H1", title: "ui.heading1", run: () => document.execCommand("formatBlock", false, "h1") },
+  { label: "H2", title: "ui.heading2", run: () => document.execCommand("formatBlock", false, "h2") },
+  { label: "H3", title: "ui.heading3", run: () => document.execCommand("formatBlock", false, "h3") },
+  { label: "¶", title: "ui.normalText", run: () => document.execCommand("formatBlock", false, "p") },
+  { label: "•", title: "ui.bulletedList", run: () => document.execCommand("insertUnorderedList") },
+  { label: "1.", title: "ui.numberedList", run: () => document.execCommand("insertOrderedList") },
+  { label: "❝", title: "ui.quote", run: () => document.execCommand("formatBlock", false, "blockquote") },
   {
     label: "</>",
-    title: "Code",
+    title: "ui.code",
     run: () => {
       const text = window.getSelection()?.toString() ?? "";
       document.execCommand(
@@ -39,12 +40,17 @@ const tools: Array<{ label: string; title: string; run: () => void }> = [
   },
   {
     label: "🔗",
-    title: "Link",
+    title: "ui.link",
     run: async () => {
       // The question takes the focus, so the selected text is remembered and selected again for the link.
       const selection = window.getSelection();
       const range = selection?.rangeCount ? selection.getRangeAt(0).cloneRange() : undefined;
-      const url = await askText({ title: "Add link", label: "Link URL", placeholder: "https://…", confirm: "Add" });
+      const url = await askText({
+        title: t("ui.addLink"),
+        label: t("ui.linkUrl"),
+        placeholder: "https://…",
+        confirm: t("common.add"),
+      });
       if (!url || !/^(https?:|mailto:)/i.test(url.trim()) || !range) return;
       (range.commonAncestorContainer.parentElement?.closest("[contenteditable]") as HTMLElement | null)?.focus();
       selection?.removeAllRanges();
@@ -52,7 +58,7 @@ const tools: Array<{ label: string; title: string; run: () => void }> = [
       document.execCommand("createLink", false, url.trim());
     },
   },
-  { label: "—", title: "Divider", run: () => document.execCommand("insertHorizontalRule") },
+  { label: "—", title: "ui.divider", run: () => document.execCommand("insertHorizontalRule") },
 ];
 
 /**
@@ -80,7 +86,7 @@ export function MarkdownEditor({
   onSave,
   onCancel,
   label,
-  saveLabel = "Save",
+  saveLabel = t("common.save"),
   look = "default",
 }: {
   value: string;
@@ -119,7 +125,7 @@ export function MarkdownEditor({
       <div
         className="flex flex-wrap gap-0.5 border-b border-line bg-surface-soft p-1"
         role="toolbar"
-        aria-label={`Formatting: ${label}`}
+        aria-label={t("ui.formatting", { label })}
       >
         {!source &&
           tools.map((tool) => (
@@ -127,8 +133,8 @@ export function MarkdownEditor({
               key={tool.title}
               type="button"
               className={toolClass}
-              title={tool.title}
-              aria-label={tool.title}
+              title={t(tool.title)}
+              aria-label={t(tool.title)}
               onMouseDown={(event) => {
                 event.preventDefault();
                 tool.run();
@@ -138,7 +144,7 @@ export function MarkdownEditor({
             </button>
           ))}
         <button type="button" className={`ml-auto ${toolClass}`} aria-pressed={source} onClick={toggleSource}>
-          {source ? "Visual" : "Markdown"}
+          {source ? t("ui.visual") : t("ui.markdown")}
         </button>
       </div>
       {source ? (
@@ -147,7 +153,7 @@ export function MarkdownEditor({
           autoFocus
           value={markdown}
           onChange={(event) => setMarkdown(event.target.value)}
-          aria-label={`${label} (Markdown)`}
+          aria-label={t("ui.markdownSource", { label })}
         />
       ) : (
         <div
@@ -176,7 +182,7 @@ export function MarkdownEditor({
           {saveLabel}
         </Button>
         <Button type="button" variant="secondary" size="lg" onClick={onCancel}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </div>

@@ -11,6 +11,7 @@ import { type ListActions, ListColumn } from "./ListColumn";
 import { ZoneComposer, ZoneFrame } from "./ZoneFrame";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
+import { t } from "../i18n";
 import { addListClass, composeActionsClass, composeClass } from "./boardLook";
 import { currentDrag, dragKind, dropTargetAt, endDrag, setDropTarget, useDragState } from "./dragState";
 
@@ -67,9 +68,9 @@ export function BoardCanvas({
   async function removeZone(zone: Zone) {
     if (
       await askConfirm({
-        title: `Remove zone “${zone.name}”?`,
-        message: "Lists and cards will stay on the board.",
-        confirm: "Remove",
+        title: t("board.removeZoneTitle", { name: zone.name }),
+        message: t("board.removeZoneMessage"),
+        confirm: t("common.remove"),
         danger: true,
       })
     )
@@ -82,9 +83,9 @@ export function BoardCanvas({
     if (
       list &&
       (await askConfirm({
-        title: `Copy list “${list.name}”?`,
-        message: `The copy gets ${count} ${count === 1 ? "card" : "cards"} and is placed right after the list.`,
-        confirm: "Copy",
+        title: t("board.copyListTitle", { name: list.name }),
+        message: t("board.copyListMessage", { count }),
+        confirm: t("common.copy"),
       }))
     )
       boardActions.copyListOnBoard(listId);
@@ -267,11 +268,11 @@ export function BoardCanvas({
               onKeyDown={(event) => {
                 if (event.key === "Enter") createList();
               }}
-              placeholder="List title"
+              placeholder={t("board.listTitle")}
             />
             <div className={composeActionsClass}>
               <Button variant="primary" onClick={createList}>
-                Add a list
+                {t("board.addList")}
               </Button>
               <Button
                 variant="icon"
@@ -279,7 +280,7 @@ export function BoardCanvas({
                   setEditingList(false);
                   setDraft("");
                 }}
-                aria-label="Cancel"
+                aria-label={t("common.cancel")}
               >
                 <Icon name="close" />
               </Button>
@@ -294,7 +295,7 @@ export function BoardCanvas({
               setDraft("");
             }}
           >
-            <Icon name="plus" /> Add a list
+            <Icon name="plus" /> {t("board.addList")}
           </button>
         )}
         {!editingList && <ZoneComposer onCreate={(name) => boardActions.addZone(board.id, name)} />}

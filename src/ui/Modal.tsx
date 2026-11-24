@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactNode, SubmitEvent } from "react";
 import { Icon } from "./Icon";
+import { t } from "../i18n";
 
 const stop = (event: MouseEvent) => event.stopPropagation();
 
@@ -83,7 +84,7 @@ export function SidePanel({
   label = title,
   className,
   width = "default",
-  closeLabel = "Close",
+  closeLabel = t("common.close"),
   closeIcon = <Icon name="close" />,
   onClose,
   children,

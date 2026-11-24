@@ -1,3 +1,5 @@
+import { t } from "../i18n";
+
 const extensionId = "cnmanboceimmaaghiefjagbfaajfgcmh";
 
 interface BridgeReply {
@@ -24,11 +26,11 @@ function runtime(): ChromeRuntime | undefined {
 
 function request(message: unknown): Promise<BridgeReply> {
   const bridge = runtime();
-  if (!bridge) return Promise.reject(new Error("The Kanbonk Trello Import extension is not installed."));
+  if (!bridge) return Promise.reject(new Error(t("trello.extensionNotInstalled")));
   return new Promise((resolve, reject) => {
     bridge.sendMessage(extensionId, message, (reply) => {
       if (bridge.lastError) reject(new Error(bridge.lastError.message));
-      else if (!reply) reject(new Error("The extension did not respond."));
+      else if (!reply) reject(new Error(t("trello.extensionNoResponse")));
       else resolve(reply);
     });
   });
@@ -48,11 +50,11 @@ export async function downloadTrelloComments(boardId: string): Promise<unknown[]
   while (true) {
     const reply = await request({ type: "comments", boardId, before });
     if (!reply.ok || !Array.isArray(reply.actions) || reply.actions.length > 1000)
-      throw new Error(reply.error ?? "The extension could not fetch comments.");
+      throw new Error(reply.error ?? t("trello.commentsFetchFailed"));
     actions.push(...reply.actions);
     if (reply.complete === true) return actions;
     if (reply.actions.length !== 1000 || !reply.nextBefore || reply.nextBefore === before)
-      throw new Error("Could not continue exporting Trello comments.");
+      throw new Error(t("trello.commentsIncomplete"));
     before = reply.nextBefore;
   }
 }
@@ -64,7 +66,7 @@ export async function downloadTrelloAttachment(url: string): Promise<Blob> {
   let mimeType = "application/octet-stream";
   do {
     const reply = await request({ type: "download", url, offset });
-    if (!reply.ok || !reply.data) throw new Error(reply.error ?? "The extension could not fetch the attachment.");
+    if (!reply.ok || !reply.data) throw new Error(reply.error ?? t("trello.attachmentFetchFailed"));
     const binary = atob(reply.data);
     const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
     if (
@@ -75,7 +77,7 @@ export async function downloadTrelloAttachment(url: string): Promise<Blob> {
       (total !== undefined && reply.total !== total) ||
       !bytes.length
     )
-      throw new Error("Received an invalid chunk of a Trello attachment.");
+      throw new Error(t("trello.invalidAttachmentChunk"));
     total = reply.total;
     mimeType = reply.mimeType || mimeType;
     parts.push(bytes);

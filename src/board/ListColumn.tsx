@@ -7,6 +7,7 @@ import { ListCards } from "./ListCards";
 import { TemplateComposer } from "./TemplateComposer";
 import { Button } from "../ui/Button";
 import { Textarea } from "../ui/Field";
+import { t } from "../i18n";
 import { addCardClass, composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
 import { endDrag, startDrag } from "./dragState";
 
@@ -68,7 +69,7 @@ export function ListColumn({
         <span
           className={`${dragHandleClass} text-ink-muted`}
           draggable
-          title="Drag list"
+          title={t("board.dragList")}
           onDragStart={(event) => {
             event.dataTransfer.setData("text/kanbonk-list", list.id);
             // The whole list is the picture under the pointer, as in Trello, not just the handle.
@@ -83,22 +84,22 @@ export function ListColumn({
         <NameEditor
           className="min-w-0 flex-1 rounded-sm border-0 bg-transparent px-1.5 py-[7px] font-bold text-ink focus:bg-white max-phone:text-[16px]"
           value={list.name}
-          label={`List title ${list.name}`}
+          label={t("board.listTitleOf", { name: list.name })}
           onCommit={(name) => actions.rename(list.id, name)}
         />
         <Menu
-          label={`List actions ${list.name}`}
+          label={t("board.listActionsOf", { name: list.name })}
           summaryClassName="grid size-8 place-items-center rounded-sm text-[20px] leading-none text-ink-subtle group-open/menu:bg-line hover:bg-line max-phone:min-h-11 max-phone:min-w-11"
           touchRows
         >
-          <MenuItem onClick={() => actions.run(list.id, "name")}>Sort by title</MenuItem>
-          <MenuItem onClick={() => actions.run(list.id, "due")}>Sort by due date</MenuItem>
-          <MenuItem onClick={() => actions.run(list.id, "move-left")}>Move left</MenuItem>
-          <MenuItem onClick={() => actions.run(list.id, "move-right")}>Move right</MenuItem>
-          <MenuItem onClick={() => actions.run(list.id, "copy")}>Copy list</MenuItem>
+          <MenuItem onClick={() => actions.run(list.id, "name")}>{t("board.sortByTitle")}</MenuItem>
+          <MenuItem onClick={() => actions.run(list.id, "due")}>{t("board.sortByDue")}</MenuItem>
+          <MenuItem onClick={() => actions.run(list.id, "move-left")}>{t("board.moveLeft")}</MenuItem>
+          <MenuItem onClick={() => actions.run(list.id, "move-right")}>{t("board.moveRight")}</MenuItem>
+          <MenuItem onClick={() => actions.run(list.id, "copy")}>{t("board.copyList")}</MenuItem>
           <MenuSeparator />
           <MenuItem danger onClick={() => actions.run(list.id, "delete")}>
-            Move list to trash
+            {t("board.moveListToTrash")}
           </MenuItem>
         </Menu>
       </div>
@@ -131,20 +132,20 @@ export function ListColumn({
                 actions.createCard(list.id);
               }
             }}
-            placeholder="Card title"
+            placeholder={t("board.cardTitle")}
           />
           <div className={composeActionsClass}>
             <Button variant="primary" onClick={() => actions.createCard(list.id)}>
-              Add a card
+              {t("board.addCard")}
             </Button>
-            <Button variant="icon" onClick={actions.cancelCard} aria-label="Cancel">
+            <Button variant="icon" onClick={actions.cancelCard} aria-label={t("common.cancel")}>
               <Icon name="close" />
             </Button>
           </div>
         </div>
       ) : (
         <button className={addCardClass} onClick={() => actions.startCard(list.id)}>
-          <Icon name="plus" /> Add a card
+          <Icon name="plus" /> {t("board.addCard")}
         </button>
       )}
       <TemplateComposer

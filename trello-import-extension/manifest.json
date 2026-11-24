@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Kanbonk Trello Import",
+  "name": "__MSG_appName__",
   "version": "0.2.0",
-  "description": "Exports a Trello board with all its files for Kanbonk and lets Kanbonk on localhost fetch Trello attachments.",
+  "description": "__MSG_appDescription__",
+  "default_locale": "en",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtdnuo8VJ4hs1xBYb5D38C44OPMY64qebXk7YHUrxoiNBz2T7+1i59MzZUffJuzRb2kx1U3cHq7aZGgd4el/ibP7q7Flt0izX5ptR9qj8wXleNgrg4Gmdig6kZpRBAbyggPBVQSDLQ4B1gPCl+xAV3lwUJPdpntKj2YLahWdbv3xGx8SKIDTSEfjAFfyAmcGRuhKARC0W2OGL0KWPGWJt2cWmJ0MHzAuR++Bc4R2pVqRXpaPj0G8hs85CfARmxyefTeR9mV7ijajaX33eNeqHq8JIV0Qf3aOT53xMgahsM0494lJPQjIrWtKCCnp5B1FDblG2JiFW5nSkXFW1K8w74wIDAQAB",
   "host_permissions": [
     "https://trello.com/*"

@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "บอร์ด Kanban ในเครื่องบนเบราว์เซอร์ของคุณ: ข้อมูลอยู่ในส่วนขยายและซิงค์กับคอมพิวเตอร์และโทรศัพท์โดยไม่ต้องใช้คลาวด์"
+  },
+  "actionTitle": {
+    "message": "เปิด Kanbonk"
+  }
+}

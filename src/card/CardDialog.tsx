@@ -5,6 +5,8 @@ import { inboxBoardId } from "../model/inbox";
 import { importedCardForUrl, relatedCards } from "../model/links";
 import { isCardAvailable, subCards, type AppState, type Card, type Member } from "../model";
 import { dependentsOf, prerequisitesOf } from "../model/trash";
+import { formatDateTime, type MessageKey, t } from "../i18n";
+import { tNodes } from "../i18n/nodes";
 import { Icon, type IconName } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
 import { AttachmentRow } from "./AttachmentRow";
@@ -62,18 +64,18 @@ type Panel =
   | "transfer"
   | "share";
 
-const panelTitles: Record<Panel, string> = {
-  add: "Add to card",
-  labels: "Labels",
-  dates: "Dates",
-  checklist: "Add checklist",
-  members: "Members",
-  link: "Attach a link",
-  stickers: "Stickers",
-  cover: "Cover",
-  dependency: "Add dependency",
-  transfer: "Move or copy card",
-  share: "Share card",
+const panelTitles: Record<Panel, MessageKey> = {
+  add: "card.addToCard",
+  labels: "card.labels",
+  dates: "card.dates",
+  checklist: "card.addChecklist",
+  members: "card.members",
+  link: "card.attachLink",
+  stickers: "card.stickers",
+  cover: "card.cover",
+  dependency: "card.addDependency",
+  transfer: "card.moveOrCopyCard",
+  share: "card.shareCard",
 };
 
 /** A row of the "Add to card" popover: an icon in a framed square, a title and what it is for. */
@@ -226,24 +228,24 @@ export function CardDialog({
         <div className="grid gap-0.5">
           {!inInbox && (
             <button className={addRowClass} onClick={() => openAt("labels", anchor)}>
-              <AddRowContent icon="tag" title="Labels" note="Group and prioritize cards" />
+              <AddRowContent icon="tag" title={t("card.labels")} note={t("card.labelsNote")} />
             </button>
           )}
           {!card.isTemplate && (
             <button className={addRowClass} onClick={() => openAt("dates", anchor)}>
-              <AddRowContent icon="clock" title="Dates" note="Start and due dates, a reminder" />
+              <AddRowContent icon="clock" title={t("card.dates")} note={t("card.datesNote")} />
             </button>
           )}
           <button className={addRowClass} onClick={() => openAt("checklist", anchor)}>
-            <AddRowContent icon="check-square" title="Checklist" note="Steps to tick off" />
+            <AddRowContent icon="check-square" title={t("card.checklist")} note={t("card.checklistNote")} />
           </button>
           {canAssign && (
             <button className={addRowClass} onClick={() => openAt("members", anchor)}>
-              <AddRowContent icon="user-plus" title="Members" note="Who works on the card" />
+              <AddRowContent icon="user-plus" title={t("card.members")} note={t("card.membersNote")} />
             </button>
           )}
           <label className={`file-button ${addRowClass} has-focus-visible:outline-2 has-focus-visible:outline-brand`}>
-            <AddRowContent icon="clip" title="Attachment" note="Files from this device" />
+            <AddRowContent icon="clip" title={t("card.attachment")} note={t("card.attachmentNote")} />
             <input
               className="sr-only"
               type="file"
@@ -257,18 +259,18 @@ export function CardDialog({
             />
           </label>
           <button className={addRowClass} onClick={() => openAt("link", anchor)}>
-            <AddRowContent icon="link" title="Link" note="A website as an attachment" />
+            <AddRowContent icon="link" title={t("card.link")} note={t("card.linkNote")} />
           </button>
           {!inInbox && (
             <button className={addRowClass} onClick={() => openAt("dependency", anchor)}>
-              <AddRowContent icon="dependency" title="Dependency" note="A card this one waits for" />
+              <AddRowContent icon="dependency" title={t("card.dependency")} note={t("card.dependencyNote")} />
             </button>
           )}
           <button className={addRowClass} onClick={() => openAt("cover", anchor)}>
-            <AddRowContent icon="image" title="Cover" note="A color or image on the tile" />
+            <AddRowContent icon="image" title={t("card.cover")} note={t("card.coverNote")} />
           </button>
           <button className={addRowClass} onClick={() => openAt("stickers", anchor)}>
-            <AddRowContent icon="smile" title="Stickers" note="Emoji and images on the tile" />
+            <AddRowContent icon="smile" title={t("card.stickers")} note={t("card.stickersNote")} />
           </button>
         </div>
       );
@@ -332,7 +334,7 @@ export function CardDialog({
           pill
           value={card.listId}
           onChange={(event) => onTransfer(event.target.value, false)}
-          aria-label="Card list"
+          aria-label={t("card.cardList")}
         >
           {lists.map((list) => (
             <option key={list.id} value={list.id}>
@@ -346,32 +348,37 @@ export function CardDialog({
             data-panel="cover"
             aria-expanded={expanded("cover")}
             onClick={toggle("cover")}
-            aria-label="Cover"
-            title="Cover"
+            aria-label={t("card.cover")}
+            title={t("card.cover")}
           >
             <Icon name="image" />
           </button>
           <Menu
             ref={menuRef}
-            label="Card actions"
+            label={t("card.cardActions")}
             summaryClassName="grid size-8 place-items-center rounded-sm text-[20px] leading-none text-ink-subtle hover:bg-line group-open/menu:bg-line"
             touchRows
           >
-            <MenuItem onClick={() => openAt("transfer", menuRef.current)}>Move / copy</MenuItem>
-            <MenuItem onClick={onClone}>Clone</MenuItem>
+            <MenuItem onClick={() => openAt("transfer", menuRef.current)}>{t("card.moveCopy")}</MenuItem>
+            <MenuItem onClick={onClone}>{t("card.clone")}</MenuItem>
             {!inInbox && (
               <MenuItem onClick={() => onChange((item) => ({ ...item, isTemplate: !item.isTemplate }))}>
-                {card.isTemplate ? "Remove template" : "Make template"}
+                {card.isTemplate ? t("card.removeTemplate") : t("card.makeTemplate")}
               </MenuItem>
             )}
-            <MenuItem onClick={() => openAt("share", menuRef.current)}>Share</MenuItem>
-            <MenuItem onClick={onHistory}>Card history</MenuItem>
+            <MenuItem onClick={() => openAt("share", menuRef.current)}>{t("card.share")}</MenuItem>
+            <MenuItem onClick={onHistory}>{t("card.cardHistory")}</MenuItem>
             <MenuSeparator />
             <MenuItem danger onClick={onDelete}>
-              Move to trash
+              {t("card.moveToTrash")}
             </MenuItem>
           </Menu>
-          <button className={topButtonClass} onClick={onClose} aria-label="Close card" title="Close card">
+          <button
+            className={topButtonClass}
+            onClick={onClose}
+            aria-label={t("card.closeCard")}
+            title={t("card.closeCard")}
+          >
             <Icon name="close" />
           </button>
         </div>
@@ -382,26 +389,29 @@ export function CardDialog({
             // `!`: the dialog's phone rule would make the title 16px like the other fields.
             className="-ml-1.5 w-[calc(100%+6px)] min-w-0 rounded-sm border-0 bg-transparent px-1.5 py-1 text-[26px]! leading-tight font-semibold text-ink hover:bg-surface-sunken focus:bg-white"
             value={card.name}
-            label="Card title"
+            label={t("card.cardTitle")}
             onCommit={(name) => onChange((item) => ({ ...item, name }))}
           />
           <p className="mt-1 mb-4 text-[12px] text-ink-muted">
-            in list “{lists.find((item) => item.id === card.listId)?.name ?? "—"}” ·{" "}
-            {state.boards.find((item) => item.id === card.boardId)?.name}
-            {created ? ` · created ${new Date(created).toLocaleString("en-US")}` : ""} · ID {card.id}
+            {t("card.inList", {
+              list: lists.find((item) => item.id === card.listId)?.name ?? "—",
+              board: state.boards.find((item) => item.id === card.boardId)?.name ?? "",
+            })}
+            {created ? t("card.createdAt", { time: formatDateTime(created) }) : ""}
+            {t("card.cardId", { id: card.id })}
           </p>
           <div className="card-actions mb-5 flex flex-wrap gap-2">
             <QuickButton icon="plus" panel="add" expanded={expanded("add")} onClick={toggle("add")}>
-              Add
+              {t("common.add")}
             </QuickButton>
             {!inInbox && (
               <QuickButton icon="tag" panel="labels" expanded={expanded("labels")} onClick={toggle("labels")}>
-                Labels
+                {t("card.labels")}
               </QuickButton>
             )}
             {!card.isTemplate && (
               <QuickButton icon="clock" panel="dates" expanded={expanded("dates")} onClick={toggle("dates")}>
-                Dates
+                {t("card.dates")}
               </QuickButton>
             )}
             <QuickButton
@@ -410,11 +420,11 @@ export function CardDialog({
               expanded={expanded("checklist")}
               onClick={toggle("checklist")}
             >
-              Checklist
+              {t("card.checklist")}
             </QuickButton>
             {canAssign && (
               <QuickButton icon="user-plus" panel="members" expanded={expanded("members")} onClick={toggle("members")}>
-                Members
+                {t("card.members")}
               </QuickButton>
             )}
             {cardButtons.map((rule) => (
@@ -424,16 +434,14 @@ export function CardDialog({
             ))}
           </div>
           {card.isTemplate && (
-            <p className="mt-0 mb-4 rounded-sm bg-brand-soft p-2.5 text-ink">
-              This is a card template. Dates aren't copied when you create a card from it.
-            </p>
+            <p className="mt-0 mb-4 rounded-sm bg-brand-soft p-2.5 text-ink">{t("card.templateNotice")}</p>
           )}
           {(members.length > 0 || card.labelIds.length > 0 || showDates) && (
             <div className="mb-2 flex flex-wrap gap-x-6 gap-y-3">
               {members.length > 0 && (
                 <div>
-                  <div className={blockTitleClass}>Members</div>
-                  <div className="flex flex-wrap gap-1" aria-label="Card members">
+                  <div className={blockTitleClass}>{t("card.members")}</div>
+                  <div className="flex flex-wrap gap-1" aria-label={t("card.cardMembers")}>
                     <CardMemberAvatars card={card} boardMembers={boardMembers} />
                     {canAssign && (
                       <button
@@ -441,7 +449,7 @@ export function CardDialog({
                         data-panel="members"
                         aria-expanded={expanded("members")}
                         onClick={toggle("members")}
-                        aria-label="Assign members"
+                        aria-label={t("card.assignMembers")}
                       >
                         <Icon name="plus" className="size-4" />
                       </button>
@@ -451,7 +459,7 @@ export function CardDialog({
               )}
               {card.labelIds.length > 0 && (
                 <div>
-                  <div className={blockTitleClass}>Labels</div>
+                  <div className={blockTitleClass}>{t("card.labels")}</div>
                   <div className="flex flex-wrap gap-1">
                     <CardLabelChips card={card} boardLabels={boardLabels} />
                     {!inInbox && (
@@ -460,7 +468,7 @@ export function CardDialog({
                         data-panel="labels"
                         aria-expanded={expanded("labels")}
                         onClick={toggle("labels")}
-                        aria-label="Change labels"
+                        aria-label={t("card.changeLabels")}
                       >
                         <Icon name="plus" className="size-4" />
                       </button>
@@ -471,7 +479,11 @@ export function CardDialog({
               {showDates && (
                 <div>
                   <div className={blockTitleClass}>
-                    {card.startAt && card.dueAt ? "Dates" : card.dueAt ? "Due date" : "Start date"}
+                    {card.startAt && card.dueAt
+                      ? t("card.dates")
+                      : card.dueAt
+                        ? t("card.dueDate")
+                        : t("card.startDate")}
                   </div>
                   <DatesChip card={card} expanded={expanded("dates")} onClick={toggle("dates")} />
                 </div>
@@ -493,10 +505,13 @@ export function CardDialog({
           )}
           {mentionedInDoc && (
             <p className="my-1">
-              📄 Mentioned in the{" "}
-              <Button variant="link" onClick={onOpenDoc}>
-                board doc
-              </Button>
+              {tNodes("card.mentionedInDoc", {
+                doc: (
+                  <Button variant="link" onClick={onOpenDoc}>
+                    {t("card.boardDoc")}
+                  </Button>
+                ),
+              })}
             </p>
           )}
           {!card.isTemplate && !inInbox && (
@@ -523,7 +538,7 @@ export function CardDialog({
           {related.length > 0 && <RelatedCards related={related} state={state} onNavigateCard={onNavigateCard} />}
           {card.attachments.length > 0 && (
             <section className={detailSectionClass}>
-              <DetailTitle icon="clip">Attachments</DetailTitle>
+              <DetailTitle icon="clip">{t("card.attachments")}</DetailTitle>
               {card.attachments.map((attachment) => (
                 <AttachmentRow
                   key={attachment.id}
@@ -550,7 +565,7 @@ export function CardDialog({
         />
       </div>
       {panel && (
-        <Popover key={panel.kind} title={panelTitles[panel.kind]} anchor={panel.anchor} onClose={closePanel}>
+        <Popover key={panel.kind} title={t(panelTitles[panel.kind])} anchor={panel.anchor} onClose={closePanel}>
           {panelBody(panel.kind, panel.anchor)}
         </Popover>
       )}

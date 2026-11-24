@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk – Trello-importálás"
+  },
+  "appDescription": {
+    "message": "Trello-táblát exportál minden fájljával a Kanbonkhoz, és engedi, hogy a localhoston futó Kanbonk letöltse a Trello-mellékleteket."
+  },
+  "panelTitle": {
+    "message": "Kanbonk-exportálás"
+  },
+  "panelCollapse": {
+    "message": "Összecsukás"
+  },
+  "panelExpand": {
+    "message": "Kibontás"
+  },
+  "panelIntro": {
+    "message": "Exportálja ezt a táblát az összes fájljával a Kanbonkhoz."
+  },
+  "panelHint": {
+    "message": "A kb. 100 MB-os ZIP-részek a letöltések mappába kerülnek. Ha a böngésző rákérdez, engedélyezze, hogy ez a webhely több fájlt töltsön le."
+  },
+  "exportBoard": {
+    "message": "Tábla exportálása"
+  },
+  "exportAgain": {
+    "message": "Exportálás újra"
+  },
+  "exportCancel": {
+    "message": "Mégse"
+  },
+  "progressBoard": {
+    "message": "A tábla beolvasása…"
+  },
+  "progressComments": {
+    "message": "Megjegyzések beolvasása… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Matricák beolvasása…"
+  },
+  "progressSaving": {
+    "message": "$PART$. rész mentése…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ / $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Fájlok: $DONE$ / $TOTAL$ · $SIZE$\n$PART$. rész",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Kész: $PARTS$ rész, $FILES$ / $TOTAL$ fájl.\nA Kanbonkban nyissa meg a ⋯ → Importálás Trellóból menüpontot, és válassza ki egyszerre az összes részt.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Kész: $PARTS$ rész, $FILES$ / $TOTAL$ fájl.\nA Kanbonkban nyissa meg a ⋯ → Importálás Trellóból menüpontot, és válassza ki egyszerre az összes részt.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Nem exportálva: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Az exportálás megszakítva."
+  },
+  "warningWorkspaceName": {
+    "message": "Munkaterület neve: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "A megjegyzéselőzmények az utolsó 1000 műveletre korlátozódnak: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Matricák: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Érvénytelen Trello-válasz"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "A megjegyzéselőzmények beolvasása nem folytatható"
+  },
+  "labelBoardBackground": {
+    "message": "Tábla háttere"
+  },
+  "labelSticker": {
+    "message": "Matrica: $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Érvénytelen URL"
+  },
+  "errorUnknownImageType": {
+    "message": "Ismeretlen képtípus"
+  },
+  "errorInvalidImageSize": {
+    "message": "Érvénytelen képméret"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "A Trello a fájl helyett egy oldalt adott vissza; jelentkezzen be újra"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Érvénytelen Trello-megjegyzéselőzmények."
+  },
+  "errorUnknownRequest": {
+    "message": "Ismeretlen kérés."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "A Trello a melléklet helyett egy oldalt adott vissza; jelentkezzen be a fiókjába."
+  },
+  "errorLargeAttachment": {
+    "message": "A Trello nem támogatja nagy mellékletek részleges letöltését. Használjon ZIP-et."
+  },
+  "errorNoPartialDownload": {
+    "message": "A Trello nem támogatja a részleges letöltést: HTTP $STATUS$. Használjon ZIP-et.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "A Trello nem adta meg a mellékletrész méretét."
+  },
+  "errorInvalidRange": {
+    "message": "A Trello érvénytelen melléklettartományt adott vissza."
+  },
+  "errorIncompleteChunk": {
+    "message": "A Trello hiányos mellékletrészt adott vissza."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Érvénytelen Trello-melléklet-URL."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Nyisson meg egy Trello-lapot ebben a Chrome-profilban."
+  },
+  "errorTabNoResponse": {
+    "message": "A Trello-lap nem válaszolt; töltse be újra."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Érvénytelen Trello-előzményazonosító."
+  },
+  "errorInvalidOffset": {
+    "message": "Érvénytelen mellékleteltolás."
+  }
+}

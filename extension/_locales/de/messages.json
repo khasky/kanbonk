@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Lokale Kanban-Boards im Browser: Die Daten bleiben in der Erweiterung und synchronisieren sich ohne Cloud mit Computer und Handy."
+  },
+  "actionTitle": {
+    "message": "Kanbonk öffnen"
+  }
+}

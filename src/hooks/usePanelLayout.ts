@@ -1,5 +1,6 @@
 import { type KeyboardEvent, type PointerEvent as ReactPointerEvent, useEffect, useEffectEvent, useState } from "react";
 import { type PanelName, type PanelVisibility, type PanelWidths, readPanelWidths } from "../lib/uiPreferences";
+import { t } from "../i18n";
 
 const minWidth = 220;
 /** From this viewport width both panels can be open next to the board; below it only the active one is shown. */
@@ -46,7 +47,7 @@ export function usePanelLayout({ ready, onError }: { ready: boolean; onError: (m
       if (activePanel) localStorage.setItem("kanbonk-active-panel", activePanel);
       else localStorage.removeItem("kanbonk-active-panel");
     } catch (cause) {
-      reportError(`Could not save the selected section: ${String(cause)}`);
+      reportError(t("hooks.sectionSaveFailed", { error: String(cause) }));
     }
   }, [activePanel, ready]);
 

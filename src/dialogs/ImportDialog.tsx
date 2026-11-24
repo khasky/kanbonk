@@ -1,6 +1,7 @@
 import { Dialog } from "../ui/Modal";
 import { type Dispatch, type SetStateAction, useState } from "react";
-import { counted } from "../lib/format";
+import { isMessage, type MessageKey, t } from "../i18n";
+import { tNodes } from "../i18n/nodes";
 import {
   addImportedBoardWithRevisions,
   parseTrelloBoard,
@@ -46,14 +47,14 @@ export function ImportDialog({
   const zips = files.filter(isZip);
 
   /** Runs one import action with the busy flag, the timer and an error report. */
-  async function run(action: () => Promise<string>, failure: string) {
+  async function run(action: () => Promise<string>, failure: MessageKey) {
     setBusy(true);
     setTime({ start: Date.now() });
     setReport("");
     try {
       setReport(await action());
     } catch (cause) {
-      setReport(`${failure}: ${String(cause)}`);
+      setReport(t(failure, { error: String(cause) }));
     } finally {
       setBusy(false);
       setTime((current) => current && { ...current, end: Date.now() });
@@ -67,23 +68,24 @@ export function ImportDialog({
       addImportedBoardWithRevisions(ensurePersonalWorkspace(current, workspaceId, deviceId), result, deviceId),
     );
     onBoardImported(result.board.id);
-    return `Imported from CSV: ${counted(result.lists.length, "list", "lists")}, ${counted(result.cards.length, "card", "cards")}. ${result.warnings.join(" ")}`;
+    return t("dialogs.importedCsv", {
+      lists: t("dialogs.lists", { count: result.lists.length }),
+      cards: t("common.cards", { count: result.cards.length }),
+      warnings: result.warnings.join(" "),
+    });
   }
 
   async function importBoard(): Promise<string> {
     const boardFiles = files.filter((file) => !isZip(file));
-    if (boardFiles.length > 1) throw new Error("Choose one board JSON or CSV.");
+    if (boardFiles.length > 1) throw new Error(t("dialogs.chooseOneBoard"));
     const boardFile = boardFiles[0];
     if (boardFile?.name.toLowerCase().endsWith(".csv")) return importCsv(boardFile);
 
     const exported = zips.length ? await readTrelloExport(zips) : { json: undefined, boardId: "" };
     let raw = boardFile ? JSON.parse(await boardFile.text()) : exported.json;
-    if (!raw)
-      throw new Error(
-        "The chosen ZIP files contain no board JSON. Choose all parts of the export, or add the board JSON.",
-      );
+    if (!raw) throw new Error(t("dialogs.noBoardJson"));
     if (boardFile && exported.boardId && exported.boardId !== (raw as { id?: string }).id)
-      throw new Error("The JSON and the ZIP files belong to different Trello boards.");
+      throw new Error(t("dialogs.differentBoards"));
     const fallbackWorkspaceId = defaultWorkspaceId ?? personalWorkspaceId;
     const bridgeAvailable = await trelloBridgeAvailable();
     const source = raw as { id?: unknown; actions?: unknown; kanbonkCommentsComplete?: unknown };
@@ -119,33 +121,37 @@ export function ImportDialog({
     });
     if (!result.board.deletedAt) onBoardImported(result.board.id);
 
-    const missingAttachments = warnings.filter((item) => item.startsWith("Could not download attachment"));
-    const missingStickers = warnings.filter((item) => item.startsWith("Could not download sticker"));
-    const hint =
-      missingAttachments.length && !zips.length && !directDownload
-        ? " Export the board with the Kanbonk Trello Import extension and choose its ZIP files."
-        : "";
+    const missingAttachments = warnings.filter((item) => isMessage(item, "trello.attachmentNotDownloaded"));
+    const missingStickers = warnings.filter((item) => isMessage(item, "trello.stickerNotDownloaded"));
+    const notFetched = t("dialogs.attachmentsNotFetched", {
+      attachments: missingAttachments.length,
+      stickers: missingStickers.length,
+      warnings: warnings.slice(0, 3).join(" "),
+    });
     const unavailable = warnings.length
-      ? `Attachments not fetched: ${missingAttachments.length}. Stickers: ${missingStickers.length}. ${warnings.slice(0, 3).join(" ")}${hint}`
+      ? missingAttachments.length && !zips.length && !directDownload
+        ? `${notFetched} ${t("dialogs.importExtensionHint")}`
+        : notFetched
       : "";
+    const closed = [...result.lists, ...result.cards].filter((item) => item.deletedAt).length;
     const notes = [
       ...result.warnings.filter(
-        (item) => !item.startsWith("Attachments need") && !item.startsWith("Trello sticker images need"),
+        (item) => item !== t("trello.attachmentsNeedDownload") && item !== t("trello.stickersNeedZip"),
       ),
       unavailable,
       result.board.deletedAt
-        ? "The board is closed in Trello, so it is in the trash; restore it there within 30 days."
-        : [...result.lists, ...result.cards].some((item) => item.deletedAt)
-          ? `Lists and cards closed in Trello are in the trash (${[...result.lists, ...result.cards].filter((item) => item.deletedAt).length}); restore them there within 30 days.`
+        ? t("dialogs.boardClosedInTrello")
+        : closed
+          ? t("dialogs.closedInTrello", { count: closed })
           : "",
     ];
     const imported = [
-      counted(result.lists.length, "list", "lists"),
-      counted(result.cards.length, "card", "cards"),
-      counted(result.attachments.length - missingAttachments.length, "attachment", "attachments"),
-      counted(result.stickers.length - missingStickers.length, "sticker", "stickers"),
+      t("dialogs.lists", { count: result.lists.length }),
+      t("common.cards", { count: result.cards.length }),
+      t("dialogs.attachments", { count: result.attachments.length - missingAttachments.length }),
+      t("dialogs.stickers", { count: result.stickers.length - missingStickers.length }),
     ];
-    return `Imported: ${imported.join(", ")}. ${notes.filter(Boolean).join(" ")}`;
+    return t("dialogs.imported", { items: imported.join(", "), notes: notes.filter(Boolean).join(" ") });
   }
 
   async function addMissingFiles(): Promise<string> {
@@ -161,40 +167,38 @@ export function ImportDialog({
       ),
     );
     if (restored.restoredBackgrounds || restored.restoredStickers) onFilesRestored();
-    return `Attachments restored: ${restored.restored}. Stickers: ${restored.restoredStickers}. Board backgrounds: ${restored.restoredBackgrounds}.`;
+    return t("dialogs.filesRestored", {
+      attachments: restored.restored,
+      stickers: restored.restoredStickers,
+      backgrounds: restored.restoredBackgrounds,
+    });
   }
 
   return (
     <Dialog
-      label="Import from Trello"
+      label={t("dialogs.importTitle")}
       className="max-h-[calc(100dvh-96px)] overflow-auto"
       onDismiss={busy ? undefined : onClose}
     >
-      <h2 className={dialogTitleClass}>Import from Trello</h2>
+      <h2 className={dialogTitleClass}>{t("dialogs.importTitle")}</h2>
       <p className={dialogIntroClass}>
-        To move a board with all its files, install the Kanbonk Trello Import extension: open chrome://extensions or
-        edge://extensions, turn on Developer mode, choose Load unpacked and select the trello-import-extension folder of
-        the project. Then open the board in Trello and press <strong>Export board</strong> in the Kanbonk panel. The
-        board arrives as ZIP parts of about 100 MB.
+        {tNodes("dialogs.importIntro", { exportBoard: <strong>{t("dialogs.exportBoard")}</strong> })}
       </p>
-      <p className={dialogIntroClass}>
-        Choose all the parts here at once. A board JSON or CSV exported from Trello also works; attachments are then
-        fetched through the extension while a Trello tab is open.
-      </p>
+      <p className={dialogIntroClass}>{t("dialogs.importIntroParts")}</p>
       <div className={`${fieldLabelClass} my-3.5`}>
-        Files from Trello
+        {t("dialogs.filesFromTrello")}
         <FileButton
           size="lg"
           multiple
           accept=".zip,application/zip,.json,application/json,.csv,text/csv"
           disabled={busy}
-          placeholder="No files chosen"
+          placeholder={t("dialogs.noFilesChosen")}
           onFiles={setFiles}
         >
-          Choose files
+          {t("dialogs.chooseFiles")}
         </FileButton>
       </div>
-      {files.length > 1 && <Hint tone="subtle">{counted(files.length, "file", "files")} chosen.</Hint>}
+      {files.length > 1 && <Hint tone="subtle">{t("dialogs.filesChosen", { count: files.length })}</Hint>}
       {time && <ElapsedTime {...time} tone="subtle" />}
       {report && (
         <p className={reportClass} role="status">
@@ -203,23 +207,23 @@ export function ImportDialog({
       )}
       <div className={dialogFooterClass}>
         <Button variant="secondary" size="lg" onClick={onClose} disabled={busy}>
-          Close
+          {t("common.close")}
         </Button>
         <Button
           variant="secondary"
           size="lg"
-          onClick={() => void run(addMissingFiles, "ZIP error")}
+          onClick={() => void run(addMissingFiles, "dialogs.zipError")}
           disabled={busy || !zips.length}
-          title="Fill missing files of a board imported earlier"
+          title={t("dialogs.addFilesTitle")}
         >
-          Add files to imported board
+          {t("dialogs.addFiles")}
         </Button>
         <Button
           variant="primary"
-          onClick={() => void run(importBoard, "Import failed")}
+          onClick={() => void run(importBoard, "dialogs.importFailed")}
           disabled={busy || !files.length}
         >
-          {busy ? "Importing…" : "Import"}
+          {busy ? t("dialogs.importing") : t("dialogs.import")}
         </Button>
       </div>
     </Dialog>

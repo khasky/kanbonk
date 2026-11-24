@@ -2,6 +2,7 @@ import { useState } from "react";
 import { endDrag, startDrag, useDragState } from "../board/dragState";
 import { CardCover } from "../card/CardCover";
 import { CardStickers } from "../card/CardStickers";
+import { formatDate, t } from "../i18n";
 import { inboxBoardId } from "../model/inbox";
 import { emptyBoardFilter, filterBoardCards, type AppState, type BoardFilter } from "../model";
 import { Icon } from "../ui/Icon";
@@ -38,13 +39,14 @@ export function InboxView({
     setDraft("");
   }
   return (
-    <section className="inbox-view min-h-0 flex-1 overflow-auto bg-brand-soft p-4 text-ink" aria-label="Inbox">
+    <section
+      className="inbox-view min-h-0 flex-1 overflow-auto bg-brand-soft p-4 text-ink"
+      aria-label={t("panels.inbox")}
+    >
       <header className="flex max-w-[760px] items-start justify-between gap-4">
         <div>
-          <h1 className="mx-0 mt-0 mb-1.5 text-[17px]">Inbox</h1>
-          <p className="mx-0 mt-0 mb-4 text-[12px] leading-[1.4] text-ink-subtle">
-            Collect ideas and tasks here, then move them to a board.
-          </p>
+          <h1 className="mx-0 mt-0 mb-1.5 text-[17px]">{t("panels.inbox")}</h1>
+          <p className="mx-0 mt-0 mb-4 text-[12px] leading-[1.4] text-ink-subtle">{t("panels.inboxIntro")}</p>
         </div>
       </header>
       <form
@@ -58,12 +60,12 @@ export function InboxView({
           className="min-w-0 flex-1 max-phone:min-h-11"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="Add a card"
-          aria-label="New card in inbox"
+          placeholder={t("panels.addCard")}
+          aria-label={t("panels.newInboxCard")}
           required
         />
         <Button variant="primary" type="submit" className="max-phone:min-h-11">
-          Add
+          {t("common.add")}
         </Button>
       </form>
       <div className="mb-3.5 flex max-w-[760px] flex-wrap gap-2">
@@ -73,31 +75,31 @@ export function InboxView({
           type="search"
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}
-          placeholder="Search inbox"
-          aria-label="Search inbox"
+          placeholder={t("panels.searchInbox")}
+          aria-label={t("panels.searchInbox")}
         />
         <Select
           size="sm"
           className={selectClass}
           value={due}
           onChange={(event) => setDue(event.target.value as BoardFilter["due"])}
-          aria-label="Inbox due date"
+          aria-label={t("panels.inboxDue")}
         >
-          <option value="any">Any due date</option>
-          <option value="overdue">Overdue</option>
-          <option value="next-week">Next 7 days</option>
-          <option value="none">No due date</option>
+          <option value="any">{t("panels.anyDue")}</option>
+          <option value="overdue">{t("panels.overdue")}</option>
+          <option value="next-week">{t("panels.nextWeekDue")}</option>
+          <option value="none">{t("panels.noDue")}</option>
         </Select>
         <Select
           size="sm"
           className={selectClass}
           value={sort}
           onChange={(event) => setSort(event.target.value as typeof sort)}
-          aria-label="Inbox sorting"
+          aria-label={t("panels.inboxSorting")}
         >
-          <option value="newest">Newest first</option>
-          <option value="oldest">Oldest first</option>
-          <option value="name">By title</option>
+          <option value="newest">{t("panels.newestFirst")}</option>
+          <option value="oldest">{t("panels.oldestFirst")}</option>
+          <option value="name">{t("panels.byTitle")}</option>
         </Select>
       </div>
       <div className="grid max-w-[760px] gap-2">
@@ -120,7 +122,7 @@ export function InboxView({
             <span className={tileMetaClass()}>
               {card.dueAt && (
                 <span className={tileMetaItemClass}>
-                  <Icon name="clock" className={tileMetaIconClass} /> {new Date(card.dueAt).toLocaleDateString()}
+                  <Icon name="clock" className={tileMetaIconClass} /> {formatDate(card.dueAt)}
                 </span>
               )}
               {card.checklists.length > 0 && (
@@ -140,7 +142,7 @@ export function InboxView({
         ))}
         {!cards.length && (
           <p className="p-[22px] text-center text-ink-muted">
-            {keyword || due !== "any" ? "Nothing found" : "No cards in your inbox yet"}
+            {keyword || due !== "any" ? t("panels.nothingFound") : t("panels.inboxEmpty")}
           </p>
         )}
       </div>

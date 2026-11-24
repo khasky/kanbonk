@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MarkdownEditor } from "../ui/MarkdownEditor";
 import { MarkdownText } from "../ui/MarkdownText";
+import { t } from "../i18n";
 import type { Card } from "../model";
 import { Button } from "../ui/Button";
 import { detailSectionClass, placeholderClass } from "./cardLook";
@@ -22,17 +23,17 @@ export function CardDescription({
   return (
     <section className={`card-markdown ${detailSectionClass}`}>
       <DetailTitle icon="text">
-        Description
+        {t("card.description")}
         {card.description && !editingDescription && (
           <Button variant="outline" size="sm" className="ml-auto" onClick={() => setEditingDescription(true)}>
-            Edit
+            {t("common.edit")}
           </Button>
         )}
       </DetailTitle>
       {editingDescription ? (
         <MarkdownEditor
           value={card.description}
-          label="Card description"
+          label={t("card.cardDescription")}
           onSave={(value) => {
             if (value !== card.description) onChange((item) => ({ ...item, description: value }));
             setEditingDescription(false);
@@ -45,7 +46,7 @@ export function CardDescription({
         </div>
       ) : (
         <button className={placeholderClass} onClick={() => setEditingDescription(true)}>
-          Add a more detailed description…
+          {t("card.addDescription")}
         </button>
       )}
     </section>

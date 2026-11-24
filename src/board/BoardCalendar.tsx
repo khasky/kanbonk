@@ -21,21 +21,30 @@ import {
 import { Hint } from "../ui/Hint";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
 import { Button } from "../ui/Button";
+import { formatDate, type MessageKey, t } from "../i18n";
 
-const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+const weekdays: MessageKey[] = [
+  "board.mon",
+  "board.tue",
+  "board.wed",
+  "board.thu",
+  "board.fri",
+  "board.sat",
+  "board.sun",
+];
+const monthNames: MessageKey[] = [
+  "board.january",
+  "board.february",
+  "board.march",
+  "board.april",
+  "board.may",
+  "board.june",
+  "board.july",
+  "board.august",
+  "board.september",
+  "board.october",
+  "board.november",
+  "board.december",
 ];
 
 /** A bar's sides: a bar that continues from the previous week or into the next one is flat and flush on that side. */
@@ -111,7 +120,15 @@ function CalendarWeek({
               gridRow: segment.lane + 2,
               borderLeftColor: color,
             }}
-            title={`${card.name} — ${segment.item.start.toLocaleDateString("en-US")}${segment.item.end > segment.item.start ? ` – ${segment.item.end.toLocaleDateString("en-US")}` : ""}`}
+            title={
+              segment.item.end > segment.item.start
+                ? t("board.barTitleRange", {
+                    name: card.name,
+                    from: formatDate(segment.item.start),
+                    to: formatDate(segment.item.end),
+                  })
+                : t("board.barTitle", { name: card.name, date: formatDate(segment.item.start) })
+            }
             onPointerDown={(event) => onStartDrag(event, card, "move")}
           >
             {!segment.continuesBefore && (
@@ -139,8 +156,8 @@ function CalendarWeek({
               <>
                 <button
                   className="flex-none cursor-pointer border-0 bg-transparent px-0.5 py-0 text-[14px] leading-none text-ink-subtle opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
-                  aria-label={`Delete card ${card.name}`}
-                  title="Delete"
+                  aria-label={t("board.deleteCardOf", { name: card.name })}
+                  title={t("common.delete")}
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={(event) => {
                     event.stopPropagation();
@@ -236,37 +253,37 @@ export function BoardCalendar({
     scale === "year"
       ? String(anchor.getFullYear())
       : scale === "month"
-        ? `${monthNames[anchor.getMonth()]} ${anchor.getFullYear()}`
-        : `${from.toLocaleDateString("en-US")} – ${to.toLocaleDateString("en-US")}`;
+        ? t("board.monthTitle", { month: t(monthNames[anchor.getMonth()]), year: anchor.getFullYear() })
+        : t("board.dateRange", { from: formatDate(from), to: formatDate(to) });
   const boardLabels = state.labels.filter((label) => !label.deleted);
   return (
     <section
       className="mx-3 mt-0 mb-3 min-h-0 flex-1 overflow-auto rounded-[10px] bg-white p-3 text-ink"
-      aria-label="Board calendar"
+      aria-label={t("board.boardCalendar")}
     >
       <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
         <Button
           variant="secondary"
           onClick={() => onNavigate(scale, dayKey(shiftAnchor(scale, anchor, -1)))}
-          aria-label="Previous"
+          aria-label={t("board.previous")}
         >
           ‹
         </Button>
         <Button variant="secondary" onClick={() => onNavigate(scale, undefined)}>
-          Today
+          {t("board.today")}
         </Button>
         <Button
           variant="secondary"
           onClick={() => onNavigate(scale, dayKey(shiftAnchor(scale, anchor, 1)))}
-          aria-label="Next"
+          aria-label={t("board.next")}
         >
           ›
         </Button>
         <h2 className="mx-2 my-0 flex-1 text-[18px]">{title}</h2>
-        <Segmented label="Calendar scale">
+        <Segmented label={t("board.calendarScale")}>
           {(["week", "month", "year"] as const).map((item) => (
             <SegmentedTab key={item} selected={scale === item} onClick={() => onNavigate(item, date)}>
-              {item === "week" ? "Week" : item === "month" ? "Month" : "Year"}
+              {t(item === "week" ? "board.week" : item === "month" ? "board.month" : "board.year")}
             </SegmentedTab>
           ))}
         </Segmented>
@@ -281,7 +298,7 @@ export function BoardCalendar({
                   className="cursor-pointer border-0 bg-transparent px-0 py-0.5 text-left font-bold text-ink"
                   onClick={() => onNavigate("month", dayKey(new Date(anchor.getFullYear(), month, 1)))}
                 >
-                  {name} <small>{monthItems.length || ""}</small>
+                  {t(name)} <small>{monthItems.length || ""}</small>
                 </button>
                 {monthItems.slice(0, 8).map((item) => (
                   <button
@@ -298,7 +315,7 @@ export function BoardCalendar({
                     className={`${chipBase} bg-transparent text-brand`}
                     onClick={() => onNavigate("month", dayKey(new Date(anchor.getFullYear(), month, 1)))}
                   >
-                    {monthItems.length - 8} more
+                    {t("board.moreCount", { count: monthItems.length - 8 })}
                   </button>
                 )}
               </div>
@@ -310,7 +327,7 @@ export function BoardCalendar({
           <div className="grid grid-cols-[repeat(7,1fr)] py-1 text-[12px] font-bold text-ink-muted">
             {weekdays.map((day) => (
               <span key={day} className="pl-1.5">
-                {day}
+                {t(day)}
               </span>
             ))}
           </div>
@@ -330,10 +347,7 @@ export function BoardCalendar({
           ))}
         </div>
       )}
-      <Hint>
-        A card spans from its start date (or creation date) to its due date, if that is later. Drag a bar to another
-        day, or drag its edge to change the start or due date; × moves the card to the trash.
-      </Hint>
+      <Hint>{t("board.calendarHint")}</Hint>
     </section>
   );
 }

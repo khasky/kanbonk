@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Card } from "../model";
+import { t } from "../i18n";
 import { platform } from "../lib/platform";
 import { loadAttachment } from "../lib/storage";
 import { AttachmentPreview } from "./AttachmentPreview";
@@ -55,17 +56,17 @@ export function AttachmentRow({
       onClick={() => onDownload(attachment.id, attachment.name)}
       disabled={attachment.status === "missing"}
     >
-      Download
+      {t("card.download")}
     </Button>
   );
   if (attachment.status === "link") {
     if (linkedCard && !linkedCard.deletedAt)
       action = (
         <Button variant="secondary" className={buttonClass} onClick={() => onNavigateCard(linkedCard)}>
-          Open card
+          {t("card.openCard")}
         </Button>
       );
-    else if (attachment.linkedCardId) action = <small className={noteClass}>Card unavailable</small>;
+    else if (attachment.linkedCardId) action = <small className={noteClass}>{t("card.cardUnavailable")}</small>;
     else if (/^https?:\/\//.test(attachment.sourceUrl ?? ""))
       action = (
         <a
@@ -74,10 +75,10 @@ export function AttachmentRow({
           target="_blank"
           rel="noopener noreferrer"
         >
-          Open link
+          {t("card.openLink")}
         </a>
       );
-    else action = <small className={noteClass}>Link unavailable</small>;
+    else action = <small className={noteClass}>{t("card.linkUnavailable")}</small>;
   }
   return (
     <div className="border-b border-[#eee]">
@@ -86,8 +87,8 @@ export function AttachmentRow({
           {attachment.name}
           <PanelRowNote>
             {attachment.status === "link"
-              ? "Link"
-              : `${Math.round(attachment.size / 1024)} KB ${attachment.status === "missing" ? "· file missing" : ""}`}
+              ? t("card.link")
+              : `${t("card.sizeKb", { size: Math.round(attachment.size / 1024) })} ${attachment.status === "missing" ? t("card.fileMissing") : ""}`}
           </PanelRowNote>
         </span>
         {canPreview && (
@@ -95,9 +96,9 @@ export function AttachmentRow({
             variant="secondary"
             className={buttonClass}
             onClick={() => setPreviewOpen(true)}
-            aria-label={`Preview ${attachment.name}`}
+            aria-label={t("card.previewName", { name: attachment.name })}
           >
-            Preview
+            {t("card.preview")}
           </Button>
         )}
         {action}
@@ -105,9 +106,9 @@ export function AttachmentRow({
           variant="secondary"
           className={buttonClass}
           onClick={onRemove}
-          aria-label={`Delete attachment ${attachment.name}`}
+          aria-label={t("card.deleteAttachment", { name: attachment.name })}
         >
-          Delete
+          {t("common.delete")}
         </Button>
       </div>
       {localUrl && kind === "image" && (

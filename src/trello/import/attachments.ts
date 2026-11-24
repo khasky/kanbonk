@@ -1,3 +1,4 @@
+import { t } from "../../i18n";
 import { newId, type AppState, type Board } from "../../model/index";
 import { loadAttachment, saveAttachment } from "../../lib/storage";
 import type { ImportResult } from "./parse";
@@ -78,7 +79,7 @@ export async function restoreTrelloAttachments(
       const id = newId();
       await saveAttachment(id, new Blob([new Uint8Array(background[1])], { type: backgroundMimeType(background[0]) }));
       result.board.backgroundImageId = id;
-      result.warnings = result.warnings.filter((warning) => !warning.startsWith("Background image"));
+      result.warnings = result.warnings.filter((warning) => warning !== t("trello.backgroundNotTransferred"));
     }
     for (const attachment of [...pendingAttachments]) {
       const uniqueName = result.attachments.filter((item) => item.name === attachment.name).length === 1;
@@ -111,7 +112,8 @@ export async function restoreTrelloAttachments(
         /* The attachment remains marked as missing. */
       }
     }
-    if (pendingAttachments.has(attachment)) warnings.push(`Could not download attachment “${attachment.name}”.`);
+    if (pendingAttachments.has(attachment))
+      warnings.push(t("trello.attachmentNotDownloaded", { name: attachment.name }));
   }
   for (const sticker of [...pendingStickers]) {
     if (sticker.sourceUrl) {
@@ -121,7 +123,7 @@ export async function restoreTrelloAttachments(
         /* The sticker remains marked as missing. */
       }
     }
-    if (pendingStickers.has(sticker)) warnings.push(`Could not download sticker “${sticker.name}”.`);
+    if (pendingStickers.has(sticker)) warnings.push(t("trello.stickerNotDownloaded", { name: sticker.name }));
   }
   return warnings;
 }
@@ -165,7 +167,7 @@ export async function restoreExistingAttachments(
 async function restoreFromZip(state: AppState, files: Record<string, Uint8Array>): Promise<RestoredAttachments> {
   const zipBoardId = trelloBoardIdInZip(files) || exportManifest(files)?.boardId || "";
   if (zipBoardId && !state.boards.some((board) => board.sourceTrelloId === zipBoardId))
-    throw new Error("The board from the ZIP was not found among imported boards.");
+    throw new Error(t("trello.zipBoardNotImported"));
   const allowedBoardIds = new Set(
     state.boards.filter((board) => !zipBoardId || board.sourceTrelloId === zipBoardId).map((board) => board.id),
   );

@@ -1,6 +1,7 @@
 import { mediaReferences, newId, type AppState } from "../model";
 import { loadAttachment, saveAttachment } from "../lib/storage";
 import { validState } from "../backup/backup";
+import { t } from "../i18n";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 
@@ -47,7 +48,7 @@ async function connectionStep<T>(promise: Promise<T>): Promise<T> {
     return await Promise.race([
       promise,
       new Promise<never>((_, reject) => {
-        timeout = setTimeout(() => reject(new Error("Could not establish a connection within 20 seconds.")), 20000);
+        timeout = setTimeout(() => reject(new Error(t("sync.connectTimeout"))), 20000);
       }),
     ]);
   } finally {
@@ -106,40 +107,37 @@ export class LanSync {
     this.peerTrusted = !handlers.trust;
     if (local) {
       const code = local.code.trim().toLowerCase();
-      if (!/^[a-f0-9]{32}$/.test(code)) throw new Error("The room code must contain 32 hexadecimal characters.");
+      if (!/^[a-f0-9]{32}$/.test(code)) throw new Error(t("sync.roomCodeInvalid"));
       const encoder = new TextEncoder();
       const room = hex(sha256(encoder.encode(`kanbonk-room:${code}`)));
       this.roomKey = sha256(encoder.encode(`kanbonk-key:${code}`));
       const url = new URL(local.url);
-      if (url.protocol !== "ws:" && url.protocol !== "wss:")
-        throw new Error("Enter the address of the local Kanbonk server.");
-      if (!isLocalAddress(url.hostname)) throw new Error("The sync server must be on the local network.");
+      if (url.protocol !== "ws:" && url.protocol !== "wss:") throw new Error(t("sync.serverAddress"));
+      if (!isLocalAddress(url.hostname)) throw new Error(t("sync.serverNotLocal"));
       url.pathname = "/sync";
       url.search = `?room=${room}`;
       this.bindSocket(new WebSocket(url));
       return;
     }
-    if (typeof RTCPeerConnection !== "function")
-      throw new Error(
-        "WebRTC is not available in this browser. Check your browser settings or open Kanbonk in another browser.",
-      );
+    if (typeof RTCPeerConnection !== "function") throw new Error(t("sync.noWebRtc"));
     const connection = new RTCPeerConnection({ iceServers: options.internet ? internetIceServers : [] });
     this.connection = connection;
     connection.ondatachannel = (event) => this.bindChannel(event.channel);
-    connection.onconnectionstatechange = () => handlers.onStatus(`Connection: ${connection.connectionState}`);
+    connection.onconnectionstatechange = () =>
+      handlers.onStatus(t("sync.connectionState", { state: connection.connectionState }));
   }
 
   private bindChannel(channel: RTCDataChannel) {
     this.channel = channel;
     channel.onopen = () => {
-      this.handlers.onStatus("Devices connected. Transferring data…");
+      this.handlers.onStatus(t("sync.transferring"));
       void this.greet();
     };
     channel.onmessage = (event) => {
       void this.receiveMessage(String(event.data));
     };
     channel.onclose = () => {
-      this.handlers.onStatus("Connection closed");
+      this.handlers.onStatus(t("sync.connectionClosed"));
       if (!this.closed) this.handlers.onClosed?.();
     };
   }
@@ -149,16 +147,14 @@ export class LanSync {
     let opened = false;
     socket.onopen = () => {
       opened = true;
-      this.handlers.onStatus("Connected to the local server. Waiting for the other device…");
+      this.handlers.onStatus(t("sync.serverWaiting"));
     };
     socket.onmessage = (event) => {
       void this.receiveMessage(String(event.data));
     };
-    socket.onerror = () => this.handlers.onStatus("Could not connect to the local server.");
+    socket.onerror = () => this.handlers.onStatus(t("sync.serverConnectFailed"));
     socket.onclose = () => {
-      this.handlers.onStatus(
-        opened ? "Connection to the local server closed." : "The local server is unavailable or does not support sync.",
-      );
+      this.handlers.onStatus(opened ? t("sync.serverClosed") : t("sync.serverUnavailable"));
       if (!this.closed) this.handlers.onClosed?.();
     };
   }
@@ -167,12 +163,12 @@ export class LanSync {
     try {
       const envelope = JSON.parse(message);
       if (this.socket && envelope.type === "peer-ready") {
-        this.handlers.onStatus("Devices connected. Transferring data…");
+        this.handlers.onStatus(t("sync.transferring"));
         await this.greet();
         return;
       }
       if (this.socket && envelope.type === "peer-left") {
-        this.handlers.onStatus("The other device disconnected.");
+        this.handlers.onStatus(t("sync.peerDisconnected"));
         return;
       }
       const packet = this.roomKey
@@ -184,14 +180,14 @@ export class LanSync {
         : envelope;
       await this.receive(packet);
     } catch (cause) {
-      this.handlers.onStatus(`Error receiving data: ${String(cause)}`);
+      this.handlers.onStatus(t("sync.receiveError", { error: String(cause) }));
     }
   }
 
   private async waitForIce() {
     if (this.connection!.iceGatheringState === "complete") return;
     await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error("Could not gather the device's network addresses.")), 20000);
+      const timeout = setTimeout(() => reject(new Error(t("sync.gatherTimeout"))), 20000);
       const check = () => {
         if (this.connection!.iceGatheringState === "complete") {
           clearTimeout(timeout);
@@ -204,7 +200,7 @@ export class LanSync {
   }
 
   async createOffer(): Promise<string> {
-    if (!this.connection) throw new Error("A WebRTC invitation is not needed with a room code.");
+    if (!this.connection) throw new Error(t("sync.offerNotNeeded"));
     this.bindChannel(this.connection.createDataChannel("kanbonk"));
     await connectionStep(this.connection.setLocalDescription(await connectionStep(this.connection.createOffer())));
     await this.waitForIce();
@@ -212,7 +208,7 @@ export class LanSync {
   }
 
   async acceptOffer(offer: string): Promise<string> {
-    if (!this.connection) throw new Error("A WebRTC invitation is not needed with a room code.");
+    if (!this.connection) throw new Error(t("sync.offerNotNeeded"));
     await connectionStep(this.connection.setRemoteDescription(JSON.parse(offer) as RTCSessionDescriptionInit));
     await connectionStep(this.connection.setLocalDescription(await connectionStep(this.connection.createAnswer())));
     await this.waitForIce();
@@ -220,7 +216,7 @@ export class LanSync {
   }
 
   async acceptAnswer(answer: string): Promise<void> {
-    if (!this.connection) throw new Error("A WebRTC answer is not needed with a room code.");
+    if (!this.connection) throw new Error(t("sync.answerNotNeeded"));
     await connectionStep(this.connection.setRemoteDescription(JSON.parse(answer) as RTCSessionDescriptionInit));
   }
 
@@ -228,10 +224,10 @@ export class LanSync {
     const pending = this.outgoing.then(async () => {
       if (this.socket && this.roomKey) {
         const socket = this.socket;
-        if (socket.readyState !== WebSocket.OPEN) throw new Error("No connection for sync.");
+        if (socket.readyState !== WebSocket.OPEN) throw new Error(t("sync.noConnection"));
         while (socket.bufferedAmount > 256 * 1024) {
           await new Promise((resolve) => setTimeout(resolve, 30));
-          if (socket.readyState !== WebSocket.OPEN) throw new Error("The connection closed during transfer.");
+          if (socket.readyState !== WebSocket.OPEN) throw new Error(t("sync.closedDuringTransfer"));
         }
         const nonce = crypto.getRandomValues(new Uint8Array(24));
         const data = xchacha20poly1305(this.roomKey, nonce).encrypt(new TextEncoder().encode(JSON.stringify(packet)));
@@ -239,7 +235,7 @@ export class LanSync {
         return;
       }
       const channel = this.channel;
-      if (channel?.readyState !== "open") throw new Error("No connection for sync.");
+      if (channel?.readyState !== "open") throw new Error(t("sync.noConnection"));
       while (channel.bufferedAmount > 256 * 1024) {
         await new Promise<void>((resolve, reject) => {
           channel.bufferedAmountLowThreshold = 64 * 1024;
@@ -253,7 +249,7 @@ export class LanSync {
           };
           const onClose = () => {
             clear();
-            reject(new Error("The connection closed during transfer."));
+            reject(new Error(t("sync.closedDuringTransfer")));
           };
           channel.addEventListener("bufferedamountlow", onLow);
           channel.addEventListener("close", onClose);
@@ -261,7 +257,7 @@ export class LanSync {
       }
       channel.send(JSON.stringify(packet));
     });
-    this.outgoing = pending.catch((cause) => this.handlers.onStatus(`Transfer error: ${String(cause)}`));
+    this.outgoing = pending.catch((cause) => this.handlers.onStatus(t("sync.transferError", { error: String(cause) })));
     return pending.then(
       () => true,
       () => false,
@@ -279,12 +275,12 @@ export class LanSync {
     const peer = { deviceId: packet.deviceId.slice(0, 64), name: packet.name.slice(0, 60) };
     this.peer = peer;
     if (!trust.isTrusted(peer) && !(await trust.onPeer(peer))) {
-      this.handlers.onStatus(`Device “${peer.name}” is not in Trusted devices. Connection closed.`);
+      this.handlers.onStatus(t("sync.peerNotTrusted", { name: peer.name }));
       this.close();
       return;
     }
     this.peerTrusted = true;
-    this.handlers.onStatus(`Trusted device “${peer.name}” connected. Transferring data…`);
+    this.handlers.onStatus(t("sync.peerConnected", { name: peer.name }));
     await this.sendState();
     await this.send({ type: "request-state" });
   }
@@ -304,11 +300,11 @@ export class LanSync {
   }
 
   syncNow() {
-    if (!this.peerTrusted) throw new Error("The device has not been confirmed as trusted yet.");
+    if (!this.peerTrusted) throw new Error(t("sync.peerUnconfirmed"));
     if (this.socket ? this.socket.readyState !== WebSocket.OPEN : this.channel?.readyState !== "open")
-      throw new Error("Connect the devices first.");
+      throw new Error(t("sync.connectFirst"));
     void this.sendState();
-    this.handlers.onStatus("Sending changes…");
+    this.handlers.onStatus(t("sync.sending"));
   }
 
   async syncIfConnected(): Promise<void> {
@@ -361,9 +357,9 @@ export class LanSync {
         index >= total ||
         typeof packet.data !== "string"
       )
-        throw new Error("Invalid state packet.");
+        throw new Error(t("sync.invalidPacket"));
       const transfer = this.transfers.get(id) ?? { parts: [], total, mimeType: "", received: 0 };
-      if (transfer.total !== total || transfer.chunks) throw new Error("Invalid sequence of state packets.");
+      if (transfer.total !== total || transfer.chunks) throw new Error(t("sync.invalidSequence"));
       if (transfer.parts[index] === undefined) transfer.received = (transfer.received ?? 0) + 1;
       transfer.parts[index] = packet.data;
       this.transfers.set(id, transfer);
@@ -376,7 +372,7 @@ export class LanSync {
           Array.isArray(remote) ||
           !validState(remote as Record<string, unknown>)
         )
-          throw new Error("Received an unsupported board state.");
+          throw new Error(t("sync.unsupportedState"));
         await this.handlers.onState(remote as AppState);
       }
     } else if (packet.type === "request-files") {
@@ -408,7 +404,7 @@ export class LanSync {
           ),
         );
         this.handlers.onFile(id);
-        this.handlers.onStatus("File received");
+        this.handlers.onStatus(t("sync.fileReceived"));
       }
     }
   }

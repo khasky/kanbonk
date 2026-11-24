@@ -11,6 +11,7 @@ import {
 import type { AppState } from "../model";
 import { defaultBackupMayAsk } from "../lib/platform";
 import { listSnapshots, type SnapshotMeta } from "../lib/storage";
+import { t } from "../i18n";
 
 /**
  * Automatic backups: local snapshots every 10 minutes (and when the page is hidden) plus full ZIP backups on the
@@ -42,7 +43,7 @@ export function useAutoBackup({
         .then((meta) => {
           if (meta) setSnapshots((current) => [meta, ...current]);
         })
-        .catch((cause) => reportError(`Automatic backup was not created: ${String(cause)}`));
+        .catch((cause) => reportError(t("hooks.autoBackupNotCreated", { error: String(cause) })));
       if (running.current) return;
       running.current = true;
       void (async () => {
@@ -58,7 +59,7 @@ export function useAutoBackup({
         .catch((cause) => {
           // A failing backup is reported once per distinct reason, not every 10 minutes.
           const message = String(cause instanceof Error ? cause.message : cause);
-          if (message !== lastError.current) reportError(`Automatic backup failed: ${message} Check ⋯ → Settings.`);
+          if (message !== lastError.current) reportError(t("hooks.autoBackupFailed", { error: message }));
           lastError.current = message;
         })
         .finally(() => {
@@ -85,9 +86,13 @@ export function useAutoBackup({
   async function saveDueBackup() {
     setBackupAsk(false);
     try {
-      onNotice(`Backup saved: ${await writeAutoBackup(stateRef.current, await loadAutoBackupSettings(), true)}`);
+      onNotice(
+        t("hooks.backupSaved", {
+          report: await writeAutoBackup(stateRef.current, await loadAutoBackupSettings(), true),
+        }),
+      );
     } catch (cause) {
-      onError(`Backup failed: ${String(cause instanceof Error ? cause.message : cause)}`);
+      onError(t("hooks.backupFailed", { error: String(cause instanceof Error ? cause.message : cause) }));
     }
   }
 
@@ -96,7 +101,7 @@ export function useAutoBackup({
     try {
       await skipAutoBackup();
     } catch (cause) {
-      onError(`Could not postpone the backup: ${String(cause)}`);
+      onError(t("hooks.backupPostponeFailed", { error: String(cause) }));
     }
   }
 

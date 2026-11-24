@@ -1,4 +1,5 @@
 import type { DeviceSync } from "../hooks/useDeviceSync";
+import { t } from "../i18n";
 import { inboxBoardId } from "../model/inbox";
 import type { AppState } from "../model";
 import { linkHref, trashHref } from "../lib/router";
@@ -80,7 +81,7 @@ export function AppHeader({
       </a>
       <select
         className="hidden max-phone:order-2 max-phone:block max-phone:h-11 max-phone:min-w-[120px] max-phone:flex-[1_1_calc(50%_-_12px)] max-phone:rounded-sm max-phone:border max-phone:border-[#6b778c] max-phone:bg-[#22272b] max-phone:text-[16px] max-phone:text-white"
-        aria-label="Choose board"
+        aria-label={t("layout.chooseBoard")}
         value={
           shownPanels.includes("inbox")
             ? inboxBoardId
@@ -90,9 +91,9 @@ export function AppHeader({
         }
         onChange={(event) => onPickBoard(event.target.value)}
       >
-        <option value="">Boards</option>
-        <option value={inboxBoardId}>Inbox</option>
-        <option value={plannerViewId}>Planner</option>
+        <option value="">{t("layout.boards")}</option>
+        <option value={inboxBoardId}>{t("layout.inbox")}</option>
+        <option value={plannerViewId}>{t("layout.planner")}</option>
         {state.boards
           .filter((item) => item.id !== inboxBoardId && !item.deletedAt)
           .map((item) => (
@@ -102,10 +103,14 @@ export function AppHeader({
           ))}
       </select>
       <button className={`ml-6 max-phone:ml-0 ${topbarButton}`} onClick={onCreate}>
-        Create
+        {t("layout.create")}
       </button>
-      <button className={topbarButton} onClick={onOpenReminders} aria-label={`Reminders: ${reminderCount}`}>
-        Reminders{reminderCount ? ` (${reminderCount})` : ""}
+      <button
+        className={topbarButton}
+        onClick={onOpenReminders}
+        aria-label={t("layout.remindersLabel", { count: reminderCount })}
+      >
+        {reminderCount ? t("layout.remindersCount", { count: reminderCount }) : t("layout.reminders")}
       </button>
       <AppMenu actions={menu} navigate={navigate} />
       <label className="mx-auto flex h-8 w-[min(480px,40vw)] items-center gap-2 rounded-sm border border-[#6b778c] bg-[#22272b] px-[9px] max-tablet:w-[30vw] max-phone:order-2 max-phone:mx-0 max-phone:h-11 max-phone:w-auto max-phone:min-w-[120px] max-phone:flex-[1_1_calc(50%_-_12px)]">
@@ -114,8 +119,8 @@ export function AppHeader({
           value={search}
           onChange={(event) => onSearch(event.target.value)}
           className="w-full border-0 bg-transparent text-white outline-none placeholder:text-[#c7d1db] max-phone:min-w-0 max-phone:text-[16px]"
-          placeholder="Search"
-          aria-label="Search cards"
+          placeholder={t("layout.search")}
+          aria-label={t("layout.searchCards")}
           onKeyDown={(event) => {
             if (event.key === "Escape") onSearch("");
           }}
@@ -128,11 +133,11 @@ export function AppHeader({
           event.preventDefault();
           navigate(trashHref());
         }}
-        aria-label={`Trash: ${trashCount}`}
+        aria-label={t("layout.trashLabel", { count: trashCount })}
       >
-        🗑 Trash{trashCount ? ` (${trashCount})` : ""}
+        {trashCount ? t("layout.trashLinkCount", { count: trashCount }) : t("layout.trashLink")}
       </a>
-      <button className={badgeClass(sync)} onClick={menu.onSync} title="Sync with trusted devices">
+      <button className={badgeClass(sync)} onClick={menu.onSync} title={t("layout.syncTitle")}>
         {sync.badge}
       </button>
     </header>
@@ -143,20 +148,20 @@ export function AppHeader({
 function AppMenu({ actions, navigate }: { actions: AppMenuActions; navigate: (href: string) => void }) {
   return (
     <Menu
-      label="App menu"
+      label={t("layout.appMenu")}
       className="z-30"
       summaryClassName="grid h-8 w-[34px] place-items-center rounded-sm bg-topbar-button text-[22px] leading-none text-white hover:bg-ink-muted group-open/menu:bg-ink-muted max-phone:h-11 max-phone:w-11"
       placement="topbar"
       touchRows
     >
-      <MenuItem onClick={actions.onImport}>Import from Trello</MenuItem>
-      <MenuItem onClick={actions.onBackup}>Backup</MenuItem>
-      <MenuItem onClick={actions.onSettings}>Settings</MenuItem>
-      <MenuItem onClick={actions.onSync}>Sync</MenuItem>
-      <MenuItem onClick={actions.onAi}>AI assistant</MenuItem>
-      <MenuItem onClick={actions.onDedupe}>Duplicates across boards</MenuItem>
-      <MenuItem onClick={() => navigate(trashHref())}>Trash</MenuItem>
-      <MenuItem onClick={actions.onAuthor}>My name</MenuItem>
+      <MenuItem onClick={actions.onImport}>{t("layout.importTrello")}</MenuItem>
+      <MenuItem onClick={actions.onBackup}>{t("layout.backup")}</MenuItem>
+      <MenuItem onClick={actions.onSettings}>{t("layout.settings")}</MenuItem>
+      <MenuItem onClick={actions.onSync}>{t("layout.sync")}</MenuItem>
+      <MenuItem onClick={actions.onAi}>{t("layout.aiAssistant")}</MenuItem>
+      <MenuItem onClick={actions.onDedupe}>{t("layout.duplicates")}</MenuItem>
+      <MenuItem onClick={() => navigate(trashHref())}>{t("layout.trash")}</MenuItem>
+      <MenuItem onClick={actions.onAuthor}>{t("layout.myName")}</MenuItem>
     </Menu>
   );
 }

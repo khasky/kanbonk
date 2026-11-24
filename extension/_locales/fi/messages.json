@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Paikalliset Kanban-taulut selaimessa: tiedot pysyvät laajennuksessa ja synkronoituvat tietokoneen ja puhelimen kanssa ilman pilveä."
+  },
+  "actionTitle": {
+    "message": "Avaa Kanbonk"
+  }
+}

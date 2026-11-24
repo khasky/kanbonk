@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Card } from "../model";
+import { t } from "../i18n";
 
 const looks = {
   plain: "markdown-text",
@@ -45,7 +46,9 @@ export function MarkdownText({
               children
             );
           },
-          img: ({ alt, src }) => <span className="text-ink-subtle italic">Image: {alt || src || "untitled"}</span>,
+          img: ({ alt, src }) => (
+            <span className="text-ink-subtle italic">{t("ui.image", { name: alt || src || t("ui.untitled") })}</span>
+          ),
         }}
       >
         {text}

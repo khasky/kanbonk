@@ -1,5 +1,6 @@
 import { ColorInput } from "../ui/ColorInput";
 import type { Card } from "../model";
+import { t } from "../i18n";
 import { Button } from "../ui/Button";
 import { Select } from "../ui/Field";
 
@@ -28,19 +29,19 @@ export function CoverPicker({ card, onChange }: { card: Card; onChange: (change:
             className={`h-8 w-[50px] rounded-sm border-2 border-transparent ${pressedClass}`}
             key={color}
             style={{ background: color }}
-            aria-label={`Cover ${color}`}
+            aria-label={t("card.coverColor", { color })}
             aria-pressed={card.cover?.color === color}
             onClick={() => onChange((item) => ({ ...item, cover: { color, size: item.cover?.size ?? "normal" } }))}
           />
         ))}
         <label
           className="inline-flex h-8 w-[50px] cursor-pointer items-center gap-2 overflow-hidden rounded-sm bg-[conic-gradient(red,yellow,lime,cyan,blue,magenta,red)]"
-          title="Custom color"
+          title={t("card.customColor")}
         >
           <ColorInput
             className="h-full w-full cursor-pointer border-0 p-0 opacity-85"
             value={card.cover?.color ?? "#579dff"}
-            label="Custom cover color"
+            label={t("card.customCoverColor")}
             onCommit={(color) =>
               onChange((item) => ({ ...item, cover: { color, size: item.cover?.size ?? "normal" } }))
             }
@@ -55,7 +56,7 @@ export function CoverPicker({ card, onChange }: { card: Card; onChange: (change:
         }
         aria-pressed={card.cover?.size === "full" && Boolean(card.cover.color)}
       >
-        Color the whole card
+        {t("card.colorWholeCard")}
       </Button>
       {images.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
@@ -75,7 +76,7 @@ export function CoverPicker({ card, onChange }: { card: Card; onChange: (change:
         </div>
       )}
       <label className="flex items-center gap-2">
-        Size{" "}
+        {t("card.size")}{" "}
         <Select
           size="sm"
           value={card.cover?.size ?? "normal"}
@@ -87,8 +88,8 @@ export function CoverPicker({ card, onChange }: { card: Card; onChange: (change:
             }))
           }
         >
-          <option value="normal">Normal</option>
-          <option value="full">Full card</option>
+          <option value="normal">{t("card.sizeNormal")}</option>
+          <option value="full">{t("card.sizeFull")}</option>
         </Select>
       </label>
       <Button
@@ -97,7 +98,7 @@ export function CoverPicker({ card, onChange }: { card: Card; onChange: (change:
         onClick={() => onChange((item) => ({ ...item, cover: undefined }))}
         disabled={!card.cover}
       >
-        Remove cover
+        {t("card.removeCover")}
       </Button>
     </div>
   );

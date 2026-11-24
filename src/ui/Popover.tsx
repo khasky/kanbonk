@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "./Icon";
+import { t } from "../i18n";
 
 const gap = 6;
 const margin = 8;
@@ -104,7 +105,7 @@ export function Popover({
             onClose();
             anchor.focus();
           }}
-          aria-label={`Close ${title.toLowerCase()}`}
+          aria-label={t("ui.closePopover", { title: title.toLowerCase() })}
         >
           <Icon name="close" className="size-4" />
         </button>

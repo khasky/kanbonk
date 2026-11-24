@@ -9,6 +9,7 @@ import { BoardCopyDialog, type BoardCopyOptions } from "../dialogs/BoardCopyDial
 import { CloneCardDialog } from "../dialogs/CloneCardDialog";
 import { CreationDialog } from "../dialogs/CreationDialog";
 import { DedupeDialog } from "../dialogs/DedupeDialog";
+import { t } from "../i18n";
 import { DeleteDialog } from "../dialogs/DeleteDialog";
 import { ImportDialog } from "../dialogs/ImportDialog";
 import { SettingsDialog } from "../dialogs/SettingsDialog";
@@ -64,7 +65,7 @@ export function AppOverlays({
     const name = cloneCardName(state, cloneSource.id);
     setState((current) => recordRevision(cloneCard(current, cloneSource.id, id).state, "card", id, deviceId));
     overlays.close("cloneCardId");
-    app.setNotice(`Card cloned: “${name}”.`);
+    app.setNotice(t("app.cardCloned", { name }));
     app.setNoticeCardId(id);
   }
 
@@ -76,7 +77,7 @@ export function AppOverlays({
     if (kind === "board" && boardId === id)
       app.navigate(`/w/${app.fullState.boards.find((item) => item.id === id)?.workspaceId ?? ""}`);
     if (kind === "workspace" && app.page.page === "workspace" && app.page.id === id) app.navigate("/");
-    app.setNotice(`“${deleted.name}” moved to trash.`);
+    app.setNotice(t("app.movedToTrash", { name: deleted.name }));
   }
 
   function saveBoardDescription(description: string) {
@@ -136,7 +137,7 @@ export function AppOverlays({
           onIgnore={(pair) => ignorePair(pairKey(pair.a.id, pair.b.id))}
           onMerge={(keepId, dropId) => {
             setState((current) => mergeDuplicate(current, keepId, dropId, deviceId));
-            app.setNotice("Cards merged; the duplicate was moved to trash.");
+            app.setNotice(t("app.cardsMerged"));
           }}
         />
       )}

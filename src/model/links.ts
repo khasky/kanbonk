@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import type { AppState, Card } from "./index";
 
 export interface RelatedCard {
@@ -46,17 +47,17 @@ export function relatedCards(card: Card, state: AppState): RelatedCard[] {
     ),
     ...card.attachments
       .filter((attachment) => attachment.linkedCardId)
-      .map((attachment) => ({ id: attachment.linkedCardId!, source: "Attachment" })),
+      .map((attachment) => ({ id: attachment.linkedCardId!, source: t("model.sourceAttachment") })),
   ];
   const sources = [
-    { text: card.name, source: "Title" },
-    { text: card.description, source: "Description" },
+    { text: card.name, source: t("model.sourceTitle") },
+    { text: card.description, source: t("model.sourceDescription") },
     ...card.checklists.flatMap((checklist) =>
       checklist.items.map((item) => ({ text: item.name, source: checklist.name })),
     ),
     ...card.attachments
       .filter((attachment) => attachment.status === "link")
-      .map((attachment) => ({ text: attachment.sourceUrl || "", source: "Attachment" })),
+      .map((attachment) => ({ text: attachment.sourceUrl || "", source: t("model.sourceAttachment") })),
   ];
   const links: RelatedCard[] = direct.map((item) => ({
     url: `kanbonk://card/${item.id}`,

@@ -24,6 +24,7 @@ import { type AppState, markMediaLocal, rememberStateIds } from "../model";
 import { shareFile } from "../lib/platform";
 import { loadAttachment, loadState, saveAttachment } from "../lib/storage";
 import { chooseConflict, mergeStates, type SyncConflict } from "../sync/sync";
+import { t } from "../i18n";
 
 const transportKey = "kanbonk-sync-transport";
 
@@ -118,9 +119,9 @@ export function useDeviceSync({
           isTrusted: (peer) => readTrustedDevices().some((item) => item.deviceId === peer.deviceId),
           onPeer: async (peer) => {
             const accepted = await askConfirm({
-              title: `New device “${peer.name}” wants to sync`,
-              message: `Add it (${peer.deviceId.slice(0, 8)}) to trusted devices?`,
-              confirm: "Trust and sync",
+              title: t("hooks.newDeviceTitle", { name: peer.name }),
+              message: t("hooks.newDeviceMessage", { id: peer.deviceId.slice(0, 8) }),
+              confirm: t("hooks.trustAndSync"),
             });
             if (accepted) rememberTrust(peer, pairCode);
             return accepted;
@@ -134,7 +135,11 @@ export function useDeviceSync({
           stateRef.current = merged.state;
           setState(merged.state);
           setConflicts(merged.conflicts);
-          setStatus(merged.conflicts.length ? `Conflicts found: ${merged.conflicts.length}` : "Data received");
+          setStatus(
+            merged.conflicts.length
+              ? t("hooks.conflictsFound", { count: merged.conflicts.length })
+              : t("hooks.dataReceived"),
+          );
           reconnectDelay.current = 5000;
           if (session.peer) markSynced(session.peer.deviceId);
           await session.requestFiles(merged.state);
@@ -153,9 +158,7 @@ export function useDeviceSync({
           if (!room || sessionRef.current !== session) return;
           const delay = reconnectDelay.current;
           reconnectDelay.current = Math.min(delay * 2, 60_000);
-          setStatus(
-            `Connection lost. Changes are saved on this device; reconnecting in ${Math.round(delay / 1000)} s…`,
-          );
+          setStatus(t("hooks.reconnecting", { seconds: Math.round(delay / 1000) }));
           reconnectTimer.current = window.setTimeout(() => {
             if (sessionRef.current === session && navigator.onLine !== false) {
               try {
@@ -177,40 +180,39 @@ export function useDeviceSync({
   async function createOffer() {
     try {
       setSignal(await startSession().createOffer());
-      setStatus("Send the invitation to the second device and paste its response.");
+      setStatus(t("hooks.offerCreated"));
     } catch (cause) {
-      setStatus(`Could not create the invitation: ${String(cause)}`);
+      setStatus(t("hooks.offerFailed", { error: String(cause) }));
     }
   }
 
   async function acceptOffer() {
     try {
       setResponse(await startSession().acceptOffer(signal));
-      setStatus("Send the response to the first device.");
+      setStatus(t("hooks.offerAccepted"));
     } catch (cause) {
-      setStatus(`Could not accept the invitation: ${String(cause)}`);
+      setStatus(t("hooks.acceptOfferFailed", { error: String(cause) }));
     }
   }
 
   async function acceptAnswer() {
     try {
       await sessionRef.current?.acceptAnswer(response);
-      setStatus("Waiting for connection…");
+      setStatus(t("hooks.waitingForConnection"));
     } catch (cause) {
-      setStatus(`Could not accept the response: ${String(cause)}`);
+      setStatus(t("hooks.acceptAnswerFailed", { error: String(cause) }));
     }
   }
 
   function connectLocalRoom() {
     try {
       const server = new URL(serverUrl);
-      if (server.protocol !== "http:" && server.protocol !== "https:")
-        throw new Error("Enter the HTTP address of the local Kanbonk server.");
+      if (server.protocol !== "http:" && server.protocol !== "https:") throw new Error(t("hooks.serverAddressHttp"));
       server.protocol = server.protocol === "https:" ? "wss:" : "ws:";
       startSession({ url: server.href, code: roomCode });
-      setStatus("Connecting to the local server…");
+      setStatus(t("hooks.connectingLocal"));
     } catch (cause) {
-      setStatus(`Could not connect: ${String(cause)}`);
+      setStatus(t("hooks.connectFailed", { error: String(cause) }));
     }
   }
 
@@ -231,13 +233,13 @@ export function useDeviceSync({
       const result = await shareFile(file);
       setStatus(
         result === "shared"
-          ? "Package sent via the system Share menu (Bluetooth, Nearby Share, etc.)."
+          ? t("hooks.packageShared")
           : result === "cancelled"
-            ? "Package saving canceled."
-            : "Package saved. Transfer the file via Bluetooth, USB or any other way and open it on a trusted device.",
+            ? t("hooks.packageCancelled")
+            : t("hooks.packageSaved"),
       );
     } catch (cause) {
-      setStatus(`Could not create package: ${String(cause)}`);
+      setStatus(t("hooks.packageFailed", { error: String(cause) }));
     }
   }
 
@@ -248,15 +250,15 @@ export function useDeviceSync({
       const opened = await openSyncBundle(new Uint8Array(await file.arrayBuffer()), codes);
       const sender = opened.sender;
       if (sender?.deviceId === deviceId) {
-        setStatus("This package was created on this device. Open it on another one.");
+        setStatus(t("hooks.packageOwnDevice"));
         return;
       }
       if (sender && !trustedDevices.some((item) => item.deviceId === sender.deviceId)) {
         if (
           !(await askConfirm({
-            title: `Add “${sender.name}” to trusted devices?`,
-            message: "The data in the package is then merged into this device.",
-            confirm: "Trust and accept",
+            title: t("hooks.trustSenderTitle", { name: sender.name }),
+            message: t("hooks.trustSenderMessage"),
+            confirm: t("hooks.trustAndAccept"),
           }))
         )
           return;
@@ -269,7 +271,7 @@ export function useDeviceSync({
       setState(opened.files.reduce((current, item) => markMediaLocal(current, item.id), merged.state));
       onFilesChanged();
       setConflicts(merged.conflicts);
-      setStatus(`Package accepted. Files: ${opened.files.length}, conflicts: ${merged.conflicts.length}.`);
+      setStatus(t("hooks.packageAccepted", { files: opened.files.length, conflicts: merged.conflicts.length }));
     } catch (cause) {
       setStatus(String(cause instanceof Error ? cause.message : cause));
     }
@@ -278,7 +280,7 @@ export function useDeviceSync({
   function resolveConflict(conflict: SyncConflict, version: "local" | "remote") {
     setState((current) => chooseConflict(current, conflict, version, deviceId));
     setConflicts((current) => current.filter((item) => item !== conflict));
-    setStatus("Version chosen. Syncing…");
+    setStatus(t("hooks.versionChosen"));
   }
 
   // Send local changes shortly after they happen, when a session is connected.
@@ -329,7 +331,7 @@ export function useDeviceSync({
         setState(merged.state);
         if (merged.conflicts.length) setConflicts(merged.conflicts);
       })
-      .catch((cause) => onError(`Could not get changes from another tab: ${String(cause)}`));
+      .catch((cause) => onError(t("hooks.tabMergeFailed", { error: String(cause) })));
   });
   useEffect(() => {
     if (!ready) return;
@@ -354,12 +356,14 @@ export function useDeviceSync({
     [state.revisions, trustedDevices.length, lastSyncAt, deviceId],
   );
   const badge = !trustedDevices.length
-    ? "Local"
+    ? t("hooks.badgeLocal")
     : !online
-      ? `Offline${pendingChanges ? ` · ${pendingChanges} queued` : ""}`
+      ? pendingChanges
+        ? t("hooks.badgeOfflineQueued", { count: pendingChanges })
+        : t("hooks.badgeOffline")
       : pendingChanges
-        ? `Unsent: ${pendingChanges}`
-        : "Synced";
+        ? t("hooks.badgeUnsent", { count: pendingChanges })
+        : t("hooks.badgeSynced");
 
   return {
     trustedDevices,

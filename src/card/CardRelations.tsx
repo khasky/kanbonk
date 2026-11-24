@@ -2,6 +2,8 @@ import { useState } from "react";
 import { CardPicker } from "../ui/CardPicker";
 import type { relatedCards } from "../model/links";
 import { type AppState, type Card, isCardAvailable, parentCandidates } from "../model";
+import { t } from "../i18n";
+import { tNodes } from "../i18n/nodes";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
 import { detailSectionClass, inlineFormClass } from "./cardLook";
@@ -23,25 +25,27 @@ export function DependencySummary({
 }) {
   return (
     <section className={detailSectionClass}>
-      <DetailTitle icon="dependency">Dependencies</DetailTitle>
+      <DetailTitle icon="dependency">{t("card.dependencies")}</DetailTitle>
       {prerequisiteCards.length > 0 && (
         <p className={dependencyLineClass}>
-          Depends on:{" "}
-          {prerequisiteCards.map((item) => (
-            <Button variant="secondary" key={item.id} onClick={() => onNavigateCard(item)}>
-              {item.name}
-            </Button>
-          ))}
+          {tNodes("card.dependsOn", {
+            cards: prerequisiteCards.map((item) => (
+              <Button variant="secondary" key={item.id} onClick={() => onNavigateCard(item)}>
+                {item.name}
+              </Button>
+            )),
+          })}
         </p>
       )}
       {dependentCards.length > 0 && (
         <p className={dependencyLineClass}>
-          Blocks:{" "}
-          {dependentCards.map((item) => (
-            <Button variant="secondary" key={item.id} onClick={() => onNavigateCard(item)}>
-              {item.name}
-            </Button>
-          ))}
+          {tNodes("card.blocks", {
+            cards: dependentCards.map((item) => (
+              <Button variant="secondary" key={item.id} onClick={() => onNavigateCard(item)}>
+                {item.name}
+              </Button>
+            )),
+          })}
         </p>
       )}
     </section>
@@ -70,13 +74,16 @@ export function SubCards({
   const [choosingParent, setChoosingParent] = useState(false);
   return (
     <section className={detailSectionClass}>
-      <DetailTitle icon="sub-cards">Sub-cards</DetailTitle>
+      <DetailTitle icon="sub-cards">{t("card.subCards")}</DetailTitle>
       {parentCard && (
         <p>
-          Parent:{" "}
-          <button className={cardLinkClass} onClick={() => onNavigateCard(parentCard)}>
-            {parentCard.name}
-          </button>
+          {tNodes("card.parent", {
+            card: (
+              <button className={cardLinkClass} onClick={() => onNavigateCard(parentCard)}>
+                {parentCard.name}
+              </button>
+            ),
+          })}
         </p>
       )}
       {childCards.length > 0 && (
@@ -102,8 +109,8 @@ export function SubCards({
               setSubCardName("");
             }
           }}
-          placeholder="New sub-card"
-          aria-label="New sub-card title"
+          placeholder={t("card.newSubCard")}
+          aria-label={t("card.newSubCardTitle")}
         />
         <Button
           variant="secondary"
@@ -113,14 +120,14 @@ export function SubCards({
             setSubCardName("");
           }}
         >
-          Add
+          {t("common.add")}
         </Button>
       </div>
       <div className="mt-2 flex flex-row flex-wrap items-start gap-1.5">
         {choosingParent ? (
           <>
             <CardPicker
-              label="Parent card"
+              label={t("card.parentCard")}
               className="min-w-[200px] flex-1"
               candidates={parentCandidates(state, card.id).filter(
                 (item) => item.boardId === card.boardId && isCardAvailable(state, item),
@@ -131,17 +138,17 @@ export function SubCards({
               }}
             />
             <Button variant="secondary" onClick={() => setChoosingParent(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
           </>
         ) : (
           <>
             <Button variant="secondary" onClick={() => setChoosingParent(true)}>
-              {parentCard ? "Change parent" : "Choose parent card"}
+              {parentCard ? t("card.changeParent") : t("card.chooseParentCard")}
             </Button>
             {card.parentCardId && (
               <Button variant="secondary" onClick={() => onChange((item) => ({ ...item, parentCardId: undefined }))}>
-                Remove parent
+                {t("card.removeParent")}
               </Button>
             )}
           </>
@@ -163,7 +170,7 @@ export function RelatedCards({
 }) {
   return (
     <section className={detailSectionClass}>
-      <DetailTitle icon="link">Linked cards</DetailTitle>
+      <DetailTitle icon="link">{t("card.linkedCards")}</DetailTitle>
       {related.map((link, index) => (
         <div className="flex items-center gap-2.5 border-b border-line py-2 wrap-anywhere" key={`${link.url}-${index}`}>
           <span className="min-w-[70px] text-[12px] text-ink-muted">{link.source}</span>
@@ -175,9 +182,9 @@ export function RelatedCards({
               {link.target.name}
             </button>
           ) : link.target ? (
-            <small className="text-danger">Card unavailable: {link.target.name}</small>
+            <small className="text-danger">{t("card.cardUnavailableName", { name: link.target.name })}</small>
           ) : (
-            <small className="text-danger">Card not imported: {link.url}</small>
+            <small className="text-danger">{t("card.cardNotImported", { url: link.url })}</small>
           )}
         </div>
       ))}

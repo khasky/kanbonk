@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { t } from "../i18n";
 import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import type { AppState } from "../model";
 import { trashHref } from "../lib/router";
@@ -87,36 +88,36 @@ export function Sidebar({
       <button
         className={`grid size-7 place-items-center rounded-sm border-0 bg-transparent text-[18px] leading-none text-ink-subtle hover:bg-brand-soft ${collapsed ? "m-[0_auto_8px]" : "m-[-8px_0_6px_auto]"}`}
         onClick={toggle}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        aria-label={collapsed ? t("layout.expandSidebar") : t("layout.collapseSidebar")}
         aria-expanded={!collapsed}
-        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        title={collapsed ? t("layout.expandSidebar") : t("layout.collapseSidebar")}
       >
         {collapsed ? "»" : "«"}
       </button>
       <NavLink
         icon="inbox"
-        label="Inbox"
+        label={t("layout.inbox")}
         active={shownPanels.includes("inbox")}
         collapsed={collapsed}
         onClick={() => onTogglePanel("inbox")}
       />
       <NavLink
         icon="calendar"
-        label="Planner"
+        label={t("layout.planner")}
         active={shownPanels.includes("planner")}
         collapsed={collapsed}
         onClick={() => onTogglePanel("planner")}
       />
       <NavLink
         icon="grid"
-        label="Workspaces"
+        label={t("layout.workspaces")}
         active={page === "home"}
         collapsed={collapsed}
         onClick={() => navigate("/")}
       />
       <NavLink
         icon="trash"
-        label="Trash"
+        label={t("layout.trash")}
         active={page === "trash"}
         collapsed={collapsed}
         onClick={() => navigate(trashHref())}
@@ -129,8 +130,8 @@ export function Sidebar({
             : "m-[24px_6px_14px] flex items-center justify-between text-[12px] font-bold text-ink-subtle uppercase"
         }
       >
-        Workspaces
-        <button className={smallButton} onClick={onCreateWorkspace} aria-label="Create workspace">
+        {t("layout.workspaces")}
+        <button className={smallButton} onClick={onCreateWorkspace} aria-label={t("layout.createWorkspace")}>
           <Icon name="plus" />
         </button>
       </div>
@@ -153,7 +154,7 @@ export function Sidebar({
               <button
                 className={collapsed ? "hidden" : smallButton}
                 onClick={() => onCreateBoard(workspace.id)}
-                aria-label={`Add board to ${workspace.name}`}
+                aria-label={t("layout.addBoardTo", { name: workspace.name })}
               >
                 <Icon name="plus" />
               </button>

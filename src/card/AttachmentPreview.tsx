@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Attachment } from "../model";
 import { loadAttachment } from "../lib/storage";
+import { t } from "../i18n";
 import { Icon } from "../ui/Icon";
 import { MarkdownText } from "../ui/MarkdownText";
 import { Modal } from "../ui/Modal";
@@ -41,7 +42,7 @@ export function AttachmentPreview({
     let cancelled = false;
     void (async () => {
       const blob = await loadAttachment(attachment.id);
-      if (!blob) throw new Error("The file is not on this device.");
+      if (!blob) throw new Error(t("card.fileNotOnDevice"));
       if (kind === "text" || kind === "markdown") {
         const text = await blob.slice(0, textLimit).text();
         if (!cancelled) setContent({ text, truncated: blob.size > textLimit });
@@ -62,22 +63,22 @@ export function AttachmentPreview({
   // Rendered into <body>: inside the card dialog a fixed backdrop would be confined to the dialog's box.
   return createPortal(
     <Modal
-      label={`Preview ${attachment.name}`}
+      label={t("card.previewName", { name: attachment.name })}
       className="z-101 flex h-[calc(100dvh-96px)] w-[min(1100px,100%)] flex-col overflow-hidden rounded-[10px] bg-white shadow-dialog max-phone:h-dvh max-phone:max-h-dvh max-phone:w-full max-phone:rounded-none"
       onDismiss={onClose}
     >
       <header className="flex items-center gap-2.5 border-b border-line px-4 py-3">
         <h2 className="m-0 min-w-0 flex-1 text-[16px] wrap-anywhere">{attachment.name}</h2>
         <Button variant="secondary" onClick={onDownload}>
-          Download
+          {t("card.download")}
         </Button>
-        <Button variant="icon" onClick={onClose} aria-label="Close preview">
+        <Button variant="icon" onClick={onClose} aria-label={t("card.closePreview")}>
           <Icon name="close" />
         </Button>
       </header>
       <div className={bodyLooks[kind]}>
         {!content ? (
-          <Hint>Loading…</Hint>
+          <Hint>{t("card.loading")}</Hint>
         ) : content.error ? (
           <Hint>{content.error}</Hint>
         ) : kind === "image" ? (
@@ -95,7 +96,7 @@ export function AttachmentPreview({
             {content.text}
           </pre>
         )}
-        {content?.truncated && <Hint>Showing the first 1 MB. Download the file to see all of it.</Hint>}
+        {content?.truncated && <Hint>{t("card.truncatedPreview")}</Hint>}
       </div>
     </Modal>,
     document.body,

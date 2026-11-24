@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { type AppState, type Card, isCardAvailable, newId } from "../model";
+import { t } from "../i18n";
 import { Button } from "../ui/Button";
 import { Input, Select } from "../ui/Field";
 import { pickerBoxClass, pickerLabelClass } from "./cardLook";
@@ -16,14 +17,14 @@ export function ChecklistComposer({
   onChange: (change: (card: Card) => Card) => void;
   onClose: () => void;
 }) {
-  const [checklistName, setChecklistName] = useState("Checklist");
+  const [checklistName, setChecklistName] = useState(() => t("card.checklist"));
   const [copyChecklistId, setCopyChecklistId] = useState("");
   const availableChecklists = state.cards
     .filter((item) => item.boardId === card.boardId && isCardAvailable(state, item))
     .flatMap((item) => item.checklists.map((checklist) => ({ checklist, cardName: item.name })));
   function addChecklist() {
     const source = availableChecklists.find(({ checklist }) => checklist.id === copyChecklistId)?.checklist;
-    const name = checklistName.trim() || source?.name || "Checklist";
+    const name = checklistName.trim() || source?.name || t("card.checklist");
     onChange((item) => ({
       ...item,
       checklists: [
@@ -32,23 +33,23 @@ export function ChecklistComposer({
       ],
     }));
     onClose();
-    setChecklistName("Checklist");
+    setChecklistName(t("card.checklist"));
     setCopyChecklistId("");
   }
   return (
-    <section className={pickerBoxClass} aria-label="New checklist">
+    <section className={pickerBoxClass} aria-label={t("card.newChecklist")}>
       <label className={pickerLabelClass}>
-        Title
+        {t("card.title")}
         <Input
           size="sm"
           className="w-full min-w-0"
           value={checklistName}
           onChange={(event) => setChecklistName(event.target.value)}
-          aria-label="New checklist title"
+          aria-label={t("card.newChecklistTitle")}
         />
       </label>
       <label className={pickerLabelClass}>
-        Copy items from
+        {t("card.copyItemsFrom")}
         <Select
           size="sm"
           className="w-full min-w-0"
@@ -56,11 +57,11 @@ export function ChecklistComposer({
           onChange={(event) => {
             setCopyChecklistId(event.target.value);
             const source = availableChecklists.find(({ checklist }) => checklist.id === event.target.value)?.checklist;
-            if (source && checklistName === "Checklist") setChecklistName(source.name);
+            if (source && checklistName === t("card.checklist")) setChecklistName(source.name);
           }}
-          aria-label="Copy items from"
+          aria-label={t("card.copyItemsFrom")}
         >
-          <option value="">Don't copy</option>
+          <option value="">{t("card.dontCopy")}</option>
           {availableChecklists.map(({ checklist, cardName }) => (
             <option key={checklist.id} value={checklist.id}>
               {cardName} / {checklist.name}
@@ -69,7 +70,7 @@ export function ChecklistComposer({
         </Select>
       </label>
       <Button variant="primary" onClick={addChecklist}>
-        Add checklist
+        {t("card.addChecklist")}
       </Button>
     </section>
   );

@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Lokale Kanban-borden in je browser: gegevens blijven in de extensie en synchroniseren zonder cloud met je computer en telefoon."
+  },
+  "actionTitle": {
+    "message": "Kanbonk openen"
+  }
+}

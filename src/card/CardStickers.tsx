@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Card } from "../model";
+import { t } from "../i18n";
 import { loadAttachment } from "../lib/storage";
 
 export function CardStickers({ card }: { card: Card }) {
@@ -34,7 +35,9 @@ export function CardStickers({ card }: { card: Card }) {
   return (
     <span
       className="flex flex-wrap gap-[5px] self-end text-[24px] leading-none"
-      aria-label={`Stickers: ${card.stickers.map((sticker) => (typeof sticker === "string" ? sticker : sticker.name)).join(" ")}`}
+      aria-label={t("card.stickersLabel", {
+        stickers: card.stickers.map((sticker) => (typeof sticker === "string" ? sticker : sticker.name)).join(" "),
+      })}
     >
       {card.stickers.map((sticker, index) => (
         <span
@@ -46,7 +49,7 @@ export function CardStickers({ card }: { card: Card }) {
           {typeof sticker === "string" ? (
             sticker
           ) : sticker.status === "missing" ? (
-            <span className="inline-block" title="Sticker file missing">
+            <span className="inline-block" title={t("card.stickerFileMissing")}>
               ⚠
             </span>
           ) : (

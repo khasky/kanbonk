@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk Trello İçe Aktarma"
+  },
+  "appDescription": {
+    "message": "Bir Trello panosunu tüm dosyalarıyla Kanbonk için dışa aktarır ve localhost'taki Kanbonk'un Trello eklerini indirmesini sağlar."
+  },
+  "panelTitle": {
+    "message": "Kanbonk dışa aktarma"
+  },
+  "panelCollapse": {
+    "message": "Daralt"
+  },
+  "panelExpand": {
+    "message": "Genişlet"
+  },
+  "panelIntro": {
+    "message": "Bu panoyu tüm dosyalarıyla Kanbonk için dışa aktarın."
+  },
+  "panelHint": {
+    "message": "Yaklaşık 100 MB'lık ZIP parçaları indirilenler klasörünüze kaydedilir. Tarayıcı sorarsa bu sitenin birden çok dosya indirmesine izin verin."
+  },
+  "exportBoard": {
+    "message": "Panoyu dışa aktar"
+  },
+  "exportAgain": {
+    "message": "Yeniden dışa aktar"
+  },
+  "exportCancel": {
+    "message": "İptal"
+  },
+  "progressBoard": {
+    "message": "Pano okunuyor…"
+  },
+  "progressComments": {
+    "message": "Yorumlar okunuyor… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Çıkartmalar okunuyor…"
+  },
+  "progressSaving": {
+    "message": "$PART$. parça kaydediliyor…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$/$TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Dosyalar $DONE$/$TOTAL$ · $SIZE$\n$PART$. parça",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Tamamlandı: $PARTS$ parça, $FILES$/$TOTAL$ dosya.\nKanbonk'ta ⋯ → Trello'dan içe aktar menüsünü açın ve tüm parçaları birlikte seçin.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Tamamlandı: $PARTS$ parça, $FILES$/$TOTAL$ dosya.\nKanbonk'ta ⋯ → Trello'dan içe aktar menüsünü açın ve tüm parçaları birlikte seçin.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Dışa aktarılmayan: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Dışa aktarma iptal edildi."
+  },
+  "warningWorkspaceName": {
+    "message": "Çalışma alanı adı: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "Yorum geçmişi son 1000 işlemle sınırlıdır: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Çıkartmalar: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Geçersiz Trello yanıtı"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Yorum geçmişi okunmaya devam edilemedi"
+  },
+  "labelBoardBackground": {
+    "message": "Pano arka planı"
+  },
+  "labelSticker": {
+    "message": "Çıkartma $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Geçersiz URL"
+  },
+  "errorUnknownImageType": {
+    "message": "Bilinmeyen görsel türü"
+  },
+  "errorInvalidImageSize": {
+    "message": "Geçersiz görsel boyutu"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello dosya yerine bir sayfa döndürdü; yeniden oturum açın"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Geçersiz Trello yorum geçmişi."
+  },
+  "errorUnknownRequest": {
+    "message": "Bilinmeyen istek."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello ek yerine bir sayfa döndürdü; hesabınızda oturum açın."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello büyük bir ekin kısmi indirilmesini desteklemiyor. ZIP kullanın."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello kısmi indirmeyi desteklemiyor: HTTP $STATUS$. ZIP kullanın.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello ek parçasının boyutunu bildirmedi."
+  },
+  "errorInvalidRange": {
+    "message": "Trello geçersiz bir ek aralığı döndürdü."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello eksik bir ek parçası döndürdü."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Geçersiz Trello eki URL'si."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Bu Chrome profilinde bir Trello sekmesi açın."
+  },
+  "errorTabNoResponse": {
+    "message": "Trello sekmesi yanıt vermedi; sekmeyi yeniden yükleyin."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Geçersiz Trello geçmişi tanımlayıcısı."
+  },
+  "errorInvalidOffset": {
+    "message": "Geçersiz ek konumu."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Lokala Kanban-tavlor i webbläsaren: data stannar i tillägget och synkas med datorn och telefonen utan moln."
+  },
+  "actionTitle": {
+    "message": "Öppna Kanbonk"
+  }
+}

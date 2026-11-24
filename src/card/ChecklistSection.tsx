@@ -6,6 +6,7 @@ import { SectionTitle } from "../ui/SectionTitle";
 import { Checkbox, Textarea } from "../ui/Field";
 import { Menu, MenuItem } from "../ui/Menu";
 import { detailSectionClass, inlineFormClass } from "./cardLook";
+import { t } from "../i18n";
 import { Icon } from "../ui/Icon";
 
 /** The "⋯" button of a checklist's and an item's menu. */
@@ -79,9 +80,9 @@ export function ChecklistSection({
       const name = checklist.items[index]?.name.trim();
       if (!name) return;
       void askConfirm({
-        title: `Convert “${name}” to a card?`,
-        message: "A card is created below this card, and the item is removed from the checklist.",
-        confirm: "Convert",
+        title: t("card.convertItemTitle", { name }),
+        message: t("card.convertItemMessage"),
+        confirm: t("card.convert"),
       }).then((confirmed) => {
         if (confirmed) onConvertItem(itemId);
       });
@@ -131,15 +132,15 @@ export function ChecklistSection({
             onKeyDown={(event) => {
               if (event.key === "Enter") event.currentTarget.blur();
             }}
-            aria-label="Checklist title"
+            aria-label={t("card.checklistTitle")}
           />
         </h3>
         <Button variant="secondary" onClick={() => setHideChecked((value) => !value)} aria-pressed={hideChecked}>
-          {hideChecked ? "Show checked items" : "Hide checked items"}
+          {hideChecked ? t("card.showCheckedItems") : t("card.hideCheckedItems")}
         </Button>
-        <Menu label={`Checklist actions ${checklist.name}`} summaryClassName={menuButtonClass}>
+        <Menu label={t("card.checklistActions", { name: checklist.name })} summaryClassName={menuButtonClass}>
           <MenuItem danger onClick={deleteChecklist}>
-            Delete checklist
+            {t("card.deleteChecklist")}
           </MenuItem>
         </Menu>
       </SectionTitle>
@@ -167,7 +168,7 @@ export function ChecklistSection({
             <span
               className="flex-none cursor-grab text-ink-muted select-none"
               draggable
-              title="Drag item"
+              title={t("card.dragItem")}
               onDragStart={(event) => event.dataTransfer.setData("text/kanbonk-check-item", item.id)}
             >
               ⋮⋮
@@ -182,7 +183,7 @@ export function ChecklistSection({
                   ),
                 }))
               }
-              aria-label={`Check item ${item.name}`}
+              aria-label={t("card.checkItem", { name: item.name })}
             />
             <input
               className={item.checked ? `${itemNameClass} text-ink-muted line-through` : `${itemNameClass} text-ink`}
@@ -192,23 +193,23 @@ export function ChecklistSection({
               onKeyDown={(event) => {
                 if (event.key === "Enter") event.currentTarget.blur();
               }}
-              aria-label={`Item title ${item.name}`}
+              aria-label={t("card.itemTitle", { name: item.name })}
             />
-            <Menu label={`Item actions ${item.name}`} summaryClassName={menuButtonClass}>
-              <MenuItem onClick={() => itemAction(item.id, "up")}>Move up</MenuItem>
-              <MenuItem onClick={() => itemAction(item.id, "down")}>Move down</MenuItem>
+            <Menu label={t("card.itemActions", { name: item.name })} summaryClassName={menuButtonClass}>
+              <MenuItem onClick={() => itemAction(item.id, "up")}>{t("card.moveUp")}</MenuItem>
+              <MenuItem onClick={() => itemAction(item.id, "down")}>{t("card.moveDown")}</MenuItem>
               {card.checklists
                 .filter((list) => list.id !== checklist.id)
                 .map((list) => (
                   <MenuItem key={list.id} onClick={() => itemAction(item.id, `to:${list.id}`)}>
-                    To checklist “{list.name}”
+                    {t("card.toChecklist", { name: list.name })}
                   </MenuItem>
                 ))}
               <MenuItem disabled={Boolean(item.linkedCardId)} onClick={() => itemAction(item.id, "convert")}>
-                Convert to card
+                {t("card.convertToCard")}
               </MenuItem>
               <MenuItem danger onClick={() => itemAction(item.id, "delete")}>
-                Delete item
+                {t("card.deleteItem")}
               </MenuItem>
             </Menu>
           </div>
@@ -226,11 +227,11 @@ export function ChecklistSection({
               addItem();
             }
           }}
-          placeholder="Add an item"
-          aria-label="New checklist items"
+          placeholder={t("card.addItem")}
+          aria-label={t("card.newChecklistItems")}
         />
         <Button variant="secondary" onClick={addItem}>
-          Add
+          {t("common.add")}
         </Button>
       </div>
     </section>

@@ -2,6 +2,7 @@ import { askConfirm } from "../ui/AskDialog";
 import { useState } from "react";
 import { labelColorOptions, readableTextColor } from "../model/labelColors";
 import type { Card, Label } from "../model";
+import { t } from "../i18n";
 import { Button } from "../ui/Button";
 import { Checkbox, Input } from "../ui/Field";
 import { Icon } from "../ui/Icon";
@@ -43,11 +44,11 @@ export function LabelPicker({
           size="sm"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search labels…"
-          aria-label="Search labels"
+          placeholder={t("card.searchLabelsPlaceholder")}
+          aria-label={t("card.searchLabels")}
         />
       )}
-      {shown.length > 0 && <div className={groupTitleClass}>Labels</div>}
+      {shown.length > 0 && <div className={groupTitleClass}>{t("card.labels")}</div>}
       {shown.map((label) => (
         <div className="flex items-center gap-2" key={label.id}>
           <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5">
@@ -80,7 +81,7 @@ export function LabelPicker({
               setEditingLabelName(label.name);
               setEditingLabelColor(label.color);
             }}
-            aria-label={`Edit label ${label.name}`}
+            aria-label={t("card.editLabel", { name: label.name })}
           >
             <Icon name="pencil" className="size-4" />
           </Button>
@@ -93,7 +94,7 @@ export function LabelPicker({
             className="min-w-0 flex-1"
             value={editingLabelName}
             onChange={(event) => setEditingLabelName(event.target.value)}
-            aria-label="Label name"
+            aria-label={t("card.labelName")}
           />
           <input
             className={colorFieldClass}
@@ -101,7 +102,7 @@ export function LabelPicker({
             list="label-color-presets"
             value={editingLabelColor || "#dfe1e6"}
             onChange={(event) => setEditingLabelColor(event.target.value)}
-            aria-label="Edited label color"
+            aria-label={t("card.editedLabelColor")}
           />
           <div className="flex w-full gap-1.5">
             <Button
@@ -113,10 +114,10 @@ export function LabelPicker({
                 setEditingLabelId(null);
               }}
             >
-              Save
+              {t("common.save")}
             </Button>
             <Button variant="secondary" onClick={() => setEditingLabelId(null)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="danger"
@@ -126,9 +127,9 @@ export function LabelPicker({
                 if (
                   editingLabelId &&
                   (await askConfirm({
-                    title: "Delete label?",
-                    message: "The label is removed from all cards on the board.",
-                    confirm: "Delete",
+                    title: t("card.deleteLabelTitle"),
+                    message: t("card.deleteLabelMessage"),
+                    confirm: t("common.delete"),
                     danger: true,
                   }))
                 ) {
@@ -136,22 +137,22 @@ export function LabelPicker({
                   setEditingLabelId(null);
                 }
               }}
-              aria-label="Delete label"
+              aria-label={t("card.deleteLabel")}
             >
-              Delete
+              {t("common.delete")}
             </Button>
           </div>
         </div>
       )}
-      <div className={groupTitleClass}>New label</div>
+      <div className={groupTitleClass}>{t("card.newLabel")}</div>
       <div className="flex gap-1.5">
         <Input
           size="sm"
           className="min-w-0 flex-1"
           value={labelName}
           onChange={(event) => setLabelName(event.target.value)}
-          placeholder="Label name"
-          aria-label="New label"
+          placeholder={t("card.labelName")}
+          aria-label={t("card.newLabel")}
         />
         <input
           className={colorFieldClass}
@@ -159,7 +160,7 @@ export function LabelPicker({
           list="label-color-presets"
           value={labelColor}
           onChange={(event) => setLabelColor(event.target.value)}
-          aria-label="Label color"
+          aria-label={t("card.labelColor")}
         />
         <datalist id="label-color-presets">
           {labelColorOptions
@@ -177,7 +178,7 @@ export function LabelPicker({
             }
           }}
         >
-          Add
+          {t("common.add")}
         </Button>
       </div>
     </div>

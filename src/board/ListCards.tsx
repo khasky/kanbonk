@@ -1,5 +1,6 @@
 import { startTransition, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Card } from "../model";
+import { t } from "../i18n";
 
 /**
  * Renders a list's cards only while the list is near the viewport, and long lists in pages: the next page mounts when
@@ -57,7 +58,7 @@ export function ListCards({
         className="flex min-h-0.5 flex-col gap-[7px] overflow-auto px-0.5"
         data-count={cards.length}
         style={{ height: Math.min(cards.length, listPageSize) * 44 }}
-        aria-label={`Cards: ${cards.length}`}
+        aria-label={t("board.cardsCount", { count: cards.length })}
       />
     );
   return (
@@ -69,7 +70,7 @@ export function ListCards({
             className="w-full cursor-pointer rounded-md border-0 bg-[#091e420f] p-1.5"
             onClick={() => setLimit((value) => value + listPageSize)}
           >
-            Show {Math.min(listPageSize, cards.length - limit)} more of {cards.length - limit}
+            {t("board.showMoreOf", { count: Math.min(listPageSize, cards.length - limit), rest: cards.length - limit })}
           </button>
         </div>
       )}

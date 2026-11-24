@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import type { AppState, Card } from "../model";
 import { cardRef } from "../model/boardDoc";
 
@@ -71,15 +72,15 @@ export async function completeJson<T>(
             fallbacks: "default",
           })
         : await client.messages.create(params);
-      if (response.stop_reason === "refusal") throw new Error("The model refused the request.");
-      if (response.stop_reason === "max_tokens")
-        throw new Error("The model response was cut off: the result is too long.");
+      if (response.stop_reason === "refusal") throw new Error(t("ai.refused"));
+      if (response.stop_reason === "max_tokens") throw new Error(t("ai.cutOff"));
       const text = response.content.flatMap((block) => (block.type === "text" ? [block.text] : [])).join("");
       return JSON.parse(text) as T;
     } catch (cause) {
-      if (cause instanceof Anthropic.AuthenticationError) throw new Error("The provider rejected the API key.");
-      if (cause instanceof Anthropic.RateLimitError) throw new Error("Provider rate limit exceeded, try again later.");
-      if (cause instanceof Anthropic.APIError) throw new Error(`API error ${cause.status ?? ""}: ${cause.message}`);
+      if (cause instanceof Anthropic.AuthenticationError) throw new Error(t("ai.keyRejected"));
+      if (cause instanceof Anthropic.RateLimitError) throw new Error(t("ai.rateLimited"));
+      if (cause instanceof Anthropic.APIError)
+        throw new Error(t("ai.apiError", { status: cause.status ?? "", message: cause.message }));
       throw cause;
     }
   }
@@ -105,12 +106,13 @@ export async function completeJson<T>(
         : { type: "json_object" },
     });
     const text = response.choices[0]?.message?.content;
-    if (!text) throw new Error("The provider returned an empty response.");
+    if (!text) throw new Error(t("ai.emptyResponse"));
     return JSON.parse(text) as T;
   } catch (cause) {
-    if (cause instanceof OpenAI.AuthenticationError) throw new Error("The provider rejected the API key.");
-    if (cause instanceof OpenAI.RateLimitError) throw new Error("Provider rate limit exceeded, try again later.");
-    if (cause instanceof OpenAI.APIError) throw new Error(`API error ${cause.status ?? ""}: ${cause.message}`);
+    if (cause instanceof OpenAI.AuthenticationError) throw new Error(t("ai.keyRejected"));
+    if (cause instanceof OpenAI.RateLimitError) throw new Error(t("ai.rateLimited"));
+    if (cause instanceof OpenAI.APIError)
+      throw new Error(t("ai.apiError", { status: cause.status ?? "", message: cause.message }));
     throw cause;
   }
 }
@@ -245,7 +247,7 @@ export async function writeWithCitations(
         return cardRef(card);
       }
       invalid++;
-      return `${name} [source not found]`;
+      return `${name} ${t("ai.sourceNotFound")}`;
     },
   );
   return { markdown: checked, cited, invalid };

@@ -1,4 +1,5 @@
 import type { Card, Member } from "../model";
+import { t } from "../i18n";
 import { Checkbox } from "../ui/Field";
 import { Hint } from "../ui/Hint";
 import { labelPickerClass } from "./LabelPicker";
@@ -37,7 +38,7 @@ export function MemberPicker({
 }) {
   return (
     <div className={labelPickerClass}>
-      <div className="mb-0.5 text-[12px] font-semibold text-ink-subtle">Board members</div>
+      <div className="mb-0.5 text-[12px] font-semibold text-ink-subtle">{t("card.boardMembers")}</div>
       {assignable.map((member) => (
         <label
           className="flex cursor-pointer items-center gap-2.5 rounded-sm px-1.5 py-1 hover:bg-surface-sunken"
@@ -58,12 +59,11 @@ export function MemberPicker({
           />
           <MemberAvatar member={member} />
           <span className="min-w-0 wrap-anywhere">
-            {member.name}
-            {member.id === currentDeviceId ? " (you)" : ""}
+            {member.id === currentDeviceId ? t("card.memberYou", { name: member.name }) : member.name}
           </span>
         </label>
       ))}
-      <Hint as="small">Members are trusted devices and members imported from Trello.</Hint>
+      <Hint as="small">{t("card.membersHint")}</Hint>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useDeferredValue, useEffect, useEffectEvent, useMemo, useState } from "react";
 import { activeFilterCount } from "../board/BoardFilterPanel";
+import { t } from "../i18n";
 import { readBoardFilters } from "../lib/uiPreferences";
 import { emptyBoardFilter, filterBoardCards, type AppState, type BoardFilter, type Card } from "../model";
 
@@ -14,7 +15,7 @@ export function useBoardView(state: AppState, boardId: string | null, onError: (
     try {
       localStorage.setItem("kanbonk-board-filters", JSON.stringify(boardFilters));
     } catch (cause) {
-      reportError(`Could not save the board filter: ${String(cause)}`);
+      reportError(t("app.boardFilterSaveError", { cause: String(cause) }));
     }
   }, [boardFilters]);
 

@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Kanbonk"
+  },
+  "appDescription": {
+    "message": "Lokální kanbanové tabule v prohlížeči: data zůstávají v rozšíření a synchronizují se s počítačem a telefonem bez cloudu."
+  },
+  "actionTitle": {
+    "message": "Otevřít Kanbonk"
+  }
+}

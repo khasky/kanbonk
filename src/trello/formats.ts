@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { newId, type AppState, type Board, type BoardList, type Card, type Label } from "../model/index";
 import { trelloLabelColors } from "../model/labelColors";
 import { cardCreatedAt } from "../model/calendar";
@@ -8,7 +9,7 @@ const colorNames = new Map(Object.entries(trelloLabelColors).map(([name, color])
 
 function boardData(state: AppState, boardId: string) {
   const board = state.boards.find((item) => item.id === boardId);
-  if (!board) throw new Error("Board not found.");
+  if (!board) throw new Error(t("trello.boardNotFound"));
   const lists = state.lists
     .filter((item) => item.boardId === boardId && !item.deletedAt)
     .sort((a, b) => a.position - b.position);
@@ -272,13 +273,10 @@ const date = (value: string) =>
 /** Builds a board from a Trello CSV export (comments and checklist items are not part of Trello CSV). */
 export function parseTrelloCsv(text: string, workspaceId: string, fallbackName = "CSV import"): ImportResult {
   const [header, ...rows] = parseCsv(text);
-  if (!header) throw new Error("The CSV file is empty.");
+  if (!header) throw new Error(t("trello.csvEmpty"));
   const column = new Map(header.map((name, index) => [name.trim().toLowerCase(), index]));
   const get = (row: string[], name: string) => row[column.get(name.toLowerCase()) ?? -1]?.trim() ?? "";
-  if (!column.has("card name") || !column.has("list name"))
-    throw new Error(
-      "The CSV does not look like a Trello export: the “Card Name” and “List Name” columns are required.",
-    );
+  if (!column.has("card name") || !column.has("list name")) throw new Error(t("trello.csvNotTrello"));
   const boardId = newId();
   const board: Board = {
     id: boardId,
@@ -379,6 +377,6 @@ export function parseTrelloCsv(text: string, workspaceId: string, fallbackName =
     activity: [],
     attachments: [],
     stickers: [],
-    warnings: ["A Trello CSV does not include comments or checklist items; use JSON for a complete transfer."],
+    warnings: [t("trello.csvIncomplete")],
   };
 }

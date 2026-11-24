@@ -1,18 +1,19 @@
+import { t } from "../i18n";
 import { linkHref } from "../lib/router";
 import { messagePageClass, pageTitleClass } from "./pageLook";
 
 export function MissingPage({ what }: { what: string }) {
   return (
-    <section className={messagePageClass} aria-label="Not found">
+    <section className={messagePageClass} aria-label={t("pages.notFound")}>
       <h1 className={pageTitleClass}>{what}</h1>
-      <p>It may have been moved to the trash or not synced to this device yet.</p>
+      <p>{t("pages.missingHint")}</p>
       <p>
         <a className="text-brand" href={linkHref("/")}>
-          Go home
+          {t("pages.goHome")}
         </a>{" "}
         ·{" "}
         <a className="text-brand" href={linkHref("/trash")}>
-          Open trash
+          {t("pages.openTrash")}
         </a>
       </p>
     </section>

@@ -1,6 +1,7 @@
 import { askConfirm } from "../ui/AskDialog";
 import { type Dispatch, type SetStateAction, useState } from "react";
 import type { AppState } from "../model";
+import { t } from "../i18n";
 import {
   emptyTrash,
   moveToTrash,
@@ -69,15 +70,16 @@ export function useTrash({
     const result = restoreFromTrash(fullState, kind, id, deviceId);
     setState(result.state);
     const extra = result.restored.length - 1;
-    onNotice(`Restored “${entityName(kind, id)}”${extra > 0 ? ` along with related items: ${extra}` : ""}.`);
+    const name = entityName(kind, id);
+    onNotice(extra > 0 ? t("hooks.restoredWithRelated", { name, count: extra }) : t("hooks.restored", { name }));
   }
 
   async function purge(kind: TrashKind, id: string) {
     if (
       !(await askConfirm({
-        title: `Delete “${entityName(kind, id)}” forever?`,
-        message: "This can't be undone, except by restoring from a backup.",
-        confirm: "Delete forever",
+        title: t("hooks.purgeTitle", { name: entityName(kind, id) }),
+        message: t("hooks.purgeMessage"),
+        confirm: t("hooks.deleteForever"),
         danger: true,
       }))
     )
@@ -88,9 +90,9 @@ export function useTrash({
   async function empty() {
     if (
       !(await askConfirm({
-        title: "Empty trash?",
-        message: "Everything in the trash is deleted forever. This can't be undone, except by restoring from a backup.",
-        confirm: "Empty trash",
+        title: t("hooks.emptyTrashTitle"),
+        message: t("hooks.emptyTrashMessage"),
+        confirm: t("hooks.emptyTrash"),
         danger: true,
       }))
     )

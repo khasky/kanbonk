@@ -1,0 +1,247 @@
+{
+  "appName": {
+    "message": "Kanbonk: импорт из Trello"
+  },
+  "appDescription": {
+    "message": "Экспортирует доску Trello со всеми файлами для Kanbonk и позволяет Kanbonk на localhost скачивать вложения Trello."
+  },
+  "panelTitle": {
+    "message": "Экспорт в Kanbonk"
+  },
+  "panelCollapse": {
+    "message": "Свернуть"
+  },
+  "panelExpand": {
+    "message": "Развернуть"
+  },
+  "panelIntro": {
+    "message": "Экспортируйте эту доску со всеми файлами для Kanbonk."
+  },
+  "panelHint": {
+    "message": "ZIP-части примерно по 100 МБ сохраняются в папку загрузок. Если браузер спросит, разрешите этому сайту скачивать несколько файлов."
+  },
+  "exportBoard": {
+    "message": "Экспортировать доску"
+  },
+  "exportAgain": {
+    "message": "Экспортировать снова"
+  },
+  "exportCancel": {
+    "message": "Отмена"
+  },
+  "progressBoard": {
+    "message": "Чтение доски…"
+  },
+  "progressComments": {
+    "message": "Чтение комментариев… $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "progressStickers": {
+    "message": "Чтение стикеров…"
+  },
+  "progressSaving": {
+    "message": "Сохранение части $PART$…",
+    "placeholders": {
+      "part": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sizeMegabytes": {
+    "message": "$SIZE$ МБ",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1.5"
+      }
+    }
+  },
+  "sizeOfTotal": {
+    "message": "$DONE$ из $TOTAL$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "12 MB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "80 MB"
+      }
+    }
+  },
+  "progressFiles": {
+    "message": "Файлы: $DONE$ из $TOTAL$ · $SIZE$\nЧасть $PART$",
+    "placeholders": {
+      "done": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      },
+      "size": {
+        "content": "$3",
+        "example": "12 MB of 80 MB"
+      },
+      "part": {
+        "content": "$4",
+        "example": "1"
+      }
+    }
+  },
+  "doneOnePart": {
+    "message": "Готово. Частей: $PARTS$, файлов: $FILES$ из $TOTAL$.\nВ Kanbonk откройте ⋯ → Импорт из Trello и выберите все части сразу.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "1"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "doneManyParts": {
+    "message": "Готово. Частей: $PARTS$, файлов: $FILES$ из $TOTAL$.\nВ Kanbonk откройте ⋯ → Импорт из Trello и выберите все части сразу.",
+    "placeholders": {
+      "parts": {
+        "content": "$1",
+        "example": "3"
+      },
+      "files": {
+        "content": "$2",
+        "example": "9"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10"
+      }
+    }
+  },
+  "notExported": {
+    "message": "Не экспортировано: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exportCancelled": {
+    "message": "Экспорт отменён."
+  },
+  "warningWorkspaceName": {
+    "message": "Название рабочего пространства: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningCommentHistory": {
+    "message": "История комментариев ограничена последними 1000 действиями: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "warningStickers": {
+    "message": "Стикеры: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error: HTTP 403"
+      }
+    }
+  },
+  "errorInvalidTrelloResponse": {
+    "message": "Некорректный ответ Trello"
+  },
+  "errorCommentHistoryStuck": {
+    "message": "Не удалось продолжить загрузку истории комментариев"
+  },
+  "labelBoardBackground": {
+    "message": "Фон доски"
+  },
+  "labelSticker": {
+    "message": "Стикер $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "taco-love"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Некорректный URL"
+  },
+  "errorUnknownImageType": {
+    "message": "Неизвестный тип изображения"
+  },
+  "errorInvalidImageSize": {
+    "message": "Недопустимый размер изображения"
+  },
+  "errorPageInsteadOfFile": {
+    "message": "Trello вернул страницу вместо файла; войдите снова"
+  },
+  "errorInvalidCommentHistory": {
+    "message": "Некорректная история комментариев Trello."
+  },
+  "errorUnknownRequest": {
+    "message": "Неизвестный запрос."
+  },
+  "errorPageInsteadOfAttachment": {
+    "message": "Trello вернул страницу вместо вложения; войдите в свой аккаунт."
+  },
+  "errorLargeAttachment": {
+    "message": "Trello не поддерживает частичную загрузку большого вложения. Используйте ZIP."
+  },
+  "errorNoPartialDownload": {
+    "message": "Trello не поддерживает частичную загрузку: HTTP $STATUS$. Используйте ZIP.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "errorNoChunkSize": {
+    "message": "Trello не сообщил размер фрагмента вложения."
+  },
+  "errorInvalidRange": {
+    "message": "Trello вернул некорректный диапазон вложения."
+  },
+  "errorIncompleteChunk": {
+    "message": "Trello вернул неполный фрагмент вложения."
+  },
+  "errorInvalidAttachmentUrl": {
+    "message": "Некорректный URL вложения Trello."
+  },
+  "errorOpenTrelloTab": {
+    "message": "Откройте вкладку Trello в этом профиле Chrome."
+  },
+  "errorTabNoResponse": {
+    "message": "Вкладка Trello не ответила; перезагрузите её."
+  },
+  "errorInvalidHistoryId": {
+    "message": "Некорректный идентификатор истории Trello."
+  },
+  "errorInvalidOffset": {
+    "message": "Некорректное смещение вложения."
+  }
+}

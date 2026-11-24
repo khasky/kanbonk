@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { type Card, newId } from "../model";
+import { t } from "../i18n";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
 import { pickerBoxClass, pickerLabelClass } from "./cardLook";
@@ -38,13 +39,13 @@ export function LinkEditor({
       setLinkError("");
       onClose();
     } catch {
-      setLinkError("Enter a link starting with http:// or https://.");
+      setLinkError(t("card.linkInvalid"));
     }
   }
   return (
-    <section className={pickerBoxClass} aria-label="Add link">
+    <section className={pickerBoxClass} aria-label={t("card.addLink")}>
       <label className={pickerLabelClass}>
-        URL
+        {t("card.url")}
         <Input
           size="sm"
           className="w-full min-w-0"
@@ -58,13 +59,13 @@ export function LinkEditor({
         />
       </label>
       <label className={pickerLabelClass}>
-        Title
+        {t("card.title")}
         <Input
           size="sm"
           className="w-full min-w-0"
           value={linkName}
           onChange={(event) => setLinkName(event.target.value)}
-          placeholder="Optional"
+          placeholder={t("card.optional")}
         />
       </label>
       {linkError && (
@@ -73,7 +74,7 @@ export function LinkEditor({
         </p>
       )}
       <Button variant="primary" disabled={!linkUrl.trim()} onClick={addUrlAttachment}>
-        Add link
+        {t("card.addLink")}
       </Button>
     </section>
   );

@@ -3,6 +3,7 @@ import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { mediaReferences, type AppState } from "../model";
 import { validState } from "../backup/backup";
+import { t } from "../i18n";
 import { newRoomCode, type PeerInfo } from "./lanSync";
 
 export interface TrustedDevice extends PeerInfo {
@@ -69,7 +70,7 @@ export async function createSyncBundle(
   sender: PeerInfo,
   read: (id: string) => Promise<Blob | undefined>,
 ): Promise<Blob> {
-  if (!/^[a-f0-9]{32}$/.test(code)) throw new Error("A trusted device code is required (32 hexadecimal characters).");
+  if (!/^[a-f0-9]{32}$/.test(code)) throw new Error(t("sync.deviceCodeRequired"));
   const entries: Record<string, Uint8Array> = {
     "state.json": strToU8(JSON.stringify(state)),
     "sender.json": strToU8(JSON.stringify(sender)),
@@ -91,7 +92,7 @@ export async function openSyncBundle(
   const header = [bundleMagic, legacyBundleMagic].find(
     (magic) => data.length >= magic.length + 24 && strFromU8(data.slice(0, magic.length)) === magic,
   );
-  if (!header) throw new Error("The file is not a Kanbonk sync bundle.");
+  if (!header) throw new Error(t("sync.notBundle"));
   const prefix = header === legacyBundleMagic ? "listva" : "kanbonk";
   const nonce = data.slice(header.length, header.length + 24);
   const sealed = data.slice(header.length + 24);
@@ -105,7 +106,7 @@ export async function openSyncBundle(
     const entries = unzipSync(plain);
     const state: unknown = JSON.parse(strFromU8(entries["state.json"]));
     if (!state || typeof state !== "object" || !validState(state as Record<string, unknown>))
-      throw new Error("The bundle contains corrupted data.");
+      throw new Error(t("sync.bundleCorrupted"));
     const sender = entries["sender.json"] ? (JSON.parse(strFromU8(entries["sender.json"])) as PeerInfo) : undefined;
     const files = Object.entries(entries).flatMap(([path, bytes]) => {
       const id = path.match(/^files\/([A-Za-z0-9-]+)$/)?.[1];
@@ -122,9 +123,7 @@ export async function openSyncBundle(
     });
     return { state: state as AppState, sender, files, code };
   }
-  throw new Error(
-    "The bundle is encrypted with a key that is not among your Trusted devices. Enter the sending device's code.",
-  );
+  throw new Error(t("sync.unknownKey"));
 }
 
 /** Same-device sync between tabs/windows sharing this browser profile's IndexedDB. */

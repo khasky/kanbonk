@@ -1,4 +1,5 @@
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import { t } from "../i18n";
 import { deviceId, loadState, saveState } from "../lib/storage";
 import { emptyState, type AppState } from "../model";
 import { ensureInbox } from "../model/inbox";
@@ -37,7 +38,7 @@ export function useAppState({
         loaded();
         setReady(true);
       })
-      .catch((cause) => reportError(`Could not open local data: ${String(cause)}`));
+      .catch((cause) => reportError(t("app.openDataError", { cause: String(cause) })));
   }, [localDeviceId]);
 
   const saved = useEffectEvent(onSaved);
@@ -46,7 +47,7 @@ export function useAppState({
     queue.current = queue.current
       .then(() => saveState(fullState))
       .then(() => saved())
-      .catch((cause) => reportError(`Could not save changes: ${String(cause)}`));
+      .catch((cause) => reportError(t("app.saveChangesError", { cause: String(cause) })));
   }, [fullState, ready]);
 
   return { fullState, state, setState, ready, localDeviceId, stateRef, queue };

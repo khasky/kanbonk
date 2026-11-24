@@ -1,3 +1,4 @@
+import { formatDateTime, t } from "../i18n";
 import type { Card } from "../model";
 import { SidePanel } from "../ui/Modal";
 import { Button } from "../ui/Button";
@@ -15,7 +16,7 @@ export function RemindersPanel({
   onClose: () => void;
 }) {
   return (
-    <SidePanel title="Reminders" closeLabel="Close reminders" onClose={onClose}>
+    <SidePanel title={t("panels.reminders")} closeLabel={t("panels.closeReminders")} onClose={onClose}>
       {reminders.length ? (
         reminders.map((item) => (
           <PanelRow key={item.id}>
@@ -24,20 +25,20 @@ export function RemindersPanel({
               onClick={() => onOpen(item)}
             >
               {item.name}
-              <PanelRowNote>{new Date(item.dueAt!).toLocaleString("en-US")}</PanelRowNote>
+              <PanelRowNote>{formatDateTime(item.dueAt!)}</PanelRowNote>
             </button>
             <Button
               variant="secondary"
               className="flex-none"
               onClick={() => onDismiss(item)}
-              aria-label={`Dismiss reminder ${item.name}`}
+              aria-label={t("panels.dismissReminder", { name: item.name })}
             >
-              Dismiss
+              {t("panels.dismiss")}
             </Button>
           </PanelRow>
         ))
       ) : (
-        <p className="text-ink-muted">No new reminders.</p>
+        <p className="text-ink-muted">{t("panels.noReminders")}</p>
       )}
     </SidePanel>
   );
