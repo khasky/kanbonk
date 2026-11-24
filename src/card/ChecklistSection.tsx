@@ -74,8 +74,11 @@ export function ChecklistSection({
       const linkedCardId = checklist.items[index]?.linkedCardId;
       if (linkedCardId) onRemoveDependency(card.id, linkedCardId);
       else updateList((list) => ({ ...list, items: list.items.filter((item) => item.id !== itemId) }));
-    } else if (action === "convert") onConvertItem(itemId);
-    else if (action === "up" && index > 0)
+    } else if (action === "convert") {
+      const name = checklist.items[index]?.name.trim();
+      if (name && confirm(`Convert “${name}” to a card? It is created below this card and the item is removed.`))
+        onConvertItem(itemId);
+    } else if (action === "up" && index > 0)
       onChange((current) => moveChecklistItem(current, itemId, checklist.id, checklist.items[index - 1].id));
     else if (action === "down" && index >= 0 && index < checklist.items.length - 1)
       onChange((current) => moveChecklistItem(current, itemId, checklist.id, checklist.items[index + 2]?.id));

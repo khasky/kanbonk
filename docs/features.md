@@ -55,7 +55,7 @@ A card opened from a board appears as a modal on top of it; Esc or the close but
 - **Sub-cards**: **Sub-cards** creates a child card right below the parent. A card can have one parent, chosen with **Choose parent card**; tiles show `↳ parent`. Deleting a parent moves its sub-cards to the trash with it.
 - **Clone** copies the card right below the original as `<name> - Clone`.
 - **Share**: print the card, save it as PNG or JSON, copy its link (`/c/<id>`) or show a QR code of the link.
-- Checklists, attachments, links, stickers.
+- Checklists, attachments, links, stickers. **Convert to card** in a checklist item's menu asks for confirmation, then creates a card below this one and removes the item.
 - **Preview** opens a stored attachment in a dialog: images, PDF (in the browser's PDF viewer; not in the Android app), Markdown rendered as formatted text, plain text and code files (txt, json, csv, yaml, source code and similar, first 1 MB), video and audio. The type is taken from the file's MIME type or, for untyped files, its extension.
 - **Dependencies**: **Dependency** links the card to a card it depends on, on any board (as an item of the card's **Dependencies** checklist). The card shows **Depends on** and **Blocks**. See [trash-and-dependencies.md](trash-and-dependencies.md).
 - **History**: every change is a revision; any earlier version can be restored.
