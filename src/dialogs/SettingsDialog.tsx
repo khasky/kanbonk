@@ -1,3 +1,4 @@
+import { askConfirm } from "../ui/AskDialog";
 import { Dialog } from "../ui/Modal";
 import { useEffect, useState } from "react";
 import type { AppState } from "../model";
@@ -70,8 +71,19 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
       if (!picked) return;
       await setBackupFolder(picked);
       setFolder(picked);
-      await change({ ...settings, target: "folder" });
-      await backupNow({ ...settings, target: "folder" });
+      const next = { ...settings, target: "folder" as const };
+      await change(next);
+      const label = backupFolderLabel(picked);
+      // Earlier backups are not moved: they stay where they were written.
+      if (
+        await askConfirm({
+          title: `Write a backup to “${label}” now?`,
+          message: "Earlier backups are not moved; they stay where they are.",
+          confirm: "Back up now",
+        })
+      )
+        await backupNow(next);
+      else setStatus(`The next backup will be written to ${label}.`);
     } catch (cause) {
       setStatus(String(cause instanceof Error ? cause.message : cause));
     }

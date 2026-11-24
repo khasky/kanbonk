@@ -29,7 +29,7 @@ Snapshots live in the same browser storage as the data. They protect against mis
 | Web page | Downloads, as an ordinary download, after the user agrees | Off | No: a page cannot delete downloads |
 | Mobile app | None | — | — |
 
-**Choose folder** picks another folder: a directory handle in Chromium browsers with the File System Access API (the browser may ask to confirm access again after a restart), or a path in the desktop app. A folder chosen in an older version keeps being used, and daily backups stay on for it.
+**Choose folder** picks another folder and makes it the location, then asks whether to write a backup there at once; earlier backups are not moved and stay where they were written. The folder is a directory handle in Chromium browsers with the File System Access API (the browser may ask to confirm access again after a restart), or a path in the desktop app. A folder chosen in an older version keeps being used, and daily backups stay on for it.
 
 The extension's data lives inside the browser profile and is deleted with the extension, so the settings show a warning there. The extension's ID is pinned by the `key` in [`extension/manifest.json`](../extension/manifest.json), so reinstalling it unpacked from another folder keeps the same ID and storage origin.
 

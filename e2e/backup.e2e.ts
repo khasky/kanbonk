@@ -35,3 +35,36 @@ test("skipping a due automatic backup postpones it by one period", async ({ page
   await page.clock.fastForward("24:00:00");
   await expect(page.getByRole("alertdialog", { name: "Automatic backup" })).toBeVisible();
 });
+
+test("asks before writing a backup to a newly chosen folder", async ({ page }) => {
+  // The folder picker returns a folder of the page's private file system, a real directory handle.
+  await page.addInitScript(() => {
+    Object.assign(window, {
+      showDirectoryPicker: async () =>
+        (await navigator.storage.getDirectory()).getDirectoryHandle("backups", { create: true }),
+    });
+  });
+  const zips = () =>
+    page.evaluate(async () => {
+      const folder = await (await navigator.storage.getDirectory()).getDirectoryHandle("backups", { create: true });
+      const names: string[] = [];
+      for await (const name of (folder as unknown as { keys(): AsyncIterable<string> }).keys()) names.push(name);
+      return names.filter((name) => name.endsWith(".zip"));
+    });
+  await page.goto("/");
+  await page.getByLabel("App menu").click();
+  await page.getByRole("button", { name: "Settings" }).click();
+  const settings = page.getByRole("dialog", { name: "Settings" });
+
+  await settings.getByRole("button", { name: "Choose folder" }).click();
+  const ask = page.getByRole("alertdialog", { name: "Write a backup to “backups” now?" });
+  await ask.getByRole("button", { name: "Cancel" }).click();
+  await expect(settings.getByRole("status")).toHaveText("The next backup will be written to backups.");
+  await expect(settings.getByLabel(/Folder:/)).toBeChecked();
+  expect(await zips()).toEqual([]);
+
+  await settings.getByRole("button", { name: "Choose another folder" }).click();
+  await ask.getByRole("button", { name: "Back up now" }).click();
+  await expect(settings.getByRole("status")).toContainText("Written to backups: 1 ZIP");
+  expect(await zips()).toHaveLength(1);
+});
