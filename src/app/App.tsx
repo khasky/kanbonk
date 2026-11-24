@@ -25,6 +25,7 @@ import { InboxView } from "../panels/InboxView";
 import { PlannerView } from "../panels/PlannerView";
 import { AppContext, type AppServices } from "./AppContext";
 import { AppOverlays } from "./AppOverlays";
+import { AskDialogHost } from "../ui/AskDialog";
 import { MainContent } from "./MainContent";
 import { StatusBanners } from "./StatusBanners";
 import { useAppState } from "./useAppState";
@@ -368,6 +369,7 @@ function App() {
             onRefreshSnapshots={refreshSnapshots}
             defaultWorkspaceId={defaultWorkspaceId}
           />
+          <AskDialogHost />
         </div>
       </CardActionsContext>
     </AppContext>

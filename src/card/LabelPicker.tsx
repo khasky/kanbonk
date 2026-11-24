@@ -1,3 +1,4 @@
+import { askConfirm } from "../ui/AskDialog";
 import { useState } from "react";
 import { labelColorOptions, readableTextColor } from "../model/labelColors";
 import type { Card, Label } from "../model";
@@ -121,8 +122,16 @@ export function LabelPicker({
               variant="danger"
               size="sm"
               className="ml-auto"
-              onClick={() => {
-                if (editingLabelId && confirm("Remove this label from all cards?")) {
+              onClick={async () => {
+                if (
+                  editingLabelId &&
+                  (await askConfirm({
+                    title: "Delete label?",
+                    message: "The label is removed from all cards on the board.",
+                    confirm: "Delete",
+                    danger: true,
+                  }))
+                ) {
                   onDeleteLabel(editingLabelId);
                   setEditingLabelId(null);
                 }

@@ -1,3 +1,4 @@
+import { askConfirm } from "../ui/AskDialog";
 import { type Dispatch, type SetStateAction, useState } from "react";
 import type { AppState } from "../model";
 import {
@@ -71,14 +72,29 @@ export function useTrash({
     onNotice(`Restored “${entityName(kind, id)}”${extra > 0 ? ` along with related items: ${extra}` : ""}.`);
   }
 
-  function purge(kind: TrashKind, id: string) {
-    if (!confirm(`Delete “${entityName(kind, id)}” forever? This can't be undone (except by restoring from a backup).`))
+  async function purge(kind: TrashKind, id: string) {
+    if (
+      !(await askConfirm({
+        title: `Delete “${entityName(kind, id)}” forever?`,
+        message: "This can't be undone, except by restoring from a backup.",
+        confirm: "Delete forever",
+        danger: true,
+      }))
+    )
       return;
     setState((current) => purgeFromTrash(current, kind, id, deviceId));
   }
 
-  function empty() {
-    if (!confirm("Empty trash forever?")) return;
+  async function empty() {
+    if (
+      !(await askConfirm({
+        title: "Empty trash?",
+        message: "Everything in the trash is deleted forever. This can't be undone, except by restoring from a backup.",
+        confirm: "Empty trash",
+        danger: true,
+      }))
+    )
+      return;
     setState((current) => emptyTrash(current, deviceId));
   }
 

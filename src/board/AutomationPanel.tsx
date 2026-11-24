@@ -1,3 +1,4 @@
+import { askConfirm } from "../ui/AskDialog";
 import { SidePanel } from "../ui/Modal";
 import { useState } from "react";
 import type { AppState, AutomationRule, Board } from "../model";
@@ -163,8 +164,8 @@ export function AutomationPanel({
             <Button
               variant="secondary"
               className="flex-none"
-              onClick={() => {
-                if (confirm("Delete rule?")) onRemove(rule.id);
+              onClick={async () => {
+                if (await askConfirm({ title: "Delete rule?", confirm: "Delete", danger: true })) onRemove(rule.id);
               }}
             >
               Delete

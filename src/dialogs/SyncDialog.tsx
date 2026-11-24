@@ -1,3 +1,4 @@
+import { askConfirm } from "../ui/AskDialog";
 import { Dialog } from "../ui/Modal";
 import type { SyncTransport } from "../sync/devices";
 import type { DeviceSync } from "../hooks/useDeviceSync";
@@ -71,8 +72,15 @@ export function SyncDialog({ sync, onClose }: { sync: DeviceSync; onClose: () =>
                 <Button
                   variant="secondary"
                   className="flex-none"
-                  onClick={() => {
-                    if (confirm(`Remove “${device.name}” from trusted devices?`)) sync.removeDevice(device);
+                  onClick={async () => {
+                    if (
+                      await askConfirm({
+                        title: `Remove “${device.name}” from trusted devices?`,
+                        confirm: "Remove",
+                        danger: true,
+                      })
+                    )
+                      sync.removeDevice(device);
                   }}
                 >
                   Delete

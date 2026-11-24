@@ -1,3 +1,4 @@
+import { askConfirm } from "../ui/AskDialog";
 import { Dialog } from "../ui/Modal";
 import { useState } from "react";
 import { autoSnapshot } from "../backup/autoBackup";
@@ -98,9 +99,11 @@ export function BackupDialog({
   async function restoreSnapshot(meta: SnapshotMeta) {
     const time = new Date(meta.createdAt).toLocaleString("en-US");
     if (
-      !confirm(
-        `Restore all data to the state from ${time}? The current state will be saved as a separate backup first.`,
-      )
+      !(await askConfirm({
+        title: `Restore all data to the state from ${time}?`,
+        message: "The current state is saved as a separate backup first.",
+        confirm: "Restore",
+      }))
     )
       return;
     try {

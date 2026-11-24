@@ -1,3 +1,4 @@
+import { askConfirm } from "../ui/AskDialog";
 import {
   type Dispatch,
   type RefObject,
@@ -116,9 +117,11 @@ export function useDeviceSync({
           self: { deviceId, name: authorName },
           isTrusted: (peer) => readTrustedDevices().some((item) => item.deviceId === peer.deviceId),
           onPeer: async (peer) => {
-            const accepted = confirm(
-              `New device “${peer.name}” (${peer.deviceId.slice(0, 8)}) wants to sync. Add it to trusted devices?`,
-            );
+            const accepted = await askConfirm({
+              title: `New device “${peer.name}” wants to sync`,
+              message: `Add it (${peer.deviceId.slice(0, 8)}) to trusted devices?`,
+              confirm: "Trust and sync",
+            });
             if (accepted) rememberTrust(peer, pairCode);
             return accepted;
           },
@@ -249,7 +252,14 @@ export function useDeviceSync({
         return;
       }
       if (sender && !trustedDevices.some((item) => item.deviceId === sender.deviceId)) {
-        if (!confirm(`Add “${sender.name}” to trusted devices and accept the data?`)) return;
+        if (
+          !(await askConfirm({
+            title: `Add “${sender.name}” to trusted devices?`,
+            message: "The data in the package is then merged into this device.",
+            confirm: "Trust and accept",
+          }))
+        )
+          return;
       }
       if (sender) rememberTrust(sender, opened.code);
       for (const item of opened.files) if (!(await loadAttachment(item.id))) await saveAttachment(item.id, item.blob);

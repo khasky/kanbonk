@@ -1,3 +1,4 @@
+import { askConfirm } from "../ui/AskDialog";
 import { useEffect, useState, type DragEvent as ReactDragEvent } from "react";
 import { moveChecklistItem, newId, type Card, type Checklist } from "../model";
 import { Button } from "../ui/Button";
@@ -76,8 +77,14 @@ export function ChecklistSection({
       else updateList((list) => ({ ...list, items: list.items.filter((item) => item.id !== itemId) }));
     } else if (action === "convert") {
       const name = checklist.items[index]?.name.trim();
-      if (name && confirm(`Convert “${name}” to a card? It is created below this card and the item is removed.`))
-        onConvertItem(itemId);
+      if (!name) return;
+      void askConfirm({
+        title: `Convert “${name}” to a card?`,
+        message: "A card is created below this card, and the item is removed from the checklist.",
+        confirm: "Convert",
+      }).then((confirmed) => {
+        if (confirmed) onConvertItem(itemId);
+      });
     } else if (action === "up" && index > 0)
       onChange((current) => moveChecklistItem(current, itemId, checklist.id, checklist.items[index - 1].id));
     else if (action === "down" && index >= 0 && index < checklist.items.length - 1)

@@ -1,11 +1,14 @@
 import { test as base, expect, type Page } from "@playwright/test";
 
-/** Every test fails on an uncaught page error, and dialogs from confirm() are accepted. */
+/** Every test fails on an uncaught page error and on a browser dialog: the app asks with its own dialogs. */
 export const test = base.extend<{ page: Page }>({
   page: async ({ page }, use) => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    page.on("dialog", (dialog) => dialog.accept());
+    page.on("dialog", (dialog) => {
+      errors.push(`Browser dialog: ${dialog.message()}`);
+      void dialog.dismiss();
+    });
     await use(page);
     expect(errors).toEqual([]);
   },

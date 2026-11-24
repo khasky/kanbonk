@@ -1,3 +1,4 @@
+import { askConfirm } from "../ui/AskDialog";
 import { useState } from "react";
 import type { BoardViewData } from "../app/useBoardView";
 import type { BoardActions } from "../hooks/useBoardActions";
@@ -58,15 +59,29 @@ export function BoardCanvas({
     if (target) boardActions.moveList(id, target.id, direction === 1);
   }
 
-  function removeZone(zone: Zone) {
-    if (confirm(`Remove zone “${zone.name}”? Lists and cards will stay on the board.`))
+  async function removeZone(zone: Zone) {
+    if (
+      await askConfirm({
+        title: `Remove zone “${zone.name}”?`,
+        message: "Lists and cards will stay on the board.",
+        confirm: "Remove",
+        danger: true,
+      })
+    )
       boardActions.removeZone(board.id, zone.id);
   }
 
-  function copyList(listId: string) {
+  async function copyList(listId: string) {
     const list = lists.find((item) => item.id === listId);
     const count = state.cards.filter((item) => item.listId === listId && !item.deletedAt).length;
-    if (list && confirm(`Copy list “${list.name}” with ${count} ${count === 1 ? "card" : "cards"}?`))
+    if (
+      list &&
+      (await askConfirm({
+        title: `Copy list “${list.name}”?`,
+        message: `The copy gets ${count} ${count === 1 ? "card" : "cards"} and is placed right after the list.`,
+        confirm: "Copy",
+      }))
+    )
       boardActions.copyListOnBoard(listId);
   }
 

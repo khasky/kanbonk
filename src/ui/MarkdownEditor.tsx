@@ -1,3 +1,4 @@
+import { askText } from "./AskDialog";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ReactMarkdown from "react-markdown";
@@ -39,9 +40,16 @@ const tools: Array<{ label: string; title: string; run: () => void }> = [
   {
     label: "🔗",
     title: "Link",
-    run: () => {
-      const url = prompt("Link URL (https://…)");
-      if (url && /^(https?:|mailto:)/i.test(url.trim())) document.execCommand("createLink", false, url.trim());
+    run: async () => {
+      // The question takes the focus, so the selected text is remembered and selected again for the link.
+      const selection = window.getSelection();
+      const range = selection?.rangeCount ? selection.getRangeAt(0).cloneRange() : undefined;
+      const url = await askText({ title: "Add link", label: "Link URL", placeholder: "https://…", confirm: "Add" });
+      if (!url || !/^(https?:|mailto:)/i.test(url.trim()) || !range) return;
+      (range.commonAncestorContainer.parentElement?.closest("[contenteditable]") as HTMLElement | null)?.focus();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      document.execCommand("createLink", false, url.trim());
     },
   },
   { label: "—", title: "Divider", run: () => document.execCommand("insertHorizontalRule") },
