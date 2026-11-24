@@ -63,13 +63,20 @@ export function BoardCanvas({
       boardActions.removeZone(board.id, zone.id);
   }
 
+  function copyList(listId: string) {
+    const list = lists.find((item) => item.id === listId);
+    const count = state.cards.filter((item) => item.listId === listId && !item.deletedAt).length;
+    if (list && confirm(`Copy list “${list.name}” with ${count} ${count === 1 ? "card" : "cards"}?`))
+      boardActions.copyListOnBoard(listId);
+  }
+
   const listActions: ListActions = {
     rename: (listId, name) => boardActions.updateList(listId, (item) => ({ ...item, name })),
     run: (listId, action) => {
       if (action === "name" || action === "due") boardActions.sortList(listId, action);
       else if (action === "move-left") moveListByOne(listId, -1);
       else if (action === "move-right") moveListByOne(listId, 1);
-      else if (action === "copy") boardActions.copyListOnBoard(listId);
+      else if (action === "copy") copyList(listId);
       else if (action === "delete") onDeleteList(listId);
     },
     dropZone: (zoneId, targetListId, after) => boardActions.moveZoneTo(board.id, zoneId, targetListId, after),
