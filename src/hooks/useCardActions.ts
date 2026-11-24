@@ -78,13 +78,18 @@ export function useCardActions({
     });
   }
 
-  /** Moves or copies a card to an open list. Returns the id of the card in the target list, or undefined. */
-  function moveOrCopyCard(id: string, targetListId: string, copy: boolean) {
+  /**
+   * Moves or copies a card to an open list, at its top or bottom or at `position`. Returns the id of the card in the
+   * target list, or undefined.
+   */
+  function moveOrCopyCard(id: string, targetListId: string, copy: boolean, top = false, position?: number) {
     const targetList = state.lists.find((list) => list.id === targetListId && !list.deletedAt);
     if (!targetList) return undefined;
     const targetId = copy ? newId() : id;
     setState((current) => {
-      const transferred = transferCard(current, id, targetListId, copy, targetId).state;
+      const transferred = transferCard(current, id, targetListId, copy, targetId, top).state;
+      if (position !== undefined)
+        transferred.cards = transferred.cards.map((item) => (item.id === targetId ? { ...item, position } : item));
       const before = current.cards.find((item) => item.id === id);
       const cards =
         !copy && before

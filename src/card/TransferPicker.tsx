@@ -4,7 +4,7 @@ import { Button } from "../ui/Button";
 import { Select } from "../ui/Field";
 import { pickerBoxClass, pickerLabelClass, pickerRowClass } from "./cardLook";
 
-/** Moves or copies the card to a list on any open board. */
+/** Moves or copies the card to the top or bottom of a list on any open board. */
 export function TransferPicker({
   card,
   state,
@@ -12,10 +12,11 @@ export function TransferPicker({
 }: {
   card: Card;
   state: AppState;
-  onTransfer: (targetListId: string, copy: boolean) => void;
+  onTransfer: (targetListId: string, copy: boolean, top: boolean) => void;
 }) {
   const [destinationBoardId, setDestinationBoardId] = useState(card.boardId);
   const [destinationListId, setDestinationListId] = useState(card.listId);
+  const [top, setTop] = useState(false);
   const availableBoards = state.boards.filter(
     (item) => !item.deletedAt && state.lists.some((list) => list.boardId === item.id && !list.deletedAt),
   );
@@ -62,11 +63,23 @@ export function TransferPicker({
           ))}
         </Select>
       </label>
+      <label className={pickerLabelClass}>
+        Position
+        <Select
+          size="sm"
+          className="w-full min-w-0"
+          value={top ? "top" : "bottom"}
+          onChange={(event) => setTop(event.target.value === "top")}
+        >
+          <option value="top">Very top</option>
+          <option value="bottom">Very bottom</option>
+        </Select>
+      </label>
       <div className={pickerRowClass}>
         <Button
           variant="primary"
           className="flex-1"
-          onClick={() => onTransfer(destinationListId, false)}
+          onClick={() => onTransfer(destinationListId, false, top)}
           disabled={!destinationListId}
         >
           Move
@@ -75,7 +88,7 @@ export function TransferPicker({
           variant="secondary"
           size="lg"
           className="flex-1"
-          onClick={() => onTransfer(destinationListId, true)}
+          onClick={() => onTransfer(destinationListId, true, top)}
           disabled={!destinationListId}
         >
           Copy

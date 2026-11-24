@@ -163,8 +163,8 @@ function App() {
     setCardId(null);
   }
 
-  function moveOrCopyCard(id: string, targetListId: string, copy: boolean) {
-    const moved = cardActions.moveOrCopyCard(id, targetListId, copy);
+  function moveOrCopyCard(id: string, targetListId: string, copy: boolean, top = false) {
+    const moved = cardActions.moveOrCopyCard(id, targetListId, copy, top);
     if (!moved) return;
     if (moved.boardId === inboxBoardId) panels.show("inbox");
     else showBoard(moved.boardId);
@@ -217,7 +217,7 @@ function App() {
       lists={state.lists.filter((item) => item.boardId === card.boardId && !item.deletedAt)}
       onClose={() => setCardId(null)}
       onNavigateCard={openCardInPlace}
-      onTransfer={(targetListId, copy) => moveOrCopyCard(card.id, targetListId, copy)}
+      onTransfer={(targetListId, copy, top) => moveOrCopyCard(card.id, targetListId, copy, top)}
       onHistory={() => overlays.open({ history: true })}
       team={team}
       onOpenDoc={() => navigate(boardHref(card.boardId, { view: "doc" }))}

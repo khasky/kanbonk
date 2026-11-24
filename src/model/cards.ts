@@ -44,12 +44,14 @@ export function sortListCards(cards: Card[], listId: string, by: "name" | "due")
   return cards.map((card) => (positions.has(card.id) ? { ...card, position: positions.get(card.id)! } : card));
 }
 
+/** Moves or copies a card to the bottom of a list (or its top with `top`), on this or another board. */
 export function transferCard(
   state: AppState,
   cardId: string,
   targetListId: string,
   copy: boolean,
   copyId?: string,
+  top = false,
 ): { state: AppState; cardId: string } {
   const source = state.cards.find((card) => card.id === cardId && !card.deletedAt);
   const targetList = state.lists.find((list) => list.id === targetListId && !list.deletedAt);
@@ -88,13 +90,10 @@ export function transferCard(
       })
     : [...(source.memberIds ?? [])];
 
-  const position =
-    Math.max(
-      0,
-      ...state.cards
-        .filter((card) => card.listId === targetListId && (copy || card.id !== cardId) && !card.deletedAt)
-        .map((card) => card.position),
-    ) + 1;
+  const others = state.cards
+    .filter((card) => card.listId === targetListId && (copy || card.id !== cardId) && !card.deletedAt)
+    .map((card) => card.position);
+  const position = top ? Math.min(1, ...others) - 1 : Math.max(0, ...others) + 1;
   const transferred: Card = {
     ...structuredClone(source),
     id: copy ? (copyId ?? newId()) : source.id,

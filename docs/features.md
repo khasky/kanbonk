@@ -21,7 +21,7 @@ The top bar has a link to the trash with the number of trashed items and a searc
 - **Drag and drop**: drag a list by its handle (⋮⋮) left or right; drag cards within a list or to another list. Lists can also be moved with **Move left** / **Move right** in the list menu.
 - List menu (⋯): sort cards by name or due date, move, copy the list with its cards, delete to the trash.
 - Boards can be starred, copied to another workspace with or without cards and templates, and given a background: a preset color, any color from the color picker, or your own image.
-- Cards can be moved or copied to a list on another board, turned into templates and created from templates.
+- Cards can be moved or copied to the very top or very bottom of a list on any board (**⋯ → Move / copy**), turned into templates and created from templates.
 - Renaming creates one revision when you finish typing; Esc cancels the edit.
 - **Search on the board**: the search box in the board toolbar narrows the board to matching cards as you type (title, description, checklists, comments, labels).
 

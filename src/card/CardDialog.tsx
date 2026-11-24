@@ -138,7 +138,7 @@ export function CardDialog({
   onDelete: () => void;
   onClose: () => void;
   onNavigateCard: (target: Card) => void;
-  onTransfer: (targetListId: string, copy: boolean) => void;
+  onTransfer: (targetListId: string, copy: boolean, top?: boolean) => void;
   onHistory: () => void;
   team: Member[];
   onClone: () => void;
@@ -308,9 +308,9 @@ export function CardDialog({
         <TransferPicker
           card={card}
           state={state}
-          onTransfer={(listId, copy) => {
+          onTransfer={(listId, copy, top) => {
             closePanel();
-            onTransfer(listId, copy);
+            onTransfer(listId, copy, top);
           }}
         />
       );

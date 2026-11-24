@@ -110,6 +110,16 @@ describe("card transfer", () => {
     expect(transferCard(source, "card", "second-list", false).state.cards[0].position).toBe(5);
     expect(transferCard(source, "card", "from-list", true).state.cards.at(-1)?.position).toBe(2);
   });
+
+  it("places a moved or copied card at the top of its target list on request", () => {
+    const source = fixture();
+    source.lists.push({ id: "second-list", boardId: "from", name: "Second", position: 2 });
+    source.cards.push({ ...structuredClone(source.cards[0]), id: "other", listId: "second-list", position: 4 });
+    expect(transferCard(source, "card", "second-list", false, undefined, true).state.cards[0].position).toBe(0);
+    source.cards.push({ ...structuredClone(source.cards[0]), id: "first", listId: "second-list", position: -2 });
+    const copied = transferCard(source, "card", "second-list", true, "copy", true).state;
+    expect(copied.cards.find((card) => card.id === "copy")?.position).toBe(-3);
+  });
 });
 
 describe("list copy", () => {
