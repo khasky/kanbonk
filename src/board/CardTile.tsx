@@ -4,11 +4,11 @@ import { CardStickers } from "../card/CardStickers";
 import { readableTextColor } from "../model/labelColors";
 import type { Card, Label, Member } from "../model";
 import { Icon } from "../ui/Icon";
+import { endDrag, startDrag } from "./dragState";
 import { tileClass, tileMetaClass, tileMetaIconClass, tileMetaItemClass, tileNameClass } from "./tileLook";
 
 export interface TileActions {
   open: (id: string) => void;
-  drop: (movingId: string, target: Card) => void;
 }
 
 /** One card on a board; memoised so typing or editing elsewhere does not re-render thousands of tiles. */
@@ -18,36 +18,34 @@ export const CardTile = memo(function CardTile({
   members,
   parentName,
   actions,
+  hidden = false,
 }: {
   card: Card;
   labels: Map<string, Label>;
   members?: Member[];
   parentName?: string;
   actions: TileActions;
+  /** Hidden while it is dragged to another place, which the board shows instead. */
+  hidden?: boolean;
 }) {
   const full = item.cover?.size === "full";
   const fullCover = full && Boolean(item.cover?.attachmentId);
   return (
     <button
       className={tileClass(fullCover)}
-      style={
-        item.cover?.size === "full" && item.cover.color
+      style={{
+        ...(item.cover?.size === "full" && item.cover.color
           ? { background: item.cover.color, color: readableTextColor(item.cover.color) }
-          : undefined
-      }
+          : undefined),
+        display: hidden ? "none" : undefined,
+      }}
+      data-card-id={item.id}
       draggable
-      onDragStart={(event) => event.dataTransfer.setData("text/kanbonk-card", item.id)}
-      onDragOver={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
+      onDragStart={(event) => {
+        event.dataTransfer.setData("text/kanbonk-card", item.id);
+        startDrag(event.currentTarget, { kind: "card", id: item.id });
       }}
-      onDrop={(event) => {
-        const movingId = event.dataTransfer.getData("text/kanbonk-card");
-        if (!movingId) return;
-        event.preventDefault();
-        event.stopPropagation();
-        actions.drop(movingId, item);
-      }}
+      onDragEnd={endDrag}
       onClick={() => actions.open(item.id)}
     >
       <CardCover card={item} fill={fullCover} />

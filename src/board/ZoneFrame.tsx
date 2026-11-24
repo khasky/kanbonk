@@ -5,10 +5,11 @@ import { Icon } from "../ui/Icon";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
 import { addListClass, composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
+import { endDrag, startDrag } from "./dragState";
 
 /**
- * A frame drawn around adjacent lists of one zone; its header drags the whole zone and accepts dropped lists. A zone
- * without lists is shown at the end of the board with a drop area.
+ * A frame drawn around adjacent lists of one zone; its header drags the whole zone. A zone without lists is shown at
+ * the end of the board with a drop area. Drops are handled by the board (`data-zone-id` marks the frame).
  */
 export function ZoneFrame({
   zone,
@@ -16,7 +17,8 @@ export function ZoneFrame({
   onRename,
   onColor,
   onDelete,
-  onDropList,
+  hidden = false,
+  dropping = false,
   children,
 }: {
   zone: Zone;
@@ -24,33 +26,36 @@ export function ZoneFrame({
   onRename: (name: string) => void;
   onColor: (color: string) => void;
   onDelete: () => void;
-  onDropList: (listId: string) => void;
+  /** Hidden while the zone is dragged to another place, which the board shows instead. */
+  hidden?: boolean;
+  /** A list dragged over the empty zone would land in it: its drop area turns into the list's place. */
+  dropping?: boolean;
   /** The zone's lists; without them the zone shows a place to drop lists into. */
   children?: ReactNode;
 }) {
   return (
     <section
       className="flex max-h-full flex-none flex-col rounded-[14px] border-2 border-solid bg-[#ffffff26]"
-      style={{ borderColor: zone.color }}
+      style={{ borderColor: zone.color, display: hidden ? "none" : undefined }}
       aria-label={`Zone ${zone.name}`}
+      data-zone-id={zone.id}
+      data-zone-empty={children ? undefined : ""}
     >
       <header
         className="sticky left-0 flex items-center gap-1.5 rounded-t-[11px] px-2 py-1 text-white"
         style={{ background: zone.color }}
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={(event) => {
-          const listId = event.dataTransfer.getData("text/kanbonk-list");
-          if (!listId) return;
-          event.preventDefault();
-          event.stopPropagation();
-          onDropList(listId);
-        }}
       >
         <span
           className={dragHandleClass}
           draggable
           title="Drag zone"
-          onDragStart={(event) => event.dataTransfer.setData("text/kanbonk-zone", zone.id)}
+          onDragStart={(event) => {
+            event.dataTransfer.setData("text/kanbonk-zone", zone.id);
+            const frame = event.currentTarget.closest("section")!;
+            event.dataTransfer.setDragImage(frame, event.nativeEvent.offsetX + 8, event.nativeEvent.offsetY + 8);
+            startDrag(frame, { kind: "zone", id: zone.id });
+          }}
+          onDragEnd={endDrag}
         >
           ⋮⋮
         </span>
@@ -88,14 +93,11 @@ export function ZoneFrame({
       <div className="flex min-h-0 items-start gap-3 p-2">
         {children ?? (
           <div
-            className="grid min-h-24 w-[272px] place-items-center rounded-xl border-2 border-dashed border-[#ffffffb3] font-semibold text-white"
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={(event) => {
-              const listId = event.dataTransfer.getData("text/kanbonk-list");
-              if (!listId) return;
-              event.preventDefault();
-              onDropList(listId);
-            }}
+            className={
+              dropping
+                ? "grid min-h-24 w-[272px] place-items-center rounded-xl border-2 border-solid border-transparent bg-[#0000003d] font-semibold text-white"
+                : "grid min-h-24 w-[272px] place-items-center rounded-xl border-2 border-dashed border-[#ffffffb3] font-semibold text-white"
+            }
           >
             Drag lists here
           </div>

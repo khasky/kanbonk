@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { endDrag, startDrag, useDragState } from "../board/dragState";
 import { CardCover } from "../card/CardCover";
 import { CardStickers } from "../card/CardStickers";
 import { inboxBoardId } from "../model/inbox";
@@ -20,6 +21,7 @@ export function InboxView({
   onOpen: (id: string) => void;
 }) {
   const [draft, setDraft] = useState("");
+  const { drag, target } = useDragState();
   const [keyword, setKeyword] = useState("");
   const [due, setDue] = useState<BoardFilter["due"]>("any");
   const [sort, setSort] = useState<"newest" | "oldest" | "name">("newest");
@@ -100,7 +102,18 @@ export function InboxView({
       </div>
       <div className="grid max-w-[760px] gap-2">
         {cards.map((card) => (
-          <button className={tileClass()} key={card.id} onClick={() => onOpen(card.id)}>
+          <button
+            className={tileClass()}
+            key={card.id}
+            style={drag?.id === card.id && target ? { display: "none" } : undefined}
+            draggable
+            onDragStart={(event) => {
+              event.dataTransfer.setData("text/kanbonk-card", card.id);
+              startDrag(event.currentTarget, { kind: "card", id: card.id });
+            }}
+            onDragEnd={endDrag}
+            onClick={() => onOpen(card.id)}
+          >
             <CardCover card={card} />
             <CardStickers card={card} />
             <span className={tileNameClass()}>{card.name}</span>

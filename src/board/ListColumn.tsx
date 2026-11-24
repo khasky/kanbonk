@@ -8,21 +8,23 @@ import { TemplateComposer } from "./TemplateComposer";
 import { Button } from "../ui/Button";
 import { Textarea } from "../ui/Field";
 import { addCardClass, composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
+import { endDrag, startDrag } from "./dragState";
 
 /** What a list column can ask the board to do; every handler gets the list's id. */
 export interface ListActions {
   rename: (listId: string, name: string) => void;
   run: (listId: string, action: "name" | "due" | "move-left" | "move-right" | "copy" | "delete") => void;
-  dropZone: (zoneId: string, listId: string, after: boolean) => void;
-  dropList: (movingListId: string, listId: string, after: boolean) => void;
-  dropCard: (cardId: string, listId: string) => void;
   startCard: (listId: string) => void;
   cancelCard: () => void;
   createCard: (listId: string) => void;
   createFromTemplate: (templateId: string, listId: string, name: string) => void;
 }
 
-/** One list on the board: header with its menu, the cards, the new-card composer and templates. */
+/**
+ * One list on the board: header with its menu, the cards, the new-card composer and templates. Dropping on it is
+ * handled by the board (`data-list-id` marks it); while a card is dragged, `draggedCardId` is hidden and `cardSlot`
+ * shows where it would land.
+ */
 export function ListColumn({
   list,
   cards,
@@ -35,6 +37,9 @@ export function ListColumn({
   draft,
   onDraft,
   actions,
+  hidden = false,
+  draggedCardId,
+  cardSlot,
 }: {
   list: BoardList;
   cards: Card[];
@@ -48,35 +53,30 @@ export function ListColumn({
   draft: string;
   onDraft: (draft: string) => void;
   actions: ListActions;
+  /** Hidden while the list is dragged to another place, which the board shows instead. */
+  hidden?: boolean;
+  draggedCardId?: string;
+  cardSlot?: { index: number; height: number };
 }) {
   return (
     <section
       className="list-column flex max-h-full w-[272px] flex-none flex-col rounded-xl bg-surface-sunken p-2 shadow-tile-soft"
-      onDragOver={(event) => event.preventDefault()}
-      onDrop={(event) => {
-        event.preventDefault();
-        const bounds = event.currentTarget.getBoundingClientRect();
-        const after = event.clientX > bounds.left + bounds.width / 2;
-        const movingZoneId = event.dataTransfer.getData("text/kanbonk-zone");
-        if (movingZoneId) {
-          actions.dropZone(movingZoneId, list.id, after);
-          return;
-        }
-        const movingListId = event.dataTransfer.getData("text/kanbonk-list");
-        if (movingListId) {
-          actions.dropList(movingListId, list.id, after);
-          return;
-        }
-        const id = event.dataTransfer.getData("text/kanbonk-card");
-        if (id) actions.dropCard(id, list.id);
-      }}
+      style={hidden ? { display: "none" } : undefined}
+      data-list-id={list.id}
     >
       <div className="flex items-center gap-1 px-1 pt-0.5 pb-2">
         <span
           className={`${dragHandleClass} text-ink-muted`}
           draggable
           title="Drag list"
-          onDragStart={(event) => event.dataTransfer.setData("text/kanbonk-list", list.id)}
+          onDragStart={(event) => {
+            event.dataTransfer.setData("text/kanbonk-list", list.id);
+            // The whole list is the picture under the pointer, as in Trello, not just the handle.
+            const column = event.currentTarget.closest("section")!;
+            event.dataTransfer.setDragImage(column, event.nativeEvent.offsetX + 8, event.nativeEvent.offsetY + 8);
+            startDrag(column, { kind: "list", id: list.id });
+          }}
+          onDragEnd={endDrag}
         >
           ⋮⋮
         </span>
@@ -104,6 +104,8 @@ export function ListColumn({
       </div>
       <ListCards
         cards={cards}
+        draggedId={draggedCardId}
+        slot={cardSlot}
         render={(item) => (
           <CardTile
             key={item.id}
@@ -112,6 +114,7 @@ export function ListColumn({
             members={members}
             parentName={item.parentCardId ? cardById.get(item.parentCardId)?.name : undefined}
             actions={tileActions}
+            hidden={item.id === draggedCardId}
           />
         )}
       />

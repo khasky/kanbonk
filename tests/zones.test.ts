@@ -2,7 +2,16 @@ import { expect, it } from "vitest";
 import { emptyState, recordRevision, type AppState } from "../src/model";
 import { mergeStates } from "../src/sync/sync";
 import { validState } from "../src/backup/backup";
-import { assignListToZone, createZone, deleteZone, moveListToList, moveZone, zoneRuns } from "../src/model/zones";
+import {
+  assignListToZone,
+  createZone,
+  deleteZone,
+  moveListToList,
+  moveZone,
+  placeList,
+  placeZone,
+  zoneRuns,
+} from "../src/model/zones";
 
 const names = ["Backlog", "Todo", "In progress", "Testing", "Deployment", "Done"];
 
@@ -116,4 +125,57 @@ it("syncs zones to another device and survives backup validation", () => {
   expect(order(merged.state)).toEqual(order(local));
   expect(merged.conflicts).toEqual([]);
   expect(validState(local as unknown as Record<string, unknown>)).toBe(true);
+});
+
+it("places a dragged list at an index, in or out of a zone, without splitting zones", () => {
+  // Others of Done: Backlog, Todo@D, In progress@D, Testing@D, Deployment@D.
+  expect(order(placeList(development(), "l5", 2, "z1", "d"))).toEqual([
+    "Backlog",
+    "Todo@Development",
+    "Done@Development",
+    "In progress@Development",
+    "Testing@Development",
+    "Deployment@Development",
+  ]);
+  // Outside zones at an index inside the zone: lands after the zone.
+  expect(order(placeList(development(), "l5", 2, undefined, "d")).slice(-2)).toEqual([
+    "Deployment@Development",
+    "Done",
+  ]);
+  // Taken out of the zone to the front.
+  expect(order(placeList(development(), "l2", 0, undefined, "d"))[0]).toBe("In progress");
+  // Joining a zone from far away: lands at the zone's end.
+  expect(order(placeList(development(), "l0", 5, "z1", "d"))).toEqual([
+    "Todo@Development",
+    "In progress@Development",
+    "Testing@Development",
+    "Deployment@Development",
+    "Backlog@Development",
+    "Done",
+  ]);
+});
+
+it("places a dragged zone between other zones and lists", () => {
+  const state = createZone(development(), "b1", "Release", ["l5"], "d", "z2").state;
+  // Units: Backlog, [Development], [Release].
+  expect(order(placeZone(state, "b1", "z2", 0, "d"))).toEqual([
+    "Done@Release",
+    "Backlog",
+    "Todo@Development",
+    "In progress@Development",
+    "Testing@Development",
+    "Deployment@Development",
+  ]);
+  expect(order(placeZone(state, "b1", "z1", 0, "d")).slice(0, 2)).toEqual([
+    "Todo@Development",
+    "In progress@Development",
+  ]);
+  expect(order(placeZone(state, "b1", "z1", 2, "d"))).toEqual([
+    "Backlog",
+    "Done@Release",
+    "Todo@Development",
+    "In progress@Development",
+    "Testing@Development",
+    "Deployment@Development",
+  ]);
 });

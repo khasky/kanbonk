@@ -1,12 +1,24 @@
 import { startTransition, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Card } from "../model";
 
-/** Renders a long list in pages: the next page mounts when the end of the list scrolls into view. */
 /**
  * Renders a list's cards only while the list is near the viewport, and long lists in pages: the next page mounts when
  * the end of the list scrolls into view. Keeps the DOM small on boards with thousands of cards.
+ *
+ * While a card is dragged over the list, `slot` is where it would land: a gap of the card's height at `index` among
+ * the list's cards other than the dragged one (`draggedId`, which `render` hides).
  */
-export function ListCards({ cards, render }: { cards: Card[]; render: (card: Card) => ReactNode }) {
+export function ListCards({
+  cards,
+  render,
+  draggedId,
+  slot,
+}: {
+  cards: Card[];
+  render: (card: Card) => ReactNode;
+  draggedId?: string;
+  slot?: { index: number; height: number };
+}) {
   const [limit, setLimit] = useState(listPageSize);
   const [near, setNear] = useState(false);
   const stack = useRef<HTMLDivElement>(null);
@@ -50,7 +62,7 @@ export function ListCards({ cards, render }: { cards: Card[]; render: (card: Car
     );
   return (
     <div ref={stack} className="flex min-h-0.5 flex-col gap-[7px] overflow-auto px-0.5" data-count={cards.length}>
-      {cards.slice(0, limit).map(render)}
+      {withSlot(cards.slice(0, limit), render, draggedId, slot)}
       {more && (
         <div ref={sentinel} className="py-1.5">
           <button
@@ -66,3 +78,31 @@ export function ListCards({ cards, render }: { cards: Card[]; render: (card: Car
 }
 
 export const listPageSize = 40;
+
+function withSlot(
+  cards: Card[],
+  render: (card: Card) => ReactNode,
+  draggedId: string | undefined,
+  slot: { index: number; height: number } | undefined,
+): ReactNode[] {
+  const gap = slot && (
+    <div
+      key="drop-slot"
+      className="flex-none rounded-lg bg-[#091e4224]"
+      style={{ height: slot.height }}
+      aria-hidden
+      data-drop-slot="card"
+    />
+  );
+  const rendered: ReactNode[] = [];
+  let index = 0;
+  for (const card of cards) {
+    if (card.id !== draggedId) {
+      if (index === slot?.index) rendered.push(gap);
+      index++;
+    }
+    rendered.push(render(card));
+  }
+  if (slot && slot.index >= index) rendered.push(gap);
+  return rendered;
+}

@@ -13,6 +13,7 @@ import {
   linkDependency,
   type Member,
   newId,
+  positionBefore,
   recordRevision,
   recordRevisions,
   transferCard,
@@ -121,8 +122,18 @@ export function useCardActions({
   }
 
   /** Puts a card at the end of another list. */
-  function dropCardInList(cardId: string, listId: string) {
-    updateCard(cardId, (item) => ({ ...item, listId, position: nextPosition(state.cards, listId) }));
+  /**
+   * A card dropped into a list, before the card `beforeId` or at the end. From another board (such as the Inbox panel)
+   * it takes this board's labels and members, like a move.
+   */
+  function dropCardAt(cardId: string, listId: string, beforeId?: string) {
+    const card = state.cards.find((item) => item.id === cardId);
+    const before = beforeId ? state.cards.find((item) => item.id === beforeId) : undefined;
+    if (!card || card.id === beforeId) return;
+    const position = before ? positionBefore(state.cards, cardId, before) : nextPosition(state.cards, listId);
+    if (card.boardId !== state.lists.find((list) => list.id === listId)?.boardId)
+      moveOrCopyCard(cardId, listId, false, false, position);
+    else updateCard(cardId, (item) => ({ ...item, listId, position }));
   }
 
   /** Cards accepted from AI triage; the quoted source stays in the description so every card is traceable. */
@@ -332,7 +343,7 @@ export function useCardActions({
     runCardButton,
     moveOrCopyCard,
     createCard,
-    dropCardInList,
+    dropCardAt,
     createProposedCards,
     createInboxCard,
     addCardFromTemplate,

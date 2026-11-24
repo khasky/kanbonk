@@ -16,7 +16,7 @@ import {
   sortListCards,
 } from "../model";
 import { ensurePersonalWorkspace, personalWorkspaceId } from "../model/workspaces";
-import { assignListToZone, createZone, deleteZone, moveListToList, moveZone, updateZone } from "../model/zones";
+import { createZone, deleteZone, moveListToList, placeList, placeZone, updateZone } from "../model/zones";
 
 /**
  * Changes to workspaces, boards, lists, zones and board automations. Every change records a revision with this
@@ -143,18 +143,19 @@ export function useBoardActions({
     });
   }
 
-  function moveZoneTo(boardId: string, zoneId: string, targetListId: string, after: boolean) {
-    setState((current) => moveZone(current, boardId, zoneId, targetListId, after, deviceId));
+  /** A dragged list dropped at `index` among the board's other lists, in a zone or outside zones. */
+  function placeListAt(listId: string, index: number, zoneId: string | undefined) {
+    setState((current) => placeList(current, listId, index, zoneId, deviceId));
+  }
+
+  /** A dragged zone dropped at `index` among the board's other zones and lists outside zones. */
+  function placeZoneAt(boardId: string, zoneId: string, index: number) {
+    setState((current) => placeZone(current, boardId, zoneId, index, deviceId));
   }
 
   /** Adds an empty zone at the end of the board; lists are dragged into it. */
   function addZone(boardId: string, name: string) {
     setState((current) => createZone(current, boardId, name, [], deviceId).state);
-  }
-
-  /** Puts a list into a zone, or takes it out of its zone when `zoneId` is undefined. */
-  function setListZone(listId: string, zoneId: string | undefined) {
-    setState((current) => assignListToZone(current, listId, zoneId, deviceId));
   }
 
   function changeZone(boardId: string, zoneId: string, change: { name?: string; color?: string }) {
@@ -245,9 +246,9 @@ export function useBoardActions({
     moveList,
     copyListOnBoard,
     sortList,
-    moveZoneTo,
+    placeListAt,
+    placeZoneAt,
     addZone,
-    setListZone,
     changeZone,
     removeZone,
     addAutomationRule,

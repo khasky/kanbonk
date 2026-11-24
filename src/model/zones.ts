@@ -172,3 +172,60 @@ export function moveZone(
   rest.splice(edge, 0, ...block);
   return applyOrder(state, rest, (item) => item.zoneId, deviceId);
 }
+
+/**
+ * Where a list dropped at `index` among the board's other lists (`others`) goes so zones stay contiguous: a list that
+ * would split a zone it does not join lands after that zone, and a list joining a zone away from the zone's lists lands
+ * at the zone's end.
+ */
+export function listDropIndex(others: BoardList[], index: number, zoneId: string | undefined): number {
+  const at = Math.max(0, Math.min(index, others.length));
+  const zoneEnd = (zone: string) => others.map((item) => item.zoneId).lastIndexOf(zone) + 1;
+  const split = others[at - 1]?.zoneId;
+  if (split && split === others[at]?.zoneId && split !== zoneId) return zoneEnd(split);
+  if (zoneId && zoneEnd(zoneId) > 0 && others[at - 1]?.zoneId !== zoneId && others[at]?.zoneId !== zoneId)
+    return zoneEnd(zoneId);
+  return at;
+}
+
+/**
+ * Drag-and-drop of a list with a preview: it lands at `index` among the board's other lists, in zone `zoneId` or
+ * outside zones, adjusted by `listDropIndex`.
+ */
+export function placeList(
+  state: AppState,
+  listId: string,
+  index: number,
+  zoneId: string | undefined,
+  deviceId: string,
+): AppState {
+  const list = state.lists.find((item) => item.id === listId && !item.deletedAt);
+  if (!list) return state;
+  const ordered = boardLists(state, list.boardId).filter((item) => item.id !== listId);
+  ordered.splice(listDropIndex(ordered, index, zoneId), 0, list);
+  return applyOrder(state, ordered, (item) => (item.id === listId ? zoneId : item.zoneId), deviceId);
+}
+
+/**
+ * The board's lists as the units a zone moves between: each zone's lists are one unit, each list outside zones is a
+ * unit of its own.
+ */
+export function boardUnits(lists: BoardList[]): BoardList[][] {
+  const units: BoardList[][] = [];
+  for (const list of lists) {
+    const last = units[units.length - 1];
+    if (list.zoneId && last?.[0].zoneId === list.zoneId) last.push(list);
+    else units.push([list]);
+  }
+  return units;
+}
+
+/** Drag-and-drop of a zone with a preview: its lists move together to `index` among the board's other units. */
+export function placeZone(state: AppState, boardId: string, zoneId: string, index: number, deviceId: string): AppState {
+  const ordered = boardLists(state, boardId);
+  const block = ordered.filter((item) => item.zoneId === zoneId);
+  if (!block.length) return state;
+  const units = boardUnits(ordered.filter((item) => item.zoneId !== zoneId));
+  units.splice(Math.max(0, Math.min(index, units.length)), 0, block);
+  return applyOrder(state, units.flat(), (item) => item.zoneId, deviceId);
+}

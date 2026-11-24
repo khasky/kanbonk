@@ -16,7 +16,7 @@ import { Sidebar } from "../layout/Sidebar";
 import { boardHref, type Route, useRoute } from "../lib/router";
 import { readLocalAuthor } from "../lib/storage";
 import { readDismissedReminders, type PanelName } from "../lib/uiPreferences";
-import { type Card, type Member, positionBefore } from "../model";
+import type { Card, Member } from "../model";
 import { applyDueRules } from "../model/automation";
 import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import { dueReminders } from "../model/reminders";
@@ -180,23 +180,13 @@ function App() {
   }
 
   // Card tiles are memoized, so they get stable handlers that call the latest ones.
-  const tileHandlers = useRef<TileActions>({ open: () => undefined, drop: () => undefined });
+  const tileHandlers = useRef<TileActions>({ open: () => undefined });
   tileHandlers.current = {
     open: (id) => setCardId(id),
-    drop: (movingId, target) => {
-      const moving = state.cards.find((entry) => entry.id === movingId);
-      if (moving && moving.id !== target.id && moving.boardId === target.boardId)
-        cardActions.updateCard(moving.id, (current) => ({
-          ...current,
-          listId: target.listId,
-          position: positionBefore(state.cards, moving.id, target),
-        }));
-    },
   };
   const tileActions = useMemo<TileActions>(
     () => ({
       open: (id) => tileHandlers.current.open(id),
-      drop: (movingId, target) => tileHandlers.current.drop(movingId, target),
     }),
     [],
   );

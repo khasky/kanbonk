@@ -65,3 +65,26 @@ test("collapses the sidebar to icons and keeps it collapsed after a reload", asy
   await page.getByRole("button", { name: "Expand sidebar" }).click();
   expect((await sidebar.boundingBox())?.width).toBeGreaterThan(200);
 });
+
+test("drags cards from the Inbox panel into a list and onto a card of the board", async ({ page }) => {
+  await importTrelloBoard(page);
+  await page.getByRole("button", { name: "Inbox", exact: true }).click();
+  const inbox = page.getByRole("region", { name: "Inbox" });
+  for (const name of ["Inbox first", "Inbox second"]) {
+    await inbox.getByLabel("New card in inbox").fill(name);
+    await inbox.getByRole("button", { name: "Add" }).click();
+  }
+  const plans = page.locator(".list-column").filter({ has: page.getByLabel("List title Plans") });
+
+  await inbox.getByRole("button", { name: "Inbox first" }).dragTo(plans.getByRole("button", { name: "Add a card" }));
+  await expect(inbox.getByRole("button", { name: "Inbox first" })).toHaveCount(0);
+  await inbox
+    .getByRole("button", { name: "Inbox second" })
+    .dragTo(plans.getByRole("button", { name: /Card from Trello/ }), { targetPosition: { x: 20, y: 4 } });
+  await expect(inbox.getByRole("button", { name: /Inbox/ })).toHaveCount(0);
+
+  const tiles = plans.locator("button[draggable=true]");
+  await expect(tiles).toHaveText([/Inbox second/, /Card from Trello/, /Inbox first/]);
+  await page.reload();
+  await expect(plans.locator("button[draggable=true]")).toHaveText([/Inbox second/, /Card from Trello/, /Inbox first/]);
+});

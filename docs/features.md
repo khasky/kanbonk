@@ -18,7 +18,7 @@ The top bar has a link to the trash with the number of trashed items and a searc
 
 ## Boards, lists and cards
 
-- **Drag and drop**: drag a list by its handle (⋮⋮) left or right; drag cards within a list or to another list. Lists can also be moved with **Move left** / **Move right** in the list menu.
+- **Drag and drop**: drag a list by its handle (⋮⋮) left or right, into a zone or out of it; drag cards within a list or to another list; drag a zone by its header handle between lists and other zones. While dragging, the item is lifted out and a dark slot of its size shows where it will land, with the lists and cards around it making room. Lists can also be moved with **Move left** / **Move right** in the list menu.
 - List menu (⋯): sort cards by name or due date, move, copy the list with its cards, delete to the trash.
 - Boards can be starred, copied to another workspace with or without cards and templates, and given a background: a preset color, any color from the color picker, or your own image.
 - Cards can be moved or copied to the very top or very bottom of a list on any board (**⋯ → Move / copy**), turned into templates and created from templates.
@@ -34,9 +34,9 @@ Boards with thousands of cards stay responsive on desktops and phones: lists out
 A zone groups adjacent lists of a board, for example **Development** = Todo + In progress + Testing + Deployment. A list belongs to at most one zone.
 
 - Create: **New zone** at the end of the board, under **Add a list**, enter a name. The empty zone appears at the end of the board with a **Drag lists here** area.
-- Add a list: drag the list into the empty zone's area, onto a list of the zone or onto the zone header. The list moves to the end of the zone so the zone stays in one piece.
+- Add a list: drag the list into the empty zone's area or between the zone's lists; the slot shows where it lands. A list never splits a zone: dropped outside zones in the middle of one, it lands after that zone.
 - Remove a list: drag it onto a list outside the zone.
-- Move a whole zone: drag its header handle (⋮⋮) onto another list.
+- Move a whole zone: drag its header handle (⋮⋮) between other lists and zones; its lists move together.
 - The header shows the number of cards in the zone, and lets you rename the zone and change its color. **×** removes the zone; the lists stay on the board.
 
 ## The card
@@ -95,7 +95,7 @@ The board **Filter** narrows the current board by text, label, member and due da
 
 ## Inbox and planner
 
-**Inbox** is a personal board for quick capture; its cards can be moved to any list later. **Planner** shows cards with due dates by week. On wide screens both panels can be open next to a board; their widths are adjustable and remembered on the device.
+**Inbox** is a personal board for quick capture; its cards can be moved to any list later, or dragged from the Inbox panel onto a list or a card of the board open next to it. **Planner** shows cards with due dates by week. On wide screens both panels can be open next to a board; their widths are adjustable and remembered on the device.
 
 ## Reminders
 

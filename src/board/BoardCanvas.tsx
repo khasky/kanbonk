@@ -1,10 +1,10 @@
 import { askConfirm } from "../ui/AskDialog";
-import { useState } from "react";
+import { type DragEvent, type ReactNode, useState } from "react";
 import type { BoardViewData } from "../app/useBoardView";
 import type { BoardActions } from "../hooks/useBoardActions";
 import type { CardActions } from "../hooks/useCardActions";
 import type { AppState, Board, BoardList, Zone } from "../model";
-import { zoneRuns } from "../model/zones";
+import { boardUnits, listDropIndex, zoneRuns } from "../model/zones";
 import { Icon } from "../ui/Icon";
 import type { TileActions } from "./CardTile";
 import { type ListActions, ListColumn } from "./ListColumn";
@@ -12,6 +12,11 @@ import { ZoneComposer, ZoneFrame } from "./ZoneFrame";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
 import { addListClass, composeActionsClass, composeClass } from "./boardLook";
+import { currentDrag, dragKind, dropTargetAt, endDrag, setDropTarget, useDragState } from "./dragState";
+
+/** The id of the stand-in list that marks where a dragged list would land. `data-drop-slot` marks slots for tests. */
+const slotListId = "\u0000drop";
+const slotLook = "flex-none bg-[#0000003d]";
 
 /**
  * The lists view of a board: lists grouped into zone frames, empty zones, and the column that adds a list or a zone.
@@ -94,9 +99,6 @@ export function BoardCanvas({
       else if (action === "copy") copyList(listId);
       else if (action === "delete") onDeleteList(listId);
     },
-    dropZone: (zoneId, targetListId, after) => boardActions.moveZoneTo(board.id, zoneId, targetListId, after),
-    dropList: boardActions.moveList,
-    dropCard: cardActions.dropCardInList,
     startCard: (listId) => {
       setEditingCardList(listId);
       setEditingList(false);
@@ -110,7 +112,63 @@ export function BoardCanvas({
     createFromTemplate: cardActions.addCardFromTemplate,
   };
 
+  // While something is dragged over the board, its own element is hidden and a dark slot of its size stands where it
+  // would land, so the lists and cards around it make room as in Trello.
+  const { drag, target } = useDragState();
+  const cardTarget = drag?.kind === "card" && target?.kind === "card" ? target : undefined;
+  const listTarget = drag?.kind === "list" && target?.kind === "list" ? target : undefined;
+  const zoneTarget = drag?.kind === "zone" && target?.kind === "zone" ? target : undefined;
+  const draggedList = listTarget && lists.find((item) => item.id === drag?.id);
+  let shownLists = lists;
+  let emptyZoneSlot: string | undefined;
+  if (draggedList && listTarget) {
+    const others = lists.filter((item) => item.id !== draggedList.id);
+    if (listTarget.index === undefined) emptyZoneSlot = listTarget.zoneId;
+    else {
+      const before = others[listDropIndex(others, listTarget.index, listTarget.zoneId)];
+      const slot = { ...draggedList, id: slotListId, zoneId: listTarget.zoneId };
+      shownLists = [...lists];
+      shownLists.splice(before ? shownLists.indexOf(before) : shownLists.length, 0, slot);
+    }
+  }
+  const listSlot = (key: string) => (
+    <div
+      key={key}
+      className={`${slotLook} w-[272px] rounded-xl`}
+      style={{ height: drag?.height }}
+      aria-hidden
+      data-drop-slot="list"
+    />
+  );
+  // Over an empty zone the list stays in its place: hiding it would move the zone away from the pointer.
+  const hiddenList = (list: BoardList) => list.id === draggedList?.id && !emptyZoneSlot;
+
+  function dropOn(event: DragEvent<HTMLDivElement>) {
+    const kind = dragKind(event.dataTransfer.types);
+    const id = currentDrag().drag?.id;
+    return kind && dropTargetAt(event.currentTarget, kind, id, event.clientX, event.clientY, event.target as Element);
+  }
+
+  function drop(event: DragEvent<HTMLDivElement>) {
+    // The place shown while dragging wins: the layout under the pointer has already made room for it.
+    const shown = currentDrag().target;
+    const dropped = shown && shown.kind === dragKind(event.dataTransfer.types) ? shown : dropOn(event);
+    endDrag();
+    if (!dropped) return;
+    event.preventDefault();
+    const id = event.dataTransfer.getData(`text/kanbonk-${dropped.kind}`);
+    if (!id) return;
+    if (dropped.kind === "card") {
+      const before = (cardsByList.get(dropped.listId) ?? []).filter((item) => item.id !== id)[dropped.index];
+      cardActions.dropCardAt(id, dropped.listId, before?.id);
+    } else if (dropped.kind === "list") {
+      if (!lists.some((item) => item.id === id)) return;
+      boardActions.placeListAt(id, dropped.index ?? lists.length, dropped.zoneId);
+    } else boardActions.placeZoneAt(board.id, id, dropped.index);
+  }
+
   function renderList(list: BoardList) {
+    if (list.id === slotListId) return listSlot("list-slot");
     return (
       <ListColumn
         key={list.id}
@@ -125,6 +183,9 @@ export function BoardCanvas({
         draft={draft}
         onDraft={setDraft}
         actions={listActions}
+        hidden={hiddenList(list)}
+        draggedCardId={cardTarget && drag?.id}
+        cardSlot={cardTarget?.listId === list.id ? { index: cardTarget.index, height: drag?.height ?? 0 } : undefined}
       />
     );
   }
@@ -134,6 +195,10 @@ export function BoardCanvas({
       <ZoneFrame
         key={key}
         zone={zone}
+        dropping={emptyZoneSlot === zone.id}
+        hidden={
+          (zoneTarget !== undefined && zone.id === drag?.id) || (zoneLists.length > 0 && zoneLists.every(hiddenList))
+        }
         cardCount={
           state.cards.filter(
             (item) => zoneLists.some((entry) => entry.id === item.listId) && filteredCardIds.has(item.id),
@@ -142,22 +207,54 @@ export function BoardCanvas({
         onRename={(name) => boardActions.changeZone(board.id, zone.id, { name })}
         onColor={(color) => boardActions.changeZone(board.id, zone.id, { color })}
         onDelete={() => removeZone(zone)}
-        onDropList={(listId) => boardActions.setListZone(listId, zone.id)}
       >
         {zoneLists.length ? zoneLists.map(renderList) : undefined}
       </ZoneFrame>
     );
   }
 
+  /** The board's zones and lists outside zones in order; during a zone drag, a slot of the zone's size among them. */
+  function units() {
+    const zoneSlot = (
+      <div
+        key="zone-slot"
+        className={`${slotLook} rounded-[14px]`}
+        style={{ width: drag?.width, height: drag?.height }}
+        aria-hidden
+        data-drop-slot="zone"
+      />
+    );
+    const nodes: ReactNode[] = [];
+    let index = 0;
+    for (const unit of zoneRuns(shownLists, board.zones).flatMap((run) =>
+      run.zone ? [run] : boardUnits(run.lists).map((single) => ({ zone: undefined, lists: single })),
+    )) {
+      if (!(zoneTarget && unit.zone?.id === drag?.id)) {
+        if (index === zoneTarget?.index) nodes.push(zoneSlot);
+        index++;
+      }
+      nodes.push(unit.zone ? renderZone(unit.zone, unit.lists, `zone-${unit.zone.id}`) : renderList(unit.lists[0]));
+    }
+    if (zoneTarget && zoneTarget.index >= index) nodes.push(zoneSlot);
+    return nodes;
+  }
+
   return (
-    <div className="flex min-h-0 flex-1 items-start gap-3 overflow-x-auto px-3 pt-3.5 pb-5 max-phone:p-2">
-      {zoneRuns(lists, board.zones).map((run) =>
-        run.zone
-          ? renderZone(run.zone, run.lists, `zone-${run.zone.id}-${run.lists[0].id}`)
-          : run.lists.map(renderList),
-      )}
+    <div
+      className="flex min-h-0 flex-1 items-start gap-3 overflow-x-auto px-3 pt-3.5 pb-5 max-phone:p-2"
+      onDragOver={(event) => {
+        const over = dropOn(event);
+        setDropTarget(over || undefined);
+        if (over) event.preventDefault();
+      }}
+      onDragLeave={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropTarget(undefined);
+      }}
+      onDrop={drop}
+    >
+      {units()}
       {(board.zones ?? [])
-        .filter((zone) => !lists.some((item) => item.zoneId === zone.id))
+        .filter((zone) => !shownLists.some((item) => item.zoneId === zone.id))
         .map((zone) => renderZone(zone, [], `zone-${zone.id}`))}
       <div className="add-list-column grid w-[272px] flex-none gap-1 rounded-xl bg-[#ffffff42] p-1.5">
         {editingList ? (
