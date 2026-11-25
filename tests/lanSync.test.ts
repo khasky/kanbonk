@@ -105,7 +105,7 @@ describe("LAN media transfer", () => {
     expect(restored.type).toBe("text/plain");
   });
 
-  it("receives a sticker image and marks it available on the card", async () => {
+  it("receives an attachment and marks it available on the card", async () => {
     let state = emptyState();
     state.cards.push({
       id: "card-1",
@@ -117,14 +117,13 @@ describe("LAN media transfer", () => {
       labelIds: [],
       checklists: [],
       comments: [],
-      attachments: [],
-      stickers: [{ imageId: "file-1", name: "check", status: "missing" }],
+      attachments: [{ id: "file-1", name: "check.png", mimeType: "image/png", size: 11, status: "missing" }],
     });
     const { restored } = await transfer(new Blob(["image bytes"], { type: "image/png" }), (id) => {
       state = markMediaLocal(state, id);
     });
     expect(await restored.text()).toBe("image bytes");
-    expect(state.cards[0].stickers?.[0]).toMatchObject({ status: "local" });
+    expect(state.cards[0].attachments[0].status).toBe("local");
   });
 
   it("reads a larger file by slices and restores the original bytes", async () => {
@@ -166,12 +165,11 @@ describe("LAN media transfer", () => {
         labelIds: [],
         checklists: [],
         comments: [],
-        stickers: [{ imageId: "sticker-1", name: "icon.png" }],
         attachments: [{ id: "attachment-1", name: "note.txt", mimeType: "text/plain", size: 5, status: "local" }],
       },
     });
     await receiver.requestFiles(state);
-    expect(packets).toEqual([{ type: "request-files", ids: ["attachment-1", "sticker-1"] }]);
+    expect(packets).toEqual([{ type: "request-files", ids: ["attachment-1"] }]);
   });
 
   it("reports a stalled connection attempt instead of waiting forever", async () => {

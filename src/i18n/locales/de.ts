@@ -455,8 +455,6 @@ export default {
     addDependency: "Abhängigkeit hinzufügen",
     cover: "Titelbild",
     coverNote: "Eine Farbe oder ein Bild auf der Karte",
-    stickers: "Sticker",
-    stickersNote: "Emojis und Bilder auf der Karte",
     moveOrCopyCard: "Karte verschieben oder kopieren",
     shareCard: "Karte teilen",
     cardList: "Liste der Karte",
@@ -579,18 +577,6 @@ export default {
     sizeNormal: "Normal",
     sizeFull: "Ganze Karte",
     removeCover: "Titelbild entfernen",
-    stickersLabel: "Sticker: {stickers}",
-    stickerFileMissing: "Sticker-Datei fehlt",
-    cardStickers: "Karten-Sticker",
-    stickerStar: "Stern",
-    stickerDone: "Erledigt",
-    stickerParty: "Party",
-    stickerRocket: "Rakete",
-    stickerFire: "Feuer",
-    stickerIdea: "Idee",
-    addSticker: "Sticker {name} hinzufügen",
-    customImage: "Eigenes Bild",
-    removeSticker: "Sticker {number} entfernen",
 
     searchLabelsPlaceholder: "Labels suchen…",
     searchLabels: "Labels suchen",
@@ -739,7 +725,6 @@ export default {
     importFailed: "Import fehlgeschlagen: {error}",
     lists: { one: "{count} Liste", other: "{count} Listen" },
     attachments: { one: "{count} Anhang", other: "{count} Anhänge" },
-    stickers: { one: "{count} Sticker", other: "{count} Sticker" },
     importedCsv: "Aus CSV importiert: {lists}, {cards}. {warnings}",
     chooseOneBoard: "Ein Board-JSON oder eine CSV-Datei auswählen.",
     noBoardJson:
@@ -747,13 +732,13 @@ export default {
     differentBoards: "JSON und ZIP-Dateien gehören zu verschiedenen Trello-Boards.",
     importExtensionHint:
       "Das Board mit der Erweiterung Kanbonk Trello Import exportieren und deren ZIP-Dateien auswählen.",
-    attachmentsNotFetched: "Nicht abgerufene Anhänge: {attachments}. Sticker: {stickers}. {warnings}",
+    attachmentsNotFetched: "Nicht abgerufene Anhänge: {attachments}. {warnings}",
     boardClosedInTrello:
       "Das Board ist in Trello geschlossen und liegt daher im Papierkorb; dort innerhalb von 30 Tagen wiederherstellen.",
     closedInTrello:
       "In Trello geschlossene Listen und Karten liegen im Papierkorb ({count}); dort innerhalb von 30 Tagen wiederherstellen.",
     imported: "Importiert: {items}. {notes}",
-    filesRestored: "Anhänge wiederhergestellt: {attachments}. Sticker: {stickers}. Board-Hintergründe: {backgrounds}.",
+    filesRestored: "Anhänge wiederhergestellt: {attachments}. Board-Hintergründe: {backgrounds}.",
     importIntro:
       "Um ein Board mit allen Dateien zu übertragen, die Erweiterung Kanbonk Trello Import installieren: chrome://extensions oder edge://extensions öffnen, den Entwicklermodus aktivieren, „Entpackte Erweiterung laden“ wählen und den Ordner trello-import-extension des Projekts auswählen. Dann das Board in Trello öffnen und im Kanbonk-Bereich auf {exportBoard} klicken. Das Board kommt als ZIP-Teile von etwa 100 MB an.",
     exportBoard: "Board exportieren",
@@ -842,8 +827,6 @@ export default {
     backupFailed: "Backup fehlgeschlagen: {error}",
     backupPostponeFailed: "Das Backup konnte nicht verschoben werden: {error}",
     fileSaveFailed: "{name} konnte nicht gespeichert werden: {error}",
-    stickerType: "Ein PNG-, JPEG-, WebP-, GIF- oder AVIF-Bild für den Sticker auswählen.",
-    stickerSaveFailed: "Der Sticker konnte nicht gespeichert werden: {error}",
     fileUnavailable: "Die Datei „{name}“ ist auf diesem Gerät nicht verfügbar.",
     fileOpenFailed: "Die Datei „{name}“ konnte nicht geöffnet werden: {error}",
     newDeviceTitle: "Neues Gerät „{name}“ möchte synchronisieren",
@@ -982,7 +965,6 @@ export default {
       "Eine Trello-CSV enthält weder Kommentare noch Checklisten-Elemente; für eine vollständige Übertragung JSON verwenden.",
     notTrelloJson: "Die Datei sieht nicht wie ein JSON-Export eines Trello-Boards aus.",
     attachmentsNeedDownload: "Anhänge erfordern einen separaten Download oder eine ZIP-Datei mit Dateien.",
-    stickersNeedZip: "Trello-Sticker-Bilder erfordern eine ZIP-Datei mit Dateien.",
     workspaceNameMissing:
       "Der Name des Arbeitsbereichs ist im Trello-JSON nicht enthalten; er kann nach dem Import umbenannt werden.",
     backgroundNotTransferred:
@@ -992,7 +974,6 @@ export default {
     historyAndCommentsTruncated:
       "Ein Trello-JSON-Export enthält nur die letzten 1000 Aktionen: Ein Teil des Verlaufs und ältere Kommentare fehlen möglicherweise.",
     attachmentNotDownloaded: "Der Anhang „{name}“ konnte nicht heruntergeladen werden.",
-    stickerNotDownloaded: "Der Sticker „{name}“ konnte nicht heruntergeladen werden.",
     zipBoardNotImported: "Das Board aus dem ZIP wurde unter den importierten Boards nicht gefunden.",
     invalidManifest: "Der Exportteil hat ein ungültiges Manifest.",
     zipUnreadable: "Das ZIP „{name}“ konnte nicht gelesen werden.",

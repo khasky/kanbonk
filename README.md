@@ -23,7 +23,7 @@ Kanbonk keeps every workspace, board, list, card and attachment on your own devi
 **Boards**
 
 - **Lists and cards** — drag lists left and right, drag cards within a list and between lists. A card opens over the board, or as its own page by link (`/c/<id>`).
-- **Rich cards** — title, visual Markdown description and comments, start and due dates, checklists, labels in any color, members, attachments, covers, full-card colors and stickers.
+- **Rich cards** — title, visual Markdown description and comments, start and due dates, checklists, labels in any color, members, attachments, covers and full-card colors.
 - **Sub-cards, clone and share** — a clone lands right below the original as `<name> - Clone`; share a card as print, PNG, JSON, link or QR code.
 - **Zones** — group adjacent lists into one zone, e.g. *Development* = Todo + In progress + Testing + Deployment. A list belongs to at most one zone.
 - **Calendar** — week, month and year views. A card sits on its start date (or creation date) and stretches to its due date like an event; drag it between days, drag its edges to change dates, delete it with ×.

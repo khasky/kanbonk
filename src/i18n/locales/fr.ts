@@ -466,8 +466,6 @@ export default {
     addDependency: "Ajouter une dépendance",
     cover: "Couverture",
     coverNote: "Une couleur ou une image sur la vignette",
-    stickers: "Autocollants",
-    stickersNote: "Emoji et images sur la vignette",
     moveOrCopyCard: "Déplacer ou copier la carte",
     shareCard: "Partager la carte",
     cardList: "Liste de la carte",
@@ -598,18 +596,6 @@ export default {
     sizeNormal: "Normale",
     sizeFull: "Carte entière",
     removeCover: "Retirer la couverture",
-    stickersLabel: "Autocollants : {stickers}",
-    stickerFileMissing: "Fichier de l’autocollant manquant",
-    cardStickers: "Autocollants de la carte",
-    stickerStar: "Étoile",
-    stickerDone: "Terminé",
-    stickerParty: "Fête",
-    stickerRocket: "Fusée",
-    stickerFire: "Feu",
-    stickerIdea: "Idée",
-    addSticker: "Ajouter l’autocollant {name}",
-    customImage: "Image personnalisée",
-    removeSticker: "Retirer l’autocollant {number}",
 
     searchLabelsPlaceholder: "Rechercher des étiquettes…",
     searchLabels: "Rechercher des étiquettes",
@@ -766,21 +752,19 @@ export default {
       many: "{count} de pièces jointes",
       other: "{count} pièces jointes",
     },
-    stickers: { one: "{count} autocollant", many: "{count} d’autocollants", other: "{count} autocollants" },
     importedCsv: "Importé depuis le CSV : {lists}, {cards}. {warnings}",
     chooseOneBoard: "Choisissez un seul fichier JSON ou CSV de tableau.",
     noBoardJson:
       "Les fichiers ZIP choisis ne contiennent aucun JSON de tableau. Choisissez toutes les parties de l’export ou ajoutez le JSON du tableau.",
     differentBoards: "Le JSON et les fichiers ZIP appartiennent à des tableaux Trello différents.",
     importExtensionHint: "Exportez le tableau avec l’extension Kanbonk Trello Import et choisissez ses fichiers ZIP.",
-    attachmentsNotFetched: "Pièces jointes non récupérées : {attachments}. Autocollants : {stickers}. {warnings}",
+    attachmentsNotFetched: "Pièces jointes non récupérées : {attachments}. {warnings}",
     boardClosedInTrello:
       "Le tableau est fermé dans Trello ; il se trouve donc dans la corbeille. Restaurez-le depuis celle-ci dans les 30 jours.",
     closedInTrello:
       "Les listes et les cartes fermées dans Trello sont dans la corbeille ({count}) ; restaurez-les depuis celle-ci dans les 30 jours.",
     imported: "Importé : {items}. {notes}",
-    filesRestored:
-      "Pièces jointes restaurées : {attachments}. Autocollants : {stickers}. Arrière-plans de tableau : {backgrounds}.",
+    filesRestored: "Pièces jointes restaurées : {attachments}. Arrière-plans de tableau : {backgrounds}.",
     importIntro:
       "Pour transférer un tableau avec tous ses fichiers, installez l’extension Kanbonk Trello Import : ouvrez chrome://extensions ou edge://extensions, activez le mode développeur, choisissez « Charger l’extension non empaquetée » et sélectionnez le dossier trello-import-extension du projet. Ouvrez ensuite le tableau dans Trello et appuyez sur {exportBoard} dans le panneau Kanbonk. Le tableau arrive sous forme de parties ZIP d’environ 100 Mo.",
     exportBoard: "Exporter le tableau",
@@ -873,8 +857,6 @@ export default {
     backupFailed: "Échec de la sauvegarde : {error}",
     backupPostponeFailed: "Impossible de reporter la sauvegarde : {error}",
     fileSaveFailed: "Impossible d’enregistrer {name} : {error}",
-    stickerType: "Choisissez une image PNG, JPEG, WebP, GIF ou AVIF pour l’autocollant.",
-    stickerSaveFailed: "Impossible d’enregistrer l’autocollant : {error}",
     fileUnavailable: "Le fichier « {name} » n’est pas disponible sur cet appareil.",
     fileOpenFailed: "Impossible d’ouvrir le fichier « {name} » : {error}",
     newDeviceTitle: "Le nouvel appareil « {name} » veut se synchroniser",
@@ -1027,7 +1009,6 @@ export default {
       "Un CSV Trello n’inclut ni les commentaires ni les éléments de checklist ; utilisez le JSON pour un transfert complet.",
     notTrelloJson: "Le fichier ne ressemble pas à un export JSON de tableau Trello.",
     attachmentsNeedDownload: "Les pièces jointes nécessitent un téléchargement séparé ou un ZIP avec les fichiers.",
-    stickersNeedZip: "Les images des autocollants Trello nécessitent un ZIP avec les fichiers.",
     workspaceNameMissing:
       "Le nom de l’espace de travail n’est pas inclus dans le JSON Trello ; vous pourrez le renommer après l’importation.",
     backgroundNotTransferred:
@@ -1037,7 +1018,6 @@ export default {
     historyAndCommentsTruncated:
       "Un export JSON Trello ne contient que les 1000 dernières actions : une partie de l’historique et des commentaires plus anciens peuvent manquer.",
     attachmentNotDownloaded: "Impossible de télécharger la pièce jointe « {name} ».",
-    stickerNotDownloaded: "Impossible de télécharger l’autocollant « {name} ».",
     zipBoardNotImported: "Le tableau du ZIP est introuvable parmi les tableaux importés.",
     invalidManifest: "La partie d’export a un manifeste non valide.",
     zipUnreadable: "Impossible de lire le ZIP « {name} ».",

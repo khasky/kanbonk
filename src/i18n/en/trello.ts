@@ -12,7 +12,6 @@ export const trello = {
   csvIncomplete: "A Trello CSV does not include comments or checklist items; use JSON for a complete transfer.",
   notTrelloJson: "The file does not look like a Trello board JSON export.",
   attachmentsNeedDownload: "Attachments need a separate download or a ZIP with files.",
-  stickersNeedZip: "Trello sticker images need a ZIP with files.",
   workspaceNameMissing: "The workspace name is not included in the Trello JSON; you can rename it after import.",
   backgroundNotTransferred:
     "Background image of the Trello board was not transferred. Save it to your computer and choose it via “Background from file”.",
@@ -20,7 +19,6 @@ export const trello = {
   historyAndCommentsTruncated:
     "A Trello JSON export contains only the last 1000 actions: part of the history and older comments may be missing.",
   attachmentNotDownloaded: "Could not download attachment “{name}”.",
-  stickerNotDownloaded: "Could not download sticker “{name}”.",
   zipBoardNotImported: "The board from the ZIP was not found among imported boards.",
   invalidManifest: "The export part has an invalid manifest.",
   zipUnreadable: "Could not read the ZIP “{name}”.",

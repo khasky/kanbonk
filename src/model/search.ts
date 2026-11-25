@@ -116,9 +116,7 @@ function searchMatch(
           ? Boolean(card.cover)
           : value === "members"
             ? Boolean(card.memberIds?.length)
-            : value === "stickers"
-              ? Boolean(card.stickers?.length)
-              : false;
+            : false;
   if (operator === "is") return value === "open" || (value === "starred" && board.starred);
   if (operator === "due") {
     const due = Date.parse(card.dueAt ?? "");

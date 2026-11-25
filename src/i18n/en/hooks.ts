@@ -6,8 +6,6 @@ export const hooks = {
   backupFailed: "Backup failed: {error}",
   backupPostponeFailed: "Could not postpone the backup: {error}",
   fileSaveFailed: "Could not save {name}: {error}",
-  stickerType: "Choose a PNG, JPEG, WebP, GIF or AVIF image for the sticker.",
-  stickerSaveFailed: "Could not save the sticker: {error}",
   fileUnavailable: "File “{name}” is not available on this device.",
   fileOpenFailed: "Could not open file “{name}”: {error}",
   newDeviceTitle: "New device “{name}” wants to sync",

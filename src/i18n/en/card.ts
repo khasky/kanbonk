@@ -21,8 +21,6 @@ export const card = {
   addDependency: "Add dependency",
   cover: "Cover",
   coverNote: "A color or image on the tile",
-  stickers: "Stickers",
-  stickersNote: "Emoji and images on the tile",
   moveOrCopyCard: "Move or copy card",
   shareCard: "Share card",
   cardList: "Card list",
@@ -141,7 +139,7 @@ export const card = {
   addItem: "Add an item",
   newChecklistItems: "New checklist items",
 
-  // Cover and stickers
+  // Cover
   coverColor: "Cover {color}",
   customColor: "Custom color",
   customCoverColor: "Custom cover color",
@@ -150,18 +148,6 @@ export const card = {
   sizeNormal: "Normal",
   sizeFull: "Full card",
   removeCover: "Remove cover",
-  stickersLabel: "Stickers: {stickers}",
-  stickerFileMissing: "Sticker file missing",
-  cardStickers: "Card stickers",
-  stickerStar: "Star",
-  stickerDone: "Done",
-  stickerParty: "Party",
-  stickerRocket: "Rocket",
-  stickerFire: "Fire",
-  stickerIdea: "Idea",
-  addSticker: "Add sticker {name}",
-  customImage: "Custom image",
-  removeSticker: "Remove sticker {number}",
 
   // Labels and members
   searchLabelsPlaceholder: "Search labels…",

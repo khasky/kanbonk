@@ -2,7 +2,6 @@ import { useState } from "react";
 import { AppLink } from "../ui/AppLink";
 import { endDrag, startDrag, useDragState } from "../board/dragState";
 import { CardCover } from "../card/CardCover";
-import { CardStickers } from "../card/CardStickers";
 import { formatDate, t } from "../i18n";
 import { inboxBoardId } from "../model/inbox";
 import { emptyBoardFilter, filterBoardCards, type AppState, type BoardFilter } from "../model";
@@ -119,7 +118,6 @@ export function InboxView({
             onOpen={() => onOpen(card.id)}
           >
             <CardCover card={card} />
-            <CardStickers card={card} />
             <span className={tileNameClass()}>{card.name}</span>
             <span className={tileMetaClass()}>
               {card.dueAt && (

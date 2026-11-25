@@ -462,8 +462,6 @@ export default {
     addDependency: "Függőség hozzáadása",
     cover: "Borító",
     coverNote: "Szín vagy kép a csempén",
-    stickers: "Matricák",
-    stickersNote: "Emodzsik és képek a csempén",
     moveOrCopyCard: "Kártya áthelyezése vagy másolása",
     shareCard: "Kártya megosztása",
     cardList: "Kártya listája",
@@ -582,7 +580,7 @@ export default {
     addItem: "Elem hozzáadása",
     newChecklistItems: "Új ellenőrzőlista-elemek",
 
-    // Cover and stickers
+    // Cover
     coverColor: "Borító: {color}",
     customColor: "Egyéni szín",
     customCoverColor: "Egyéni borítószín",
@@ -591,18 +589,6 @@ export default {
     sizeNormal: "Normál",
     sizeFull: "Teljes kártya",
     removeCover: "Borító eltávolítása",
-    stickersLabel: "Matricák: {stickers}",
-    stickerFileMissing: "A matrica fájlja hiányzik",
-    cardStickers: "Kártya matricái",
-    stickerStar: "Csillag",
-    stickerDone: "Kész",
-    stickerParty: "Buli",
-    stickerRocket: "Rakéta",
-    stickerFire: "Tűz",
-    stickerIdea: "Ötlet",
-    addSticker: "Matrica hozzáadása: {name}",
-    customImage: "Egyéni kép",
-    removeSticker: "{number}. matrica eltávolítása",
 
     // Labels and members
     searchLabelsPlaceholder: "Címkék keresése…",
@@ -748,20 +734,19 @@ export default {
     importFailed: "Az importálás sikertelen: {error}",
     lists: { one: "{count} lista", other: "{count} lista" },
     attachments: { one: "{count} melléklet", other: "{count} melléklet" },
-    stickers: { one: "{count} matrica", other: "{count} matrica" },
     importedCsv: "Importálva CSV-ből: {lists}, {cards}. {warnings}",
     chooseOneBoard: "Válasszon egyetlen tábla-JSON-t vagy CSV-t.",
     noBoardJson:
       "A kiválasztott ZIP-fájlok nem tartalmaznak tábla-JSON-t. Válassza ki az export összes részét, vagy adja hozzá a tábla JSON-fájlját.",
     differentBoards: "A JSON és a ZIP-fájlok különböző Trello-táblákhoz tartoznak.",
     importExtensionHint: "Exportálja a táblát a Kanbonk Trello Import bővítménnyel, és válassza ki a ZIP-fájljait.",
-    attachmentsNotFetched: "Le nem töltött mellékletek: {attachments}. Matricák: {stickers}. {warnings}",
+    attachmentsNotFetched: "Le nem töltött mellékletek: {attachments}. {warnings}",
     boardClosedInTrello:
       "A tábla le van zárva a Trellóban, ezért a lomtárba került; 30 napon belül ott visszaállíthatja.",
     closedInTrello:
       "A Trellóban lezárt listák és kártyák a lomtárban vannak ({count}); 30 napon belül ott visszaállíthatja őket.",
     imported: "Importálva: {items}. {notes}",
-    filesRestored: "Visszaállított mellékletek: {attachments}. Matricák: {stickers}. Táblahátterek: {backgrounds}.",
+    filesRestored: "Visszaállított mellékletek: {attachments}. Táblahátterek: {backgrounds}.",
     importIntro:
       "Ha egy táblát az összes fájljával együtt szeretne áthozni, telepítse a Kanbonk Trello Import bővítményt: nyissa meg a chrome://extensions vagy az edge://extensions oldalt, kapcsolja be a Fejlesztői módot, válassza a Kicsomagolt bővítmény betöltése lehetőséget, és jelölje ki a projekt trello-import-extension mappáját. Ezután nyissa meg a táblát a Trellóban, és a Kanbonk panelen nyomja meg ezt: {exportBoard}. A tábla kb. 100 MB-os ZIP-részekben érkezik.",
     exportBoard: "Tábla exportálása",
@@ -850,8 +835,6 @@ export default {
     backupFailed: "A biztonsági mentés sikertelen: {error}",
     backupPostponeFailed: "Nem sikerült elhalasztani a biztonsági mentést: {error}",
     fileSaveFailed: "Nem sikerült menteni: {name}: {error}",
-    stickerType: "Válasszon PNG, JPEG, WebP, GIF vagy AVIF képet a matricához.",
-    stickerSaveFailed: "Nem sikerült menteni a matricát: {error}",
     fileUnavailable: "A(z) „{name}” fájl nem érhető el ezen az eszközön.",
     fileOpenFailed: "Nem sikerült megnyitni a(z) „{name}” fájlt: {error}",
     newDeviceTitle: "Egy új eszköz („{name}”) szinkronizálni szeretne",
@@ -986,7 +969,6 @@ export default {
       "A Trello CSV nem tartalmazza a megjegyzéseket és az ellenőrzőlista-elemeket; a teljes átvitelhez használjon JSON-t.",
     notTrelloJson: "A fájl nem tűnik Trello-tábla JSON-exportjának.",
     attachmentsNeedDownload: "A mellékletekhez külön letöltés vagy fájlokat tartalmazó ZIP szükséges.",
-    stickersNeedZip: "A Trello-matricák képeihez fájlokat tartalmazó ZIP szükséges.",
     workspaceNameMissing: "A munkaterület neve nem szerepel a Trello JSON-ban; importálás után átnevezheti.",
     backgroundNotTransferred:
       "A Trello-tábla háttérképe nem került át. Mentse a számítógépére, és válassza ki a „Háttér fájlból” lehetőséggel.",
@@ -995,7 +977,6 @@ export default {
     historyAndCommentsTruncated:
       "A Trello JSON-export csak az utolsó 1000 műveletet tartalmazza: az előzmények egy része és a régebbi megjegyzések hiányozhatnak.",
     attachmentNotDownloaded: "Nem sikerült letölteni a mellékletet: „{name}”.",
-    stickerNotDownloaded: "Nem sikerült letölteni a matricát: „{name}”.",
     zipBoardNotImported: "A ZIP-ben lévő tábla nem található az importált táblák között.",
     invalidManifest: "Az exportrész jegyzékfájlja érvénytelen.",
     zipUnreadable: "Nem sikerült beolvasni a ZIP-fájlt: „{name}”.",

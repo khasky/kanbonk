@@ -1,6 +1,5 @@
 import { memo } from "react";
 import { CardCover } from "../card/CardCover";
-import { CardStickers } from "../card/CardStickers";
 import { readableTextColor } from "../model/labelColors";
 import type { Card, Label, Member } from "../model";
 import { AppLink } from "../ui/AppLink";
@@ -55,7 +54,6 @@ export const CardTile = memo(function CardTile({
       onOpen={() => actions.open(item.id)}
     >
       <CardCover card={item} fill={fullCover} />
-      <CardStickers card={item} />
       {item.labelIds.some((id) => labels.get(id)?.color) && (
         <span className={fullCover ? "hidden" : "flex flex-wrap gap-1"}>
           {item.labelIds.map((id) => {

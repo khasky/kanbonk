@@ -23,7 +23,6 @@ import { CardLabelChips, LabelPicker } from "./LabelPicker";
 import { LinkEditor } from "./LinkEditor";
 import { CardMemberAvatars, MemberPicker } from "./MemberPicker";
 import { SharePanel } from "./SharePanel";
-import { StickerPicker } from "./StickerPicker";
 import { TransferPicker } from "./TransferPicker";
 import { Button } from "../ui/Button";
 import { Backdrop, useEscapeToDismiss } from "../ui/Modal";
@@ -63,7 +62,6 @@ type Panel =
   | "checklist"
   | "members"
   | "link"
-  | "stickers"
   | "cover"
   | "dependency"
   | "transfer"
@@ -76,7 +74,6 @@ const panelTitles: Record<Panel, MessageKey> = {
   checklist: "card.addChecklist",
   members: "card.members",
   link: "card.attachLink",
-  stickers: "card.stickers",
   cover: "card.cover",
   dependency: "card.addDependency",
   transfer: "card.moveOrCopyCard",
@@ -164,9 +161,6 @@ export function CardDialog({
   const actions = useCardActionsContext();
   const onChange = (change: (card: Card) => Card) => actions.updateCard(card.id, change);
   const onAttach = (files: File[]) => actions.attachFiles(card, files);
-  const onAddStickerImage = (file: File | null) => {
-    void actions.addStickerImage(card, file);
-  };
   const onDownload = actions.downloadAttachment;
   const onRunAutomation = (ruleId: string) => actions.runCardButton(card.id, ruleId);
   const onAddMember = (member: Member) => actions.addMember(card, member);
@@ -281,9 +275,6 @@ export function CardDialog({
           <button className={addRowClass} onClick={() => openAt("cover", anchor)}>
             <AddRowContent icon="image" title={t("card.cover")} note={t("card.coverNote")} />
           </button>
-          <button className={addRowClass} onClick={() => openAt("stickers", anchor)}>
-            <AddRowContent icon="smile" title={t("card.stickers")} note={t("card.stickersNote")} />
-          </button>
         </div>
       );
     if (kind === "labels")
@@ -312,8 +303,6 @@ export function CardDialog({
         />
       );
     if (kind === "link") return <LinkEditor onChange={onChange} onClose={closePanel} />;
-    if (kind === "stickers")
-      return <StickerPicker card={card} onChange={onChange} onAddStickerImage={onAddStickerImage} />;
     if (kind === "cover") return <CoverPicker card={card} onChange={onChange} />;
     if (kind === "dependency")
       return <DependencyPicker card={card} state={state} onAddDependency={onAddDependency} onClose={closePanel} />;

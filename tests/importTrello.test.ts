@@ -67,7 +67,7 @@ describe("Trello import", () => {
     expect(prepareTrelloWorkspace(reused.state, second.organization, "personal").changedWorkspaceId).toBeUndefined();
   });
 
-  it("restores a Trello sticker from the initial or a later ZIP", async () => {
+  it("leaves Trello stickers out: nothing is downloaded or saved for them", async () => {
     const source = {
       ...fixture,
       cards: [
@@ -82,66 +82,15 @@ describe("Trello import", () => {
       [new Uint8Array(zipSync({ "stickers/trello-sticker/image.png": strToU8("sticker bytes") }))],
       "stickers.zip",
     );
-    const initial = parseTrelloBoard(source, "workspace-1");
-    expect(initial.cards[0].stickers?.[0]).toMatchObject({
-      name: "check",
-      sourceTrelloId: "trello-sticker",
-      status: "missing",
-    });
-    expect(await restoreTrelloAttachments(initial, archive)).toEqual([]);
-    expect(initial.cards[0].stickers?.[0]).toMatchObject({ status: "local" });
-    expect(await vi.mocked(saveAttachment).mock.calls[0][1].text()).toBe("sticker bytes");
-
-    const later = parseTrelloBoard(source, "workspace-1");
-    const files = new Map<string, Blob>();
-    vi.mocked(saveAttachment).mockImplementation(async (id, blob) => {
-      files.set(id, blob);
-    });
-    vi.mocked(loadAttachment).mockImplementation(async (id) => files.get(id));
-    const restored = await restoreExistingAttachments(addImportedBoard(emptyState(), later), archive);
-    expect(restored.restoredStickers).toBe(1);
-    expect(restored.changedCards).toEqual([later.cards[0].id]);
-    expect(restored.state.cards[0].stickers?.[0]).toMatchObject({ status: "local" });
-    const sticker = later.cards[0].stickers?.[0];
-    if (!sticker || typeof sticker === "string") throw new Error("Sticker was not created");
-    expect(await files.get(sticker.imageId)?.text()).toBe("sticker bytes");
-    expect((await restoreExistingAttachments(restored.state, archive)).restoredStickers).toBe(0);
-  });
-
-  it("downloads a Trello sticker image directly when its URL is available", async () => {
-    const url = "https://d2k1ftgv7pobq7.cloudfront.net/images/stickers/check.png";
-    const source = {
-      ...fixture,
-      cards: [
-        { ...fixture.cards[0], attachments: [], stickers: [{ id: "trello-sticker", image: "check", imageUrl: url }] },
-      ],
-    };
-    const request = vi.fn(async () => new Response(new Blob(["sticker bytes"], { type: "image/png" })));
-    vi.stubGlobal("fetch", request);
-    const result = parseTrelloBoard(source, "workspace-1");
-    expect(await restoreTrelloAttachments(result)).toEqual([]);
-    expect(request).toHaveBeenCalledExactlyOnceWith(url, { credentials: "omit" });
-    expect(result.cards[0].stickers?.[0]).toMatchObject({ status: "local" });
-    expect(await vi.mocked(saveAttachment).mock.calls[0][1].text()).toBe("sticker bytes");
-  });
-
-  it("does not fetch a sticker from an unrelated host", async () => {
-    const source = {
-      ...fixture,
-      cards: [
-        {
-          ...fixture.cards[0],
-          attachments: [],
-          stickers: [{ id: "trello-sticker", image: "check", imageUrl: "https://example.com/check.png" }],
-        },
-      ],
-    };
     const request = vi.fn();
     vi.stubGlobal("fetch", request);
     const result = parseTrelloBoard(source, "workspace-1");
-    expect(await restoreTrelloAttachments(result)).toEqual(["Could not download sticker “check”."]);
+    expect("stickers" in result.cards[0]).toBe(false);
+    expect(await restoreTrelloAttachments(result, archive)).toEqual([]);
     expect(request).not.toHaveBeenCalled();
-    expect(result.cards[0].stickers?.[0]).toMatchObject({ status: "missing" });
+    expect(saveAttachment).not.toHaveBeenCalled();
+    const restored = await restoreExistingAttachments(addImportedBoard(emptyState(), result), archive);
+    expect(restored.changedCards).toEqual([]);
   });
 
   it("restores subtle, bold and colorless Trello labels", () => {

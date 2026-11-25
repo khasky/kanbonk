@@ -63,5 +63,5 @@ it("recognizes a message whatever its parameters", () => {
   expect(isMessage(t("trello.attachmentNotDownloaded", { name: "a (1).png" }), "trello.attachmentNotDownloaded")).toBe(
     true,
   );
-  expect(isMessage(t("trello.stickerNotDownloaded", { name: "x" }), "trello.attachmentNotDownloaded")).toBe(false);
+  expect(isMessage(t("trello.zipUnreadable", { name: "x" }), "trello.attachmentNotDownloaded")).toBe(false);
 });

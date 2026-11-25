@@ -4,7 +4,7 @@ import { xchacha20poly1305 } from "@noble/ciphers/chacha.js";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { migrateLegacyState, migrateLegacyStorage } from "../src/model/legacy";
 import { ensureInbox, inboxBoardId, inboxListId, inboxWorkspaceId } from "../src/model/inbox";
-import { emptyState, recordRevision, type AppState } from "../src/model";
+import { emptyState, mediaReferences, recordRevision, type AppState } from "../src/model";
 import { mergeStates } from "../src/sync/sync";
 import { openSyncBundle } from "../src/sync/devices";
 import { createBackupParts, restoreBackup } from "../src/backup/backup";
@@ -255,6 +255,18 @@ describe("archive removal", () => {
     expect(migrated.revisions).toEqual([]);
     const clean = migrateLegacyState(emptyState());
     expect(migrateLegacyState(clean)).toBe(clean);
+  });
+
+  it("drops the stickers of cards saved before stickers were removed, and their images from the media", () => {
+    const card = {
+      ...legacyState().cards[0],
+      id: "sticky",
+      stickers: ["⭐", { imageId: "sticker-1", name: "icon.png" }],
+    };
+    const migrated = migrateLegacyState({ ...emptyState(), cards: [card] } as unknown as AppState);
+    expect("stickers" in migrated.cards[0]).toBe(false);
+    expect(migrated.cards[0].name).toBe("Note");
+    expect(mediaReferences(migrated).fileIds).toEqual([]);
   });
 
   it("migrates archived items arriving from a device or backup on an earlier version", () => {

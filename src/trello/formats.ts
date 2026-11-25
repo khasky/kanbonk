@@ -376,7 +376,6 @@ export function parseTrelloCsv(text: string, workspaceId: string, fallbackName =
     labels,
     activity: [],
     attachments: [],
-    stickers: [],
     warnings: [t("trello.csvIncomplete")],
   };
 }

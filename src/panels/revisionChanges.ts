@@ -11,6 +11,8 @@ const ignored = new Set([
   "automationRunKeys",
   "sourceTrelloId",
   "sourceTrelloShortLink",
+  // Stickers were removed; old versions may still hold them (model/legacy.ts drops them from cards).
+  "stickers",
 ]);
 
 // The part of the item each field belongs to, in the order the parts are listed. Lists show how many were added or
@@ -27,7 +29,6 @@ const parts: Array<{ fields: string[]; key: MessageKey; counted?: boolean }> = [
   { fields: ["checklists"], key: "card.checklist" },
   { fields: ["comments"], key: "board.comments", counted: true },
   { fields: ["attachments"], key: "card.attachments", counted: true },
-  { fields: ["stickers"], key: "card.stickers", counted: true },
   { fields: ["cover"], key: "card.cover" },
   { fields: ["color"], key: "panels.historyColor" },
   { fields: ["background", "backgroundImageId"], key: "panels.historyBackground" },

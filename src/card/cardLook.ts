@@ -13,7 +13,7 @@ export const detailTitleClass = "mt-0 mb-3 flex min-h-8 items-center gap-3 text-
 export const placeholderClass =
   "min-h-14! w-full cursor-text rounded-sm border-0 bg-surface-sunken p-2.5 text-left text-ink-subtle hover:bg-line";
 
-/** The content of a popover opened by a card button (move, share, checklist, link, dependency, cover, stickers). */
+/** The content of a popover opened by a card button (move, share, checklist, link, dependency, cover). */
 export const pickerBoxClass = "flex flex-col gap-3";
 
 /** A labelled field in a popover: a small bold label above a full-width field. */

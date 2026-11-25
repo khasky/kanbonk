@@ -448,8 +448,6 @@ export default {
     addDependency: "依存関係を追加",
     cover: "カバー",
     coverNote: "タイルの色または画像",
-    stickers: "ステッカー",
-    stickersNote: "タイルの絵文字と画像",
     moveOrCopyCard: "カードを移動またはコピー",
     shareCard: "カードを共有",
     cardList: "カードのリスト",
@@ -571,18 +569,6 @@ export default {
     sizeNormal: "標準",
     sizeFull: "カード全体",
     removeCover: "カバーを削除",
-    stickersLabel: "ステッカー: {stickers}",
-    stickerFileMissing: "ステッカーのファイルがありません",
-    cardStickers: "カードのステッカー",
-    stickerStar: "スター",
-    stickerDone: "完了",
-    stickerParty: "パーティー",
-    stickerRocket: "ロケット",
-    stickerFire: "炎",
-    stickerIdea: "アイデア",
-    addSticker: "ステッカー {name} を追加",
-    customImage: "カスタム画像",
-    removeSticker: "ステッカー {number} を削除",
 
     searchLabelsPlaceholder: "ラベルを検索…",
     searchLabels: "ラベルを検索",
@@ -719,7 +705,6 @@ export default {
     importFailed: "インポートに失敗しました: {error}",
     lists: { other: "{count} 個のリスト" },
     attachments: { other: "{count} 個の添付ファイル" },
-    stickers: { other: "{count} 個のステッカー" },
     importedCsv: "CSV からインポートしました: {lists}、{cards}。{warnings}",
     chooseOneBoard: "ボードの JSON または CSV を 1 つ選択してください。",
     noBoardJson:
@@ -727,13 +712,13 @@ export default {
     differentBoards: "JSON と ZIP ファイルが異なる Trello ボードのものです。",
     importExtensionHint:
       "Kanbonk Trello Import 拡張機能でボードをエクスポートし、その ZIP ファイルを選択してください。",
-    attachmentsNotFetched: "取得されなかった添付ファイル: {attachments}。ステッカー: {stickers}。{warnings}",
+    attachmentsNotFetched: "取得されなかった添付ファイル: {attachments}。{warnings}",
     boardClosedInTrello:
       "このボードは Trello でクローズされているため、ゴミ箱にあります。30 日以内にそこから復元してください。",
     closedInTrello:
       "Trello でクローズされたリストとカードはゴミ箱にあります（{count}）。30 日以内にそこから復元してください。",
     imported: "インポートしました: {items}。{notes}",
-    filesRestored: "復元した添付ファイル: {attachments}。ステッカー: {stickers}。ボードの背景: {backgrounds}。",
+    filesRestored: "復元した添付ファイル: {attachments}。ボードの背景: {backgrounds}。",
     importIntro:
       "すべてのファイルを含めてボードを移すには、Kanbonk Trello Import 拡張機能をインストールします。chrome://extensions または edge://extensions を開き、デベロッパー モードをオンにして「パッケージ化されていない拡張機能を読み込む」を選び、プロジェクトの trello-import-extension フォルダーを選択します。次に Trello でボードを開き、Kanbonk パネルの {exportBoard} を押します。ボードは約 100 MB ごとの ZIP パートとして届きます。",
     exportBoard: "ボードをエクスポート",
@@ -822,8 +807,6 @@ export default {
     backupFailed: "バックアップに失敗しました: {error}",
     backupPostponeFailed: "バックアップを延期できませんでした: {error}",
     fileSaveFailed: "{name} を保存できませんでした: {error}",
-    stickerType: "ステッカーには PNG、JPEG、WebP、GIF、AVIF 画像を選択してください。",
-    stickerSaveFailed: "ステッカーを保存できませんでした: {error}",
     fileUnavailable: "ファイル「{name}」はこのデバイスで利用できません。",
     fileOpenFailed: "ファイル「{name}」を開けませんでした: {error}",
     newDeviceTitle: "新しいデバイス「{name}」が同期を求めています",
@@ -955,7 +938,6 @@ export default {
       "Trello の CSV にはコメントやチェックリストの項目が含まれません。完全に移行するには JSON を使用してください。",
     notTrelloJson: "このファイルは Trello ボードの JSON エクスポートではないようです。",
     attachmentsNeedDownload: "添付ファイルは別途ダウンロードするか、ファイルを含む ZIP が必要です。",
-    stickersNeedZip: "Trello のステッカー画像には、ファイルを含む ZIP が必要です。",
     workspaceNameMissing: "Trello の JSON にはワークスペース名が含まれていません。インポート後に名前を変更できます。",
     backgroundNotTransferred:
       "Trello ボードの背景画像は移行されませんでした。コンピューターに保存し、「ファイルから背景を設定」で選択してください。",
@@ -964,7 +946,6 @@ export default {
     historyAndCommentsTruncated:
       "Trello の JSON エクスポートには直近 1000 件のアクションしか含まれません。履歴の一部と古いコメントが欠けている可能性があります。",
     attachmentNotDownloaded: "添付ファイル「{name}」をダウンロードできませんでした。",
-    stickerNotDownloaded: "ステッカー「{name}」をダウンロードできませんでした。",
     zipBoardNotImported: "ZIP のボードがインポートされたボードの中に見つかりませんでした。",
     invalidManifest: "エクスポートのパートのマニフェストが無効です。",
     zipUnreadable: "ZIP「{name}」を読み込めませんでした。",

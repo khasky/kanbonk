@@ -63,7 +63,7 @@ describe("LAN version merge", () => {
   it("takes a causally newer remote version", () => {
     const initial = recordRevision({ ...emptyState(), cards: [original] }, "card", original.id, "device-1");
     const remote = recordRevision(
-      { ...initial, cards: [{ ...original, name: "New", stickers: ["⭐"] }] },
+      { ...initial, cards: [{ ...original, name: "New", description: "Changed" }] },
       "card",
       original.id,
       "device-2",
@@ -71,7 +71,7 @@ describe("LAN version merge", () => {
     const merged = mergeStates(initial, remote);
     expect(merged.conflicts).toHaveLength(0);
     expect(merged.state.cards[0].name).toBe("New");
-    expect(merged.state.cards[0].stickers).toEqual(["⭐"]);
+    expect(merged.state.cards[0].description).toBe("Changed");
     expect(merged.state.activity).toHaveLength(2);
   });
 

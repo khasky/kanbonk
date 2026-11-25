@@ -463,8 +463,6 @@ export default {
     addDependency: "Lisää riippuvuus",
     cover: "Kansikuva",
     coverNote: "Väri tai kuva kortin pinnalla",
-    stickers: "Tarrat",
-    stickersNote: "Emojit ja kuvat kortin pinnalla",
     moveOrCopyCard: "Siirrä tai kopioi kortti",
     shareCard: "Jaa kortti",
     cardList: "Kortin lista",
@@ -583,7 +581,7 @@ export default {
     addItem: "Lisää kohde",
     newChecklistItems: "Uudet tarkistuslistan kohteet",
 
-    // Cover and stickers
+    // Cover
     coverColor: "Kansikuva: {color}",
     customColor: "Mukautettu väri",
     customCoverColor: "Mukautettu kansikuvan väri",
@@ -592,18 +590,6 @@ export default {
     sizeNormal: "Normaali",
     sizeFull: "Koko kortti",
     removeCover: "Poista kansikuva",
-    stickersLabel: "Tarrat: {stickers}",
-    stickerFileMissing: "Tarran tiedosto puuttuu",
-    cardStickers: "Kortin tarrat",
-    stickerStar: "Tähti",
-    stickerDone: "Valmis",
-    stickerParty: "Juhlat",
-    stickerRocket: "Raketti",
-    stickerFire: "Tuli",
-    stickerIdea: "Idea",
-    addSticker: "Lisää tarra: {name}",
-    customImage: "Mukautettu kuva",
-    removeSticker: "Poista tarra {number}",
 
     // Labels and members
     searchLabelsPlaceholder: "Hae tunnisteita…",
@@ -750,19 +736,18 @@ export default {
     importFailed: "Tuonti epäonnistui: {error}",
     lists: { one: "{count} lista", other: "{count} listaa" },
     attachments: { one: "{count} liite", other: "{count} liitettä" },
-    stickers: { one: "{count} tarra", other: "{count} tarraa" },
     importedCsv: "Tuotu CSV:stä: {lists}, {cards}. {warnings}",
     chooseOneBoard: "Valitse yksi taulun JSON- tai CSV-tiedosto.",
     noBoardJson:
       "Valituissa ZIP-tiedostoissa ei ole taulun JSON-tiedostoa. Valitse viennin kaikki osat tai lisää taulun JSON-tiedosto.",
     differentBoards: "JSON- ja ZIP-tiedostot kuuluvat eri Trello-tauluihin.",
     importExtensionHint: "Vie taulu Kanbonk Trello Import -laajennuksella ja valitse sen ZIP-tiedostot.",
-    attachmentsNotFetched: "Hakemattomia liitteitä: {attachments}. Tarroja: {stickers}. {warnings}",
+    attachmentsNotFetched: "Hakemattomia liitteitä: {attachments}. {warnings}",
     boardClosedInTrello: "Taulu on suljettu Trellossa, joten se on roskakorissa; palauta se sieltä 30 päivän kuluessa.",
     closedInTrello:
       "Trellossa suljetut listat ja kortit ovat roskakorissa ({count}); palauta ne sieltä 30 päivän kuluessa.",
     imported: "Tuotu: {items}. {notes}",
-    filesRestored: "Palautettuja liitteitä: {attachments}. Tarroja: {stickers}. Taulujen taustoja: {backgrounds}.",
+    filesRestored: "Palautettuja liitteitä: {attachments}. Taulujen taustoja: {backgrounds}.",
     importIntro:
       "Jos haluat siirtää taulun kaikkine tiedostoineen, asenna Kanbonk Trello Import -laajennus: avaa chrome://extensions tai edge://extensions, ota Kehittäjätila käyttöön, valitse Lataa pakkaamaton ja valitse projektin trello-import-extension-kansio. Avaa sitten taulu Trellossa ja paina Kanbonk-paneelissa {exportBoard}. Taulu saapuu noin 100 Mt:n ZIP-osina.",
     exportBoard: "Vie taulu",
@@ -851,8 +836,6 @@ export default {
     backupFailed: "Varmuuskopiointi epäonnistui: {error}",
     backupPostponeFailed: "Varmuuskopiointia ei voitu lykätä: {error}",
     fileSaveFailed: "Tallennus epäonnistui: {name}: {error}",
-    stickerType: "Valitse tarraksi PNG-, JPEG-, WebP-, GIF- tai AVIF-kuva.",
-    stickerSaveFailed: "Tarraa ei voitu tallentaa: {error}",
     fileUnavailable: "Tiedosto ”{name}” ei ole käytettävissä tällä laitteella.",
     fileOpenFailed: "Tiedostoa ”{name}” ei voitu avata: {error}",
     newDeviceTitle: "Uusi laite ”{name}” haluaa synkronoida",
@@ -987,7 +970,6 @@ export default {
       "Trellon CSV ei sisällä kommentteja eikä tarkistuslistan kohteita; käytä JSONia täydelliseen siirtoon.",
     notTrelloJson: "Tiedosto ei näytä Trello-taulun JSON-vienniltä.",
     attachmentsNeedDownload: "Liitteet vaativat erillisen latauksen tai tiedostot sisältävän ZIPin.",
-    stickersNeedZip: "Trellon tarrakuvat vaativat tiedostot sisältävän ZIPin.",
     workspaceNameMissing: "Työtilan nimi ei sisälly Trellon JSONiin; voit nimetä sen uudelleen tuonnin jälkeen.",
     backgroundNotTransferred:
       "Trello-taulun taustakuvaa ei siirretty. Tallenna se tietokoneellesi ja valitse se kohdasta ”Tausta tiedostosta”.",
@@ -995,7 +977,6 @@ export default {
     historyAndCommentsTruncated:
       "Trellon JSON-vienti sisältää vain viimeiset 1000 toimintoa: osa historiasta ja vanhemmista kommenteista voi puuttua.",
     attachmentNotDownloaded: "Liitettä ”{name}” ei voitu ladata.",
-    stickerNotDownloaded: "Tarraa ”{name}” ei voitu ladata.",
     zipBoardNotImported: "ZIP-tiedoston taulua ei löytynyt tuotujen taulujen joukosta.",
     invalidManifest: "Vientiosan luettelotiedosto on virheellinen.",
     zipUnreadable: "ZIP-tiedostoa ”{name}” ei voitu lukea.",

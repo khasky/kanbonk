@@ -43,7 +43,7 @@ A zone groups adjacent lists of a board, for example **Development** = Todo + In
 
 A card opened from a board appears as a modal on top of it; Esc or the close button returns to the board. Opened by link, it is a page of its own.
 
-- **Layout**: the header holds the card's list (choosing another moves the card), the cover button, the **⋯** menu (Move / copy, Clone, Make template, Share, Card history, Move to trash) and the close button. Under the title, **Add**, **Labels**, **Dates**, **Checklist** and **Members** open small popovers next to the button; **Add** lists everything that can be added to the card (also attachments, links, dependencies, cover and stickers). The card's members, labels and dates show as chips under these buttons; a chip opens its popover. Esc closes a popover without closing the card.
+- **Layout**: the header holds the card's list (choosing another moves the card), the cover button, the **⋯** menu (Move / copy, Clone, Make template, Share, Card history, Move to trash) and the close button. Under the title, **Add**, **Labels**, **Dates**, **Checklist** and **Members** open small popovers next to the button; **Add** lists everything that can be added to the card (also attachments, links, dependencies and cover). The card's members, labels and dates show as chips under these buttons; a chip opens its popover. Esc closes a popover without closing the card.
 
 - **Title**: a text field.
 - **Card color**: the cover picker has presets and a color picker; **Color the whole card** paints the whole tile, and the text switches between dark and light for contrast.
@@ -55,7 +55,7 @@ A card opened from a board appears as a modal on top of it; Esc or the close but
 - **Sub-cards**: **Sub-cards** creates a child card right below the parent. A card can have one parent, chosen with **Choose parent card**; tiles show `↳ parent`. Deleting a parent moves its sub-cards to the trash with it.
 - **Clone** copies the card right below the original as `<name> - Clone`.
 - **Share**: print the card, save it as PNG or JSON, copy its link (`/c/<id>`) or show a QR code of the link.
-- Checklists, attachments, links, stickers. **Convert to card** in a checklist item's menu asks for confirmation, then creates a card below this one and removes the item.
+- Checklists, attachments, links. **Convert to card** in a checklist item's menu asks for confirmation, then creates a card below this one and removes the item.
 - **Preview** opens a stored attachment in a dialog: images, PDF (in the browser's PDF viewer; not in the Android app), Markdown rendered as formatted text, plain text and code files (txt, json, csv, yaml, source code and similar, first 1 MB), video and audio. The type is taken from the file's MIME type or, for untyped files, its extension.
 - **Dependencies**: **Dependency** links the card to a card it depends on, on any board (as an item of the card's **Dependencies** checklist). The card shows **Depends on** and **Blocks**. See [trash-and-dependencies.md](trash-and-dependencies.md).
 - **History**: every change is a revision; any earlier version can be restored.
@@ -85,7 +85,7 @@ The search box in the top bar searches all workspaces: workspace and board names
 | `label:` | with that label |
 | `member:` or `@name` | assigned to that member |
 | `name:`, `description:`, `checklist:`, `comment:` | with the text in that field |
-| `has:attachments`, `has:description`, `has:cover`, `has:members`, `has:stickers` | that have it |
+| `has:attachments`, `has:description`, `has:cover`, `has:members` | that have it |
 | `due:overdue`, `due:day`, `due:week`, `due:month` | due in that range |
 | `is:open`, `is:starred` | not in the trash, or on a starred board |
 

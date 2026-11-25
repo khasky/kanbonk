@@ -46,11 +46,11 @@ export function migrateLegacyState<T extends AppState>(state: T): T {
 
 /**
  * Earlier versions could mark a card complete, by hand or with an automation rule, and repeat its due date on
- * completion. Completion is gone: the card fields and the rules are dropped. As with archiving, no revision is
- * recorded.
+ * completion, and could put stickers on a card. Both are gone: the card fields and the rules are dropped (sticker
+ * images are no longer referenced, so backups and sync leave them out). As with archiving, no revision is recorded.
  */
 export function migrateCompleted<T extends AppState>(state: T): T {
-  const legacyCard = (card: object) => "completed" in card || "dueRepeat" in card;
+  const legacyCard = (card: object) => "completed" in card || "dueRepeat" in card || "stickers" in card;
   const legacyRule = (rule: { action: string }) => rule.action === "complete";
   const cards = state.cards.some(legacyCard);
   const rules = state.boards.some((board) => board.automationRules?.some(legacyRule));
@@ -60,7 +60,11 @@ export function migrateCompleted<T extends AppState>(state: T): T {
     cards: cards
       ? state.cards.map((card) => {
           if (!legacyCard(card)) return card;
-          const { completed, dueRepeat, ...rest } = card as typeof card & { completed?: boolean; dueRepeat?: unknown };
+          const { completed, dueRepeat, stickers, ...rest } = card as typeof card & {
+            completed?: boolean;
+            dueRepeat?: unknown;
+            stickers?: unknown;
+          };
           return rest;
         })
       : state.cards,

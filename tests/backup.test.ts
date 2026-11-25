@@ -38,7 +38,6 @@ function example(): AppState {
         dueAt: "2026-12-01T09:00:00.000Z",
         checklists: [],
         comments: [],
-        stickers: ["⭐"],
         attachments: [{ id: "attachment-1", name: "note.txt", mimeType: "text/plain", size: 5, status: "local" }],
       },
     ],
@@ -108,48 +107,6 @@ describe("Kanbonk backup", () => {
     expect(applyDueRules(restored.state, Date.parse("2026-12-01T09:00:02.000Z"), "device-2")).toBe(restored.state);
   });
 
-  it("includes a custom sticker image in the backup", async () => {
-    const state = example();
-    state.cards[0].stickers = ["⭐", { imageId: "sticker-1", name: "custom.png" }];
-    const source = new Map<string, Blob>([
-      ["background-1", new Blob(["background"], { type: "image/png" })],
-      ["attachment-1", new Blob(["hello"], { type: "text/plain" })],
-      ["sticker-1", new Blob(["sticker"], { type: "image/png" })],
-    ]);
-    const parts = await partsFor(state, source);
-    const target = new Map<string, Blob>();
-    const restored = await restoreBackup(
-      parts,
-      emptyState(),
-      async (id) => target.get(id),
-      async (id, blob) => {
-        target.set(id, blob);
-      },
-    );
-    expect(restored.state.cards[0].stickers).toEqual(state.cards[0].stickers);
-    expect(await target.get("sticker-1")?.text()).toBe("sticker");
-  });
-
-  it("backs up a Trello card even when its sticker image is missing", async () => {
-    const state = example();
-    state.cards[0].stickers = [
-      { imageId: "sticker-1", name: "check", sourceTrelloId: "trello-sticker", status: "missing" },
-    ];
-    const source = new Map<string, Blob>([
-      ["background-1", new Blob(["background"], { type: "image/png" })],
-      ["attachment-1", new Blob(["hello"], { type: "text/plain" })],
-    ]);
-    const parts = await partsFor(state, source);
-    const restored = await restoreBackup(
-      parts,
-      emptyState(),
-      async () => undefined,
-      async () => {},
-    );
-    expect(restored.unavailable).toBe(1);
-    expect(restored.state.cards[0].stickers).toEqual(state.cards[0].stickers);
-  });
-
   it("keeps label deletion in a backup", async () => {
     const label = { id: "label-1", boardId: "board-1", name: "Label", color: "#f00" };
     const state = recordRevision({ ...emptyState(), labels: [label] }, "label", label.id, "device-1");
@@ -185,7 +142,6 @@ describe("Kanbonk backup", () => {
     expect(restored.state.workspaces.map((item) => item.id)).toEqual(["existing", "workspace-1"]);
     expect(restored.state.workspaces[1].sourceTrelloId).toBe("trello-workspace");
     expect(restored.state.cards[0].attachments[0].status).toBe("local");
-    expect(restored.state.cards[0].stickers).toEqual(["⭐"]);
     expect(restored.state.boards[0].backgroundImageId).toBe("background-1");
     expect(restored.state.boards[0].automationRules).toEqual(example().boards[0].automationRules);
     expect(restored.conflicts).toHaveLength(0);

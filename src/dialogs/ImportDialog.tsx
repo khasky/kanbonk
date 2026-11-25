@@ -122,10 +122,8 @@ export function ImportDialog({
     if (!result.board.deletedAt) onBoardImported(result.board.id);
 
     const missingAttachments = warnings.filter((item) => isMessage(item, "trello.attachmentNotDownloaded"));
-    const missingStickers = warnings.filter((item) => isMessage(item, "trello.stickerNotDownloaded"));
     const notFetched = t("dialogs.attachmentsNotFetched", {
       attachments: missingAttachments.length,
-      stickers: missingStickers.length,
       warnings: warnings.slice(0, 3).join(" "),
     });
     const unavailable = warnings.length
@@ -135,9 +133,7 @@ export function ImportDialog({
       : "";
     const closed = [...result.lists, ...result.cards].filter((item) => item.deletedAt).length;
     const notes = [
-      ...result.warnings.filter(
-        (item) => item !== t("trello.attachmentsNeedDownload") && item !== t("trello.stickersNeedZip"),
-      ),
+      ...result.warnings.filter((item) => item !== t("trello.attachmentsNeedDownload")),
       unavailable,
       result.board.deletedAt
         ? t("dialogs.boardClosedInTrello")
@@ -149,7 +145,6 @@ export function ImportDialog({
       t("dialogs.lists", { count: result.lists.length }),
       t("common.cards", { count: result.cards.length }),
       t("dialogs.attachments", { count: result.attachments.length - missingAttachments.length }),
-      t("dialogs.stickers", { count: result.stickers.length - missingStickers.length }),
     ];
     return t("dialogs.imported", { items: imported.join(", "), notes: notes.filter(Boolean).join(" ") });
   }
@@ -166,10 +161,9 @@ export function ImportDialog({
         deviceId,
       ),
     );
-    if (restored.restoredBackgrounds || restored.restoredStickers) onFilesRestored();
+    if (restored.restoredBackgrounds) onFilesRestored();
     return t("dialogs.filesRestored", {
       attachments: restored.restored,
-      stickers: restored.restoredStickers,
       backgrounds: restored.restoredBackgrounds,
     });
   }

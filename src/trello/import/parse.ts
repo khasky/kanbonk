@@ -33,7 +33,6 @@ export interface ImportResult {
     name: string;
     mimeType: string;
   }>;
-  stickers: Array<{ id: string; trelloId: string; sourceUrl: string; name: string }>;
   warnings: string[];
 }
 
@@ -145,7 +144,6 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
     if (action.type === "createCard" && Number.isFinite(Date.parse(string(action.date))))
       createdByCard.set(string(object(object(action.data).card).id), string(action.date));
   const attachments: ImportResult["attachments"] = [];
-  const stickers: ImportResult["stickers"] = [];
   const cards: Card[] = array(source.cards).map((entry, index) => {
     const trelloId = string(entry.id);
     const id = newId();
@@ -184,14 +182,6 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
             size: string(sourceCover.size) === "full" ? ("full" as const) : ("normal" as const),
           }
         : undefined;
-    const cardStickers = array(entry.stickers).map((sticker) => {
-      const imageId = newId();
-      const trelloStickerId = string(sticker.id);
-      const name = string(sticker.image) || "Trello sticker";
-      if (trelloStickerId)
-        stickers.push({ id: imageId, trelloId: trelloStickerId, sourceUrl: string(sticker.imageUrl), name });
-      return { imageId, name, sourceTrelloId: trelloStickerId || undefined, status: "missing" as const };
-    });
     return {
       id,
       boardId,
@@ -221,7 +211,6 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
       checklists: checklistsByCard.get(trelloId) || [],
       comments: (commentsByCard.get(trelloId) || []).sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
       attachments: cardAttachments,
-      stickers: cardStickers,
       cover,
       ...closedInTrello(entry.closed, id),
       sourceTrelloId: trelloId,
@@ -262,12 +251,11 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
   }
   const warnings: string[] = [];
   if (attachments.length) warnings.push(t("trello.attachmentsNeedDownload"));
-  if (stickers.length) warnings.push(t("trello.stickersNeedZip"));
   if (organization && !organization.name) warnings.push(t("trello.workspaceNameMissing"));
   if (string(prefs.backgroundImage)) warnings.push(t("trello.backgroundNotTransferred"));
   if (array(source.actions).length >= 1000)
     warnings.push(t(completeComments ? "trello.historyTruncated" : "trello.historyAndCommentsTruncated"));
-  return { organization, board, lists, cards, labels, activity, attachments, stickers, warnings };
+  return { organization, board, lists, cards, labels, activity, attachments, warnings };
 }
 
 export function prepareTrelloWorkspace(

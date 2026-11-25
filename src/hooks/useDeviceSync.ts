@@ -51,7 +51,7 @@ export function useDeviceSync({
   setState: Dispatch<SetStateAction<AppState>>;
   deviceId: string;
   authorName: string;
-  /** Called when received files may change what is on screen (board backgrounds, stickers). */
+  /** Called when received files may change what is on screen (board backgrounds). */
   onFilesChanged: () => void;
   onError: (message: string) => void;
 }) {

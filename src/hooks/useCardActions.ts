@@ -308,24 +308,6 @@ export function useCardActions({
     }
   }
 
-  async function addStickerImage(target: Card, file: File | null) {
-    if (!file) return;
-    if (!["image/png", "image/jpeg", "image/webp", "image/gif", "image/avif"].includes(file.type)) {
-      onError(t("hooks.stickerType"));
-      return;
-    }
-    const id = newId();
-    try {
-      await saveAttachment(id, file);
-      updateCard(target.id, (current) => ({
-        ...current,
-        stickers: [...(current.stickers ?? []), { imageId: id, name: file.name }],
-      }));
-    } catch (cause) {
-      onError(t("hooks.stickerSaveFailed", { error: String(cause) }));
-    }
-  }
-
   async function downloadAttachment(id: string, name: string) {
     try {
       const blob = await loadAttachment(id);
@@ -357,7 +339,6 @@ export function useCardActions({
     editLabel,
     removeLabel,
     attachFiles,
-    addStickerImage,
     downloadAttachment,
   };
 }

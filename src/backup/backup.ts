@@ -115,17 +115,6 @@ export function validState(state: Record<string, unknown>): boolean {
         card.labelIds.every((id) => typeof id === "string") &&
         (card.memberIds === undefined ||
           (Array.isArray(card.memberIds) && card.memberIds.every((id) => typeof id === "string"))) &&
-        (card.stickers === undefined ||
-          (Array.isArray(card.stickers) &&
-            card.stickers.every(
-              (sticker) =>
-                (typeof sticker === "string" && sticker.length <= 8) ||
-                (isRecord(sticker) &&
-                  typeof sticker.imageId === "string" &&
-                  sticker.imageId.length > 0 &&
-                  typeof sticker.name === "string" &&
-                  (sticker.status === undefined || sticker.status === "local" || sticker.status === "missing")),
-            ))) &&
         (card.automationRunKeys === undefined ||
           (Array.isArray(card.automationRunKeys) && card.automationRunKeys.every((key) => typeof key === "string"))) &&
         Array.isArray(card.checklists) &&

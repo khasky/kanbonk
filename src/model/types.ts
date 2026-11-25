@@ -102,13 +102,6 @@ export interface Attachment {
   linkedCardId?: string;
 }
 
-export interface ImageSticker {
-  imageId: string;
-  name: string;
-  sourceTrelloId?: string;
-  status?: "local" | "missing";
-}
-
 export interface Card extends Trashable {
   id: string;
   boardId: string;
@@ -126,7 +119,6 @@ export interface Card extends Trashable {
   checklists: Checklist[];
   comments: Comment[];
   attachments: Attachment[];
-  stickers?: Array<string | ImageSticker>;
   cover?: { attachmentId?: string; color?: string; size: "normal" | "full" };
   sourceTrelloId?: string;
   sourceTrelloShortLink?: string;

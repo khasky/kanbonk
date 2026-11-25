@@ -44,7 +44,7 @@ it("creates 8-character URL-safe short ids without repeats, also without crypto.
   }
 });
 
-it("marks received attachments and sticker images as local", () => {
+it("marks a received attachment as local", () => {
   const card: Card = {
     id: "card",
     boardId: "board",
@@ -56,17 +56,12 @@ it("marks received attachments and sticker images as local", () => {
     checklists: [],
     comments: [],
     attachments: [{ id: "file", name: "file.png", mimeType: "image/png", size: 3, status: "missing" }],
-    stickers: [{ imageId: "sticker", name: "check", status: "missing" }],
   };
   const original = { ...emptyState(), cards: [card] };
   expect(markMediaLocal(original, "unknown")).toBe(original);
   const withAttachment = markMediaLocal(original, "file");
   expect(withAttachment.cards[0].attachments[0].status).toBe("local");
-  expect(withAttachment.cards[0].stickers?.[0]).toMatchObject({ status: "missing" });
-  const withSticker = markMediaLocal(withAttachment, "sticker");
-  expect(withSticker.cards[0].stickers?.[0]).toMatchObject({ status: "local" });
-  expect(withSticker.cards[0].attachments[0].status).toBe("local");
-  expect(markMediaLocal(withSticker, "sticker").cards[0]).not.toBe(withSticker.cards[0]);
+  expect(markMediaLocal(withAttachment, "file").cards[0]).not.toBe(withAttachment.cards[0]);
 });
 
 describe("entity versions", () => {

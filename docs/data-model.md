@@ -24,7 +24,7 @@ interface AppState {
 | `Workspace` | `name` | — |
 | `Board` | `name`, `description`, `background`, `starred`, `members`, `automationRules`, `zones`, `doc` (Markdown project document) | workspace (`workspaceId`) |
 | `BoardList` | `name`, `position`, `zoneId` | board (`boardId`) |
-| `Card` | `name`, `description` (Markdown), `position`, `createdAt`, `startAt`, `dueAt`, `labelIds`, `memberIds`, `checklists`, `comments`, `attachments`, `cover`, `stickers`, `isTemplate`, `parentCardId` (sub-card of another card) | list (`listId`) and board (`boardId`) |
+| `Card` | `name`, `description` (Markdown), `position`, `createdAt`, `startAt`, `dueAt`, `labelIds`, `memberIds`, `checklists`, `comments`, `attachments`, `cover`, `isTemplate`, `parentCardId` (sub-card of another card) | list (`listId`) and board (`boardId`) |
 | `Label` | `name`, `color` | board |
 | `Zone` | `name`, `color` (stored inside `Board.zones`) | board |
 
@@ -50,7 +50,7 @@ A dependency is a pair of links:
 
 ### Attachments and media
 
-Attachment metadata lives on the card; file bytes live in the `attachments` IndexedDB store under the attachment ID. `status` is `local` (bytes present), `missing` (expected but not downloaded yet, e.g. after a Trello import) or `link` (a URL or a card link). Board backgrounds and image stickers use the same store. `mediaReferences(state)` lists every file ID the state needs, including files referenced only by old revisions.
+Attachment metadata lives on the card; file bytes live in the `attachments` IndexedDB store under the attachment ID. `status` is `local` (bytes present), `missing` (expected but not downloaded yet, e.g. after a Trello import) or `link` (a URL or a card link). Board backgrounds use the same store. `mediaReferences(state)` lists every file ID the state needs, including files referenced only by old revisions.
 
 ## IDs
 
@@ -77,7 +77,7 @@ The project was previously called Listva, and data written under that name is mi
 | Where | What |
 |---|---|
 | IndexedDB `kanbonk`, store `app` | The `AppState` |
-| store `attachments` | File bytes by attachment/background/sticker ID |
+| store `attachments` | File bytes by attachment/background ID |
 | store `backups` | Automatic snapshots (JSON) and their metadata |
 | store `settings` | Automatic backup settings, backup folder, time of the last backup, IDs of backup downloads (extension) |
 | `localStorage` | Device ID (`kanbonk-device-id`), author name, trusted devices, chosen sync transport, UI preferences (panels, filters, dismissed reminders, ignored duplicates) |
