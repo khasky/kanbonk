@@ -24,7 +24,7 @@ test("creates a workspace, board, lists and cards that survive a reload", async 
   await ideas.getByRole("button", { name: "Add a card" }).click();
   await page.keyboard.type("First idea");
   await page.keyboard.press("Enter");
-  await expect(ideas.getByRole("button", { name: /First idea/ })).toBeVisible();
+  await expect(ideas.getByRole("link", { name: /First idea/ })).toBeVisible();
 
   await page.getByLabel("List actions Ideas").click();
   await page.getByRole("button", { name: "Move right" }).click();
@@ -33,14 +33,24 @@ test("creates a workspace, board, lists and cards that survive a reload", async 
   await page.reload();
   await expect(page.getByLabel("Board title")).toHaveValue("Roadmap");
   await expect(page.locator(".list-column [aria-label^='List title']").nth(1)).toHaveValue("Ideas");
-  await expect(page.getByRole("button", { name: /First idea/ })).toBeVisible();
-  await expect(page.getByRole("complementary").getByRole("button", { name: "Team space", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /First idea/ })).toBeVisible();
+  await expect(page.getByRole("complementary").getByRole("link", { name: "Team space", exact: true })).toBeVisible();
 });
 
 test("opens a card by its address and closes it back to the board", async ({ page }) => {
   await importTrelloBoard(page);
   const boardUrl = page.url();
-  await page.getByRole("button", { name: /Card from Trello/ }).click();
+  const tile = page.getByRole("link", { name: /Card from Trello/ });
+  // Card tiles and the sidebar's boards are links: a middle click opens them in a new tab.
+  await expect(page.getByRole("complementary").getByRole("link", { name: "Trello import" })).toHaveAttribute(
+    "href",
+    new URL(boardUrl).pathname,
+  );
+  const [tab] = await Promise.all([page.context().waitForEvent("page"), tile.click({ button: "middle" })]);
+  await expect(tab).toHaveURL(/\/c\//);
+  await tab.close();
+  await expect(page).toHaveURL(boardUrl);
+  await tile.click();
   await expect(page).toHaveURL(/\/c\//);
   const cardUrl = page.url();
 
@@ -76,15 +86,15 @@ test("drags cards from the Inbox panel into a list and onto a card of the board"
   }
   const plans = page.locator(".list-column").filter({ has: page.getByLabel("List title Plans") });
 
-  await inbox.getByRole("button", { name: "Inbox first" }).dragTo(plans.getByRole("button", { name: "Add a card" }));
-  await expect(inbox.getByRole("button", { name: "Inbox first" })).toHaveCount(0);
+  await inbox.getByRole("link", { name: "Inbox first" }).dragTo(plans.getByRole("button", { name: "Add a card" }));
+  await expect(inbox.getByRole("link", { name: "Inbox first" })).toHaveCount(0);
   await inbox
-    .getByRole("button", { name: "Inbox second" })
-    .dragTo(plans.getByRole("button", { name: /Card from Trello/ }), { targetPosition: { x: 20, y: 4 } });
-  await expect(inbox.getByRole("button", { name: /Inbox/ })).toHaveCount(0);
+    .getByRole("link", { name: "Inbox second" })
+    .dragTo(plans.getByRole("link", { name: /Card from Trello/ }), { targetPosition: { x: 20, y: 4 } });
+  await expect(inbox.getByRole("link", { name: /Inbox/ })).toHaveCount(0);
 
-  const tiles = plans.locator("button[draggable=true]");
+  const tiles = plans.locator("a[draggable=true]");
   await expect(tiles).toHaveText([/Inbox second/, /Card from Trello/, /Inbox first/]);
   await page.reload();
-  await expect(plans.locator("button[draggable=true]")).toHaveText([/Inbox second/, /Card from Trello/, /Inbox first/]);
+  await expect(plans.locator("a[draggable=true]")).toHaveText([/Inbox second/, /Card from Trello/, /Inbox first/]);
 });

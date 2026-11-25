@@ -1,4 +1,5 @@
 import { t } from "../i18n";
+import { AppLink } from "../ui/AppLink";
 import type { AppState } from "../model";
 import { inboxWorkspaceId } from "../model/inbox";
 import { Button } from "../ui/Button";
@@ -23,7 +24,12 @@ export function HomePage({
           {workspaces.map((workspace) => {
             const boards = state.boards.filter((board) => board.workspaceId === workspace.id && !board.deletedAt);
             return (
-              <button key={workspace.id} className={workspaceTileClass} onClick={() => onOpen(workspace.id)}>
+              <AppLink
+                key={workspace.id}
+                className={workspaceTileClass}
+                href={`/w/${encodeURIComponent(workspace.id)}`}
+                onOpen={() => onOpen(workspace.id)}
+              >
                 <WorkspaceAvatar name={workspace.name} />
                 <strong>{workspace.name}</strong>
                 <small className="text-ink-muted">
@@ -34,7 +40,7 @@ export function HomePage({
                         .join(", ") + (boards.length > 3 ? "…" : "")
                     : t("pages.noBoards")}
                 </small>
-              </button>
+              </AppLink>
             );
           })}
           <button className={createTileClass} onClick={onCreate}>

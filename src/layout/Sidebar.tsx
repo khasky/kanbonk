@@ -2,7 +2,8 @@ import { useState } from "react";
 import { t } from "../i18n";
 import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import type { AppState } from "../model";
-import { trashHref } from "../lib/router";
+import { boardHref, trashHref } from "../lib/router";
+import { AppLink } from "../ui/AppLink";
 import { Icon, type IconName } from "../ui/Icon";
 import { WorkspaceAvatar } from "../ui/WorkspaceAvatar";
 import type { PanelName } from "../lib/uiPreferences";
@@ -12,35 +13,41 @@ const collapsedKey = "kanbonk-sidebar-collapsed";
 const plainButton = "border-0 bg-transparent text-inherit hover:bg-brand-soft";
 const smallButton = `grid place-items-center p-1 ${plainButton}`;
 const boardLook =
-  "flex w-full items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap rounded-sm border-0 py-[7px] pr-[9px] pl-[42px] text-left text-inherit hover:bg-brand-soft";
+  "flex w-full items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap rounded-sm border-0 py-[7px] pr-[9px] pl-[42px] text-left text-inherit no-underline hover:bg-brand-soft";
 
-/** A top link: its icon sits in the same 24px column as the workspace avatars; collapsed, only the icon shows. */
+/**
+ * A top link: its icon sits in the same 24px column as the workspace avatars; collapsed, only the icon shows. With an
+ * `href` it is a link to that page, otherwise a button (the Inbox and Planner panels have no address).
+ */
 function NavLink({
   icon,
   label,
   active,
   collapsed,
+  href,
   onClick,
 }: {
   icon: IconName;
   label: string;
   active: boolean;
   collapsed: boolean;
+  href?: string;
   onClick: () => void;
 }) {
-  return (
-    <button
-      className={`flex w-full items-center gap-3 rounded-sm border-0 p-1.5 text-left font-bold text-brand hover:bg-brand-soft ${active ? "bg-brand-soft" : "bg-transparent"} ${collapsed ? "justify-center" : ""}`}
-      onClick={onClick}
-      aria-label={label}
-      title={collapsed ? label : undefined}
-    >
-      <span className="grid size-6 flex-none place-items-center">
-        <Icon name={icon} className="size-5" />
-      </span>
-      {!collapsed && label}
-    </button>
-  );
+  const props = {
+    className: `flex w-full items-center gap-3 rounded-sm border-0 p-1.5 text-left font-bold text-brand no-underline hover:bg-brand-soft ${active ? "bg-brand-soft" : "bg-transparent"} ${collapsed ? "justify-center" : ""}`,
+    "aria-label": label,
+    title: collapsed ? label : undefined,
+    children: (
+      <>
+        <span className="grid size-6 flex-none place-items-center">
+          <Icon name={icon} className="size-5" />
+        </span>
+        {!collapsed && label}
+      </>
+    ),
+  };
+  return href ? <AppLink {...props} href={href} onOpen={onClick} /> : <button {...props} onClick={onClick} />;
 }
 
 /**
@@ -113,6 +120,7 @@ export function Sidebar({
         label={t("layout.workspaces")}
         active={page === "home"}
         collapsed={collapsed}
+        href="/"
         onClick={() => navigate("/")}
       />
       <NavLink
@@ -120,6 +128,7 @@ export function Sidebar({
         label={t("layout.trash")}
         active={page === "trash"}
         collapsed={collapsed}
+        href={trashHref()}
         onClick={() => navigate(trashHref())}
       />
       {collapsed && <hr className="mx-1.5 my-2 border-0 border-t border-line" />}
@@ -141,16 +150,17 @@ export function Sidebar({
           <div className={collapsed ? undefined : "mb-3"} key={workspace.id}>
             <div className={`flex items-center gap-2 p-1.5 ${collapsed ? "justify-center" : ""}`}>
               <WorkspaceAvatar name={workspace.name} />
-              <button
+              <AppLink
                 className={
                   collapsed
                     ? "hidden"
-                    : `min-w-0 flex-1 truncate rounded-sm border-0 bg-transparent p-1 text-left font-bold hover:bg-brand-soft hover:text-brand ${workspace.id === workspaceId ? "text-brand" : "text-inherit"}`
+                    : `min-w-0 flex-1 truncate rounded-sm border-0 bg-transparent p-1 text-left font-bold no-underline hover:bg-brand-soft hover:text-brand ${workspace.id === workspaceId ? "text-brand" : "text-inherit"}`
                 }
-                onClick={() => navigate(`/w/${workspace.id}`)}
+                href={`/w/${encodeURIComponent(workspace.id)}`}
+                onOpen={() => navigate(`/w/${workspace.id}`)}
               >
                 {workspace.name}
-              </button>
+              </AppLink>
               <button
                 className={collapsed ? "hidden" : smallButton}
                 onClick={() => onCreateBoard(workspace.id)}
@@ -162,17 +172,18 @@ export function Sidebar({
             {state.boards
               .filter((item) => item.workspaceId === workspace.id && item.id !== inboxBoardId && !item.deletedAt)
               .map((item) => (
-                <button
+                <AppLink
                   key={item.id}
                   className={
                     collapsed ? "hidden" : `${boardLook} ${item.id === boardId ? "bg-brand-soft" : "bg-transparent"}`
                   }
-                  onClick={() => onOpenBoard(item.id)}
+                  href={boardHref(item.id)}
+                  onOpen={() => onOpenBoard(item.id)}
                 >
                   <span className="h-5 w-6 flex-none rounded-[3px]" style={{ background: item.background }} />
                   {item.name}
                   {item.starred && <Icon name="star" className="ml-auto size-3.5 fill-warning" />}
-                </button>
+                </AppLink>
               ))}
           </div>
         ))}

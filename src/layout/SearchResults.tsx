@@ -1,10 +1,12 @@
 import { useDeferredValue, useMemo } from "react";
+import { AppLink } from "../ui/AppLink";
+import { boardHref } from "../lib/router";
 import { t } from "../i18n";
 import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import { type AppState, type Card, searchCards } from "../model";
 
 const resultClass =
-  "flex w-full flex-col gap-[3px] rounded-sm border-0 bg-transparent p-[9px] text-left text-ink hover:bg-brand-soft focus-visible:bg-brand-soft";
+  "flex w-full flex-col gap-[3px] rounded-sm border-0 bg-transparent p-[9px] text-left text-ink no-underline hover:bg-brand-soft focus-visible:bg-brand-soft";
 
 /** Workspaces, boards and cards matching the global search. Card search is deferred so typing stays responsive. */
 export function SearchResults({
@@ -36,22 +38,32 @@ export function SearchResults({
     >
       <strong className="block px-2 pt-[5px] pb-[9px]">{t("layout.searchResults")}</strong>
       {workspaces.map((item) => (
-        <button key={item.id} className={resultClass} onClick={() => onOpenWorkspace(item.id)}>
+        <AppLink
+          key={item.id}
+          className={resultClass}
+          href={`/w/${encodeURIComponent(item.id)}`}
+          onOpen={() => onOpenWorkspace(item.id)}
+        >
           <small className="text-ink-muted">{t("layout.workspace")}</small>
           {item.name}
-        </button>
+        </AppLink>
       ))}
       {boards.map((item) => (
-        <button key={item.id} className={resultClass} onClick={() => onOpenBoard(item.id)}>
+        <AppLink key={item.id} className={resultClass} href={boardHref(item.id)} onOpen={() => onOpenBoard(item.id)}>
           <small className="text-ink-muted">{t("layout.board")}</small>
           {item.name}
-        </button>
+        </AppLink>
       ))}
       {cards.map((item) => (
-        <button key={item.id} className={resultClass} onClick={() => onOpenCard(item)}>
+        <AppLink
+          key={item.id}
+          className={resultClass}
+          href={`/c/${encodeURIComponent(item.id)}`}
+          onOpen={() => onOpenCard(item)}
+        >
           <small className="text-ink-muted">{state.boards.find((board) => board.id === item.boardId)?.name}</small>
           {item.name}
-        </button>
+        </AppLink>
       ))}
       {!workspaces.length && !boards.length && !cards.length && (
         <p className="p-2 text-ink-muted">{t("layout.nothingFound")}</p>

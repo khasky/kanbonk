@@ -4,7 +4,7 @@ test("board Activity renders comment Markdown, History says what changed, and Es
   page,
 }) => {
   await importTrelloBoard(page);
-  await page.getByRole("button", { name: /Card from Trello/ }).click();
+  await page.getByRole("link", { name: /Card from Trello/ }).click();
   const card = page.getByRole("dialog", { name: "Card from Trello" });
   await card.getByText("Write a comment").click();
   await page.keyboard.type("Some ");

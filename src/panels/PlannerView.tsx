@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AppLink } from "../ui/AppLink";
 import { formatDate, formatTime, t } from "../i18n";
 import { isCardAvailable, type AppState, type Card } from "../model";
 import { Button } from "../ui/Button";
@@ -58,17 +59,18 @@ export function PlannerView({ state, onOpen }: { state: AppState; onOpen: (card:
             {cards
               .filter((card) => new Date(card.dueAt!).toDateString() === day.toDateString())
               .map((card) => (
-                <button
-                  className="mb-1.5 grid w-full gap-1 rounded-md border border-line bg-brand-soft p-2 text-left text-ink wrap-anywhere"
+                <AppLink
+                  className="mb-1.5 grid w-full gap-1 rounded-md border border-line bg-brand-soft p-2 text-left text-ink no-underline wrap-anywhere"
                   key={card.id}
-                  onClick={() => onOpen(card)}
+                  href={`/c/${encodeURIComponent(card.id)}`}
+                  onOpen={() => onOpen(card)}
                 >
                   <strong>{card.name}</strong>
                   <small className="text-ink-subtle">
                     {state.boards.find((board) => board.id === card.boardId)?.name} ·{" "}
                     {formatTime(card.dueAt!, { hour: "2-digit", minute: "2-digit" })}
                   </small>
-                </button>
+                </AppLink>
               ))}
           </section>
         ))}

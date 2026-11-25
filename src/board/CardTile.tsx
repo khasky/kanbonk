@@ -3,6 +3,7 @@ import { CardCover } from "../card/CardCover";
 import { CardStickers } from "../card/CardStickers";
 import { readableTextColor } from "../model/labelColors";
 import type { Card, Label, Member } from "../model";
+import { AppLink } from "../ui/AppLink";
 import { Icon } from "../ui/Icon";
 import { formatDate, t } from "../i18n";
 import { useLocale } from "../i18n/nodes";
@@ -35,7 +36,8 @@ export const CardTile = memo(function CardTile({
   const full = item.cover?.size === "full";
   const fullCover = full && Boolean(item.cover?.attachmentId);
   return (
-    <button
+    <AppLink
+      href={`/c/${encodeURIComponent(item.id)}`}
       className={tileClass(fullCover)}
       style={{
         ...(item.cover?.size === "full" && item.cover.color
@@ -50,7 +52,7 @@ export const CardTile = memo(function CardTile({
         startDrag(event.currentTarget, { kind: "card", id: item.id });
       }}
       onDragEnd={endDrag}
-      onClick={() => actions.open(item.id)}
+      onOpen={() => actions.open(item.id)}
     >
       <CardCover card={item} fill={fullCover} />
       <CardStickers card={item} />
@@ -124,6 +126,6 @@ export const CardTile = memo(function CardTile({
           ))}
         </span>
       ) : null}
-    </button>
+    </AppLink>
   );
 });

@@ -1,4 +1,6 @@
 import { MissingPage } from "./MissingPage";
+import { AppLink } from "../ui/AppLink";
+import { boardHref } from "../lib/router";
 import { t } from "../i18n";
 import type { AppState } from "../model";
 import { inboxWorkspaceId } from "../model/inbox";
@@ -60,15 +62,16 @@ export function WorkspacePage({
       {boards.length ? (
         <div className={tileGridClass}>
           {boards.map((board) => (
-            <button
+            <AppLink
               key={board.id}
               className={boardTileClass}
               style={{ background: board.background }}
-              onClick={() => onOpenBoard(board.id)}
+              href={boardHref(board.id)}
+              onOpen={() => onOpenBoard(board.id)}
             >
               <strong>{board.name}</strong>
               {board.starred && <span aria-label={t("pages.starred")}>★</span>}
-            </button>
+            </AppLink>
           ))}
           <button className={createTileClass} onClick={onCreateBoard}>
             {t("pages.createBoardTile")}

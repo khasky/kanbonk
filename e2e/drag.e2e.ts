@@ -37,12 +37,12 @@ const column = (page: Page, name: string) =>
 
 test("shows where a dragged card lands and moves it there", async ({ page }) => {
   await boardWithLists(page);
-  const card = page.getByRole("button", { name: /Card from Trello/ });
+  const card = page.getByRole("link", { name: /Card from Trello/ });
   await dragWithPreview(page, card, column(page, "Doing").getByRole("button", { name: "Add a card" }), async () => {
     await expect(column(page, "Doing").locator("[data-drop-slot=card]")).toBeVisible();
     await expect(card).toBeHidden();
   });
-  await expect(column(page, "Doing").getByRole("button", { name: /Card from Trello/ })).toBeVisible();
+  await expect(column(page, "Doing").getByRole("link", { name: /Card from Trello/ })).toBeVisible();
   await expect(page.locator("[data-drop-slot]")).toHaveCount(0);
 });
 

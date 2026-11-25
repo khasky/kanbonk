@@ -21,7 +21,8 @@ export const pageHeaderClass = "mb-3 flex items-center gap-3.5";
 /** The grid of workspace or board tiles. */
 export const tileGridClass = "grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3.5";
 
-const tile = "flex min-h-24 cursor-pointer gap-1.5 rounded-lg border-0 p-3.5 text-left shadow-tile hover:brightness-95";
+const tile =
+  "flex min-h-24 cursor-pointer gap-1.5 rounded-lg border-0 p-3.5 text-left no-underline shadow-tile hover:brightness-95";
 
 export const workspaceTileClass = `${tile} flex-col bg-surface-soft text-ink`;
 

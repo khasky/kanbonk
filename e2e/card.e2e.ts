@@ -2,14 +2,14 @@ import { expect, importTrelloBoard, test } from "./fixtures";
 
 test("edits a card: label, checklist, sub-card, comment and description", async ({ page }) => {
   await importTrelloBoard(page);
-  await page.getByRole("button", { name: /Card from Trello/ }).click();
+  await page.getByRole("link", { name: /Card from Trello/ }).click();
   const card = page.getByRole("dialog", { name: "Card from Trello" });
 
   await card.getByRole("button", { name: "Labels", exact: true }).click();
   await card.getByLabel("New label").fill("Urgent");
   await card.locator(".label-picker").getByRole("button", { name: "Add" }).click();
   await card.getByRole("button", { name: "Labels", exact: true }).click();
-  await expect(page.getByRole("button", { name: /Important Urgent Card from Trello/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Important Urgent Card from Trello/ })).toBeVisible();
 
   await card.locator(".card-actions").getByRole("button", { name: "Dates" }).click();
   await card.getByLabel("Card due date", { exact: true }).fill("1/5/2030");
@@ -52,7 +52,7 @@ test("edits a card: label, checklist, sub-card, comment and description", async 
 
 test("previews a Markdown attachment and offers no preview for an archive", async ({ page }) => {
   await importTrelloBoard(page);
-  await page.getByRole("button", { name: /Card from Trello/ }).click();
+  await page.getByRole("link", { name: /Card from Trello/ }).click();
   const card = page.getByRole("dialog", { name: "Card from Trello" });
   await card.locator(".card-actions").getByRole("button", { name: "Add", exact: true }).click();
   await card.locator("label.file-button input[type=file]").setInputFiles([

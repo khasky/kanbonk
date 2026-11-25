@@ -16,14 +16,14 @@ test("moves a list to the trash and restores it", async ({ page }) => {
 
   await page.goto(boardUrl);
   await expect(page.getByLabel("List title Plans")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Card from Trello/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Card from Trello/ })).toBeVisible();
 });
 
 test("shows a trashed card read-only, follows the trash period from Settings and deletes it forever", async ({
   page,
 }) => {
   await importTrelloBoard(page);
-  await page.getByRole("button", { name: /Card from Trello/ }).click();
+  await page.getByRole("link", { name: /Card from Trello/ }).click();
   await page.getByLabel("Card actions").click();
   await page.getByRole("button", { name: "Move to trash" }).click();
   await page.getByRole("alertdialog", { name: "Move to trash" }).getByRole("button", { name: "Delete" }).click();

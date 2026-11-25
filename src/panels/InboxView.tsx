@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AppLink } from "../ui/AppLink";
 import { endDrag, startDrag, useDragState } from "../board/dragState";
 import { CardCover } from "../card/CardCover";
 import { CardStickers } from "../card/CardStickers";
@@ -104,9 +105,10 @@ export function InboxView({
       </div>
       <div className="grid max-w-[760px] gap-2">
         {cards.map((card) => (
-          <button
+          <AppLink
             className={tileClass()}
             key={card.id}
+            href={`/c/${encodeURIComponent(card.id)}`}
             style={drag?.id === card.id && target ? { display: "none" } : undefined}
             draggable
             onDragStart={(event) => {
@@ -114,7 +116,7 @@ export function InboxView({
               startDrag(event.currentTarget, { kind: "card", id: card.id });
             }}
             onDragEnd={endDrag}
-            onClick={() => onOpen(card.id)}
+            onOpen={() => onOpen(card.id)}
           >
             <CardCover card={card} />
             <CardStickers card={card} />
@@ -138,7 +140,7 @@ export function InboxView({
                 </span>
               )}
             </span>
-          </button>
+          </AppLink>
         ))}
         {!cards.length && (
           <p className="p-[22px] text-center text-ink-muted">
