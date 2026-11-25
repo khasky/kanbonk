@@ -7,6 +7,7 @@ import { Button } from "../ui/Button";
 import { detailTitleClass } from "./cardLook";
 import { formatDateTime, t } from "../i18n";
 import { Icon } from "../ui/Icon";
+import { useCardActionsContext } from "./CardActionsContext";
 
 const dateClass = "text-[12px] text-ink-muted";
 const avatarClass = "grid size-8 flex-none place-items-center rounded-full font-bold";
@@ -41,6 +42,8 @@ export function CardActivity({
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState("");
   const activityFeed = cardActivityFeed(state, card, showActivityDetails);
+  const { attachFiles } = useCardActionsContext();
+  const attach = readOnly ? undefined : (files: File[]) => attachFiles(card, files);
   function addComment(markdown: string) {
     const text = markdown.trim();
     if (text)
@@ -100,6 +103,7 @@ export function CardActivity({
         <MarkdownEditor
           value=""
           look="comment"
+          onAttach={attach}
           label={t("card.newComment")}
           saveLabel={t("card.send")}
           onSave={addComment}
