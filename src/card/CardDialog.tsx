@@ -35,7 +35,7 @@ import { DetailTitle } from "./DetailTitle";
 // `card-dialog`, `card-dialog-top` and `card-actions` are hooks of the print rules (styles/index.css) and of tests;
 // `file-button` (on the attachment row of the "Add to card" popover) is a hook of tests.
 const dialogLook =
-  "card-dialog flex w-[min(1080px,100%)] flex-col rounded-xl bg-white text-ink max-phone:h-dvh max-phone:w-full max-phone:rounded-none";
+  "card-dialog flex w-[min(1080px,100%)] flex-col rounded-xl bg-white text-[15px] text-ink max-phone:h-dvh max-phone:w-full max-phone:rounded-none";
 // On phones every button is a 44px touch target and fields use 16px text so the browser does not zoom into them.
 const phoneTouch =
   "max-phone:[&_:is(input,textarea,select)]:text-[16px] max-phone:[&_button:not([data-inline],.markdown-card-link)]:min-h-11";
@@ -43,7 +43,7 @@ const modalClass = `${dialogLook} ${phoneTouch} max-h-[calc(100dvh-96px)] overfl
 const pageClass = `${dialogLook} ${phoneTouch} mx-auto my-5 max-h-none flex-none overflow-visible shadow-[0_1px_3px_#091e4240]`;
 const topButtonClass =
   "grid size-8 place-items-center rounded-sm border-0 bg-transparent text-ink-subtle hover:bg-line aria-expanded:bg-line";
-const blockTitleClass = "mb-1.5 text-[12px] font-semibold text-ink-subtle";
+const blockTitleClass = "mb-1.5 text-[13px] font-semibold text-ink-subtle";
 const addChipClass =
   "grid size-8 place-items-center border border-line bg-white text-ink-subtle hover:bg-surface-sunken aria-expanded:bg-line disabled:cursor-not-allowed disabled:opacity-50";
 /**
@@ -110,7 +110,7 @@ function QuickButton({
   children: ReactNode;
 }) {
   return (
-    <Button variant="outline" data-panel={panel} aria-expanded={expanded} onClick={onClick}>
+    <Button variant="outline" size="sm" data-panel={panel} aria-expanded={expanded} onClick={onClick}>
       <Icon name={icon} className="size-4" />
       {children}
     </Button>
@@ -404,7 +404,7 @@ export function CardDialog({
           <fieldset className={lockClass} disabled={locked}>
             <NameEditor
               // `!`: the dialog's phone rule would make the title 16px like the other fields.
-              className="-ml-1.5 w-[calc(100%+6px)] min-w-0 rounded-sm border-0 bg-transparent px-1.5 py-1 text-[26px]! leading-tight font-semibold text-ink hover:bg-surface-sunken focus:bg-white disabled:bg-transparent"
+              className="-ml-1.5 w-[calc(100%+6px)] min-w-0 rounded-sm border-0 bg-transparent px-1.5 py-1 text-[29px]! leading-tight font-bold text-ink hover:bg-surface-sunken focus:bg-white disabled:bg-transparent"
               value={card.name}
               label={t("card.cardTitle")}
               onCommit={(name) => onChange((item) => ({ ...item, name }))}

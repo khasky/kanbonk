@@ -7,7 +7,7 @@ import { Icon, type IconName } from "../ui/Icon";
  */
 export function DetailTitle({ icon, children }: { icon: IconName; children: ReactNode }) {
   return (
-    <h3 className="mt-0 mb-3 -ml-9 flex min-h-8 items-center gap-3 text-[14px] font-semibold">
+    <h3 className="mt-0 mb-3 -ml-9 flex min-h-8 items-center gap-3 text-[15px] font-semibold">
       <span className="grid size-6 flex-none place-items-center text-ink-subtle">
         <Icon name={icon} />
       </span>

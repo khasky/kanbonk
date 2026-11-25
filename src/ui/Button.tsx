@@ -26,7 +26,7 @@ const sized: Partial<Record<ButtonVariant, { look: string; size: ButtonSize }>> 
   },
   // An open popover's button (`aria-expanded`) turns dark, so it is clear which button the popover belongs to.
   outline: {
-    look: "text-[14px] flex items-center gap-1.5 rounded-sm border border-line bg-white font-medium text-ink hover:bg-surface-sunken aria-expanded:border-ink-subtle aria-expanded:bg-ink-subtle aria-expanded:text-white disabled:cursor-not-allowed disabled:opacity-50",
+    look: "h-8 text-[15px] flex items-center gap-1.5 rounded-sm border border-line bg-white font-medium text-ink hover:bg-surface-sunken aria-expanded:border-ink-subtle aria-expanded:bg-ink-subtle aria-expanded:text-white disabled:cursor-not-allowed disabled:opacity-50",
     size: "md",
   },
   danger: {
@@ -66,7 +66,7 @@ export function buttonClass(variant: ButtonVariant, size?: ButtonSize, className
  * `size` sets the padding of `primary`, `primary-danger`, `secondary`, `outline` and `danger`: `sm` 6×9px (rows, section titles,
  * small forms; default of `secondary`), `md` 7×11px (the card's actions; default of `outline` and `danger`), `lg` 8×12px (dialog
  * footers and forms; default of the primaries).
- * Their text is always 14px, so a button in a section title matches the others.
+ * Their text is 14px; `outline` (only in the open card) has 15px text and is always 32px high, as the card's buttons in Trello.
  * The other variants have one size. `className` may only add layout (margins, flex, width, display).
  */
 export function Button({
