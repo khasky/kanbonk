@@ -1,8 +1,35 @@
-import type { MouseEvent, ReactNode, SubmitEvent } from "react";
+import { type MouseEvent, type ReactNode, type SubmitEvent, useEffect, useRef } from "react";
 import { Icon } from "./Icon";
 import { t } from "../i18n";
 
 const stop = (event: MouseEvent) => event.stopPropagation();
+
+// Open dialogs, the last opened on top. Escape dismisses only the top one, and nothing while it can't be dismissed.
+const dialogs: Array<{ current: (() => void) | undefined }> = [];
+
+function pressEscape(event: KeyboardEvent) {
+  // Menus, popovers, editors and questions handle their own Escape first and stop it.
+  if (event.key !== "Escape" || event.defaultPrevented || event.isComposing || !dialogs.length) return;
+  event.preventDefault();
+  dialogs[dialogs.length - 1].current?.();
+}
+
+/** Escape calls `dismiss` while this is the top open dialog; undefined keeps it (and those under it) open. */
+export function useEscapeToDismiss(dismiss: (() => void) | undefined): void {
+  const latest = useRef(dismiss);
+  useEffect(() => {
+    latest.current = dismiss;
+  });
+  useEffect(() => {
+    const entry = latest;
+    dialogs.push(entry);
+    if (dialogs.length === 1) window.addEventListener("keydown", pressEscape);
+    return () => {
+      dialogs.splice(dialogs.indexOf(entry), 1);
+      if (!dialogs.length) window.removeEventListener("keydown", pressEscape);
+    };
+  }, []);
+}
 
 /** The dimmed full-screen layer under a dialog. Pressing on it (not on the dialog) calls `onMouseDown`. */
 export function Backdrop({ onMouseDown, children }: { onMouseDown?: () => void; children: ReactNode }) {
@@ -17,7 +44,7 @@ export function Backdrop({ onMouseDown, children }: { onMouseDown?: () => void; 
 }
 
 /**
- * A modal over a dimmed backdrop. Pressing on the backdrop calls `onDismiss`; pass none while the dialog must stay
+ * A modal over a dimmed backdrop. Pressing on the backdrop or Escape calls `onDismiss`; pass none while the dialog must stay
  * open (for example during an import). With `onSubmit` the dialog is a form, so Enter submits it. `className` styles
  * the dialog box itself.
  */
@@ -36,6 +63,7 @@ export function Modal({
   onSubmit?: (event: SubmitEvent<HTMLFormElement>) => void;
   children: ReactNode;
 }) {
+  useEscapeToDismiss(onDismiss);
   return (
     <Backdrop onMouseDown={onDismiss}>
       {onSubmit ? (

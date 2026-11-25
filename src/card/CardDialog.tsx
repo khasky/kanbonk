@@ -26,7 +26,7 @@ import { SharePanel } from "./SharePanel";
 import { StickerPicker } from "./StickerPicker";
 import { TransferPicker } from "./TransferPicker";
 import { Button } from "../ui/Button";
-import { Backdrop } from "../ui/Modal";
+import { Backdrop, useEscapeToDismiss } from "../ui/Modal";
 import { Select } from "../ui/Field";
 import { Menu, MenuItem, MenuSeparator } from "../ui/Menu";
 import { Popover } from "../ui/Popover";
@@ -179,12 +179,8 @@ export function CardDialog({
   const expanded = (kind: Panel) => panel?.anchor.dataset.panel === kind;
   useEffect(() => {
     dialogRef.current?.focus();
-    const handler = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [onClose]);
+  }, []);
+  useEscapeToDismiss(onClose);
   const boardLabels = state.labels.filter((item) => item.boardId === card.boardId && !item.deleted);
   const boardMembers = state.boards.find((item) => item.id === card.boardId)?.members ?? [];
   const assignable = [...boardMembers, ...team.filter((member) => !boardMembers.some((item) => item.id === member.id))];
