@@ -7,14 +7,16 @@ import { Button } from "../ui/Button";
 import { detailSectionClass, placeholderClass } from "./cardLook";
 import { DetailTitle } from "./DetailTitle";
 
-/** The card description as Markdown; a double click or the Edit button opens the editor. */
+/** The card description as Markdown; a double click or the Edit button opens the editor, unless `readOnly`. */
 export function CardDescription({
   card,
+  readOnly = false,
   onChange,
   localCardForUrl,
   onNavigateCard,
 }: {
   card: Card;
+  readOnly?: boolean;
   onChange: (change: (card: Card) => Card) => void;
   localCardForUrl: (url: string) => Card | undefined;
   onNavigateCard: (target: Card) => void;
@@ -41,7 +43,7 @@ export function CardDescription({
           onCancel={() => setEditingDescription(false)}
         />
       ) : card.description ? (
-        <div onDoubleClick={() => setEditingDescription(true)}>
+        <div onDoubleClick={() => setEditingDescription(!readOnly)}>
           <MarkdownText text={card.description} localCardForUrl={localCardForUrl} onNavigateCard={onNavigateCard} />
         </div>
       ) : (

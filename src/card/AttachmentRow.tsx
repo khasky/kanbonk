@@ -23,7 +23,8 @@ export function AttachmentRow({
   linkedCard?: Card;
   onNavigateCard: (card: Card) => void;
   onDownload: (id: string, name: string) => void;
-  onRemove: () => void;
+  /** Absent while the attachment cannot be removed, e.g. from a card in the trash. */
+  onRemove?: () => void;
 }) {
   const [localUrl, setLocalUrl] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -106,6 +107,7 @@ export function AttachmentRow({
           variant="secondary"
           className={buttonClass}
           onClick={onRemove}
+          disabled={!onRemove}
           aria-label={t("card.deleteAttachment", { name: attachment.name })}
         >
           {t("common.delete")}

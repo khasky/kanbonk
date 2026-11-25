@@ -33,7 +33,7 @@ export function Menu({
   keepOpen?: (target: Element) => boolean;
   ref?: Ref<HTMLDetailsElement>;
 }) {
-  const summary = `cursor-pointer list-none focus-visible:outline-2 focus-visible:outline-offset-2 ${summaryFocus[placement]} [&::-webkit-details-marker]:hidden`;
+  const summary = `cursor-pointer list-none in-[fieldset:disabled]:pointer-events-none in-[fieldset:disabled]:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 ${summaryFocus[placement]} [&::-webkit-details-marker]:hidden`;
   return (
     <details
       ref={ref}

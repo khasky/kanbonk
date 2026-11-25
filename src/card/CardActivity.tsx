@@ -11,7 +11,7 @@ import { Icon } from "../ui/Icon";
 const dateClass = "text-[12px] text-ink-muted";
 const avatarClass = "grid size-8 flex-none place-items-center rounded-full font-bold";
 const commentPlaceholderClass =
-  "w-full cursor-text rounded-lg border-0 bg-white px-3 py-2.5 text-left text-ink-subtle shadow-tile hover:bg-surface-soft";
+  "w-full cursor-text rounded-lg border-0 bg-white px-3 py-2.5 text-left text-ink-subtle shadow-tile hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-white";
 const commentActionClass =
   "cursor-pointer border-0 bg-transparent px-0 py-[3px] text-[12px] text-ink-subtle hover:underline";
 
@@ -24,6 +24,7 @@ export function CardActivity({
   onChange,
   localCardForUrl,
   onNavigateCard,
+  readOnly = false,
 }: {
   card: Card;
   state: AppState;
@@ -32,6 +33,8 @@ export function CardActivity({
   onChange: (change: (card: Card) => Card) => void;
   localCardForUrl: (url: string) => Card | undefined;
   onNavigateCard: (target: Card) => void;
+  /** Comments cannot be written, edited or deleted. */
+  readOnly?: boolean;
 }) {
   const [writingComment, setWritingComment] = useState(false);
   const [showActivityDetails, setShowActivityDetails] = useState(false);
@@ -103,7 +106,7 @@ export function CardActivity({
           onCancel={() => setWritingComment(false)}
         />
       ) : (
-        <button className={commentPlaceholderClass} onClick={() => setWritingComment(true)}>
+        <button className={commentPlaceholderClass} disabled={readOnly} onClick={() => setWritingComment(true)}>
           {t("card.writeComment")}
         </button>
       )}
@@ -145,7 +148,7 @@ export function CardActivity({
                       localCardForUrl={localCardForUrl}
                       onNavigateCard={onNavigateCard}
                     />
-                    {canEditComment(entry, currentDeviceId) && (
+                    {!readOnly && canEditComment(entry, currentDeviceId) && (
                       <div className="mt-[5px] flex gap-2">
                         <button
                           className={commentActionClass}

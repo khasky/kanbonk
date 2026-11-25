@@ -42,7 +42,13 @@ test("shows a trashed card read-only, follows the trash period from Settings and
   const viewed = page.getByRole("dialog", { name: "Card from Trello" });
   await expect(viewed).toContainText("will be deleted forever in 14 days");
   await expect(viewed.getByRole("checkbox", { name: "Remaining" })).toBeDisabled();
-  await expect(viewed.getByRole("textbox")).toHaveCount(0);
+  // The same card dialog as on a board, with its editing controls disabled; files can still be downloaded.
+  await expect(viewed.getByRole("textbox", { name: "Card title", exact: true })).toBeDisabled();
+  await expect(viewed.locator("input:enabled, textarea:enabled, select:enabled, [contenteditable=true]")).toHaveCount(
+    0,
+  );
+  await expect(viewed.getByRole("button", { name: "Write a comment…" })).toBeDisabled();
+  await expect(viewed.locator(".card-actions button:enabled")).toHaveCount(0);
 
   await viewed.getByRole("button", { name: "Delete forever" }).click();
   const ask = page.getByRole("alertdialog", { name: "Delete “Card from Trello” forever?" });

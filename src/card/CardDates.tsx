@@ -347,8 +347,8 @@ export function DatesChip({
     <button
       className={
         overdue
-          ? "flex h-8 items-center gap-2 rounded-sm border-0 bg-danger-soft px-3 font-medium text-danger hover:bg-[#ffd5d2]"
-          : "flex h-8 items-center gap-2 rounded-sm border-0 bg-surface-sunken px-3 font-medium text-ink hover:bg-line"
+          ? "flex h-8 items-center gap-2 rounded-sm border-0 bg-danger-soft px-3 font-medium text-danger hover:bg-[#ffd5d2] disabled:cursor-default disabled:hover:bg-danger-soft"
+          : "flex h-8 items-center gap-2 rounded-sm border-0 bg-surface-sunken px-3 font-medium text-ink hover:bg-line disabled:cursor-default disabled:hover:bg-surface-sunken"
       }
       onClick={onClick}
       aria-expanded={expanded}

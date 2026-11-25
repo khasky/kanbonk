@@ -46,7 +46,12 @@ const topButtonClass =
   "grid size-8 place-items-center rounded-sm border-0 bg-transparent text-ink-subtle hover:bg-line aria-expanded:bg-line";
 const blockTitleClass = "mb-1.5 text-[12px] font-semibold text-ink-subtle";
 const addChipClass =
-  "grid size-8 place-items-center border border-line bg-white text-ink-subtle hover:bg-surface-sunken aria-expanded:bg-line";
+  "grid size-8 place-items-center border border-line bg-white text-ink-subtle hover:bg-surface-sunken aria-expanded:bg-line disabled:cursor-not-allowed disabled:opacity-50";
+/**
+ * Groups controls that a trashed card disables; `contents` leaves the layout as if it were not there. A menu's "⋯"
+ * inside a disabled one is disabled by the menu itself (ui/Menu.tsx).
+ */
+const lockClass = "contents";
 const addRowClass =
   "flex w-full cursor-pointer items-center gap-3 rounded-sm border-0 bg-transparent p-1.5 text-left text-ink hover:bg-surface-sunken";
 
@@ -115,6 +120,13 @@ function QuickButton({
   );
 }
 
+/** What a card in the trash shows: the days until it is deleted forever, and its two actions. */
+export interface TrashedCard {
+  daysLeft: number;
+  onRestore: () => void;
+  onPurge: () => void;
+}
+
 export function CardDialog({
   card,
   state,
@@ -130,6 +142,7 @@ export function CardDialog({
   team,
   onClone,
   onOpenDoc,
+  trash,
 }: {
   card: Card;
   state: AppState;
@@ -145,6 +158,8 @@ export function CardDialog({
   team: Member[];
   onClone: () => void;
   onOpenDoc: () => void;
+  /** A card in the trash: shown the same way, read-only, with a banner to restore it or delete it forever. */
+  trash?: TrashedCard;
 }) {
   const actions = useCardActionsContext();
   const onChange = (change: (card: Card) => Card) => actions.updateCard(card.id, change);
@@ -217,6 +232,7 @@ export function CardDialog({
   const inInbox = card.boardId === inboxBoardId;
   const showDates = !card.isTemplate && Boolean(card.startAt || card.dueAt);
   const members = card.memberIds ?? [];
+  const locked = Boolean(trash);
 
   function panelBody(kind: Panel, anchor: HTMLElement): ReactNode {
     if (kind === "add")
@@ -326,49 +342,53 @@ export function CardDialog({
       onMouseDown={(event) => event.stopPropagation()}
     >
       <header className="card-dialog-top flex h-14 flex-none items-center justify-between gap-3 border-b border-line px-5">
-        <Select
-          pill
-          value={card.listId}
-          onChange={(event) => onTransfer(event.target.value, false)}
-          aria-label={t("card.cardList")}
-        >
-          {lists.map((list) => (
-            <option key={list.id} value={list.id}>
-              {list.name}
-            </option>
-          ))}
-        </Select>
+        <fieldset className={lockClass} disabled={locked}>
+          <Select
+            pill
+            value={card.listId}
+            onChange={(event) => onTransfer(event.target.value, false)}
+            aria-label={t("card.cardList")}
+          >
+            {lists.map((list) => (
+              <option key={list.id} value={list.id}>
+                {list.name}
+              </option>
+            ))}
+          </Select>
+        </fieldset>
         <div className="flex items-center gap-1">
-          <button
-            className={topButtonClass}
-            data-panel="cover"
-            aria-expanded={expanded("cover")}
-            onClick={toggle("cover")}
-            aria-label={t("card.cover")}
-            title={t("card.cover")}
-          >
-            <Icon name="image" />
-          </button>
-          <Menu
-            ref={menuRef}
-            label={t("card.cardActions")}
-            summaryClassName="grid size-8 place-items-center rounded-sm text-[20px] leading-none text-ink-subtle hover:bg-line group-open/menu:bg-line"
-            touchRows
-          >
-            <MenuItem onClick={() => openAt("transfer", menuRef.current)}>{t("card.moveCopy")}</MenuItem>
-            <MenuItem onClick={onClone}>{t("card.clone")}</MenuItem>
-            {!inInbox && (
-              <MenuItem onClick={() => onChange((item) => ({ ...item, isTemplate: !item.isTemplate }))}>
-                {card.isTemplate ? t("card.removeTemplate") : t("card.makeTemplate")}
+          <fieldset className={lockClass} disabled={locked}>
+            <button
+              className={topButtonClass}
+              data-panel="cover"
+              aria-expanded={expanded("cover")}
+              onClick={toggle("cover")}
+              aria-label={t("card.cover")}
+              title={t("card.cover")}
+            >
+              <Icon name="image" />
+            </button>
+            <Menu
+              ref={menuRef}
+              label={t("card.cardActions")}
+              summaryClassName="grid size-8 place-items-center rounded-sm text-[20px] leading-none text-ink-subtle hover:bg-line group-open/menu:bg-line"
+              touchRows
+            >
+              <MenuItem onClick={() => openAt("transfer", menuRef.current)}>{t("card.moveCopy")}</MenuItem>
+              <MenuItem onClick={onClone}>{t("card.clone")}</MenuItem>
+              {!inInbox && (
+                <MenuItem onClick={() => onChange((item) => ({ ...item, isTemplate: !item.isTemplate }))}>
+                  {card.isTemplate ? t("card.removeTemplate") : t("card.makeTemplate")}
+                </MenuItem>
+              )}
+              <MenuItem onClick={() => openAt("share", menuRef.current)}>{t("card.share")}</MenuItem>
+              <MenuItem onClick={onHistory}>{t("card.cardHistory")}</MenuItem>
+              <MenuSeparator />
+              <MenuItem danger onClick={onDelete}>
+                {t("card.moveToTrash")}
               </MenuItem>
-            )}
-            <MenuItem onClick={() => openAt("share", menuRef.current)}>{t("card.share")}</MenuItem>
-            <MenuItem onClick={onHistory}>{t("card.cardHistory")}</MenuItem>
-            <MenuSeparator />
-            <MenuItem danger onClick={onDelete}>
-              {t("card.moveToTrash")}
-            </MenuItem>
-          </Menu>
+            </Menu>
+          </fieldset>
           <button
             className={topButtonClass}
             onClick={onClose}
@@ -379,159 +399,178 @@ export function CardDialog({
           </button>
         </div>
       </header>
+      {trash && (
+        <div className="flex flex-none flex-wrap items-center gap-2 bg-danger-soft px-5 py-2.5 text-danger" role="note">
+          <span className="mr-auto">{t("pages.cardInTrash", { count: trash.daysLeft })}</span>
+          <Button variant="danger" size="md" onClick={trash.onPurge}>
+            {t("pages.deleteForever")}
+          </Button>
+          <Button variant="primary" size="md" onClick={trash.onRestore}>
+            {t("common.restore")}
+          </Button>
+        </div>
+      )}
       <div className="grid min-h-0 grid-cols-[minmax(0,1.4fr)_minmax(290px,1fr)] overflow-auto max-tablet:block">
         <div className="overflow-auto pt-6 pr-8 pb-8 pl-14 max-tablet:overflow-visible max-phone:pr-[18px] max-phone:pl-[54px]">
-          <NameEditor
-            // `!`: the dialog's phone rule would make the title 16px like the other fields.
-            className="-ml-1.5 w-[calc(100%+6px)] min-w-0 rounded-sm border-0 bg-transparent px-1.5 py-1 text-[26px]! leading-tight font-semibold text-ink hover:bg-surface-sunken focus:bg-white"
-            value={card.name}
-            label={t("card.cardTitle")}
-            onCommit={(name) => onChange((item) => ({ ...item, name }))}
-          />
-          <p className="mt-1 mb-4 text-[12px] text-ink-muted">
-            {t("card.inList", {
-              list: lists.find((item) => item.id === card.listId)?.name ?? "—",
-              board: state.boards.find((item) => item.id === card.boardId)?.name ?? "",
-            })}
-            {created ? t("card.createdAt", { time: formatDateTime(created) }) : ""}
-            {t("card.cardId", { id: card.id })}
-          </p>
-          <div className="card-actions mb-5 flex flex-wrap gap-2">
-            <QuickButton icon="plus" panel="add" expanded={expanded("add")} onClick={toggle("add")}>
-              {t("common.add")}
-            </QuickButton>
-            {!inInbox && (
-              <QuickButton icon="tag" panel="labels" expanded={expanded("labels")} onClick={toggle("labels")}>
-                {t("card.labels")}
-              </QuickButton>
-            )}
-            {!card.isTemplate && (
-              <QuickButton icon="clock" panel="dates" expanded={expanded("dates")} onClick={toggle("dates")}>
-                {t("card.dates")}
-              </QuickButton>
-            )}
-            <QuickButton
-              icon="check-square"
-              panel="checklist"
-              expanded={expanded("checklist")}
-              onClick={toggle("checklist")}
-            >
-              {t("card.checklist")}
-            </QuickButton>
-            {canAssign && (
-              <QuickButton icon="user-plus" panel="members" expanded={expanded("members")} onClick={toggle("members")}>
-                {t("card.members")}
-              </QuickButton>
-            )}
-            {cardButtons.map((rule) => (
-              <Button variant="outline" key={rule.id} onClick={() => onRunAutomation(rule.id)}>
-                {rule.name}
-              </Button>
-            ))}
-          </div>
-          {card.isTemplate && (
-            <p className="mt-0 mb-4 rounded-sm bg-brand-soft p-2.5 text-ink">{t("card.templateNotice")}</p>
-          )}
-          {(members.length > 0 || card.labelIds.length > 0 || showDates) && (
-            <div className="mb-2 flex flex-wrap gap-x-6 gap-y-3">
-              {members.length > 0 && (
-                <div>
-                  <div className={blockTitleClass}>{t("card.members")}</div>
-                  <div className="flex flex-wrap gap-1" aria-label={t("card.cardMembers")}>
-                    <CardMemberAvatars card={card} boardMembers={boardMembers} />
-                    {canAssign && (
-                      <button
-                        className={`${addChipClass} rounded-full`}
-                        data-panel="members"
-                        aria-expanded={expanded("members")}
-                        onClick={toggle("members")}
-                        aria-label={t("card.assignMembers")}
-                      >
-                        <Icon name="plus" className="size-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              {card.labelIds.length > 0 && (
-                <div>
-                  <div className={blockTitleClass}>{t("card.labels")}</div>
-                  <div className="flex flex-wrap gap-1">
-                    <CardLabelChips card={card} boardLabels={boardLabels} />
-                    {!inInbox && (
-                      <button
-                        className={`${addChipClass} rounded-sm`}
-                        data-panel="labels"
-                        aria-expanded={expanded("labels")}
-                        onClick={toggle("labels")}
-                        aria-label={t("card.changeLabels")}
-                      >
-                        <Icon name="plus" className="size-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              {showDates && (
-                <div>
-                  <div className={blockTitleClass}>
-                    {card.startAt && card.dueAt
-                      ? t("card.dates")
-                      : card.dueAt
-                        ? t("card.dueDate")
-                        : t("card.startDate")}
-                  </div>
-                  <DatesChip card={card} expanded={expanded("dates")} onClick={toggle("dates")} />
-                </div>
-              )}
-            </div>
-          )}
-          <CardDescription
-            card={card}
-            onChange={onChange}
-            localCardForUrl={localCardForUrl}
-            onNavigateCard={onNavigateCard}
-          />
-          {(prerequisiteCards.length > 0 || dependentCards.length > 0) && (
-            <DependencySummary
-              prerequisiteCards={prerequisiteCards}
-              dependentCards={dependentCards}
-              onNavigateCard={onNavigateCard}
+          <fieldset className={lockClass} disabled={locked}>
+            <NameEditor
+              // `!`: the dialog's phone rule would make the title 16px like the other fields.
+              className="-ml-1.5 w-[calc(100%+6px)] min-w-0 rounded-sm border-0 bg-transparent px-1.5 py-1 text-[26px]! leading-tight font-semibold text-ink hover:bg-surface-sunken focus:bg-white disabled:bg-transparent"
+              value={card.name}
+              label={t("card.cardTitle")}
+              onCommit={(name) => onChange((item) => ({ ...item, name }))}
             />
-          )}
-          {mentionedInDoc && (
-            <p className="my-1">
-              {tNodes("card.mentionedInDoc", {
-                doc: (
-                  <Button variant="link" onClick={onOpenDoc}>
-                    {t("card.boardDoc")}
-                  </Button>
-                ),
+            <p className="mt-1 mb-4 text-[12px] text-ink-muted">
+              {t("card.inList", {
+                list: lists.find((item) => item.id === card.listId)?.name ?? "—",
+                board: state.boards.find((item) => item.id === card.boardId)?.name ?? "",
               })}
+              {created ? t("card.createdAt", { time: formatDateTime(created) }) : ""}
+              {t("card.cardId", { id: card.id })}
             </p>
-          )}
-          {!card.isTemplate && !inInbox && (
-            <SubCards
+            <div className="card-actions mb-5 flex flex-wrap gap-2">
+              <QuickButton icon="plus" panel="add" expanded={expanded("add")} onClick={toggle("add")}>
+                {t("common.add")}
+              </QuickButton>
+              {!inInbox && (
+                <QuickButton icon="tag" panel="labels" expanded={expanded("labels")} onClick={toggle("labels")}>
+                  {t("card.labels")}
+                </QuickButton>
+              )}
+              {!card.isTemplate && (
+                <QuickButton icon="clock" panel="dates" expanded={expanded("dates")} onClick={toggle("dates")}>
+                  {t("card.dates")}
+                </QuickButton>
+              )}
+              <QuickButton
+                icon="check-square"
+                panel="checklist"
+                expanded={expanded("checklist")}
+                onClick={toggle("checklist")}
+              >
+                {t("card.checklist")}
+              </QuickButton>
+              {canAssign && (
+                <QuickButton
+                  icon="user-plus"
+                  panel="members"
+                  expanded={expanded("members")}
+                  onClick={toggle("members")}
+                >
+                  {t("card.members")}
+                </QuickButton>
+              )}
+              {cardButtons.map((rule) => (
+                <Button variant="outline" key={rule.id} onClick={() => onRunAutomation(rule.id)}>
+                  {rule.name}
+                </Button>
+              ))}
+            </div>
+            {card.isTemplate && (
+              <p className="mt-0 mb-4 rounded-sm bg-brand-soft p-2.5 text-ink">{t("card.templateNotice")}</p>
+            )}
+            {(members.length > 0 || card.labelIds.length > 0 || showDates) && (
+              <div className="mb-2 flex flex-wrap gap-x-6 gap-y-3">
+                {members.length > 0 && (
+                  <div>
+                    <div className={blockTitleClass}>{t("card.members")}</div>
+                    <div className="flex flex-wrap gap-1" aria-label={t("card.cardMembers")}>
+                      <CardMemberAvatars card={card} boardMembers={boardMembers} />
+                      {canAssign && (
+                        <button
+                          className={`${addChipClass} rounded-full`}
+                          data-panel="members"
+                          aria-expanded={expanded("members")}
+                          onClick={toggle("members")}
+                          aria-label={t("card.assignMembers")}
+                        >
+                          <Icon name="plus" className="size-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {card.labelIds.length > 0 && (
+                  <div>
+                    <div className={blockTitleClass}>{t("card.labels")}</div>
+                    <div className="flex flex-wrap gap-1">
+                      <CardLabelChips card={card} boardLabels={boardLabels} />
+                      {!inInbox && (
+                        <button
+                          className={`${addChipClass} rounded-sm`}
+                          data-panel="labels"
+                          aria-expanded={expanded("labels")}
+                          onClick={toggle("labels")}
+                          aria-label={t("card.changeLabels")}
+                        >
+                          <Icon name="plus" className="size-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {showDates && (
+                  <div>
+                    <div className={blockTitleClass}>
+                      {card.startAt && card.dueAt
+                        ? t("card.dates")
+                        : card.dueAt
+                          ? t("card.dueDate")
+                          : t("card.startDate")}
+                    </div>
+                    <DatesChip card={card} expanded={expanded("dates")} onClick={toggle("dates")} />
+                  </div>
+                )}
+              </div>
+            )}
+            <CardDescription
               card={card}
-              state={state}
-              parentCard={parentCard}
-              childCards={children}
+              readOnly={locked}
               onChange={onChange}
-              onCreateSubCard={onCreateSubCard}
+              localCardForUrl={localCardForUrl}
               onNavigateCard={onNavigateCard}
             />
-          )}
-          {card.checklists.map((checklist) => (
-            <ChecklistSection
-              key={checklist.id}
-              checklist={checklist}
-              card={card}
-              onChange={onChange}
-              onRemoveDependency={onRemoveDependency}
-              onConvertItem={(itemId) => onConvertChecklistItem(checklist.id, itemId)}
-            />
-          ))}
-          {related.length > 0 && <RelatedCards related={related} state={state} onNavigateCard={onNavigateCard} />}
+            {(prerequisiteCards.length > 0 || dependentCards.length > 0) && (
+              <DependencySummary
+                prerequisiteCards={prerequisiteCards}
+                dependentCards={dependentCards}
+                onNavigateCard={onNavigateCard}
+              />
+            )}
+            {mentionedInDoc && (
+              <p className="my-1">
+                {tNodes("card.mentionedInDoc", {
+                  doc: (
+                    <Button variant="link" onClick={onOpenDoc}>
+                      {t("card.boardDoc")}
+                    </Button>
+                  ),
+                })}
+              </p>
+            )}
+            {!card.isTemplate && !inInbox && (
+              <SubCards
+                card={card}
+                state={state}
+                parentCard={parentCard}
+                childCards={children}
+                onChange={onChange}
+                onCreateSubCard={onCreateSubCard}
+                onNavigateCard={onNavigateCard}
+              />
+            )}
+            {card.checklists.map((checklist) => (
+              <ChecklistSection
+                key={checklist.id}
+                checklist={checklist}
+                card={card}
+                onChange={onChange}
+                onRemoveDependency={onRemoveDependency}
+                onConvertItem={(itemId) => onConvertChecklistItem(checklist.id, itemId)}
+              />
+            ))}
+            {related.length > 0 && <RelatedCards related={related} state={state} onNavigateCard={onNavigateCard} />}
+          </fieldset>
           {card.attachments.length > 0 && (
             <section className={detailSectionClass}>
               <DetailTitle icon="clip">{t("card.attachments")}</DetailTitle>
@@ -544,7 +583,7 @@ export function CardDialog({
                   )}
                   onNavigateCard={onNavigateCard}
                   onDownload={onDownload}
-                  onRemove={() => removeAttachment(attachment)}
+                  onRemove={locked ? undefined : () => removeAttachment(attachment)}
                 />
               ))}
             </section>
@@ -558,6 +597,7 @@ export function CardDialog({
           onChange={onChange}
           localCardForUrl={localCardForUrl}
           onNavigateCard={onNavigateCard}
+          readOnly={locked}
         />
       </div>
       {panel && (

@@ -3,7 +3,7 @@ import { readAiSettings, type AiSettings } from "../ai/ai";
 import { t } from "../i18n";
 import type { TileActions } from "../board/CardTile";
 import { CardActionsContext } from "../card/CardActionsContext";
-import { CardDialog } from "../card/CardDialog";
+import { CardDialog, type TrashedCard } from "../card/CardDialog";
 import { useAutoBackup } from "../hooks/useAutoBackup";
 import { useBoardActions } from "../hooks/useBoardActions";
 import { type CardActions, useCardActions } from "../hooks/useCardActions";
@@ -226,6 +226,28 @@ function App() {
       onClone={() => overlays.open({ cloneCardId: card.id })}
     />
   ) : null;
+  /** A card in the trash, opened from the Trash page: the same dialog, read-only; its list may be trashed too. */
+  const trashedCardDialog = (item: Card, trashed: TrashedCard, onClose: () => void) => (
+    <CardDialog
+      key={item.id}
+      card={item}
+      trash={trashed}
+      onDelete={trashed.onPurge}
+      authorName={localAuthor}
+      currentDeviceId={localDeviceId}
+      state={fullState}
+      lists={fullState.lists.filter(
+        (list) => list.boardId === item.boardId && (!list.deletedAt || list.id === item.listId),
+      )}
+      onClose={onClose}
+      onNavigateCard={openCardInPlace}
+      onTransfer={() => undefined}
+      onHistory={() => undefined}
+      team={team}
+      onOpenDoc={() => undefined}
+      onClone={() => undefined}
+    />
+  );
 
   const appMenu: AppMenuActions = {
     onImport: () => overlays.open({ import: true }),
@@ -355,6 +377,7 @@ function App() {
               tileActions={tileActions}
               aiSettings={aiSettings}
               cardPage={cardDialog}
+              trashedCardDialog={trashedCardDialog}
               backgroundUrl={backgroundUrl}
             />
           </div>

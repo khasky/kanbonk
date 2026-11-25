@@ -3,12 +3,13 @@ import type { AiSettings } from "../ai/ai";
 import type { ProposedCard } from "../board/AiPanel";
 import { BoardView } from "../board/BoardView";
 import type { TileActions } from "../board/CardTile";
+import type { TrashedCard } from "../card/CardDialog";
 import { exportTrelloCsv, exportTrelloJson } from "../trello/formats";
 import { t } from "../i18n";
 import { saveFile } from "../lib/platform";
 import { trashHref } from "../lib/router";
 import { saveAttachment } from "../lib/storage";
-import { newId, recordRevision } from "../model";
+import { type Card, newId, recordRevision } from "../model";
 import { HomePage } from "../pages/HomePage";
 import { MissingPage } from "../pages/MissingPage";
 import { TrashPage } from "../pages/TrashPage";
@@ -22,6 +23,7 @@ export function MainContent({
   tileActions,
   aiSettings,
   cardPage,
+  trashedCardDialog,
   backgroundUrl,
 }: {
   view: BoardViewData;
@@ -29,6 +31,8 @@ export function MainContent({
   aiSettings: AiSettings | null;
   /** The card dialog when a card's address was opened directly, without a page behind it. */
   cardPage: ReactNode;
+  /** The card dialog of a card in the trash, opened from the Trash page. */
+  trashedCardDialog: (card: Card, trash: TrashedCard, onClose: () => void) => ReactNode;
   backgroundUrl?: string;
 }) {
   const app = useApp();
@@ -155,6 +159,7 @@ export function MainContent({
           onRestore={app.trash.restore}
           onPurge={app.trash.purge}
           onEmpty={app.trash.empty}
+          cardDialog={trashedCardDialog}
         />
       ) : page.page === "card" ? (
         (cardPage ?? <MissingPage what={t("app.cardNotFound")} />)

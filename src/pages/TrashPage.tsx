@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
+import type { TrashedCard } from "../card/CardDialog";
 import { formatDateTime, type MessageKey, t } from "../i18n";
 import { useTrashRetention } from "../lib/trashRetention";
-import type { AppState } from "../model";
+import type { AppState, Card } from "../model";
 import { trashDaysLeft, trashEntries, trashRetentionDays, type TrashKind } from "../model/trash";
 import { Button } from "../ui/Button";
 import { Hint } from "../ui/Hint";
 import { PanelRow, PanelRowNote, PanelRowText, RowActions } from "../ui/PanelRow";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
 import { emptyClass, pageClass, pageHeaderClass } from "./pageLook";
-import { TrashedCardDialog } from "./TrashedCardDialog";
 
 const kindNames: Record<TrashKind, MessageKey> = {
   workspace: "pages.kindWorkspaces",
@@ -24,6 +24,7 @@ export function TrashPage({
   onRestore,
   onPurge,
   onEmpty,
+  cardDialog,
 }: {
   state: AppState;
   kind?: TrashKind;
@@ -31,6 +32,8 @@ export function TrashPage({
   onRestore: (kind: TrashKind, id: string) => void;
   onPurge: (kind: TrashKind, id: string) => void;
   onEmpty: () => void;
+  /** The card dialog, read-only, of a card in the trash. */
+  cardDialog: (card: Card, trash: TrashedCard, onClose: () => void) => ReactNode;
 }) {
   const days = useTrashRetention() ?? trashRetentionDays;
   const [viewedCardId, setViewedCardId] = useState<string>();
@@ -102,17 +105,17 @@ export function TrashPage({
         <p className={emptyClass}>{t("pages.trashEmpty")}</p>
       )}
       <Hint>{t("pages.trashHint")}</Hint>
-      {viewedCard && (
-        <TrashedCardDialog
-          card={viewedCard}
-          state={state}
-          daysLeft={trashDaysLeft(viewedCard.deletedAt!, undefined, days)}
-          // The dialog closes by itself once the card leaves the trash.
-          onRestore={() => onRestore("card", viewedCard.id)}
-          onPurge={() => onPurge("card", viewedCard.id)}
-          onClose={() => setViewedCardId(undefined)}
-        />
-      )}
+      {viewedCard &&
+        // The dialog closes by itself once the card leaves the trash.
+        cardDialog(
+          viewedCard,
+          {
+            daysLeft: trashDaysLeft(viewedCard.deletedAt!, undefined, days),
+            onRestore: () => onRestore("card", viewedCard.id),
+            onPurge: () => onPurge("card", viewedCard.id),
+          },
+          () => setViewedCardId(undefined),
+        )}
     </section>
   );
 }
