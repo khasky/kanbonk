@@ -185,6 +185,16 @@ export default {
 
     versionHistory: "Verzióelőzmények",
     versionsKept: "Minden elem utolsó 30 verziója megmarad.",
+    historyOldest: "Legrégebbi megőrzött verzió",
+    historyNoChanges: "Nincs változás",
+    historyOther: "Egyéb változások",
+    historyMoved: "Áthelyezve",
+    historyTrashed: "Lomtárba helyezve",
+    historyRestored: "Visszaállítva a lomtárból",
+    historyColor: "Szín",
+    historyBackground: "Háttér",
+    historyZones: "Zónák",
+    historySize: "{size} KB",
 
     inbox: "Beérkezett",
     inboxIntro: "Gyűjtse itt az ötleteket és feladatokat, majd helyezze át őket egy táblára.",

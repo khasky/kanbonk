@@ -185,6 +185,16 @@ export default {
 
     versionHistory: "Versionshistorik",
     versionsKept: "De senaste 30 versionerna av varje objekt sparas.",
+    historyOldest: "Äldsta sparade version",
+    historyNoChanges: "Inga ändringar",
+    historyOther: "Andra ändringar",
+    historyMoved: "Flyttad",
+    historyTrashed: "Flyttad till papperskorgen",
+    historyRestored: "Återställd från papperskorgen",
+    historyColor: "Färg",
+    historyBackground: "Bakgrund",
+    historyZones: "Zoner",
+    historySize: "{size} kB",
 
     inbox: "Inkorg",
     inboxIntro: "Samla idéer och uppgifter här och flytta dem sedan till en tavla.",

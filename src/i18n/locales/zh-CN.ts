@@ -178,6 +178,16 @@ export default {
 
     versionHistory: "版本历史",
     versionsKept: "每个项目保留最近 30 个版本。",
+    historyOldest: "保留的最早版本",
+    historyNoChanges: "无更改",
+    historyOther: "其他更改",
+    historyMoved: "已移动",
+    historyTrashed: "已移至回收站",
+    historyRestored: "已从回收站恢复",
+    historyColor: "颜色",
+    historyBackground: "背景",
+    historyZones: "区域",
+    historySize: "{size} KB",
 
     inbox: "收件箱",
     inboxIntro: "在这里收集想法和任务，然后把它们移到看板上。",

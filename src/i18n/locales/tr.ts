@@ -185,6 +185,16 @@ export default {
 
     versionHistory: "Sürüm geçmişi",
     versionsKept: "Her öğenin son 30 sürümü saklanır.",
+    historyOldest: "Saklanan en eski sürüm",
+    historyNoChanges: "Değişiklik yok",
+    historyOther: "Diğer değişiklikler",
+    historyMoved: "Taşındı",
+    historyTrashed: "Çöp kutusuna taşındı",
+    historyRestored: "Çöp kutusundan geri yüklendi",
+    historyColor: "Renk",
+    historyBackground: "Arka plan",
+    historyZones: "Bölgeler",
+    historySize: "{size} KB",
 
     inbox: "Gelen Kutusu",
     inboxIntro: "Fikirleri ve görevleri burada toplayın, sonra bir panoya taşıyın.",

@@ -182,6 +182,16 @@ export default {
 
     versionHistory: "バージョン履歴",
     versionsKept: "各アイテムの直近 30 バージョンが保持されます。",
+    historyOldest: "保持されている最も古いバージョン",
+    historyNoChanges: "変更なし",
+    historyOther: "その他の変更",
+    historyMoved: "移動",
+    historyTrashed: "ゴミ箱に移動",
+    historyRestored: "ゴミ箱から復元",
+    historyColor: "色",
+    historyBackground: "背景",
+    historyZones: "ゾーン",
+    historySize: "{size} KB",
 
     inbox: "受信トレイ",
     inboxIntro: "アイデアやタスクをここに集めて、あとでボードに移動しましょう。",

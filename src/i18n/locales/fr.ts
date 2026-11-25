@@ -196,6 +196,16 @@ export default {
 
     versionHistory: "Historique des versions",
     versionsKept: "Les 30 dernières versions de chaque élément sont conservées.",
+    historyOldest: "Plus ancienne version conservée",
+    historyNoChanges: "Aucune modification",
+    historyOther: "Autres modifications",
+    historyMoved: "Déplacé",
+    historyTrashed: "Placé dans la corbeille",
+    historyRestored: "Restauré depuis la corbeille",
+    historyColor: "Couleur",
+    historyBackground: "Arrière-plan",
+    historyZones: "Zones",
+    historySize: "{size} Ko",
 
     inbox: "Boîte de réception",
     inboxIntro: "Rassemblez ici vos idées et tâches, puis déplacez-les vers un tableau.",

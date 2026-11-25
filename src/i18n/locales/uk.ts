@@ -199,6 +199,16 @@ export default {
 
     versionHistory: "Історія версій",
     versionsKept: "Зберігаються останні 30 версій кожного елемента.",
+    historyOldest: "Найстаріша збережена версія",
+    historyNoChanges: "Без змін",
+    historyOther: "Інші зміни",
+    historyMoved: "Переміщено",
+    historyTrashed: "Переміщено в кошик",
+    historyRestored: "Відновлено з кошика",
+    historyColor: "Колір",
+    historyBackground: "Фон",
+    historyZones: "Зони",
+    historySize: "{size} КБ",
 
     inbox: "Вхідні",
     inboxIntro: "Збирайте тут ідеї та завдання, а потім переміщуйте їх на дошку.",

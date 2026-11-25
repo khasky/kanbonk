@@ -186,6 +186,16 @@ export default {
 
     versionHistory: "Versiegeschiedenis",
     versionsKept: "De laatste 30 versies van elk item worden bewaard.",
+    historyOldest: "Oudste bewaarde versie",
+    historyNoChanges: "Geen wijzigingen",
+    historyOther: "Overige wijzigingen",
+    historyMoved: "Verplaatst",
+    historyTrashed: "Naar prullenbak verplaatst",
+    historyRestored: "Teruggezet uit prullenbak",
+    historyColor: "Kleur",
+    historyBackground: "Achtergrond",
+    historyZones: "Zones",
+    historySize: "{size} KB",
 
     inbox: "Inbox",
     inboxIntro: "Verzamel hier ideeën en taken en verplaats ze daarna naar een bord.",

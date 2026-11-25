@@ -185,6 +185,16 @@ export default {
 
     versionHistory: "Versjonslogg",
     versionsKept: "De siste 30 versjonene av hvert element blir tatt vare på.",
+    historyOldest: "Eldste lagrede versjon",
+    historyNoChanges: "Ingen endringer",
+    historyOther: "Andre endringer",
+    historyMoved: "Flyttet",
+    historyTrashed: "Flyttet til papirkurven",
+    historyRestored: "Gjenopprettet fra papirkurven",
+    historyColor: "Farge",
+    historyBackground: "Bakgrunn",
+    historyZones: "Soner",
+    historySize: "{size} kB",
 
     inbox: "Innboks",
     inboxIntro: "Samle ideer og oppgaver her, og flytt dem deretter til en tavle.",

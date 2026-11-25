@@ -198,6 +198,16 @@ export default {
 
     versionHistory: "Historia wersji",
     versionsKept: "Przechowywanych jest 30 ostatnich wersji każdego elementu.",
+    historyOldest: "Najstarsza zachowana wersja",
+    historyNoChanges: "Bez zmian",
+    historyOther: "Inne zmiany",
+    historyMoved: "Przeniesiono",
+    historyTrashed: "Przeniesiono do kosza",
+    historyRestored: "Przywrócono z kosza",
+    historyColor: "Kolor",
+    historyBackground: "Tło",
+    historyZones: "Strefy",
+    historySize: "{size} KB",
 
     inbox: "Skrzynka odbiorcza",
     inboxIntro: "Zbieraj tu pomysły i zadania, a potem przenoś je na tablicę.",

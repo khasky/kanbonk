@@ -182,6 +182,16 @@ export default {
 
     versionHistory: "Lịch sử phiên bản",
     versionsKept: "30 phiên bản gần nhất của mỗi mục được giữ lại.",
+    historyOldest: "Phiên bản cũ nhất được giữ lại",
+    historyNoChanges: "Không có thay đổi",
+    historyOther: "Thay đổi khác",
+    historyMoved: "Đã di chuyển",
+    historyTrashed: "Đã chuyển vào thùng rác",
+    historyRestored: "Đã khôi phục từ thùng rác",
+    historyColor: "Màu",
+    historyBackground: "Hình nền",
+    historyZones: "Vùng",
+    historySize: "{size} KB",
 
     inbox: "Hộp thư đến",
     inboxIntro: "Thu thập ý tưởng và công việc tại đây, sau đó chuyển chúng sang một bảng.",

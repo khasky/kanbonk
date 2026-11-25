@@ -198,6 +198,16 @@ export default {
 
     versionHistory: "Historie verzí",
     versionsKept: "Uchovává se posledních 30 verzí každé položky.",
+    historyOldest: "Nejstarší uložená verze",
+    historyNoChanges: "Beze změn",
+    historyOther: "Další změny",
+    historyMoved: "Přesunuto",
+    historyTrashed: "Přesunuto do koše",
+    historyRestored: "Obnoveno z koše",
+    historyColor: "Barva",
+    historyBackground: "Pozadí",
+    historyZones: "Zóny",
+    historySize: "{size} kB",
 
     inbox: "Doručená pošta",
     inboxIntro: "Shromažďujte zde nápady a úkoly a pak je přesuňte na nástěnku.",

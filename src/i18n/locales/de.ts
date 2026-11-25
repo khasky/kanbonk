@@ -187,6 +187,16 @@ export default {
 
     versionHistory: "Versionsverlauf",
     versionsKept: "Die letzten 30 Versionen jedes Elements werden aufbewahrt.",
+    historyOldest: "Älteste aufbewahrte Version",
+    historyNoChanges: "Keine Änderungen",
+    historyOther: "Weitere Änderungen",
+    historyMoved: "Verschoben",
+    historyTrashed: "In den Papierkorb verschoben",
+    historyRestored: "Aus dem Papierkorb wiederhergestellt",
+    historyColor: "Farbe",
+    historyBackground: "Hintergrund",
+    historyZones: "Zonen",
+    historySize: "{size} KB",
 
     inbox: "Eingang",
     inboxIntro: "Ideen und Aufgaben hier sammeln und dann auf ein Board verschieben.",

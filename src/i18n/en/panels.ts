@@ -8,6 +8,16 @@ export const panels = {
 
   versionHistory: "Version history",
   versionsKept: "The last 30 versions of each item are kept.",
+  historyOldest: "Oldest kept version",
+  historyNoChanges: "No changes",
+  historyOther: "Other changes",
+  historyMoved: "Moved",
+  historyTrashed: "Moved to Trash",
+  historyRestored: "Restored from Trash",
+  historyColor: "Color",
+  historyBackground: "Background",
+  historyZones: "Zones",
+  historySize: "{size} KB",
 
   inbox: "Inbox",
   inboxIntro: "Collect ideas and tasks here, then move them to a board.",

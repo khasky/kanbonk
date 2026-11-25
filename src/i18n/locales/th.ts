@@ -180,6 +180,16 @@ export default {
 
     versionHistory: "ประวัติเวอร์ชัน",
     versionsKept: "ระบบเก็บ 30 เวอร์ชันล่าสุดของแต่ละรายการ",
+    historyOldest: "เวอร์ชันเก่าที่สุดที่เก็บไว้",
+    historyNoChanges: "ไม่มีการเปลี่ยนแปลง",
+    historyOther: "การเปลี่ยนแปลงอื่น ๆ",
+    historyMoved: "ย้ายแล้ว",
+    historyTrashed: "ย้ายไปถังขยะ",
+    historyRestored: "กู้คืนจากถังขยะ",
+    historyColor: "สี",
+    historyBackground: "พื้นหลัง",
+    historyZones: "โซน",
+    historySize: "{size} KB",
 
     inbox: "กล่องรับเข้า",
     inboxIntro: "รวบรวมไอเดียและงานไว้ที่นี่ แล้วค่อยย้ายไปยังบอร์ด",

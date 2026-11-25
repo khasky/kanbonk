@@ -186,6 +186,16 @@ export default {
 
     versionHistory: "Versiohistoria",
     versionsKept: "Jokaisesta kohteesta säilytetään 30 viimeisintä versiota.",
+    historyOldest: "Vanhin säilytetty versio",
+    historyNoChanges: "Ei muutoksia",
+    historyOther: "Muita muutoksia",
+    historyMoved: "Siirretty",
+    historyTrashed: "Siirretty roskakoriin",
+    historyRestored: "Palautettu roskakorista",
+    historyColor: "Väri",
+    historyBackground: "Tausta",
+    historyZones: "Alueet",
+    historySize: "{size} kt",
 
     inbox: "Saapuneet",
     inboxIntro: "Kerää ideat ja tehtävät tänne ja siirrä ne sitten taululle.",

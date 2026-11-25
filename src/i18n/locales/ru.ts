@@ -199,6 +199,16 @@ export default {
 
     versionHistory: "История версий",
     versionsKept: "Хранятся последние 30 версий каждого элемента.",
+    historyOldest: "Самая старая сохранённая версия",
+    historyNoChanges: "Без изменений",
+    historyOther: "Другие изменения",
+    historyMoved: "Перемещено",
+    historyTrashed: "Перемещено в корзину",
+    historyRestored: "Восстановлено из корзины",
+    historyColor: "Цвет",
+    historyBackground: "Фон",
+    historyZones: "Зоны",
+    historySize: "{size} КБ",
 
     inbox: "Входящие",
     inboxIntro: "Собирайте здесь идеи и задачи, а затем перемещайте их на доску.",
