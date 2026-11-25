@@ -9,7 +9,7 @@ import { formatDateTime, type MessageKey, t } from "../i18n";
 import { tNodes } from "../i18n/nodes";
 import { Icon, type IconName } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
-import { AttachmentRow } from "./AttachmentRow";
+import { AttachmentsSection } from "./AttachmentsSection";
 import { ChecklistSection } from "./ChecklistSection";
 import { useCardActionsContext } from "./CardActionsContext";
 import { CardActivity } from "./CardActivity";
@@ -23,14 +23,12 @@ import { CardLabelChips, LabelPicker } from "./LabelPicker";
 import { LinkEditor } from "./LinkEditor";
 import { CardMemberAvatars, MemberPicker } from "./MemberPicker";
 import { SharePanel } from "./SharePanel";
+import { MovePicker } from "./MovePicker";
 import { TransferPicker } from "./TransferPicker";
 import { Button } from "../ui/Button";
 import { Backdrop, useEscapeToDismiss } from "../ui/Modal";
-import { Select } from "../ui/Field";
 import { Menu, MenuItem, MenuSeparator } from "../ui/Menu";
 import { Popover } from "../ui/Popover";
-import { detailSectionClass } from "./cardLook";
-import { DetailTitle } from "./DetailTitle";
 
 // `card-dialog`, `card-dialog-top` and `card-actions` are hooks of the print rules (styles/index.css) and of tests;
 // `file-button` (on the attachment row of the "Add to card" popover) is a hook of tests.
@@ -65,6 +63,8 @@ type Panel =
   | "cover"
   | "dependency"
   | "transfer"
+  | "move"
+  | "attach"
   | "share";
 
 const panelTitles: Record<Panel, MessageKey> = {
@@ -77,6 +77,8 @@ const panelTitles: Record<Panel, MessageKey> = {
   cover: "card.cover",
   dependency: "card.addDependency",
   transfer: "card.moveOrCopyCard",
+  move: "card.moveCard",
+  attach: "card.attach",
   share: "card.shareCard",
 };
 
@@ -150,7 +152,8 @@ export function CardDialog({
   onDelete: () => void;
   onClose: () => void;
   onNavigateCard: (target: Card) => void;
-  onTransfer: (targetListId: string, copy: boolean, top?: boolean) => void;
+  /** `position`, if given, is the card's position value in the target list. */
+  onTransfer: (targetListId: string, copy: boolean, top?: boolean, position?: number) => void;
   onHistory: () => void;
   team: Member[];
   onClone: () => void;
@@ -228,6 +231,24 @@ export function CardDialog({
   const members = card.memberIds ?? [];
   const locked = Boolean(trash);
 
+  /** A row that picks files from this device and attaches them. */
+  const fileRow = (
+    <label className={`file-button ${addRowClass} has-focus-visible:outline-2 has-focus-visible:outline-brand`}>
+      <AddRowContent icon="clip" title={t("card.attachment")} note={t("card.attachmentNote")} />
+      <input
+        className="sr-only"
+        type="file"
+        multiple
+        onChange={(event) => {
+          const files = Array.from(event.target.files ?? []);
+          event.target.value = "";
+          closePanel();
+          onAttach(files);
+        }}
+      />
+    </label>
+  );
+
   function panelBody(kind: Panel, anchor: HTMLElement): ReactNode {
     if (kind === "add")
       return (
@@ -250,20 +271,7 @@ export function CardDialog({
               <AddRowContent icon="user-plus" title={t("card.members")} note={t("card.membersNote")} />
             </button>
           )}
-          <label className={`file-button ${addRowClass} has-focus-visible:outline-2 has-focus-visible:outline-brand`}>
-            <AddRowContent icon="clip" title={t("card.attachment")} note={t("card.attachmentNote")} />
-            <input
-              className="sr-only"
-              type="file"
-              multiple
-              onChange={(event) => {
-                const files = Array.from(event.target.files ?? []);
-                event.target.value = "";
-                closePanel();
-                onAttach(files);
-              }}
-            />
-          </label>
+          {fileRow}
           <button className={addRowClass} onClick={() => openAt("link", anchor)}>
             <AddRowContent icon="link" title={t("card.link")} note={t("card.linkNote")} />
           </button>
@@ -302,6 +310,13 @@ export function CardDialog({
           onAddMember={onAddMember}
         />
       );
+    if (kind === "attach")
+      return (
+        <div className="grid gap-3">
+          {fileRow}
+          <LinkEditor onChange={onChange} onClose={closePanel} />
+        </div>
+      );
     if (kind === "link") return <LinkEditor onChange={onChange} onClose={closePanel} />;
     if (kind === "cover") return <CoverPicker card={card} onChange={onChange} />;
     if (kind === "dependency")
@@ -314,6 +329,17 @@ export function CardDialog({
           onTransfer={(listId, copy, top) => {
             closePanel();
             onTransfer(listId, copy, top);
+          }}
+        />
+      );
+    if (kind === "move")
+      return (
+        <MovePicker
+          card={card}
+          state={state}
+          onMove={(listId, position) => {
+            closePanel();
+            if (listId !== card.listId || position !== card.position) onTransfer(listId, false, false, position);
           }}
         />
       );
@@ -332,18 +358,16 @@ export function CardDialog({
     >
       <header className="card-dialog-top flex h-14 flex-none items-center justify-between gap-3 border-b border-line px-5">
         <fieldset className={lockClass} disabled={locked}>
-          <Select
-            pill
-            value={card.listId}
-            onChange={(event) => onTransfer(event.target.value, false)}
+          <button
+            className="flex h-8 items-center gap-1 rounded-sm border-0 bg-surface-sunken px-2 text-[14px] font-medium text-ink hover:bg-line aria-expanded:bg-line"
+            data-panel="move"
+            aria-expanded={expanded("move")}
             aria-label={t("card.cardList")}
+            onClick={toggle("move")}
           >
-            {lists.map((list) => (
-              <option key={list.id} value={list.id}>
-                {list.name}
-              </option>
-            ))}
-          </Select>
+            {inInbox ? t("layout.inbox") : (lists.find((item) => item.id === card.listId)?.name ?? "—")}
+            <Icon name="chevron-down" className="size-4" />
+          </button>
         </fieldset>
         <div className="flex items-center gap-1">
           <fieldset className={lockClass} disabled={locked}>
@@ -561,21 +585,17 @@ export function CardDialog({
             {related.length > 0 && <RelatedCards related={related} state={state} onNavigateCard={onNavigateCard} />}
           </fieldset>
           {card.attachments.length > 0 && (
-            <section className={detailSectionClass}>
-              <DetailTitle icon="clip">{t("card.attachments")}</DetailTitle>
-              {card.attachments.map((attachment) => (
-                <AttachmentRow
-                  key={attachment.id}
-                  attachment={attachment}
-                  linkedCard={state.cards.find(
-                    (item) => item.id === attachment.linkedCardId && isCardAvailable(state, item),
-                  )}
-                  onNavigateCard={onNavigateCard}
-                  onDownload={onDownload}
-                  onRemove={locked ? undefined : () => removeAttachment(attachment)}
-                />
-              ))}
-            </section>
+            <AttachmentsSection
+              card={card}
+              state={state}
+              locked={locked}
+              addExpanded={expanded("attach")}
+              onAdd={toggle("attach")}
+              onChange={onChange}
+              onNavigateCard={onNavigateCard}
+              onDownload={onDownload}
+              onRemove={removeAttachment}
+            />
           )}
         </div>
         <CardActivity
@@ -590,7 +610,13 @@ export function CardDialog({
         />
       </div>
       {panel && (
-        <Popover key={panel.kind} title={t(panelTitles[panel.kind])} anchor={panel.anchor} onClose={closePanel}>
+        <Popover
+          key={panel.kind}
+          title={t(panelTitles[panel.kind])}
+          anchor={panel.anchor}
+          onClose={closePanel}
+          width={panel.kind === "move" ? 456 : undefined}
+        >
           {panelBody(panel.kind, panel.anchor)}
         </Popover>
       )}

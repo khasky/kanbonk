@@ -8,6 +8,7 @@ import {
   filterBoardCards,
   markMediaLocal,
   newId,
+  positionAt,
   positionBefore,
   recordRevision,
   reorderLists,
@@ -148,6 +149,10 @@ it("places a dragged card before the target in the same or another list", () => 
   expect(positionBefore(cards, "c", cards[1])).toBe(1.5);
   expect(positionBefore(cards, "c", cards[0])).toBe(0);
   expect(positionBefore(cards, "a", cards[3])).toBe(9);
+  expect(positionAt(cards, "first", "c", 0)).toBe(0);
+  expect(positionAt(cards, "first", "c", 1)).toBe(1.5);
+  expect(positionAt(cards, "first", "a", 5)).toBe(4);
+  expect(positionAt(cards, "empty", "a", 0)).toBe(1);
 });
 
 it("sorts a whole list by name or due date without moving trashed or other-list cards", () => {

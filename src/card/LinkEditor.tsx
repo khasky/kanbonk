@@ -31,6 +31,7 @@ export function LinkEditor({
             size: 0,
             sourceUrl: url.href,
             status: "link",
+            addedAt: new Date().toISOString(),
           },
         ],
       }));

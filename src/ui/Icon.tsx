@@ -27,6 +27,9 @@ export type IconName =
   | "dependency"
   | "chevron-left"
   | "chevron-right"
+  | "chevron-down"
+  | "chevron-up"
+  | "external"
   | "chevrons-left"
   | "chevrons-right";
 
@@ -163,6 +166,9 @@ export function Icon({ name, className }: { name: IconName; className?: string }
     ),
     "chevron-left": <path d="m15 18-6-6 6-6" />,
     "chevron-right": <path d="m9 18 6-6-6-6" />,
+    "chevron-down": <path d="m6 9 6 6 6-6" />,
+    "chevron-up": <path d="m18 15-6-6-6 6" />,
+    external: <path d="M14 4h6v6M10 14 20 4M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />,
     "chevrons-left": <path d="m11 17-5-5 5-5M18 17l-5-5 5-5" />,
     "chevrons-right": <path d="m6 17 5-5-5-5M13 17l5-5-5-5" />,
   };

@@ -169,6 +169,7 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
           size: number(attachment.bytes),
           sourceUrl: string(attachment.url),
           status: attachment.isUpload === false ? "link" : "missing",
+          addedAt: string(attachment.date) || undefined,
         };
       });
     const sourceCover = object(entry.cover);

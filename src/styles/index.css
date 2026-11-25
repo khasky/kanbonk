@@ -172,6 +172,78 @@
   }
 }
 
+/*
+ * The dropdowns of "Move card" (card/MovePicker.tsx) open a list styled as Trello's where the browser allows it
+ * (customizable select); elsewhere they stay native. An option's `data-current` shows under it as "(current)".
+ */
+@supports (appearance: base-select) {
+  @layer components {
+    .move-select,
+    .move-select::picker(select) {
+      appearance: base-select;
+    }
+    .move-select {
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+    }
+    .move-select::picker-icon {
+      content: "";
+      width: 16px;
+      height: 16px;
+      background: #44546f;
+      mask:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+    }
+    .move-select::picker(select) {
+      margin-top: 8px;
+      padding: 6px 0;
+      border: 0;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow:
+        0 8px 12px #091e4226,
+        0 0 1px #091e424f;
+      max-height: 440px;
+    }
+    .move-select option {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 8px 16px;
+      border-left: 2px solid transparent;
+      color: #172b4d;
+    }
+    .move-select option::checkmark {
+      display: none;
+    }
+    .move-select option:is(:hover, :focus-visible) {
+      outline: 0;
+      background: #091e420f;
+    }
+    .move-select option:checked {
+      border-left-color: #0c66e4;
+      background: #e9f2ff;
+      color: #0c66e4;
+    }
+    .move-select option[data-current]::after {
+      content: attr(data-current);
+      flex-basis: 100%;
+      font-size: 12px;
+    }
+    .move-select optgroup {
+      padding-top: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #44546f;
+    }
+    .move-select optgroup option {
+      font-size: 14px;
+      font-weight: 400;
+    }
+  }
+}
+
 /* Printing one card (card/share.ts sets the body class): unlayered, so it wins over every layer. */
 @media print {
   body.printing-card * {
@@ -188,6 +260,10 @@
     max-height: none;
     overflow: visible;
     box-shadow: none;
+  }
+  body.printing-card .description-clamp {
+    max-height: none !important;
+    mask: none;
   }
   body.printing-card .card-dialog [data-share-skip],
   body.printing-card .card-dialog-top,

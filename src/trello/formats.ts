@@ -124,6 +124,7 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
           bytes: item.size,
           pos: index + 1,
           isUpload: item.status !== "link",
+          date: item.addedAt,
           url: linked ? cardUrl(linked) : (item.sourceUrl ?? ""),
         };
       }),

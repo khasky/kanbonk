@@ -100,6 +100,8 @@ export interface Attachment {
   sourceUrl?: string;
   status: "local" | "missing" | "link";
   linkedCardId?: string;
+  /** When it was attached (ISO); absent on attachments saved before it was recorded. */
+  addedAt?: string;
 }
 
 export interface Card extends Trashable {

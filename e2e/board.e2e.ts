@@ -41,6 +41,44 @@ test("creates a workspace, board, lists and cards that survive a reload", async 
   await expect(page).toHaveURL(/\/w\//);
 });
 
+test("moves a card to another position and list from the card's list button", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Create workspace" }).click();
+  await page.keyboard.type("Team space");
+  await page.keyboard.press("Enter");
+  await page.getByRole("button", { name: "Add board to Team space" }).click();
+  await page.keyboard.type("Roadmap");
+  await page.keyboard.press("Enter");
+  for (const name of ["Ideas", "Doing"]) {
+    await page.getByRole("button", { name: "Add a list" }).click();
+    await page.keyboard.type(name);
+    await page.keyboard.press("Enter");
+  }
+  const ideas = page.locator(".list-column").filter({ has: page.getByLabel("List title Ideas") });
+  for (const name of ["One", "Two"]) {
+    await ideas.getByRole("button", { name: "Add a card" }).click();
+    await page.keyboard.type(name);
+    await page.keyboard.press("Enter");
+    await expect(ideas.getByRole("link", { name })).toBeVisible();
+  }
+  await ideas.getByRole("link", { name: /Two/ }).click();
+
+  const move = page.getByRole("dialog", { name: "Move card" });
+  await page.getByRole("button", { name: "Card list" }).click();
+  await expect(move.getByRole("tab", { name: "Board" })).toHaveAttribute("aria-selected", "true");
+  await move.getByLabel("Position").selectOption("0");
+  await move.getByRole("button", { name: "Move", exact: true }).click();
+  await expect(move).toBeHidden();
+  await expect(ideas.locator("[data-card-id]").first()).toContainText("Two");
+
+  await page.getByRole("button", { name: "Card list" }).click();
+  await move.getByLabel("List").selectOption({ label: "Doing" });
+  await move.getByRole("button", { name: "Move", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Card list" })).toHaveText("Doing");
+  const doing = page.locator(".list-column").filter({ has: page.getByLabel("List title Doing") });
+  await expect(doing.getByRole("link", { name: /Two/ })).toBeVisible();
+});
+
 test("opens a card by its address and closes it back to the board", async ({ page }) => {
   await importTrelloBoard(page);
   const boardUrl = page.url();

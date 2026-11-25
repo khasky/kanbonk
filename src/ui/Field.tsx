@@ -31,26 +31,17 @@ export function Input({
   return <input ref={ref} className={fieldClass(size, className)} {...props} />;
 }
 
-const pillLook =
-  "cursor-pointer rounded-sm border-0 bg-surface-sunken px-2 py-1 text-[14px] font-medium text-ink field-sizing-content hover:bg-line max-phone:text-[16px]";
-
-/**
- * A dropdown with the look of `Input`. `pill` is a borderless grey dropdown that reads as a button (the list of an
- * open card); it ignores `size`.
- */
+/** A dropdown with the look of `Input`. */
 export function Select({
   size = "md",
-  pill = false,
   className,
   ref,
   ...props
 }: Omit<SelectHTMLAttributes<HTMLSelectElement>, "size"> & {
   size?: FieldSize;
-  pill?: boolean;
   ref?: Ref<HTMLSelectElement>;
 }) {
-  const classes = pill ? (className ? `${pillLook} ${className}` : pillLook) : fieldClass(size, className);
-  return <select ref={ref} className={classes} {...props} />;
+  return <select ref={ref} className={fieldClass(size, className)} {...props} />;
 }
 
 /** A multi-line field with the look of `Input`; it resizes vertically. */

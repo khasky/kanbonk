@@ -69,4 +69,37 @@ test("previews a Markdown attachment and offers no preview for an archive", asyn
   await preview.getByRole("button", { name: "Close preview" }).click();
   await expect(preview).toBeHidden();
   await expect(card).toBeVisible();
+
+  // With note.txt from the import there are five files: the oldest hides behind "View all attachments".
+  await card.locator("[data-panel=attach]").click();
+  await card.locator("label.file-button input[type=file]").setInputFiles([
+    { name: "plan.txt", mimeType: "text/plain", buffer: Buffer.from("plan") },
+    { name: "todo.txt", mimeType: "text/plain", buffer: Buffer.from("todo") },
+  ]);
+  await card.getByRole("button", { name: "View all attachments (1 hidden)" }).click();
+  await card.getByLabel("Actions for note.txt").click();
+  await card.locator("details[open]").getByRole("button", { name: "Edit", exact: true }).click();
+  await page.getByRole("dialog", { name: "Edit attachment" }).getByLabel("Name").fill("old-note.txt");
+  await page.getByRole("dialog", { name: "Edit attachment" }).getByRole("button", { name: "Save" }).click();
+  await card.getByLabel("Actions for old-note.txt").click();
+  await card.locator("details[open]").getByRole("button", { name: "Remove", exact: true }).click();
+  await expect(card.getByText("old-note.txt")).toHaveCount(0);
+  await expect(card.getByRole("button", { name: /View all attachments/ })).toHaveCount(0);
+});
+
+test("folds a long description behind Show more", async ({ page }) => {
+  await importTrelloBoard(page);
+  await page.getByRole("link", { name: /Card from Trello/ }).click();
+  const card = page.getByRole("dialog", { name: "Card from Trello" });
+  await card.locator(".card-markdown").getByRole("button", { name: "Edit" }).click();
+  await card
+    .getByRole("textbox", { name: "Card description" })
+    .fill(Array.from({ length: 40 }, (_, index) => `Line ${index + 1}`).join("\n"));
+  await card.getByRole("button", { name: "Save" }).click();
+  await expect(card.getByText("Line 40")).not.toBeInViewport();
+  await card.getByRole("button", { name: "Show more" }).click();
+  await card.getByText("Line 40").scrollIntoViewIfNeeded();
+  await expect(card.getByText("Line 40")).toBeInViewport();
+  await card.getByRole("button", { name: "Show less" }).click();
+  await expect(card.getByRole("button", { name: "Show more" })).toBeVisible();
 });

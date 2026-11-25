@@ -298,7 +298,14 @@ export function useCardActions({
           ...current,
           attachments: [
             ...current.attachments,
-            { id, name: file.name, mimeType: file.type, size: file.size, status: "local" },
+            {
+              id,
+              name: file.name,
+              mimeType: file.type,
+              size: file.size,
+              status: "local",
+              addedAt: new Date().toISOString(),
+            },
           ],
           cover: current.cover ?? (file.type.startsWith("image/") ? { attachmentId: id, size: "normal" } : undefined),
         }));

@@ -20,6 +20,17 @@ export function positionBefore(cards: Card[], movingId: string, target: Card): n
   return (siblings[targetIndex - 1].position + target.position) / 2;
 }
 
+/** The position that puts a card `index`-th (from 0) among the other cards of a list. */
+export function positionAt(cards: Card[], listId: string, movingId: string, index: number): number {
+  const others = cards
+    .filter((card) => card.listId === listId && card.id !== movingId && !card.deletedAt)
+    .sort((a, b) => a.position - b.position);
+  if (!others.length) return 1;
+  if (index <= 0) return others[0].position - 1;
+  if (index >= others.length) return others[others.length - 1].position + 1;
+  return (others[index - 1].position + others[index].position) / 2;
+}
+
 export function reorderLists(lists: BoardList[], movingId: string, targetId: string, after = false): BoardList[] {
   const moving = lists.find((list) => list.id === movingId && !list.deletedAt);
   const target = lists.find((list) => list.id === targetId && !list.deletedAt);

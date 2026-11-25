@@ -72,6 +72,8 @@ export function Popover({
       if (event.key !== "Escape") return;
       // Captured on the window before anything else, so the dialog under the popover does not close too.
       event.stopPropagation();
+      // Escape in an open customizable dropdown closes only that dropdown.
+      if (CSS.supports("selector(:open)") && ref.current?.querySelector("select:open")) return;
       onClose();
       anchor.focus();
     }
