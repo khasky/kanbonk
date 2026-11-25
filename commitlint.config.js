@@ -16,6 +16,7 @@ const scopes = [
   "docs",
   "doc-view",
   "extension",
+  "i18n",
   "import",
   "inbox",
   "mcp",
