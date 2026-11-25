@@ -46,7 +46,7 @@ const topButtonClass =
   "grid size-8 place-items-center rounded-sm border-0 bg-transparent text-ink-subtle hover:bg-line aria-expanded:bg-line";
 const blockTitleClass = "mb-1.5 text-[12px] font-semibold text-ink-subtle";
 const addChipClass =
-  "grid size-8 place-items-center border-0 bg-surface-sunken text-ink-subtle hover:bg-line aria-expanded:bg-line";
+  "grid size-8 place-items-center border border-line bg-white text-ink-subtle hover:bg-surface-sunken aria-expanded:bg-line";
 const addRowClass =
   "flex w-full cursor-pointer items-center gap-3 rounded-sm border-0 bg-transparent p-1.5 text-left text-ink hover:bg-surface-sunken";
 
@@ -380,7 +380,7 @@ export function CardDialog({
         </div>
       </header>
       <div className="grid min-h-0 grid-cols-[minmax(0,1.4fr)_minmax(290px,1fr)] overflow-auto max-tablet:block">
-        <div className="overflow-auto pt-6 pr-8 pb-8 pl-[68px] max-tablet:overflow-visible max-phone:pr-[18px] max-phone:pl-[54px]">
+        <div className="overflow-auto pt-6 pr-8 pb-8 pl-14 max-tablet:overflow-visible max-phone:pr-[18px] max-phone:pl-[54px]">
           <NameEditor
             // `!`: the dialog's phone rule would make the title 16px like the other fields.
             className="-ml-1.5 w-[calc(100%+6px)] min-w-0 rounded-sm border-0 bg-transparent px-1.5 py-1 text-[26px]! leading-tight font-semibold text-ink hover:bg-surface-sunken focus:bg-white"

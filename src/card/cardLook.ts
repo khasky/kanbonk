@@ -4,7 +4,7 @@
 export const detailSectionClass = "my-6";
 
 /** The heading of the activity panel, with its controls inline. */
-export const detailTitleClass = "mt-0 mb-3 flex min-h-8 items-center gap-3 text-[16px] font-semibold";
+export const detailTitleClass = "mt-0 mb-3 flex min-h-8 items-center gap-3 text-[14px] font-semibold";
 
 /**
  * A grey "click to write" field: the empty description. `!`: the card dialog makes its buttons 44px high on phones,
