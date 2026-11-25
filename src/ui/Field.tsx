@@ -32,7 +32,7 @@ export function Input({
 }
 
 const pillLook =
-  "cursor-pointer rounded-sm border-0 bg-surface-sunken px-2 py-1 text-[14px] font-semibold text-ink hover:bg-line max-phone:text-[16px]";
+  "cursor-pointer rounded-sm border-0 bg-surface-sunken px-2 py-1 text-[14px] font-medium text-ink field-sizing-content hover:bg-line max-phone:text-[16px]";
 
 /**
  * A dropdown with the look of `Input`. `pill` is a borderless grey dropdown that reads as a button (the list of an

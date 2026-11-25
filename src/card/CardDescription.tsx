@@ -25,7 +25,7 @@ export function CardDescription({
       <DetailTitle icon="text">
         {t("card.description")}
         {card.description && !editingDescription && (
-          <Button variant="outline" size="sm" className="ml-auto" onClick={() => setEditingDescription(true)}>
+          <Button variant="outline" size="md" className="ml-auto" onClick={() => setEditingDescription(true)}>
             {t("common.edit")}
           </Button>
         )}

@@ -84,7 +84,7 @@ export function CardActivity({
         {t("card.commentsAndActivity")}
         <Button
           variant="outline"
-          size="sm"
+          size="md"
           className="ml-auto"
           type="button"
           aria-pressed={showActivityDetails}
@@ -111,7 +111,7 @@ export function CardActivity({
         {activityFeed.map((item) => {
           if (item.kind === "change")
             return (
-              <article className="flex gap-2.5 wrap-anywhere" key={item.id}>
+              <article className="flex gap-2.5 leading-5 wrap-anywhere" key={item.id}>
                 <span className={`${avatarClass} bg-line text-ink-subtle`} aria-hidden="true">
                   <Icon name="history" className="size-4" />
                 </span>
@@ -123,7 +123,7 @@ export function CardActivity({
             );
           const entry = item.comment;
           return (
-            <article className="flex gap-2.5" key={item.id}>
+            <article className="flex gap-2.5 leading-5" key={item.id}>
               <span className={`${avatarClass} bg-[#1d7a8c] text-white`}>{entry.author.slice(0, 1)}</span>
               <div className="min-w-0 flex-1 pt-1.5">
                 <strong>{entry.author}</strong> <small className={dateClass}>{formatDateTime(entry.createdAt)}</small>

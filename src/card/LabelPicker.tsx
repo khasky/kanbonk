@@ -192,7 +192,7 @@ export function CardLabelChips({ card, boardLabels }: { card: Card; boardLabels:
     return (
       label && (
         <span
-          className="flex h-8 min-w-12 items-center rounded-sm px-3 font-semibold"
+          className="flex h-8 min-w-12 items-center rounded-sm px-3 font-medium"
           key={id}
           style={{
             background: label.color || "#dfe1e6",

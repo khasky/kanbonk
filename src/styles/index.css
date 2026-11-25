@@ -132,6 +132,27 @@
   .markdown-card-link:hover {
     color: #0055cc;
   }
+  /* Text of an open card as Trello sets it: 24px lines, lists right under their paragraph, a light 2px rule. */
+  .card-dialog .markdown-text {
+    line-height: 24px;
+  }
+  .card-dialog .markdown-text p {
+    margin: 12px 0 0;
+  }
+  .card-dialog .markdown-text :is(ul, ol) {
+    margin: 0;
+    padding-left: 24px;
+  }
+  .card-dialog .markdown-text :is(p, ul, ol):first-child {
+    margin-top: 0;
+  }
+  .card-dialog .markdown-text hr {
+    height: 2px;
+    margin: 24px 0;
+    border: 0;
+    border-radius: 1px;
+    background: #091e4224;
+  }
   /* Headings in a card's description and comments look like the card's section titles. */
   .card-markdown h3 {
     font-size: 15px;
