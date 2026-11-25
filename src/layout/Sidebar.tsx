@@ -148,18 +148,16 @@ export function Sidebar({
         .filter((item) => item.id !== inboxWorkspaceId && !item.deletedAt)
         .map((workspace) => (
           <div className={collapsed ? undefined : "mb-3"} key={workspace.id}>
-            <div className={`flex items-center gap-2 p-1.5 ${collapsed ? "justify-center" : ""}`}>
-              <WorkspaceAvatar name={workspace.name} />
+            <div className={`flex items-center gap-2 ${collapsed ? "justify-center p-0.5" : "py-[3px] pr-1.5 pl-0.5"}`}>
               <AppLink
-                className={
-                  collapsed
-                    ? "hidden"
-                    : `min-w-0 flex-1 truncate rounded-sm border-0 bg-transparent p-1 text-left font-bold no-underline hover:bg-brand-soft hover:text-brand ${workspace.id === workspaceId ? "text-brand" : "text-inherit"}`
-                }
+                className={`flex min-w-0 items-center gap-3 rounded-sm border-0 bg-transparent p-1 text-left font-bold no-underline hover:bg-brand-soft hover:text-brand ${collapsed ? "" : "flex-1"} ${workspace.id === workspaceId ? "text-brand" : "text-inherit"}`}
                 href={`/w/${encodeURIComponent(workspace.id)}`}
                 onOpen={() => navigate(`/w/${workspace.id}`)}
+                aria-label={workspace.name}
+                title={collapsed ? workspace.name : undefined}
               >
-                {workspace.name}
+                <WorkspaceAvatar name={workspace.name} />
+                {!collapsed && <span className="truncate">{workspace.name}</span>}
               </AppLink>
               <button
                 className={collapsed ? "hidden" : smallButton}

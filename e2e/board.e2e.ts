@@ -35,6 +35,10 @@ test("creates a workspace, board, lists and cards that survive a reload", async 
   await expect(page.locator(".list-column [aria-label^='List title']").nth(1)).toHaveValue("Ideas");
   await expect(page.getByRole("link", { name: /First idea/ })).toBeVisible();
   await expect(page.getByRole("complementary").getByRole("link", { name: "Team space", exact: true })).toBeVisible();
+  // Collapsed, the workspace's letter icon still opens it.
+  await page.getByRole("button", { name: "Collapse sidebar" }).click();
+  await page.getByRole("complementary").getByRole("link", { name: "Team space", exact: true }).click();
+  await expect(page).toHaveURL(/\/w\//);
 });
 
 test("opens a card by its address and closes it back to the board", async ({ page }) => {
