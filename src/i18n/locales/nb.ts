@@ -1224,4 +1224,14 @@ export default {
     agedTitle: { one: "Uendret i {count} uke", other: "Uendret i {count} uker" },
     changedAt: " · endret {time}",
   },
+  mirrors: {
+    mirror: "Speil",
+    title: "Speilinger",
+    hint: "Endringer her går til hver speiling: tittel, beskrivelse, datoer, sjekklister, vedlegg, omslag, kommentarer, etiketter og medlemmer.",
+    where: "{board} · {list}",
+    unlink: "Slutt å speile",
+    created: "Speiling opprettet på tavlen «{board}», listen «{list}».",
+    tileTitle: { one: "Speilet på {count} kort til", other: "Speilet på {count} kort til" },
+    deleteMirrors: { one: "Slett også {count} speiling", other: "Slett også {count} speilinger" },
+  },
 } satisfies Translation;

@@ -1296,4 +1296,22 @@ export default {
     },
     changedAt: " · modifiée {time}",
   },
+  mirrors: {
+    mirror: "Refléter",
+    title: "Reflets",
+    hint: "Les modifications ici vont à tous les reflets : titre, description, dates, checklists, pièces jointes, couverture, commentaires, étiquettes et membres.",
+    where: "{board} · {list}",
+    unlink: "Ne plus refléter",
+    created: "Reflet créé dans le tableau « {board} », liste « {list} ».",
+    tileTitle: {
+      one: "Reflétée sur {count} autre carte",
+      many: "Reflétée sur {count} de cartes",
+      other: "Reflétée sur {count} autres cartes",
+    },
+    deleteMirrors: {
+      one: "Supprimer aussi {count} reflet",
+      many: "Supprimer aussi ses {count} de reflets",
+      other: "Supprimer aussi ses {count} reflets",
+    },
+  },
 } satisfies Translation;

@@ -1287,4 +1287,22 @@ export default {
     },
     changedAt: " · modificata {time}",
   },
+  mirrors: {
+    mirror: "Rispecchia",
+    title: "Specchi",
+    hint: "Le modifiche qui vanno a tutti gli specchi: titolo, descrizione, date, checklist, allegati, copertina, commenti, etichette e membri.",
+    where: "{board} · {list}",
+    unlink: "Smetti di rispecchiare",
+    created: "Specchio creato nella bacheca “{board}”, lista “{list}”.",
+    tileTitle: {
+      one: "Rispecchiata in {count} altra scheda",
+      many: "Rispecchiata in {count} di schede",
+      other: "Rispecchiata in {count} altre schede",
+    },
+    deleteMirrors: {
+      one: "Elimina anche {count} specchio",
+      many: "Elimina anche i suoi {count} di specchi",
+      other: "Elimina anche i suoi {count} specchi",
+    },
+  },
 } satisfies Translation;

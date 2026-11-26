@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { Dialog } from "../ui/Modal";
+import { Checkbox } from "../ui/Field";
+import { optionLabelClass } from "./dialogLook";
 import { type MessageKey, t } from "../i18n";
 import { useTrashRetention } from "../lib/trashRetention";
 import { trashRetentionDays, type TrashImpact, type TrashKind } from "../model/trash";
@@ -16,15 +19,19 @@ export function DeleteDialog({
   kind,
   name,
   impact,
+  mirrorCount = 0,
   onConfirm,
   onCancel,
 }: {
   kind: TrashKind;
   name: string;
   impact: TrashImpact;
-  onConfirm: (withDependents: boolean) => void;
+  /** The card's other mirrors, offered to delete with it. */
+  mirrorCount?: number;
+  onConfirm: (withDependents: boolean, withMirrors: boolean) => void;
   onCancel: () => void;
 }) {
+  const [withMirrors, setWithMirrors] = useState(false);
   const cards = impact.cardIds.length - (kind === "card" ? 1 : 0);
   const days = t("common.days", { count: useTrashRetention() ?? trashRetentionDays });
   return (
@@ -48,16 +55,22 @@ export function DeleteDialog({
           )}
         </div>
       )}
+      {mirrorCount > 0 && (
+        <label className={`${optionLabelClass} mt-2.5`}>
+          <Checkbox checked={withMirrors} onChange={(event) => setWithMirrors(event.target.checked)} />
+          {t("mirrors.deleteMirrors", { count: mirrorCount })}
+        </label>
+      )}
       <div className={`${dialogFooterClass} flex-wrap`}>
         <Button variant="secondary" size="lg" type="button" onClick={onCancel}>
           {t("common.cancel")}
         </Button>
         {impact.dependents.length > 0 && (
-          <Button type="button" variant="danger" size="lg" onClick={() => onConfirm(true)}>
+          <Button type="button" variant="danger" size="lg" onClick={() => onConfirm(true, withMirrors)}>
             {t("dialogs.deleteWithDependents")}
           </Button>
         )}
-        <Button type="button" variant="primary-danger" autoFocus onClick={() => onConfirm(false)}>
+        <Button type="button" variant="primary-danger" autoFocus onClick={() => onConfirm(false, withMirrors)}>
           {impact.dependents.length ? t("dialogs.deleteKeepDependents") : t("common.delete")}
         </Button>
       </div>

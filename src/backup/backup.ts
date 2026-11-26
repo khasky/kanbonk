@@ -119,6 +119,7 @@ export function validState(state: Record<string, unknown>): boolean {
         card.labelIds.every((id) => typeof id === "string") &&
         (card.memberIds === undefined ||
           (Array.isArray(card.memberIds) && card.memberIds.every((id) => typeof id === "string"))) &&
+        (card.mirrorId === undefined || typeof card.mirrorId === "string") &&
         (card.automationRunKeys === undefined ||
           (Array.isArray(card.automationRunKeys) && card.automationRunKeys.every((key) => typeof key === "string"))) &&
         Array.isArray(card.checklists) &&

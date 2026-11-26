@@ -67,6 +67,7 @@ export function ListColumn({
   cardViews,
   missingByCard,
   cardAges,
+  mirrorCounts,
   agingMode,
   tileActions,
   templates,
@@ -92,6 +93,8 @@ export function ListColumn({
   missingByCard: Map<string, MissingField[]>;
   /** How long each card has gone without a change, on a board that ages its cards. */
   cardAges: Map<string, CardAge>;
+  /** How many other mirrors each mirrored card has. */
+  mirrorCounts: Map<string, number>;
   agingMode?: CardAgingMode;
   tileActions: TileActions;
   templates: Card[];
@@ -222,6 +225,7 @@ export function ListColumn({
             missing={missingByCard.get(item.id)}
             age={agingMode && cardAges.get(item.id)}
             agingMode={agingMode}
+            mirrorCount={mirrorCounts.get(item.id)}
             actions={tileActions}
             hidden={item.id === draggedCardId}
           />

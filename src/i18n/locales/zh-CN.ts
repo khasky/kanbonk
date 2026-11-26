@@ -1184,4 +1184,14 @@ export default {
     agedTitle: { other: "{count} 周未更改" },
     changedAt: " · 更改于 {time}",
   },
+  mirrors: {
+    mirror: "镜像",
+    title: "镜像",
+    hint: "此处的更改会同步到所有镜像：标题、描述、日期、检查清单、附件、封面、评论、标签和成员。",
+    where: "{board} · {list}",
+    unlink: "取消镜像",
+    created: "已在看板“{board}”的列表“{list}”中创建镜像。",
+    tileTitle: { other: "另镜像于 {count} 张卡片" },
+    deleteMirrors: { other: "同时删除其 {count} 个镜像" },
+  },
 } satisfies Translation;

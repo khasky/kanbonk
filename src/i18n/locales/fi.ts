@@ -1239,4 +1239,14 @@ export default {
     agedTitle: { one: "Muuttamatta {count} viikon", other: "Muuttamatta {count} viikkoa" },
     changedAt: " · muutettu {time}",
   },
+  mirrors: {
+    mirror: "Peilaa",
+    title: "Peilaukset",
+    hint: "Muutokset täällä menevät kaikkiin peilauksiin: otsikko, kuvaus, päivät, tarkistuslistat, liitteet, kansikuva, kommentit, tunnisteet ja jäsenet.",
+    where: "{board} · {list}",
+    unlink: "Lopeta peilaus",
+    created: "Peilaus luotu tauluun ”{board}”, listaan ”{list}”.",
+    tileTitle: { one: "Peilattu {count} muuhun korttiin", other: "Peilattu {count} muuhun korttiin" },
+    deleteMirrors: { one: "Poista myös {count} peilaus", other: "Poista myös {count} peilausta" },
+  },
 } satisfies Translation;

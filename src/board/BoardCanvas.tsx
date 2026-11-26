@@ -229,6 +229,7 @@ export function BoardCanvas({
         cardViews={view.cardViews}
         missingByCard={view.missingByCard}
         cardAges={view.cardAges}
+        mirrorCounts={view.mirrorCounts}
         agingMode={view.agingMode}
         tileActions={tileActions}
         templates={view.templates}

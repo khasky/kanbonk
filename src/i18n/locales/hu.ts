@@ -1241,4 +1241,14 @@ export default {
     agedTitle: { one: "{count} hete nem módosult", other: "{count} hete nem módosult" },
     changedAt: " · módosítva: {time}",
   },
+  mirrors: {
+    mirror: "Tükrözés",
+    title: "Tükrözések",
+    hint: "Az itteni változások minden tükrözésbe átkerülnek: cím, leírás, dátumok, ellenőrzőlisták, mellékletek, borító, megjegyzések, címkék és tagok.",
+    where: "{board} · {list}",
+    unlink: "Tükrözés megszüntetése",
+    created: "Tükrözés létrehozva a(z) „{board}” táblán, a(z) „{list}” listában.",
+    tileTitle: { one: "További {count} kártyára tükrözve", other: "További {count} kártyára tükrözve" },
+    deleteMirrors: { one: "A(z) {count} tükrözés törlése is", other: "A(z) {count} tükrözés törlése is" },
+  },
 } satisfies Translation;

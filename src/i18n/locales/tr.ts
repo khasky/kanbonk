@@ -1219,4 +1219,14 @@ export default {
     agedTitle: { one: "{count} haftadır değişmedi", other: "{count} haftadır değişmedi" },
     changedAt: " · değiştirildi: {time}",
   },
+  mirrors: {
+    mirror: "Yansıt",
+    title: "Yansımalar",
+    hint: "Buradaki değişiklikler her yansımaya gider: başlık, açıklama, tarihler, kontrol listeleri, ekler, kapak, yorumlar, etiketler ve üyeler.",
+    where: "{board} · {list}",
+    unlink: "Yansıtmayı durdur",
+    created: "Yansıma “{board}” panosunda, “{list}” listesinde oluşturuldu.",
+    tileTitle: { one: "{count} karta daha yansıtıldı", other: "{count} karta daha yansıtıldı" },
+    deleteMirrors: { one: "{count} yansımasını da sil", other: "{count} yansımasını da sil" },
+  },
 } satisfies Translation;

@@ -1230,4 +1230,14 @@ export default {
     agedTitle: { one: "{count} week niet gewijzigd", other: "{count} weken niet gewijzigd" },
     changedAt: " · gewijzigd {time}",
   },
+  mirrors: {
+    mirror: "Spiegelen",
+    title: "Spiegels",
+    hint: "Wijzigingen hier gaan naar elke spiegel: titel, beschrijving, datums, checklists, bijlagen, omslag, opmerkingen, labels en leden.",
+    where: "{board} · {list}",
+    unlink: "Niet meer spiegelen",
+    created: "Spiegel gemaakt op bord “{board}”, lijst “{list}”.",
+    tileTitle: { one: "Gespiegeld op {count} andere kaart", other: "Gespiegeld op {count} andere kaarten" },
+    deleteMirrors: { one: "Ook {count} spiegel verwijderen", other: "Ook {count} spiegels verwijderen" },
+  },
 } satisfies Translation;

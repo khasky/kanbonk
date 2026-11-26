@@ -15,6 +15,8 @@ import {
   deleteLabel,
   updateLabel,
   linkDependency,
+  mirrorCard,
+  unlinkMirror,
   type Member,
   newId,
   positionBefore,
@@ -116,6 +118,26 @@ export function useCardActions({
       return trashSubCards(recordRevision({ ...transferred, cards }, "card", targetId, deviceId), targetId, deviceId);
     });
     return { targetId, boardId: targetList.boardId };
+  }
+
+  /** Makes a mirror of the card at the top or bottom of an open list and returns where it is, or undefined. */
+  function mirrorCardTo(id: string, targetListId: string, top = false) {
+    const targetList = state.lists.find((list) => list.id === targetListId && !list.deletedAt);
+    if (!targetList) return undefined;
+    const copyId = newId();
+    setState((current) => mirrorCard(current, id, targetListId, deviceId, { top, copyId }));
+    onNotice(
+      t("mirrors.created", {
+        board: state.boards.find((board) => board.id === targetList.boardId)?.name ?? "",
+        list: targetList.name,
+      }),
+    );
+    return { targetId: copyId, boardId: targetList.boardId };
+  }
+
+  /** Stops the card mirroring its other copies. */
+  function unlinkCardMirror(id: string) {
+    setState((current) => unlinkMirror(current, id, deviceId));
   }
 
   /** Adds a card, or a card template with `isTemplate`, at the end of a list on the board and returns its id. */
@@ -345,6 +367,8 @@ export function useCardActions({
     updateCard,
     runCardButton,
     moveOrCopyCard,
+    mirrorCardTo,
+    unlinkCardMirror,
     createCard,
     dropCardAt,
     createProposedCards,

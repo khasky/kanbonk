@@ -83,6 +83,17 @@ export function useBoardView(
     }
     return missing;
   }, [state.cards, boardId, rules]);
+  /** How many other live mirrors each mirrored card of the open board has. */
+  const mirrorCounts = useMemo(() => {
+    const groups = new Map<string, number>();
+    for (const item of state.cards)
+      if (item.mirrorId && !item.deletedAt) groups.set(item.mirrorId, (groups.get(item.mirrorId) ?? 0) + 1);
+    const counts = new Map<string, number>();
+    for (const item of state.cards)
+      if (item.boardId === boardId && item.mirrorId && (groups.get(item.mirrorId) ?? 0) > 1)
+        counts.set(item.id, (groups.get(item.mirrorId) ?? 1) - 1);
+    return counts;
+  }, [state.cards, boardId]);
   /** How long each card of the open board has gone without a change, when the board ages its cards. */
   const cardAges = useMemo(() => (boardId ? boardCardAges(state, boardId, now) : new Map()), [state, boardId, now]);
 
@@ -118,6 +129,7 @@ export function useBoardView(
     cardViews,
     missingByCard,
     cardAges,
+    mirrorCounts,
     agingMode: board?.cardAging,
     totalCardCount: boardId ? filterBoardCards(state, boardId, emptyBoardFilter()).length : 0,
     templates: state.cards.filter((item) => item.boardId === boardId && item.isTemplate),

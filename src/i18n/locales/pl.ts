@@ -1357,4 +1357,24 @@ export default {
     },
     changedAt: " · zmieniono {time}",
   },
+  mirrors: {
+    mirror: "Lustro",
+    title: "Lustra",
+    hint: "Zmiany tutaj trafiają do wszystkich luster: tytuł, opis, daty, listy zadań, załączniki, okładka, komentarze, etykiety i członkowie.",
+    where: "{board} · {list}",
+    unlink: "Przestań odzwierciedlać",
+    created: "Utworzono lustro na tablicy „{board}”, na liście „{list}”.",
+    tileTitle: {
+      one: "Odzwierciedlona w {count} innej karcie",
+      few: "Odzwierciedlona w {count} innych kartach",
+      many: "Odzwierciedlona w {count} innych kartach",
+      other: "Odzwierciedlona w {count} innej karty",
+    },
+    deleteMirrors: {
+      one: "Usuń też {count} lustro",
+      few: "Usuń też {count} lustra",
+      many: "Usuń też {count} luster",
+      other: "Usuń też {count} lustra",
+    },
+  },
 } satisfies Translation;

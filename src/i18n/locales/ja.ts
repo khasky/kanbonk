@@ -1207,4 +1207,14 @@ export default {
     agedTitle: { other: "{count} 週間変更なし" },
     changedAt: " · {time} に変更",
   },
+  mirrors: {
+    mirror: "ミラー",
+    title: "ミラー",
+    hint: "ここでの変更はすべてのミラーに反映されます：タイトル、説明、日付、チェックリスト、添付ファイル、カバー、コメント、ラベル、メンバー。",
+    where: "{board} · {list}",
+    unlink: "ミラーを解除",
+    created: "ボード「{board}」のリスト「{list}」にミラーを作成しました。",
+    tileTitle: { other: "ほかに {count} 枚のカードにミラー" },
+    deleteMirrors: { other: "{count} 個のミラーも削除" },
+  },
 } satisfies Translation;

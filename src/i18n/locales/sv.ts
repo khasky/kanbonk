@@ -1225,4 +1225,14 @@ export default {
     agedTitle: { one: "Oförändrat i {count} vecka", other: "Oförändrat i {count} veckor" },
     changedAt: " · ändrat {time}",
   },
+  mirrors: {
+    mirror: "Spegla",
+    title: "Speglingar",
+    hint: "Ändringar här går till varje spegling: titel, beskrivning, datum, checklistor, bilagor, omslag, kommentarer, etiketter och medlemmar.",
+    where: "{board} · {list}",
+    unlink: "Sluta spegla",
+    created: "Spegling skapad på tavlan ”{board}”, listan ”{list}”.",
+    tileTitle: { one: "Speglat på {count} kort till", other: "Speglat på {count} kort till" },
+    deleteMirrors: { one: "Ta även bort {count} spegling", other: "Ta även bort {count} speglingar" },
+  },
 } satisfies Translation;

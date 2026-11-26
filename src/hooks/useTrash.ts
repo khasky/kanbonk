@@ -1,6 +1,6 @@
 import { askConfirm } from "../ui/AskDialog";
 import { type Dispatch, type SetStateAction, useState } from "react";
-import type { AppState } from "../model";
+import { type AppState, mirrorsOf } from "../model";
 import { t } from "../i18n";
 import {
   emptyTrash,
@@ -17,6 +17,8 @@ export interface PendingDelete {
   id: string;
   name: string;
   impact: TrashImpact;
+  /** The card's other live mirrors, which may go to the trash with it. */
+  mirrorIds: string[];
 }
 
 /**
@@ -50,14 +52,26 @@ export function useTrash({
 
   /** Opens the confirmation dialog for moving an item to the trash. */
   function requestDelete(kind: TrashKind, id: string) {
-    setPendingDelete({ kind, id, name: entityName(kind, id), impact: trashImpact(fullState, kind, id) });
+    const card = kind === "card" ? fullState.cards.find((item) => item.id === id) : undefined;
+    setPendingDelete({
+      kind,
+      id,
+      name: entityName(kind, id),
+      impact: trashImpact(fullState, kind, id),
+      mirrorIds: card ? mirrorsOf(fullState, card).map((item) => item.id) : [],
+    });
   }
 
   /** Moves the pending item to the trash and returns it, or undefined when nothing was pending. */
-  function confirmDelete(withDependents: boolean) {
+  function confirmDelete(withDependents: boolean, withMirrors = false) {
     if (!pendingDelete) return undefined;
-    const { kind, id } = pendingDelete;
-    setState((current) => moveToTrash(current, kind, id, deviceId, { withDependents }));
+    const { kind, id, mirrorIds } = pendingDelete;
+    setState((current) =>
+      (withMirrors ? mirrorIds : []).reduce(
+        (next, mirrorId) => moveToTrash(next, "card", mirrorId, deviceId, { withDependents }),
+        moveToTrash(current, kind, id, deviceId, { withDependents }),
+      ),
+    );
     setPendingDelete(null);
     return pendingDelete;
   }

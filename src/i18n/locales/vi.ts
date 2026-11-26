@@ -1201,4 +1201,14 @@ export default {
     agedTitle: { other: "Không thay đổi trong {count} tuần" },
     changedAt: " · thay đổi lúc {time}",
   },
+  mirrors: {
+    mirror: "Phản chiếu",
+    title: "Bản phản chiếu",
+    hint: "Thay đổi ở đây sẽ đến mọi bản phản chiếu: tiêu đề, mô tả, ngày, việc cần làm, tệp đính kèm, ảnh bìa, bình luận, nhãn và thành viên.",
+    where: "{board} · {list}",
+    unlink: "Ngừng phản chiếu",
+    created: "Đã tạo bản phản chiếu ở bảng “{board}”, danh sách “{list}”.",
+    tileTitle: { other: "Được phản chiếu ở {count} thẻ khác" },
+    deleteMirrors: { other: "Xóa cả {count} bản phản chiếu" },
+  },
 } satisfies Translation;

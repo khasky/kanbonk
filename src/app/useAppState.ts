@@ -1,7 +1,16 @@
-import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { t } from "../i18n";
 import { deviceId, loadState, saveState } from "../lib/storage";
-import { emptyState, type AppState } from "../model";
+import { emptyState, syncMirrors, type AppState } from "../model";
 import { ensureInbox } from "../model/inbox";
 import { visibleState } from "../model/trash";
 
@@ -19,10 +28,18 @@ export function useAppState({
   onSaved: () => void;
   onError: (message: string) => void;
 }) {
-  const [fullState, setState] = useState<AppState>(emptyState);
+  const [fullState, setRawState] = useState<AppState>(emptyState);
   const state = useMemo(() => visibleState(fullState), [fullState]);
   const [ready, setReady] = useState(false);
   const localDeviceId = useRef(deviceId()).current;
+  /** Every change, made here or merged from another device, keeps mirrored cards alike. */
+  const setState = useCallback<Dispatch<SetStateAction<AppState>>>(
+    (action) =>
+      setRawState((current) =>
+        syncMirrors(current, typeof action === "function" ? action(current) : action, localDeviceId),
+      ),
+    [localDeviceId],
+  );
   /** The latest state for callbacks that run outside a render, such as backups. */
   const stateRef = useRef(fullState);
   stateRef.current = fullState;
@@ -37,7 +54,7 @@ export function useAppState({
     loadState()
       .then((state) => {
         if (!current) return;
-        setState(ensureInbox(state, localDeviceId));
+        setRawState(ensureInbox(state, localDeviceId));
         loaded();
         setReady(true);
       })

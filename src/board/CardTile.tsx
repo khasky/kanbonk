@@ -40,6 +40,7 @@ export const CardTile = memo(function CardTile({
   missing,
   age,
   agingMode,
+  mirrorCount = 0,
   actions,
   hidden = false,
 }: {
@@ -56,6 +57,8 @@ export const CardTile = memo(function CardTile({
   /** How long the card has gone without a change, on a board that ages its cards; see model/cardAging. */
   age?: CardAge;
   agingMode?: CardAgingMode;
+  /** How many other cards mirror this one. */
+  mirrorCount?: number;
   actions: TileActions;
   /** Hidden while it is dragged to another place, which the board shows instead. */
   hidden?: boolean;
@@ -151,8 +154,14 @@ export const CardTile = memo(function CardTile({
       item.comments.length ||
       item.checklists.length ||
       subCardCount ||
+      mirrorCount ||
       viewBadge ? (
         <span className={tileMetaClass}>
+          {mirrorCount > 0 && (
+            <span className={tileMetaItemClass} title={t("mirrors.tileTitle", { count: mirrorCount })}>
+              <Icon name="mirror" className={tileMetaIconClass} />
+            </span>
+          )}
           {item.description && <Icon name="text" className={tileMetaIconClass} />}
           {item.dueAt && (
             <span className={tileMetaItemClass}>

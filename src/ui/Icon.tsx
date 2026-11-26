@@ -38,7 +38,8 @@ export type IconName =
   | "check"
   | "eye"
   | "chart"
-  | "alert";
+  | "alert"
+  | "mirror";
 
 export function Icon({ name, className }: { name: IconName; className?: string }) {
   const paths = {
@@ -51,6 +52,7 @@ export function Icon({ name, className }: { name: IconName; className?: string }
     ),
     chart: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
     alert: <path d="M12 3 2 20h20L12 3ZM12 10v4M12 17h.01" />,
+    mirror: <path d="M9 9h11v11H9zM5 15H4V4h11v1" />,
     close: <path d="M18 6 6 18M6 6l12 12" />,
     star: <path d="m12 2 3 6.5 7 1-5 5 .9 7.5L12 18.5 6.1 22l.9-7.5-5-5 7-1L12 2Z" />,
     search: (

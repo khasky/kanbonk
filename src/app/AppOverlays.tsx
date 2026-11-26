@@ -80,8 +80,8 @@ export function AppOverlays({
     app.setNoticeCardId(id);
   }
 
-  function confirmDelete(withDependents: boolean) {
-    const deleted = app.trash.confirmDelete(withDependents);
+  function confirmDelete(withDependents: boolean, withMirrors: boolean) {
+    const deleted = app.trash.confirmDelete(withDependents, withMirrors);
     if (!deleted) return;
     const { kind, id } = deleted;
     if (kind === "card" && app.route.page === "card" && app.route.id === id) app.setCardId(null);
@@ -132,6 +132,7 @@ export function AppOverlays({
           kind={app.trash.pendingDelete.kind}
           name={app.trash.pendingDelete.name}
           impact={app.trash.pendingDelete.impact}
+          mirrorCount={app.trash.pendingDelete.mirrorIds.length}
           onConfirm={confirmDelete}
           onCancel={app.trash.cancelDelete}
         />

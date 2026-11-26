@@ -1239,4 +1239,22 @@ export default {
     },
     changedAt: " · alterado {time}",
   },
+  mirrors: {
+    mirror: "Espelhar",
+    title: "Espelhos",
+    hint: "As mudanças aqui vão para todos os espelhos: título, descrição, datas, checklists, anexos, capa, comentários, etiquetas e membros.",
+    where: "{board} · {list}",
+    unlink: "Parar de espelhar",
+    created: "Espelho criado no quadro “{board}”, lista “{list}”.",
+    tileTitle: {
+      one: "Espelhado em mais {count} cartão",
+      many: "Espelhado em mais {count} cartões",
+      other: "Espelhado em mais {count} cartões",
+    },
+    deleteMirrors: {
+      one: "Excluir também {count} espelho",
+      many: "Excluir também {count} espelhos",
+      other: "Excluir também {count} espelhos",
+    },
+  },
 } satisfies Translation;

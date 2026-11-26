@@ -6,6 +6,7 @@ import { importedCardForUrl, relatedCards } from "../model/links";
 import {
   isCardAvailable,
   lastChangedAt,
+  mirrorsOf,
   missingFields,
   subCards,
   viewStats,
@@ -25,6 +26,7 @@ import { ChecklistSection } from "./ChecklistSection";
 import { useCardActionsContext } from "./CardActionsContext";
 import { CardActivity } from "./CardActivity";
 import { CardViews } from "./CardViews";
+import { CardMirrors } from "./CardMirrors";
 import { DatesChip, DatesForm } from "./CardDates";
 import { CardDescription } from "./CardDescription";
 import { DependencySummary, RelatedCards, SubCards } from "./CardRelations";
@@ -207,6 +209,7 @@ export function CardDialog({
   useEscapeToDismiss(onClose);
   const boardLabels = state.labels.filter((item) => item.boardId === card.boardId && !item.deleted);
   const boardMembers = state.boards.find((item) => item.id === card.boardId)?.members ?? [];
+  const mirrors = mirrorsOf(state, card);
   // On a board that ages its cards, the card says when it last changed.
   const changedAt = state.boards.find((item) => item.id === card.boardId)?.cardAging
     ? lastChangedAt(state, card, (id) => state.revisions.find((revision) => revision.id === id)?.createdAt)
@@ -354,6 +357,14 @@ export function CardDialog({
             closePanel();
             onTransfer(listId, copy, top);
           }}
+          onMirror={
+            card.isTemplate || card.boardId === inboxBoardId
+              ? undefined
+              : (listId, top) => {
+                  closePanel();
+                  actions.mirrorCardTo(card.id, listId, top);
+                }
+          }
         />
       );
     if (kind === "move")
@@ -624,6 +635,14 @@ export function CardDialog({
               />
             ))}
             {related.length > 0 && <RelatedCards related={related} state={state} onNavigateCard={onNavigateCard} />}
+            {mirrors.length > 0 && (
+              <CardMirrors
+                mirrors={mirrors}
+                state={state}
+                onNavigateCard={onNavigateCard}
+                onUnlink={() => actions.unlinkCardMirror(card.id)}
+              />
+            )}
           </fieldset>
           {card.attachments.length > 0 && (
             <AttachmentsSection

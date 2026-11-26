@@ -10,10 +10,13 @@ export function TransferPicker({
   card,
   state,
   onTransfer,
+  onMirror,
 }: {
   card: Card;
   state: AppState;
   onTransfer: (targetListId: string, copy: boolean, top: boolean) => void;
+  /** Makes a mirror there: a card that stays alike with this one. */
+  onMirror?: (targetListId: string, top: boolean) => void;
 }) {
   const [destinationBoardId, setDestinationBoardId] = useState(card.boardId);
   const [destinationListId, setDestinationListId] = useState(card.listId);
@@ -94,6 +97,17 @@ export function TransferPicker({
         >
           {t("common.copy")}
         </Button>
+        {onMirror && (
+          <Button
+            variant="secondary"
+            size="lg"
+            className="flex-1"
+            onClick={() => onMirror(destinationListId, top)}
+            disabled={!destinationListId}
+          >
+            {t("mirrors.mirror")}
+          </Button>
+        )}
       </div>
     </section>
   );

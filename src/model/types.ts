@@ -157,6 +157,8 @@ export interface Card extends Trashable {
   isTemplate?: boolean;
   /** Parent card for sub-cards. */
   parentCardId?: string;
+  /** Cards with the same `mirrorId` mirror each other; see model/mirrors. */
+  mirrorId?: string;
 }
 
 export interface Revision {

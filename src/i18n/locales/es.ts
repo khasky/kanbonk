@@ -1245,4 +1245,22 @@ export default {
     },
     changedAt: " · modificada {time}",
   },
+  mirrors: {
+    mirror: "Reflejar",
+    title: "Reflejos",
+    hint: "Los cambios aquí van a todos los reflejos: título, descripción, fechas, checklists, adjuntos, portada, comentarios, etiquetas y miembros.",
+    where: "{board} · {list}",
+    unlink: "Dejar de reflejar",
+    created: "Reflejo creado en el tablero “{board}”, lista “{list}”.",
+    tileTitle: {
+      one: "Reflejada en {count} tarjeta más",
+      many: "Reflejada en {count} tarjetas más",
+      other: "Reflejada en {count} tarjetas más",
+    },
+    deleteMirrors: {
+      one: "Eliminar también su {count} reflejo",
+      many: "Eliminar también sus {count} reflejos",
+      other: "Eliminar también sus {count} reflejos",
+    },
+  },
 } satisfies Translation;

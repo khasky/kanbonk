@@ -1357,4 +1357,24 @@ export default {
     },
     changedAt: " · změněno {time}",
   },
+  mirrors: {
+    mirror: "Zrcadlo",
+    title: "Zrcadla",
+    hint: "Změny zde se přenesou do všech zrcadel: název, popis, data, checklisty, přílohy, obálka, komentáře, štítky a členové.",
+    where: "{board} · {list}",
+    unlink: "Přestat zrcadlit",
+    created: "Zrcadlo vytvořeno na nástěnce „{board}“, v seznamu „{list}“.",
+    tileTitle: {
+      one: "Zrcadlena v {count} další kartě",
+      few: "Zrcadlena v {count} dalších kartách",
+      many: "Zrcadlena v {count} další karty",
+      other: "Zrcadlena v {count} dalších kartách",
+    },
+    deleteMirrors: {
+      one: "Smazat i {count} zrcadlo",
+      few: "Smazat i {count} zrcadla",
+      many: "Smazat i {count} zrcadla",
+      other: "Smazat i {count} zrcadel",
+    },
+  },
 } satisfies Translation;

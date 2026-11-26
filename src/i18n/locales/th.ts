@@ -1187,4 +1187,14 @@ export default {
     agedTitle: { other: "ไม่ได้เปลี่ยนแปลงมา {count} สัปดาห์" },
     changedAt: " · เปลี่ยนแปลงเมื่อ {time}",
   },
+  mirrors: {
+    mirror: "มิเรอร์",
+    title: "มิเรอร์",
+    hint: "การเปลี่ยนแปลงที่นี่จะไปยังทุกมิเรอร์: ชื่อ คำอธิบาย วันที่ รายการตรวจสอบ ไฟล์แนบ ภาพปก ความคิดเห็น ป้ายกำกับ และสมาชิก",
+    where: "{board} · {list}",
+    unlink: "เลิกมิเรอร์",
+    created: "สร้างมิเรอร์ในบอร์ด “{board}” รายการ “{list}” แล้ว",
+    tileTitle: { other: "มิเรอร์ไปยังการ์ดอื่นอีก {count} ใบ" },
+    deleteMirrors: { other: "ลบมิเรอร์อีก {count} รายการด้วย" },
+  },
 } satisfies Translation;

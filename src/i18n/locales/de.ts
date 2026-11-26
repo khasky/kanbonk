@@ -1239,4 +1239,14 @@ export default {
     agedTitle: { one: "Seit {count} Woche unverändert", other: "Seit {count} Wochen unverändert" },
     changedAt: " · geändert {time}",
   },
+  mirrors: {
+    mirror: "Spiegeln",
+    title: "Spiegelungen",
+    hint: "Änderungen hier gehen an jede Spiegelung: Titel, Beschreibung, Daten, Checklisten, Anhänge, Cover, Kommentare, Labels und Mitglieder.",
+    where: "{board} · {list}",
+    unlink: "Spiegelung aufheben",
+    created: "Spiegelung erstellt auf dem Board „{board}“, in der Liste „{list}“.",
+    tileTitle: { one: "Auf {count} weitere Karte gespiegelt", other: "Auf {count} weitere Karten gespiegelt" },
+    deleteMirrors: { one: "Auch {count} Spiegelung löschen", other: "Auch {count} Spiegelungen löschen" },
+  },
 } satisfies Translation;

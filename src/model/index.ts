@@ -10,3 +10,4 @@ export * from "./revisions";
 export * from "./labels";
 export * from "./requiredFields";
 export * from "./cardAging";
+export * from "./mirrors";
