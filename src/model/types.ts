@@ -57,6 +57,8 @@ export interface BoardList extends Trashable {
   position: number;
   /** A list belongs to at most one zone of its board. */
   zoneId?: string;
+  /** A Trello color name from `listColors`; the list shows its light shade. */
+  color?: string;
 }
 
 export interface Label {

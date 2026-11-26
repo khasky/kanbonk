@@ -1,85 +1,99 @@
 import { useState } from "react";
-import type { Card } from "../model";
-import { Icon } from "../ui/Icon";
-import { Button } from "../ui/Button";
-import { addCardClass, composeActionsClass } from "./boardLook";
-import { Input, Select } from "../ui/Field";
 import { t } from "../i18n";
+import type { Card } from "../model";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Field";
+import { Icon } from "../ui/Icon";
+import { MenuItem } from "../ui/Menu";
+import { Popover } from "../ui/Popover";
 
+/**
+ * Trello's "Card templates" popover of a list: the board's templates, one of which becomes a new card under the title
+ * given, and a new template made in the list.
+ */
 export function TemplateComposer({
   templates,
+  anchor,
   onCreate,
+  onCreateTemplate,
+  onClose,
 }: {
   templates: Card[];
+  anchor: HTMLElement;
   onCreate: (templateId: string, name: string) => void;
+  onCreateTemplate: (name: string) => void;
+  onClose: () => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [templateId, setTemplateId] = useState("");
+  /** The template a card is made from, or "new" while a new template is named. */
+  const [step, setStep] = useState<Card | "new">();
   const [name, setName] = useState("");
-  if (!templates.length) return null;
-  const selected = templates.find((item) => item.id === templateId) ?? templates[0];
-  if (!open)
+
+  if (step) {
+    const creating = step === "new";
+    const submit = () => {
+      if (!name.trim()) return;
+      if (creating) onCreateTemplate(name.trim());
+      else onCreate(step.id, name.trim());
+      onClose();
+    };
     return (
-      <button
-        className={addCardClass}
-        onClick={() => {
-          setTemplateId(selected.id);
-          setName(selected.name);
-          setOpen(true);
-        }}
+      <Popover
+        title={creating ? t("board.newTemplate") : t("board.createFromTemplateTitle")}
+        anchor={anchor}
+        onClose={onClose}
+        onBack={() => setStep(undefined)}
       >
-        {t("board.createFromTemplate")}
-      </button>
+        <form
+          className="grid gap-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submit();
+          }}
+        >
+          <label className="grid gap-1 text-[12px] font-semibold text-ink-subtle">
+            {creating ? t("board.templateTitle") : t("board.cardTitle")}
+            <Input value={name} onChange={(event) => setName(event.target.value)} />
+          </label>
+          <Button variant="primary" type="submit" className="justify-self-start" disabled={!name.trim()}>
+            {creating ? t("common.add") : t("board.createCard")}
+          </Button>
+        </form>
+      </Popover>
     );
+  }
+
   return (
-    <div className="grid flex-col gap-2">
-      <label className="grid gap-1 text-[12px] font-semibold">
-        {t("board.template")}
-        <Select
-          className="w-full"
-          value={selected.id}
-          onChange={(event) => {
-            const next = templates.find((item) => item.id === event.target.value);
-            if (next) {
-              setTemplateId(next.id);
-              setName(next.name);
-            }
-          }}
-        >
-          {templates.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </Select>
-      </label>
-      <Input
-        className="w-full"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" && name.trim()) {
-            onCreate(selected.id, name);
-            setOpen(false);
-          }
-        }}
-        aria-label={t("board.newCardTitle")}
-      />
-      <div className={composeActionsClass}>
+    <Popover title={t("board.cardTemplates")} anchor={anchor} onClose={onClose}>
+      <div className="grid gap-2">
+        {templates.length ? (
+          <div className="grid">
+            {templates.map((item) => (
+              <MenuItem
+                key={item.id}
+                onClick={() => {
+                  setName(item.name);
+                  setStep(item);
+                }}
+              >
+                {item.name}
+              </MenuItem>
+            ))}
+          </div>
+        ) : (
+          <p className="m-0 px-1 text-ink-subtle">{t("board.noTemplates")}</p>
+        )}
         <Button
-          variant="primary"
-          disabled={!name.trim()}
+          variant="secondary"
+          className="gap-1.5"
           onClick={() => {
-            onCreate(selected.id, name);
-            setOpen(false);
+            setName("");
+            setStep("new");
           }}
         >
-          {t("board.createCard")}
-        </Button>
-        <Button variant="icon" onClick={() => setOpen(false)} aria-label={t("common.cancel")}>
-          <Icon name="close" />
+          <Icon name="plus" className="size-4" />
+          {t("board.newTemplate")}
         </Button>
       </div>
-    </div>
+    </Popover>
   );
 }

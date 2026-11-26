@@ -21,6 +21,24 @@ export function readBoardFilters(): Record<string, BoardFilter> {
   }
 }
 
+/** The lists collapsed on this device; Trello keeps that per person too, not on the board. */
+export function readCollapsedLists(): Set<string> {
+  try {
+    const saved: unknown = JSON.parse(localStorage.getItem("kanbonk-collapsed-lists") ?? "[]");
+    return new Set(Array.isArray(saved) ? saved.filter((id) => typeof id === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+export function saveCollapsedLists(ids: Set<string>) {
+  try {
+    localStorage.setItem("kanbonk-collapsed-lists", JSON.stringify([...ids]));
+  } catch {
+    // Storage may be full or blocked; the lists then stay collapsed only until the page is reloaded.
+  }
+}
+
 export function readDismissedReminders(): Record<string, string> {
   try {
     const saved: unknown = JSON.parse(localStorage.getItem("kanbonk-dismissed-reminders") ?? "{}");

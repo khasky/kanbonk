@@ -95,7 +95,8 @@ export function validState(state: Record<string, unknown>): boolean {
         hasIdName(list) &&
         typeof list.boardId === "string" &&
         Number.isFinite(list.position) &&
-        (list.zoneId === undefined || typeof list.zoneId === "string"),
+        (list.zoneId === undefined || typeof list.zoneId === "string") &&
+        (list.color === undefined || typeof list.color === "string"),
     ) &&
     value.labels.every(
       (label) =>

@@ -14,7 +14,7 @@ import {
   type Member,
   type Workspace,
 } from "../../model/index";
-import { trelloLabelColors } from "../../model/labelColors";
+import { listColors, trelloLabelColors } from "../../model/labelColors";
 import { trelloActionDescription } from "./actions";
 import { array, closedInTrello, number, object, string, type TrelloRecord } from "./records";
 
@@ -98,6 +98,7 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
       boardId,
       name: string(entry.name) || `List ${index + 1}`,
       position: number(entry.pos) || index + 1,
+      ...(listColors.includes(string(entry.color)) ? { color: string(entry.color) } : {}),
       ...closedInTrello(entry.closed, id),
     };
   });

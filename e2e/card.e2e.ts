@@ -26,6 +26,7 @@ test("edits a card: label, checklist, sub-card, comment and description", async 
   await card.getByLabel("New sub-card title").fill("Child one");
   await card.getByLabel("New sub-card title").press("Enter");
   await expect(card.getByRole("button", { name: /Child one/ })).toBeVisible();
+  await expect(page.locator("[data-card-id]", { hasText: "Card from Trello" }).getByTitle("Sub-cards")).toHaveText("1");
 
   await card.getByText("Write a comment").click();
   await page.keyboard.type("First comment");

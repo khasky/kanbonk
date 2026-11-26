@@ -1,56 +1,78 @@
-import { type ReactNode, useRef, useState } from "react";
-import type { BoardList, Card, Label, Member } from "../model";
-import { Icon } from "../ui/Icon";
-import { Menu, MenuItem, MenuSeparator } from "../ui/Menu";
-import { NameEditor } from "../ui/NameEditor";
-import { Popover } from "../ui/Popover";
-import { CardTile, type TileActions } from "./CardTile";
-import { ListCards } from "./ListCards";
-import { TemplateComposer } from "./TemplateComposer";
+import { type ReactNode, useState } from "react";
+import { t } from "../i18n";
+import type { BoardList, Card, Label, ListSort, Member } from "../model";
+import { trelloLabelColors } from "../model/labelColors";
 import { Button } from "../ui/Button";
 import { Textarea } from "../ui/Field";
-import { t } from "../i18n";
+import { Icon } from "../ui/Icon";
+import { NameEditor } from "../ui/NameEditor";
 import { addCardClass, composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
+import { CardTile, type TileActions } from "./CardTile";
 import { endDrag, startDrag } from "./dragState";
+import { ListActionsPopover } from "./ListActionsPopover";
+import { ListCards } from "./ListCards";
+import { TemplateComposer } from "./TemplateComposer";
+
+const headerButtonClass =
+  "grid size-8 flex-none cursor-pointer place-items-center rounded-sm border-0 bg-transparent text-ink-subtle hover:bg-line aria-expanded:bg-line max-phone:min-h-11 max-phone:min-w-11";
 
 /** What a list column can ask the board to do; every handler gets the list's id. */
 export interface ListActions {
   rename: (listId: string, name: string) => void;
-  run: (listId: string, action: "name" | "due" | "move-left" | "move-right" | "copy" | "delete") => void;
+  run: (listId: string, action: ListSort | "move-left" | "move-right" | "copy" | "delete" | "trash-cards") => void;
+  setColor: (listId: string, color: string | undefined) => void;
+  moveCards: (listId: string, targetListId: string) => void;
+  toggleCollapsed: (listId: string) => void;
   startCard: (listId: string) => void;
   cancelCard: () => void;
   createCard: (listId: string) => void;
   createFromTemplate: (templateId: string, listId: string, name: string) => void;
+  createTemplate: (listId: string, name: string) => void;
   /** The "Move list" form for the list; `close` closes its popover. */
   movePicker: (list: BoardList, close: () => void) => ReactNode;
 }
 
+/** The light shade a colored list takes, as in Trello. */
+function listBackground(list: BoardList, hidden: boolean) {
+  return {
+    ...(list.color ? { background: trelloLabelColors[`${list.color}_light`] } : undefined),
+    ...(hidden ? { display: "none" } : undefined),
+  };
+}
+
 /**
- * One list on the board: header with its menu, the cards, the new-card composer and templates. Dropping on it is
- * handled by the board (`data-list-id` marks it); while a card is dragged, `draggedCardId` is hidden and `cardSlot`
- * shows where it would land.
+ * One list on the board: header with its card count, collapse button and actions, the cards, the new-card composer
+ * and the templates. Dropping on it is handled by the board (`data-list-id` marks it); while a card is dragged,
+ * `draggedCardId` is hidden and `cardSlot` shows where it would land. A collapsed list is a narrow column with its
+ * name running down it.
  */
 export function ListColumn({
   list,
+  lists,
   cards,
   labels,
   members,
   cardById,
+  subCardCounts,
   tileActions,
   templates,
   composing,
   draft,
   onDraft,
   actions,
+  collapsed = false,
   hidden = false,
   draggedCardId,
   cardSlot,
 }: {
   list: BoardList;
+  /** The board's lists, for moving all cards to one of them. */
+  lists: BoardList[];
   cards: Card[];
   labels: Map<string, Label>;
   members?: Member[];
   cardById: Map<string, Card>;
+  subCardCounts: Map<string, number>;
   tileActions: TileActions;
   templates: Card[];
   /** Whether the new-card composer is open in this list. */
@@ -58,62 +80,109 @@ export function ListColumn({
   draft: string;
   onDraft: (draft: string) => void;
   actions: ListActions;
+  collapsed?: boolean;
   /** Hidden while the list is dragged to another place, which the board shows instead. */
   hidden?: boolean;
   draggedCardId?: string;
   cardSlot?: { index: number; height: number };
 }) {
-  const menuRef = useRef<HTMLDetailsElement>(null);
-  const [moving, setMoving] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement>();
+  const [templateAnchor, setTemplateAnchor] = useState<HTMLElement>();
+  const count = (
+    <span className="flex-none px-1 text-[14px] font-normal text-ink-subtle" title={t("board.totalCards")}>
+      {cards.length}
+    </span>
+  );
+  const dragHandle = (
+    <span
+      className={`${dragHandleClass} text-ink-muted`}
+      draggable
+      title={t("board.dragList")}
+      onDragStart={(event) => {
+        event.dataTransfer.setData("text/kanbonk-list", list.id);
+        // The whole list is the picture under the pointer, as in Trello, not just the handle.
+        const column = event.currentTarget.closest("section")!;
+        event.dataTransfer.setDragImage(column, event.nativeEvent.offsetX + 8, event.nativeEvent.offsetY + 8);
+        startDrag(column, { kind: "list", id: list.id });
+      }}
+      onDragEnd={endDrag}
+    >
+      ⋮⋮
+    </span>
+  );
+
+  if (collapsed)
+    return (
+      <section
+        className="list-column flex max-h-full w-11 flex-none flex-col items-center gap-2 rounded-xl bg-surface-sunken py-2 shadow-tile-soft"
+        style={listBackground(list, hidden)}
+        data-list-id={list.id}
+      >
+        <button
+          className={headerButtonClass}
+          onClick={() => actions.toggleCollapsed(list.id)}
+          aria-label={t("board.expandListOf", { name: list.name })}
+          title={t("board.expandList")}
+        >
+          <Icon name="expand" className="size-4" />
+        </button>
+        <span className="flex min-h-0 items-center gap-2 overflow-hidden text-[16px] font-bold text-ink [writing-mode:vertical-rl]">
+          <span className="truncate">{list.name}</span>
+          {count}
+        </span>
+        {dragHandle}
+      </section>
+    );
+
   return (
     <section
       className="list-column flex max-h-full w-[272px] flex-none flex-col rounded-xl bg-surface-sunken p-2 shadow-tile-soft"
-      style={hidden ? { display: "none" } : undefined}
+      style={listBackground(list, hidden)}
       data-list-id={list.id}
     >
       <div className="flex items-center gap-1 px-1 pt-0.5 pb-2">
-        <span
-          className={`${dragHandleClass} text-ink-muted`}
-          draggable
-          title={t("board.dragList")}
-          onDragStart={(event) => {
-            event.dataTransfer.setData("text/kanbonk-list", list.id);
-            // The whole list is the picture under the pointer, as in Trello, not just the handle.
-            const column = event.currentTarget.closest("section")!;
-            event.dataTransfer.setDragImage(column, event.nativeEvent.offsetX + 8, event.nativeEvent.offsetY + 8);
-            startDrag(column, { kind: "list", id: list.id });
-          }}
-          onDragEnd={endDrag}
-        >
-          ⋮⋮
-        </span>
+        {dragHandle}
         <NameEditor
           className="min-w-0 flex-1 rounded-sm border-0 bg-transparent px-1.5 py-[5px] text-[16px] leading-5 font-bold text-ink focus:bg-white"
           value={list.name}
           label={t("board.listTitleOf", { name: list.name })}
           onCommit={(name) => actions.rename(list.id, name)}
         />
-        <Menu
-          ref={menuRef}
-          label={t("board.listActionsOf", { name: list.name })}
-          summaryClassName="grid size-8 place-items-center rounded-sm text-[20px] leading-none text-ink-subtle group-open/menu:bg-line hover:bg-line max-phone:min-h-11 max-phone:min-w-11"
-          touchRows
+        {count}
+        <button
+          className={headerButtonClass}
+          onClick={() => actions.toggleCollapsed(list.id)}
+          aria-label={t("board.collapseListOf", { name: list.name })}
+          title={t("board.collapseList")}
         >
-          <MenuItem onClick={() => actions.run(list.id, "name")}>{t("board.sortByTitle")}</MenuItem>
-          <MenuItem onClick={() => actions.run(list.id, "due")}>{t("board.sortByDue")}</MenuItem>
-          <MenuItem onClick={() => actions.run(list.id, "move-left")}>{t("board.moveLeft")}</MenuItem>
-          <MenuItem onClick={() => actions.run(list.id, "move-right")}>{t("board.moveRight")}</MenuItem>
-          <MenuItem onClick={() => setMoving(true)}>{t("board.moveList")}</MenuItem>
-          <MenuItem onClick={() => actions.run(list.id, "copy")}>{t("board.copyList")}</MenuItem>
-          <MenuSeparator />
-          <MenuItem danger onClick={() => actions.run(list.id, "delete")}>
-            {t("board.moveListToTrash")}
-          </MenuItem>
-        </Menu>
-        {moving && menuRef.current && (
-          <Popover title={t("board.moveList")} anchor={menuRef.current} onClose={() => setMoving(false)}>
-            {actions.movePicker(list, () => setMoving(false))}
-          </Popover>
+          <Icon name="collapse" className="size-4" />
+        </button>
+        <button
+          className={`${headerButtonClass} text-[20px] leading-none`}
+          aria-label={t("board.listActionsOf", { name: list.name })}
+          aria-expanded={Boolean(menuAnchor)}
+          title={t("board.listActions")}
+          onClick={(event) => setMenuAnchor(menuAnchor ? undefined : event.currentTarget)}
+        >
+          ⋯
+        </button>
+        {menuAnchor && (
+          <ListActionsPopover
+            list={list}
+            lists={lists}
+            anchor={menuAnchor}
+            movePicker={actions.movePicker}
+            onAddCard={() => actions.startCard(list.id)}
+            onCopy={() => actions.run(list.id, "copy")}
+            onMoveLeft={() => actions.run(list.id, "move-left")}
+            onMoveRight={() => actions.run(list.id, "move-right")}
+            onMoveCards={(targetId) => actions.moveCards(list.id, targetId)}
+            onSort={(by) => actions.run(list.id, by)}
+            onColor={(color) => actions.setColor(list.id, color)}
+            onTrash={() => actions.run(list.id, "delete")}
+            onTrashCards={() => actions.run(list.id, "trash-cards")}
+            onClose={() => setMenuAnchor(undefined)}
+          />
         )}
       </div>
       <ListCards
@@ -127,6 +196,7 @@ export function ListColumn({
             labels={labels}
             members={members}
             parentName={item.parentCardId ? cardById.get(item.parentCardId)?.name : undefined}
+            subCardCount={subCardCounts.get(item.id)}
             actions={tileActions}
             hidden={item.id === draggedCardId}
           />
@@ -157,14 +227,30 @@ export function ListColumn({
           </div>
         </div>
       ) : (
-        <button className={addCardClass} onClick={() => actions.startCard(list.id)}>
-          <Icon name="plus" /> {t("board.addCard")}
-        </button>
+        <div className="mt-[5px] flex items-center gap-1">
+          <button className={`${addCardClass} flex-1`} onClick={() => actions.startCard(list.id)}>
+            <Icon name="plus" /> {t("board.addCard")}
+          </button>
+          <button
+            className={`${headerButtonClass} size-9`}
+            aria-label={t("board.createFromTemplate")}
+            aria-expanded={Boolean(templateAnchor)}
+            title={t("board.createFromTemplate")}
+            onClick={(event) => setTemplateAnchor(templateAnchor ? undefined : event.currentTarget)}
+          >
+            <Icon name="card-template" className="size-4" />
+          </button>
+        </div>
       )}
-      <TemplateComposer
-        templates={templates}
-        onCreate={(templateId, name) => actions.createFromTemplate(templateId, list.id, name)}
-      />
+      {templateAnchor && (
+        <TemplateComposer
+          templates={templates}
+          anchor={templateAnchor}
+          onCreate={(templateId, name) => actions.createFromTemplate(templateId, list.id, name)}
+          onCreateTemplate={(name) => actions.createTemplate(list.id, name)}
+          onClose={() => setTemplateAnchor(undefined)}
+        />
+      )}
     </section>
   );
 }

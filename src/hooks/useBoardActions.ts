@@ -10,12 +10,14 @@ import {
   copyList,
   moveListToBoard,
   newId,
+  type ListSort,
   type Revision,
   recordRevision,
   recordRevisions,
   restoreRevision,
   sortListCards,
 } from "../model";
+import { moveToTrash } from "../model/trash";
 import { ensurePersonalWorkspace, personalWorkspaceId } from "../model/workspaces";
 import { createZone, deleteZone, moveListToList, placeList, placeZone, updateZone } from "../model/zones";
 
@@ -156,7 +158,16 @@ export function useBoardActions({
     });
   }
 
-  function sortList(id: string, by: "name" | "due") {
+  /** Moves every open card of a list to the trash, each card on its own as when trashed one by one. */
+  function trashListCards(listId: string) {
+    setState((current) =>
+      current.cards
+        .filter((card) => card.listId === listId && !card.deletedAt)
+        .reduce((next, card) => moveToTrash(next, "card", card.id, deviceId), current),
+    );
+  }
+
+  function sortList(id: string, by: ListSort) {
     setState((current) => {
       const cards = sortListCards(current.cards, id, by);
       const changed = cards.filter((card, index) => card.position !== current.cards[index].position);
@@ -272,6 +283,7 @@ export function useBoardActions({
     copyListOnBoard,
     moveListOnto,
     sortList,
+    trashListCards,
     placeListAt,
     placeZoneAt,
     addZone,

@@ -44,14 +44,19 @@ export function reorderLists(lists: BoardList[], movingId: string, targetId: str
   return lists.map((list) => (positions.has(list.id) ? { ...list, position: positions.get(list.id)! } : list));
 }
 
-export function sortListCards(cards: Card[], listId: string, by: "name" | "due"): Card[] {
-  const sorted = cards
-    .filter((card) => card.listId === listId && !card.deletedAt)
-    .sort((a, b) =>
-      by === "name"
-        ? a.name.localeCompare(b.name)
-        : (a.dueAt ? Date.parse(a.dueAt) : Infinity) - (b.dueAt ? Date.parse(b.dueAt) : Infinity),
-    );
+export type ListSort = "name" | "due" | "newest" | "oldest";
+
+/** Orders a list's cards by name, by due date (cards without one last) or by when they were created. */
+export function sortListCards(cards: Card[], listId: string, by: ListSort): Card[] {
+  const created = (card: Card) => (card.createdAt ? Date.parse(card.createdAt) : 0);
+  const due = (card: Card) => (card.dueAt ? Date.parse(card.dueAt) : Infinity);
+  const compare: Record<ListSort, (a: Card, b: Card) => number> = {
+    name: (a, b) => a.name.localeCompare(b.name),
+    due: (a, b) => due(a) - due(b),
+    newest: (a, b) => created(b) - created(a),
+    oldest: (a, b) => created(a) - created(b),
+  };
+  const sorted = cards.filter((card) => card.listId === listId && !card.deletedAt).sort(compare[by]);
   const positions = new Map(sorted.map((card, index) => [card.id, index + 1]));
   return cards.map((card) => (positions.has(card.id) ? { ...card, position: positions.get(card.id)! } : card));
 }

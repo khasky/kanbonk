@@ -31,7 +31,11 @@ export type IconName =
   | "chevron-up"
   | "external"
   | "chevrons-left"
-  | "chevrons-right";
+  | "chevrons-right"
+  | "collapse"
+  | "expand"
+  | "card-template"
+  | "check";
 
 export function Icon({ name, className }: { name: IconName; className?: string }) {
   const paths = {
@@ -171,6 +175,15 @@ export function Icon({ name, className }: { name: IconName; className?: string }
     external: <path d="M14 4h6v6M10 14 20 4M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />,
     "chevrons-left": <path d="m11 17-5-5 5-5M18 17l-5-5 5-5" />,
     "chevrons-right": <path d="m6 17 5-5-5-5M13 17l5-5-5-5" />,
+    check: <path d="m5 12 5 5L20 7" />,
+    collapse: <path d="M2 12h7m0 0-3-3m3 3-3 3M22 12h-7m0 0 3-3m-3 3 3 3" />,
+    expand: <path d="M3 12h18M3 12l3-3m-3 3 3 3m15-3-3-3m3 3-3 3" />,
+    "card-template": (
+      <>
+        <path d="M12 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
+        <path d="M18 2v6M15 5h6" />
+      </>
+    ),
   };
   return (
     <svg

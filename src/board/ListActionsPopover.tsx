@@ -1,0 +1,141 @@
+import { type ReactNode, useState } from "react";
+import { t } from "../i18n";
+import type { BoardList, ListSort } from "../model";
+import { listColors, trelloLabelColors } from "../model/labelColors";
+import { Icon } from "../ui/Icon";
+import { MenuItem, MenuSeparator } from "../ui/Menu";
+import { Popover } from "../ui/Popover";
+
+type View = "main" | "move" | "move-cards" | "sort";
+
+const sorts: { by: ListSort; label: () => string }[] = [
+  { by: "newest", label: () => t("board.sortNewest") },
+  { by: "oldest", label: () => t("board.sortOldest") },
+  { by: "name", label: () => t("board.sortName") },
+  { by: "due", label: () => t("board.sortDue") },
+];
+
+/** Trello's "List actions": the list's actions, with the steps that need a choice as submenus behind a back button. */
+export function ListActionsPopover({
+  list,
+  lists,
+  anchor,
+  movePicker,
+  onAddCard,
+  onCopy,
+  onMoveLeft,
+  onMoveRight,
+  onMoveCards,
+  onSort,
+  onColor,
+  onTrash,
+  onTrashCards,
+  onClose,
+}: {
+  list: BoardList;
+  /** The board's lists, for "Move all cards in this list". */
+  lists: BoardList[];
+  anchor: HTMLElement;
+  movePicker: (list: BoardList, close: () => void) => ReactNode;
+  onAddCard: () => void;
+  onCopy: () => void;
+  onMoveLeft: () => void;
+  onMoveRight: () => void;
+  onMoveCards: (targetListId: string) => void;
+  onSort: (by: ListSort) => void;
+  onColor: (color: string | undefined) => void;
+  onTrash: () => void;
+  onTrashCards: () => void;
+  onClose: () => void;
+}) {
+  const [view, setView] = useState<View>("main");
+  /** Runs a row's action and closes the popover. */
+  const run = (action: () => void) => () => {
+    onClose();
+    action();
+  };
+  const back = () => setView("main");
+
+  if (view === "move")
+    return (
+      <Popover title={t("board.moveList")} anchor={anchor} onClose={onClose} onBack={back}>
+        {movePicker(list, onClose)}
+      </Popover>
+    );
+  if (view === "move-cards")
+    return (
+      <Popover title={t("board.moveAllCardsTitle")} anchor={anchor} onClose={onClose} onBack={back}>
+        <div className="grid">
+          {lists.map((item) => (
+            <MenuItem key={item.id} disabled={item.id === list.id} onClick={run(() => onMoveCards(item.id))}>
+              {item.id === list.id ? `${item.name} ${t("card.current")}` : item.name}
+            </MenuItem>
+          ))}
+        </div>
+      </Popover>
+    );
+  if (view === "sort")
+    return (
+      <Popover title={t("board.sortListTitle")} anchor={anchor} onClose={onClose} onBack={back}>
+        <div className="grid">
+          {sorts.map((item) => (
+            <MenuItem key={item.by} onClick={run(() => onSort(item.by))}>
+              {item.label()}
+            </MenuItem>
+          ))}
+        </div>
+      </Popover>
+    );
+
+  return (
+    <Popover title={t("board.listActions")} anchor={anchor} onClose={onClose}>
+      <div className="grid">
+        <MenuItem onClick={run(onAddCard)}>{t("board.addCard")}</MenuItem>
+        <MenuItem onClick={run(onCopy)}>{t("board.copyList")}</MenuItem>
+        <MenuItem onClick={() => setView("move")}>{t("board.moveList")}</MenuItem>
+        <MenuItem onClick={() => setView("move-cards")}>{t("board.moveAllCards")}</MenuItem>
+        <MenuItem onClick={() => setView("sort")}>{t("board.sortBy")}</MenuItem>
+        <MenuItem onClick={run(onMoveLeft)}>{t("board.moveLeft")}</MenuItem>
+        <MenuItem onClick={run(onMoveRight)}>{t("board.moveRight")}</MenuItem>
+        <MenuSeparator />
+        <h5 className="m-0 px-2.5 pt-2 pb-1.5 text-[12px] font-semibold text-ink-subtle">{t("board.listColor")}</h5>
+        <div className="grid grid-cols-5 gap-1.5 px-1 pb-2">
+          {listColors.map((name) => {
+            const color = trelloLabelColors[name];
+            const label = name[0].toUpperCase() + name.slice(1);
+            return (
+              <button
+                key={name}
+                type="button"
+                className="grid h-8 cursor-pointer place-items-center rounded-sm border-0 text-white hover:opacity-85"
+                style={{ background: color }}
+                aria-label={label}
+                aria-pressed={list.color === name}
+                title={label}
+                onClick={() => onColor(name)}
+              >
+                {list.color === name && <Icon name="check" className="size-4" />}
+              </button>
+            );
+          })}
+        </div>
+        <button
+          type="button"
+          className="mx-1 mb-1 flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-sm border-0 bg-surface-sunken text-ink-subtle hover:bg-line disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!list.color}
+          onClick={() => onColor(undefined)}
+        >
+          <Icon name="close" className="size-4" />
+          {t("board.removeColor")}
+        </button>
+        <MenuSeparator />
+        <MenuItem danger onClick={run(onTrash)}>
+          {t("board.moveListToTrash")}
+        </MenuItem>
+        <MenuItem danger onClick={run(onTrashCards)}>
+          {t("board.trashAllCards")}
+        </MenuItem>
+      </div>
+    </Popover>
+  );
+}

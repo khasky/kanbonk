@@ -190,6 +190,17 @@ it("sorts a whole list by name or due date without moving trashed or other-list 
       .sort((a, b) => a.position - b.position)
       .map((item) => item.id),
   ).toEqual(["b", "z", "a"]);
+  const byNewest = sortListCards(
+    cards.map((item, index) => ({ ...item, createdAt: `2026-01-0${index + 1}T00:00:00.000Z` })),
+    "first",
+    "newest",
+  );
+  expect(
+    byNewest
+      .filter((item) => item.listId === "first" && !item.deletedAt)
+      .sort((a, b) => a.position - b.position)
+      .map((item) => item.id),
+  ).toEqual(["b", "a", "z"]);
   expect(byDue.find((item) => item.id === "hidden")?.position).toBe(4);
   expect(byDue.find((item) => item.id === "other")?.position).toBe(12);
 });

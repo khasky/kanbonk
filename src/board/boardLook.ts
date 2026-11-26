@@ -8,7 +8,7 @@ export const composeActionsClass = "flex items-center gap-[5px]";
 
 /** "Add a card" and "Create from template" at the bottom of a list. */
 export const addCardClass =
-  "mt-[5px] flex w-full items-center gap-[7px] rounded-md border-0 bg-transparent p-2 text-left text-[16px] text-ink-subtle hover:bg-line max-phone:min-h-11";
+  "flex w-full items-center gap-[7px] rounded-md border-0 bg-transparent p-2 text-left text-[16px] text-ink-subtle hover:bg-line max-phone:min-h-11";
 
 /** "Add a list" and "New zone" on the board background. */
 export const addListClass =

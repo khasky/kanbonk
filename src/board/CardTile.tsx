@@ -19,6 +19,7 @@ export const CardTile = memo(function CardTile({
   labels,
   members,
   parentName,
+  subCardCount = 0,
   actions,
   hidden = false,
 }: {
@@ -26,6 +27,7 @@ export const CardTile = memo(function CardTile({
   labels: Map<string, Label>;
   members?: Member[];
   parentName?: string;
+  subCardCount?: number;
   actions: TileActions;
   /** Hidden while it is dragged to another place, which the board shows instead. */
   hidden?: boolean;
@@ -101,7 +103,12 @@ export const CardTile = memo(function CardTile({
           })}
         </span>
       )}
-      {item.description || item.dueAt || item.attachments.length || item.comments.length || item.checklists.length ? (
+      {item.description ||
+      item.dueAt ||
+      item.attachments.length ||
+      item.comments.length ||
+      item.checklists.length ||
+      subCardCount ? (
         <span className={fullCover ? "hidden" : tileMetaClass(full)}>
           {item.description && <Icon name="text" className={tileMetaIconClass} />}
           {item.dueAt && (
@@ -120,6 +127,12 @@ export const CardTile = memo(function CardTile({
             <span className={tileMetaItemClass}>
               <Icon name="message" className={tileMetaIconClass} />
               {item.comments.length}
+            </span>
+          )}
+          {subCardCount > 0 && (
+            <span className={tileMetaItemClass} title={t("card.subCards")}>
+              <Icon name="sub-cards" className={tileMetaIconClass} />
+              {subCardCount}
             </span>
           )}
           {item.checklists.map((checklist) => (

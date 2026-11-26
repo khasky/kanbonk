@@ -2,7 +2,14 @@ import { useDeferredValue, useEffect, useEffectEvent, useMemo, useState } from "
 import { activeFilterCount } from "../board/BoardFilterPanel";
 import { t } from "../i18n";
 import { readBoardFilters } from "../lib/uiPreferences";
-import { emptyBoardFilter, filterBoardCards, type AppState, type BoardFilter, type Card } from "../model";
+import {
+  emptyBoardFilter,
+  filterBoardCards,
+  isCardAvailable,
+  type AppState,
+  type BoardFilter,
+  type Card,
+} from "../model";
 
 /**
  * What the open board shows: its lists, the cards that pass the board's filter grouped by list, and lookup maps for
@@ -45,6 +52,14 @@ export function useBoardView(state: AppState, boardId: string | null, onError: (
     [state.labels],
   );
   const cardById = useMemo(() => new Map(state.cards.map((item) => [item.id, item])), [state.cards]);
+  /** How many open sub-cards each parent card has, as its dialog lists them. */
+  const subCardCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const item of state.cards)
+      if (item.parentCardId && isCardAvailable(state, item))
+        counts.set(item.parentCardId, (counts.get(item.parentCardId) ?? 0) + 1);
+    return counts;
+  }, [state]);
 
   function updateFilter(change: Partial<BoardFilter>) {
     if (!boardId) return;
@@ -74,6 +89,7 @@ export function useBoardView(state: AppState, boardId: string | null, onError: (
     cardsByList,
     labelMap,
     cardById,
+    subCardCounts,
     totalCardCount: boardId ? filterBoardCards(state, boardId, emptyBoardFilter()).length : 0,
     templates: state.cards.filter((item) => item.boardId === boardId && item.isTemplate),
   };

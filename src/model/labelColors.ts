@@ -1,3 +1,6 @@
+/** The colors a list can take, as in Trello. */
+export const listColors = ["green", "yellow", "orange", "red", "purple", "blue", "sky", "lime", "pink", "black"];
+
 export const trelloLabelColors: Record<string, string> = {
   green_light: "#baf3db",
   yellow_light: "#f5e989",

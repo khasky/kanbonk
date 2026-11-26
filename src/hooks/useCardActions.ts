@@ -102,8 +102,8 @@ export function useCardActions({
     return { targetId, boardId: targetList.boardId };
   }
 
-  /** Adds a card at the end of a list on the board. */
-  function createCard(boardId: string, listId: string, name: string) {
+  /** Adds a card, or a card template with `isTemplate`, at the end of a list on the board and returns its id. */
+  function createCard(boardId: string, listId: string, name: string, isTemplate = false) {
     const created: Card = {
       id: newId(),
       boardId,
@@ -116,10 +116,12 @@ export function useCardActions({
       checklists: [],
       comments: [],
       attachments: [],
+      ...(isTemplate ? { isTemplate } : {}),
     };
     setState((current) =>
       recordRevision({ ...current, cards: [...current.cards, created] }, "card", created.id, deviceId),
     );
+    return created.id;
   }
 
   /** Puts a card at the end of another list. */

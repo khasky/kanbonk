@@ -9,6 +9,7 @@ import { Icon } from "../ui/Icon";
 import type { TileActions } from "./CardTile";
 import { type ListActions, ListColumn } from "./ListColumn";
 import { ListMovePicker } from "./ListMovePicker";
+import { readCollapsedLists, saveCollapsedLists } from "../lib/uiPreferences";
 import { ZoneComposer, ZoneFrame } from "./ZoneFrame";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
@@ -45,6 +46,7 @@ export function BoardCanvas({
   const [editingList, setEditingList] = useState(false);
   const [editingCardList, setEditingCardList] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [collapsedLists, setCollapsedLists] = useState(readCollapsedLists);
 
   function createList() {
     if (!draft.trim()) return;
@@ -92,15 +94,47 @@ export function BoardCanvas({
       boardActions.copyListOnBoard(listId);
   }
 
+  async function trashListCards(listId: string) {
+    const list = lists.find((item) => item.id === listId);
+    const count = state.cards.filter((item) => item.listId === listId && !item.deletedAt).length;
+    if (
+      list &&
+      count &&
+      (await askConfirm({
+        title: t("board.trashAllCardsTitle", { name: list.name }),
+        message: t("board.trashAllCardsMessage", { cards: t("common.cards", { count }) }),
+        confirm: t("board.moveToTrash"),
+        danger: true,
+      }))
+    )
+      boardActions.trashListCards(listId);
+  }
+
   const listActions: ListActions = {
     rename: (listId, name) => boardActions.updateList(listId, (item) => ({ ...item, name })),
     run: (listId, action) => {
-      if (action === "name" || action === "due") boardActions.sortList(listId, action);
-      else if (action === "move-left") moveListByOne(listId, -1);
+      if (action === "move-left") moveListByOne(listId, -1);
       else if (action === "move-right") moveListByOne(listId, 1);
       else if (action === "copy") copyList(listId);
       else if (action === "delete") onDeleteList(listId);
+      else if (action === "trash-cards") trashListCards(listId);
+      else boardActions.sortList(listId, action);
     },
+    setColor: (listId, color) => boardActions.updateList(listId, (item) => ({ ...item, color })),
+    moveCards: (listId, targetListId) => {
+      for (const item of state.cards
+        .filter((card) => card.listId === listId && !card.deletedAt)
+        .sort((a, b) => a.position - b.position))
+        cardActions.moveOrCopyCard(item.id, targetListId, false);
+    },
+    toggleCollapsed: (listId) =>
+      setCollapsedLists((current) => {
+        const next = new Set(current);
+        if (!next.delete(listId)) next.add(listId);
+        saveCollapsedLists(next);
+        return next;
+      }),
+    createTemplate: (listId, name) => tileActions.open(cardActions.createCard(board.id, listId, name, true)),
     startCard: (listId) => {
       setEditingCardList(listId);
       setEditingList(false);
@@ -185,10 +219,13 @@ export function BoardCanvas({
       <ListColumn
         key={list.id}
         list={list}
+        lists={lists}
+        collapsed={collapsedLists.has(list.id)}
         cards={cardsByList.get(list.id) ?? []}
         labels={view.labelMap}
         members={board.members}
         cardById={view.cardById}
+        subCardCounts={view.subCardCounts}
         tileActions={tileActions}
         templates={view.templates}
         composing={editingCardList === list.id}

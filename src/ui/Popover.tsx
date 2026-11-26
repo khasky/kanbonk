@@ -18,12 +18,15 @@ export function Popover({
   anchor,
   onClose,
   width = 304,
+  onBack,
   children,
 }: {
   title: string;
   anchor: HTMLElement;
   onClose: () => void;
   width?: number;
+  /** Shows a back button left of the title, for a popover that went one step into a submenu. */
+  onBack?: () => void;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -99,6 +102,16 @@ export function Popover({
       }
     >
       <header className="relative grid h-10 flex-none place-items-center">
+        {onBack && (
+          <button
+            type="button"
+            className="absolute left-[-4px] grid size-8 place-items-center rounded-sm border-0 bg-transparent text-ink-subtle hover:bg-surface-sunken"
+            onClick={onBack}
+            aria-label={t("common.back")}
+          >
+            <Icon name="chevron-left" className="size-4" />
+          </button>
+        )}
         <h4 className="m-0 px-8 text-[14px] font-semibold text-ink-subtle">{title}</h4>
         <button
           type="button"

@@ -84,6 +84,7 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
       name: list.name,
       closed: Boolean(list.deletedAt),
       pos: list.position,
+      color: list.color ?? null,
     })),
     members: (board.members ?? []).map((member) => ({
       id: member.id,
