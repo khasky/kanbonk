@@ -1154,4 +1154,18 @@ export default {
     visitorOnBoard: "{name} bu panoda",
     visitorOnCard: "{name} “{card}” kartına bakıyor",
   },
+  labelSharing: {
+    menuItem: "Etiketleri paylaş",
+    title: "Etiketleri diğer panolarla paylaş",
+    hint: "Seçilen her pano etiketleri alır ya da aynı adlı etiketi onların rengini alır. Paylaşılan etiketler senkronize kalır: birini yeniden adlandırın veya rengini değiştirin, her panoda değişsin.",
+    labels: "Etiketler",
+    boards: "Panolar",
+    selectAll: "Tümünü seç",
+    noLabels: "Bu panoda henüz etiket yok.",
+    noBoards: "Başka pano yok.",
+    sharedWith: { one: "{count} panoyla paylaşıldı", other: "{count} panoyla paylaşıldı" },
+    share: "Paylaş",
+    shared: { one: "Etiketler {count} panoyla paylaşıldı.", other: "Etiketler {count} panoyla paylaşıldı." },
+    editHint: "Bu etiket paylaşılıyor: değişiklik paylaşıldığı her panoda geçerli olur.",
+  },
 } satisfies Translation;

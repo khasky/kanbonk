@@ -67,6 +67,8 @@ export interface Label {
   name: string;
   color: string;
   deleted?: boolean;
+  /** Labels with the same `linkId` are one label shared between boards: a change to one goes to all of them. */
+  linkId?: string;
 }
 
 export interface ChecklistItem {

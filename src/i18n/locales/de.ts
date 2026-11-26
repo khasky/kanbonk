@@ -1171,4 +1171,18 @@ export default {
     visitorOnBoard: "{name} ist auf diesem Board",
     visitorOnCard: "{name} sieht sich „{card}“ an",
   },
+  labelSharing: {
+    menuItem: "Labels teilen",
+    title: "Labels mit anderen Boards teilen",
+    hint: "Jedes gewählte Board erhält die Labels, oder sein Label mit demselben Namen übernimmt ihre Farbe. Geteilte Labels bleiben synchron: Benennen Sie eines um oder färben Sie es neu, ändert es sich auf jedem Board.",
+    labels: "Labels",
+    boards: "Boards",
+    selectAll: "Alle auswählen",
+    noLabels: "Dieses Board hat noch keine Labels.",
+    noBoards: "Es gibt keine anderen Boards.",
+    sharedWith: { one: "Mit {count} Board geteilt", other: "Mit {count} Boards geteilt" },
+    share: "Teilen",
+    shared: { one: "Labels mit {count} Board geteilt.", other: "Labels mit {count} Boards geteilt." },
+    editHint: "Dieses Label ist geteilt: Die Änderung gilt auf jedem Board, mit dem es geteilt ist.",
+  },
 } satisfies Translation;

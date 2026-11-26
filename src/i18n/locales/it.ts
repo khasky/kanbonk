@@ -1206,4 +1206,26 @@ export default {
     visitorOnBoard: "{name} è su questa bacheca",
     visitorOnCard: "{name} sta guardando «{card}»",
   },
+  labelSharing: {
+    menuItem: "Condividi etichette",
+    title: "Condividi etichette con altre bacheche",
+    hint: "Ogni bacheca scelta riceve le etichette, oppure la sua etichetta con lo stesso nome ne prende il colore. Le etichette condivise restano sincronizzate: rinominane o ricolorane una e cambierà su ogni bacheca.",
+    labels: "Etichette",
+    boards: "Bacheche",
+    selectAll: "Seleziona tutto",
+    noLabels: "Questa bacheca non ha ancora etichette.",
+    noBoards: "Non ci sono altre bacheche.",
+    sharedWith: {
+      one: "Condivisa con {count} bacheca",
+      many: "Condivisa con {count} di bacheche",
+      other: "Condivisa con {count} bacheche",
+    },
+    share: "Condividi",
+    shared: {
+      one: "Etichette condivise con {count} bacheca.",
+      many: "Etichette condivise con {count} di bacheche.",
+      other: "Etichette condivise con {count} bacheche.",
+    },
+    editHint: "Questa etichetta è condivisa: la modifica vale su ogni bacheca con cui è condivisa.",
+  },
 } satisfies Translation;

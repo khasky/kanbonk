@@ -1142,4 +1142,18 @@ export default {
     visitorOnBoard: "{name} がこのボードにいます",
     visitorOnCard: "{name} が「{card}」を見ています",
   },
+  labelSharing: {
+    menuItem: "ラベルを共有",
+    title: "ほかのボードとラベルを共有",
+    hint: "選んだ各ボードにラベルが追加されます。同じ名前のラベルがあれば、その色に揃えます。共有ラベルは同期され、1 つの名前や色を変えるとすべてのボードで変わります。",
+    labels: "ラベル",
+    boards: "ボード",
+    selectAll: "すべて選択",
+    noLabels: "このボードにはまだラベルがありません。",
+    noBoards: "ほかのボードはありません。",
+    sharedWith: { other: "{count} 個のボードと共有" },
+    share: "共有",
+    shared: { other: "ラベルを {count} 個のボードと共有しました。" },
+    editHint: "このラベルは共有されています。変更は共有先のすべてのボードに反映されます。",
+  },
 } satisfies Translation;

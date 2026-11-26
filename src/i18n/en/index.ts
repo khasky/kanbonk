@@ -17,6 +17,7 @@ import { model } from "./model";
 import { ai } from "./ai";
 import { exporting } from "./exporting";
 import { views } from "./views";
+import { labelSharing } from "./labelSharing";
 
 /**
  * The English messages, the source of every translation. One namespace per area of the app, each in its own file;
@@ -42,4 +43,5 @@ export const en = {
   ai,
   exporting,
   views,
+  labelSharing,
 };

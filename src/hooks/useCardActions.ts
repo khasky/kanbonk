@@ -11,6 +11,7 @@ import {
   createCardFromTemplate,
   createSubCard,
   deleteLabel,
+  updateLabel,
   linkDependency,
   type Member,
   newId,
@@ -275,16 +276,11 @@ export function useCardActions({
   }
 
   function editLabel(boardId: string, id: string, name: string, color: string) {
-    setState((current) => {
-      const label = current.labels.find((item) => item.id === id && item.boardId === boardId && !item.deleted);
-      if (!label || (label.name === name && label.color === color)) return current;
-      return recordRevision(
-        { ...current, labels: current.labels.map((item) => (item.id === id ? { ...item, name, color } : item)) },
-        "label",
-        id,
-        deviceId,
-      );
-    });
+    setState((current) =>
+      current.labels.some((item) => item.id === id && item.boardId === boardId)
+        ? updateLabel(current, id, name, color, deviceId)
+        : current,
+    );
   }
 
   function removeLabel(id: string) {

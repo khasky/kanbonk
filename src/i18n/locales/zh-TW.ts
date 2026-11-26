@@ -1119,4 +1119,18 @@ export default {
     visitorOnBoard: "{name} 在此看板",
     visitorOnCard: "{name} 正在查看「{card}」",
   },
+  labelSharing: {
+    menuItem: "共用標籤",
+    title: "與其他看板共用標籤",
+    hint: "每個選取的看板都會取得這些標籤；若已有同名標籤，則改用它們的顏色。共用標籤保持同步：重新命名或變更其中一個的顏色，所有看板上都會跟著改變。",
+    labels: "標籤",
+    boards: "看板",
+    selectAll: "全選",
+    noLabels: "此看板還沒有標籤。",
+    noBoards: "沒有其他看板。",
+    sharedWith: { other: "已與 {count} 個看板共用" },
+    share: "共用",
+    shared: { other: "已將標籤共用到 {count} 個看板。" },
+    editHint: "此標籤已共用：變更會套用到與其共用的所有看板。",
+  },
 } satisfies Translation;

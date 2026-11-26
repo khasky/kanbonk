@@ -1272,4 +1272,28 @@ export default {
     visitorOnBoard: "{name} je na této nástěnce",
     visitorOnCard: "{name} si prohlíží „{card}“",
   },
+  labelSharing: {
+    menuItem: "Sdílet štítky",
+    title: "Sdílet štítky s dalšími nástěnkami",
+    hint: "Každá vybraná nástěnka dostane štítky a její štítek se stejným názvem převezme jejich barvu. Sdílené štítky zůstávají synchronizované: přejmenujte nebo přebarvěte jeden a změní se na všech nástěnkách.",
+    labels: "Štítky",
+    boards: "Nástěnky",
+    selectAll: "Vybrat vše",
+    noLabels: "Tato nástěnka zatím nemá žádné štítky.",
+    noBoards: "Žádné další nástěnky nejsou.",
+    sharedWith: {
+      one: "Sdílený s {count} nástěnkou",
+      few: "Sdílený s {count} nástěnkami",
+      many: "Sdílený s {count} nástěnky",
+      other: "Sdílený s {count} nástěnkami",
+    },
+    share: "Sdílet",
+    shared: {
+      one: "Štítky sdíleny s {count} nástěnkou.",
+      few: "Štítky sdíleny s {count} nástěnkami.",
+      many: "Štítky sdíleny s {count} nástěnky.",
+      other: "Štítky sdíleny s {count} nástěnkami.",
+    },
+    editHint: "Tento štítek je sdílený: změna se projeví na všech nástěnkách, se kterými je sdílený.",
+  },
 } satisfies Translation;

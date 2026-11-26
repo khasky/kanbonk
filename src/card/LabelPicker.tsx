@@ -104,6 +104,9 @@ export function LabelPicker({
             onChange={(event) => setEditingLabelColor(event.target.value)}
             aria-label={t("card.editedLabelColor")}
           />
+          {boardLabels.find((label) => label.id === editingLabelId)?.linkId && (
+            <small className="w-full text-ink-muted">{t("labelSharing.editHint")}</small>
+          )}
           <div className="flex w-full gap-1.5">
             <Button
               variant="primary"

@@ -88,9 +88,10 @@ export function sortListCards(
 
 /** The label of `boardId` with the name and color of `source`, added to `labels` when the board has none. */
 export function boardLabel(labels: Label[], source: Label, boardId: string): Label {
-  let label = labels.find(
-    (item) => item.boardId === boardId && !item.deleted && item.name === source.name && item.color === source.color,
-  );
+  const onBoard = labels.filter((item) => item.boardId === boardId && !item.deleted);
+  let label =
+    (source.linkId ? onBoard.find((item) => item.linkId === source.linkId) : undefined) ??
+    onBoard.find((item) => item.name === source.name && item.color === source.color);
   if (!label) {
     label = { ...source, id: newId(), boardId };
     labels.push(label);

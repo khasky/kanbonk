@@ -1164,4 +1164,26 @@ export default {
     visitorOnBoard: "{name} está en este tablero",
     visitorOnCard: "{name} está viendo «{card}»",
   },
+  labelSharing: {
+    menuItem: "Compartir etiquetas",
+    title: "Compartir etiquetas con otros tableros",
+    hint: "Cada tablero elegido recibe las etiquetas, o su etiqueta con el mismo nombre adopta su color. Las etiquetas compartidas se mantienen sincronizadas: cambia el nombre o el color de una y cambiará en todos los tableros.",
+    labels: "Etiquetas",
+    boards: "Tableros",
+    selectAll: "Seleccionar todo",
+    noLabels: "Este tablero aún no tiene etiquetas.",
+    noBoards: "No hay otros tableros.",
+    sharedWith: {
+      one: "Compartida con {count} tablero",
+      many: "Compartida con {count} tableros",
+      other: "Compartida con {count} tableros",
+    },
+    share: "Compartir",
+    shared: {
+      one: "Etiquetas compartidas con {count} tablero.",
+      many: "Etiquetas compartidas con {count} tableros.",
+      other: "Etiquetas compartidas con {count} tableros.",
+    },
+    editHint: "Esta etiqueta está compartida: el cambio se aplica en todos los tableros con los que se comparte.",
+  },
 } satisfies Translation;

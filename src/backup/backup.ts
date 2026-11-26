@@ -103,7 +103,8 @@ export function validState(state: Record<string, unknown>): boolean {
         hasIdName(label) &&
         typeof label.boardId === "string" &&
         typeof label.color === "string" &&
-        (label.deleted === undefined || typeof label.deleted === "boolean"),
+        (label.deleted === undefined || typeof label.deleted === "boolean") &&
+        (label.linkId === undefined || typeof label.linkId === "string"),
     ) &&
     value.cards.every(
       (card) =>

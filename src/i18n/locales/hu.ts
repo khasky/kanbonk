@@ -1173,4 +1173,18 @@ export default {
     visitorOnBoard: "{name} ezen a táblán van",
     visitorOnCard: "{name} ezt nézi: „{card}”",
   },
+  labelSharing: {
+    menuItem: "Címkék megosztása",
+    title: "Címkék megosztása más táblákkal",
+    hint: "Minden kiválasztott tábla megkapja a címkéket, vagy az azonos nevű címkéje átveszi a színüket. A megosztott címkék szinkronban maradnak: nevezzen át vagy színezzen át egyet, és minden táblán megváltozik.",
+    labels: "Címkék",
+    boards: "Táblák",
+    selectAll: "Összes kijelölése",
+    noLabels: "Ezen a táblán még nincsenek címkék.",
+    noBoards: "Nincsenek más táblák.",
+    sharedWith: { one: "Megosztva {count} táblával", other: "Megosztva {count} táblával" },
+    share: "Megosztás",
+    shared: { one: "Címkék megosztva {count} táblával.", other: "Címkék megosztva {count} táblával." },
+    editHint: "Ez a címke meg van osztva: a módosítás minden táblán érvényes, amellyel meg van osztva.",
+  },
 } satisfies Translation;

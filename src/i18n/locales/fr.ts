@@ -1214,4 +1214,27 @@ export default {
     visitorOnBoard: "{name} est sur ce tableau",
     visitorOnCard: "{name} consulte « {card} »",
   },
+  labelSharing: {
+    menuItem: "Partager les étiquettes",
+    title: "Partager des étiquettes avec d'autres tableaux",
+    hint: "Chaque tableau choisi reçoit les étiquettes, ou son étiquette du même nom prend leur couleur. Les étiquettes partagées restent synchronisées : renommez ou recolorez-en une, elle change sur tous les tableaux.",
+    labels: "Étiquettes",
+    boards: "Tableaux",
+    selectAll: "Tout sélectionner",
+    noLabels: "Ce tableau n'a pas encore d'étiquettes.",
+    noBoards: "Il n'y a pas d'autres tableaux.",
+    sharedWith: {
+      one: "Partagée avec {count} tableau",
+      many: "Partagée avec {count} de tableaux",
+      other: "Partagée avec {count} tableaux",
+    },
+    share: "Partager",
+    shared: {
+      one: "Étiquettes partagées avec {count} tableau.",
+      many: "Étiquettes partagées avec {count} de tableaux.",
+      other: "Étiquettes partagées avec {count} tableaux.",
+    },
+    editHint:
+      "Cette étiquette est partagée : la modification s'applique à tous les tableaux avec lesquels elle est partagée.",
+  },
 } satisfies Translation;

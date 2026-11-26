@@ -6,6 +6,7 @@ export interface Overlays {
   history?: true;
   activityBoardId?: string;
   analyticsBoardId?: string;
+  shareLabelsBoardId?: string;
   automationBoardId?: string;
   reminders?: true;
   boardAbout?: true;

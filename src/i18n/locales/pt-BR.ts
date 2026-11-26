@@ -1158,4 +1158,26 @@ export default {
     visitorOnBoard: "{name} está neste quadro",
     visitorOnCard: "{name} está vendo “{card}”",
   },
+  labelSharing: {
+    menuItem: "Compartilhar etiquetas",
+    title: "Compartilhar etiquetas com outros quadros",
+    hint: "Cada quadro escolhido recebe as etiquetas, ou a etiqueta dele com o mesmo nome assume a cor delas. Etiquetas compartilhadas ficam sincronizadas: renomeie ou mude a cor de uma e ela muda em todos os quadros.",
+    labels: "Etiquetas",
+    boards: "Quadros",
+    selectAll: "Selecionar tudo",
+    noLabels: "Este quadro ainda não tem etiquetas.",
+    noBoards: "Não há outros quadros.",
+    sharedWith: {
+      one: "Compartilhada com {count} quadro",
+      many: "Compartilhada com {count} quadros",
+      other: "Compartilhada com {count} quadros",
+    },
+    share: "Compartilhar",
+    shared: {
+      one: "Etiquetas compartilhadas com {count} quadro.",
+      many: "Etiquetas compartilhadas com {count} quadros.",
+      other: "Etiquetas compartilhadas com {count} quadros.",
+    },
+    editHint: "Esta etiqueta é compartilhada: a alteração vale em todos os quadros com que ela é compartilhada.",
+  },
 } satisfies Translation;

@@ -3,6 +3,7 @@ import { type AiSettings, saveAiSettings } from "../ai/ai";
 import { AutomationPanel } from "../board/AutomationPanel";
 import { BoardActivity } from "../board/BoardActivity";
 import { BoardAnalytics } from "../board/BoardAnalytics";
+import { ShareLabelsDialog } from "../dialogs/ShareLabelsDialog";
 import { AiSettingsDialog } from "../dialogs/AiSettingsDialog";
 import { AuthorDialog } from "../dialogs/AuthorDialog";
 import { BackupDialog } from "../dialogs/BackupDialog";
@@ -17,7 +18,7 @@ import { ImportDialog } from "../dialogs/ImportDialog";
 import { SettingsDialog } from "../dialogs/SettingsDialog";
 import { SyncDialog } from "../dialogs/SyncDialog";
 import { saveLocalAuthor } from "../lib/storage";
-import { type Card, cloneCard, cloneCardName, newId, recordRevision, type Revision } from "../model";
+import { type Card, cloneCard, cloneCardName, newId, recordRevision, type Revision, shareLabels } from "../model";
 import { mergeDuplicate, pairKey } from "../model/dedupe";
 import { inboxWorkspaceId } from "../model/inbox";
 import { reminderSignature } from "../model/reminders";
@@ -145,6 +146,18 @@ export function AppOverlays({
       )}
       {open.boardAbout && board && (
         <BoardAboutPanel board={board} onSave={saveBoardDescription} onClose={() => overlays.close("boardAbout")} />
+      )}
+      {open.shareLabelsBoardId && (
+        <ShareLabelsDialog
+          state={state}
+          boardId={open.shareLabelsBoardId}
+          onShare={(labelIds, boardIds) => {
+            setState((current) => shareLabels(current, labelIds, boardIds, deviceId));
+            overlays.close("shareLabelsBoardId");
+            app.setNotice(t("labelSharing.shared", { count: boardIds.length }));
+          }}
+          onClose={() => overlays.close("shareLabelsBoardId")}
+        />
       )}
       {open.analyticsBoardId && (
         <BoardAnalytics

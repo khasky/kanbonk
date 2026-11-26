@@ -1136,4 +1136,18 @@ export default {
     visitorOnBoard: "{name} đang ở bảng này",
     visitorOnCard: "{name} đang xem “{card}”",
   },
+  labelSharing: {
+    menuItem: "Chia sẻ nhãn",
+    title: "Chia sẻ nhãn với các bảng khác",
+    hint: "Mỗi bảng được chọn sẽ nhận các nhãn, hoặc nhãn cùng tên của bảng đó sẽ lấy màu của chúng. Nhãn dùng chung luôn đồng bộ: đổi tên hoặc màu một nhãn, nó sẽ đổi trên mọi bảng.",
+    labels: "Nhãn",
+    boards: "Bảng",
+    selectAll: "Chọn tất cả",
+    noLabels: "Bảng này chưa có nhãn.",
+    noBoards: "Không có bảng nào khác.",
+    sharedWith: { other: "Dùng chung với {count} bảng" },
+    share: "Chia sẻ",
+    shared: { other: "Đã chia sẻ nhãn với {count} bảng." },
+    editHint: "Nhãn này được dùng chung: thay đổi sẽ áp dụng trên mọi bảng dùng chung nhãn.",
+  },
 } satisfies Translation;

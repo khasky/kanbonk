@@ -1272,4 +1272,28 @@ export default {
     visitorOnBoard: "{name} jest na tej tablicy",
     visitorOnCard: "{name} ogląda „{card}”",
   },
+  labelSharing: {
+    menuItem: "Udostępnij etykiety",
+    title: "Udostępnij etykiety innym tablicom",
+    hint: "Każda wybrana tablica otrzyma etykiety, a jej etykieta o tej samej nazwie przejmie ich kolor. Wspólne etykiety pozostają zsynchronizowane: zmień nazwę lub kolor jednej, a zmieni się na każdej tablicy.",
+    labels: "Etykiety",
+    boards: "Tablice",
+    selectAll: "Zaznacz wszystkie",
+    noLabels: "Ta tablica nie ma jeszcze etykiet.",
+    noBoards: "Nie ma innych tablic.",
+    sharedWith: {
+      one: "Wspólna z {count} tablicą",
+      few: "Wspólna z {count} tablicami",
+      many: "Wspólna z {count} tablicami",
+      other: "Wspólna z {count} tablicy",
+    },
+    share: "Udostępnij",
+    shared: {
+      one: "Etykiety udostępniono {count} tablicy.",
+      few: "Etykiety udostępniono {count} tablicom.",
+      many: "Etykiety udostępniono {count} tablicom.",
+      other: "Etykiety udostępniono {count} tablicy.",
+    },
+    editHint: "Ta etykieta jest wspólna: zmiana obejmie każdą tablicę, z którą jest wspólna.",
+  },
 } satisfies Translation;

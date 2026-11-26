@@ -1156,4 +1156,18 @@ export default {
     visitorOnBoard: "{name} er på denne tavlen",
     visitorOnCard: "{name} ser på «{card}»",
   },
+  labelSharing: {
+    menuItem: "Del etiketter",
+    title: "Del etiketter med andre tavler",
+    hint: "Hver valgte tavle får etikettene, eller så tar tavlens etikett med samme navn fargen deres. Delte etiketter holdes synkronisert: gi én nytt navn eller ny farge, så endres den på alle tavler.",
+    labels: "Etiketter",
+    boards: "Tavler",
+    selectAll: "Velg alle",
+    noLabels: "Denne tavlen har ingen etiketter ennå.",
+    noBoards: "Det finnes ingen andre tavler.",
+    sharedWith: { one: "Delt med {count} tavle", other: "Delt med {count} tavler" },
+    share: "Del",
+    shared: { one: "Etiketter delt med {count} tavle.", other: "Etiketter delt med {count} tavler." },
+    editHint: "Denne etiketten er delt: endringen gjelder på alle tavler den er delt med.",
+  },
 } satisfies Translation;

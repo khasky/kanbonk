@@ -95,6 +95,7 @@ export function MainContent({
             onAutomation: () => overlays.open({ automationBoardId: board.id }),
             onActivity: () => overlays.open({ activityBoardId: board.id }),
             onAnalytics: () => overlays.open({ analyticsBoardId: board.id }),
+            onShareLabels: () => overlays.open({ shareLabelsBoardId: board.id }),
             onHistory: () => overlays.open({ history: true }),
             onExport: () => overlays.open({ exportBoardId: board.id }),
             onTrash: () => app.trash.requestDelete("board", board.id),

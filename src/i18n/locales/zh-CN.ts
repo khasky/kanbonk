@@ -1119,4 +1119,18 @@ export default {
     visitorOnBoard: "{name} 在此看板",
     visitorOnCard: "{name} 正在查看“{card}”",
   },
+  labelSharing: {
+    menuItem: "共享标签",
+    title: "与其他看板共享标签",
+    hint: "每个选中的看板都会获得这些标签；若已有同名标签，则改用它们的颜色。共享标签保持同步：重命名或更改其中一个的颜色，所有看板上都会随之改变。",
+    labels: "标签",
+    boards: "看板",
+    selectAll: "全选",
+    noLabels: "此看板还没有标签。",
+    noBoards: "没有其他看板。",
+    sharedWith: { other: "已与 {count} 个看板共享" },
+    share: "共享",
+    shared: { other: "已将标签共享到 {count} 个看板。" },
+    editHint: "此标签已共享：更改会应用到与其共享的所有看板。",
+  },
 } satisfies Translation;

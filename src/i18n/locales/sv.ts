@@ -1157,4 +1157,18 @@ export default {
     visitorOnBoard: "{name} är på den här tavlan",
     visitorOnCard: "{name} tittar på ”{card}”",
   },
+  labelSharing: {
+    menuItem: "Dela etiketter",
+    title: "Dela etiketter med andra tavlor",
+    hint: "Varje vald tavla får etiketterna, eller så tar dess etikett med samma namn deras färg. Delade etiketter hålls synkade: byt namn eller färg på en så ändras den på alla tavlor.",
+    labels: "Etiketter",
+    boards: "Tavlor",
+    selectAll: "Markera alla",
+    noLabels: "Den här tavlan har inga etiketter än.",
+    noBoards: "Det finns inga andra tavlor.",
+    sharedWith: { one: "Delad med {count} tavla", other: "Delad med {count} tavlor" },
+    share: "Dela",
+    shared: { one: "Etiketter delade med {count} tavla.", other: "Etiketter delade med {count} tavlor." },
+    editHint: "Den här etiketten är delad: ändringen gäller på alla tavlor den delas med.",
+  },
 } satisfies Translation;

@@ -1171,4 +1171,18 @@ export default {
     visitorOnBoard: "{name} on tällä taululla",
     visitorOnCard: "{name} katsoo korttia ”{card}”",
   },
+  labelSharing: {
+    menuItem: "Jaa tunnisteet",
+    title: "Jaa tunnisteita muille tauluille",
+    hint: "Jokainen valittu taulu saa tunnisteet, tai sen samanniminen tunniste ottaa niiden värin. Jaetut tunnisteet pysyvät synkronoituina: nimeä tai värjää yksi uudelleen, niin se muuttuu kaikilla tauluilla.",
+    labels: "Tunnisteet",
+    boards: "Taulut",
+    selectAll: "Valitse kaikki",
+    noLabels: "Tällä taululla ei ole vielä tunnisteita.",
+    noBoards: "Muita tauluja ei ole.",
+    sharedWith: { one: "Jaettu {count} taululle", other: "Jaettu {count} taululle" },
+    share: "Jaa",
+    shared: { one: "Tunnisteet jaettu {count} taululle.", other: "Tunnisteet jaettu {count} taululle." },
+    editHint: "Tämä tunniste on jaettu: muutos koskee kaikkia tauluja, joille se on jaettu.",
+  },
 } satisfies Translation;

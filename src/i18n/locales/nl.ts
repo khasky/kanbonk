@@ -1162,4 +1162,18 @@ export default {
     visitorOnBoard: "{name} is op dit bord",
     visitorOnCard: "{name} bekijkt „{card}”",
   },
+  labelSharing: {
+    menuItem: "Labels delen",
+    title: "Labels delen met andere borden",
+    hint: "Elk gekozen bord krijgt de labels, of zijn label met dezelfde naam neemt hun kleur over. Gedeelde labels blijven gesynchroniseerd: hernoem of herkleur er één en het verandert op elk bord.",
+    labels: "Labels",
+    boards: "Borden",
+    selectAll: "Alles selecteren",
+    noLabels: "Dit bord heeft nog geen labels.",
+    noBoards: "Er zijn geen andere borden.",
+    sharedWith: { one: "Gedeeld met {count} bord", other: "Gedeeld met {count} borden" },
+    share: "Delen",
+    shared: { one: "Labels gedeeld met {count} bord.", other: "Labels gedeeld met {count} borden." },
+    editHint: "Dit label is gedeeld: de wijziging geldt op elk bord waarmee het is gedeeld.",
+  },
 } satisfies Translation;
