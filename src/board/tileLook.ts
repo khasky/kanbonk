@@ -1,7 +1,7 @@
 /** Looks of a card tile, shared by the board's `CardTile` and the Inbox's tiles. */
 
 const tileBase =
-  "flex w-full flex-col gap-[7px] rounded-lg border-0 bg-white px-3 py-[9px] text-left no-underline leading-[1.35] shadow-tile-soft hover:shadow-[0_2px_7px_#091e4255]";
+  "flex w-full flex-col gap-[7px] rounded-lg border-0 bg-white px-3 py-[9px] text-left text-[16px] leading-5 no-underline shadow-tile-soft hover:shadow-[0_2px_7px_#091e4255]";
 
 /** A tile; `fullCover` is a tile whose cover image fills it, with the title on a dark gradient at the bottom. */
 export const tileClass = (fullCover = false) =>
@@ -21,9 +21,9 @@ export const tileNameClass = (fullCover = false) =>
  */
 export const tileMetaClass = (inherit = false) =>
   inherit
-    ? "flex flex-wrap items-center gap-2 text-[12px] text-inherit empty:hidden"
-    : "flex flex-wrap items-center gap-2 text-[12px] text-ink-muted empty:hidden";
+    ? "flex flex-wrap items-center gap-2.5 text-[12px] text-inherit empty:hidden"
+    : "flex flex-wrap items-center gap-2.5 text-[12px] text-ink-muted empty:hidden";
 
 export const tileMetaItemClass = "inline-flex items-center gap-[3px]";
 
-export const tileMetaIconClass = "h-3.5 w-3.5";
+export const tileMetaIconClass = "size-4";

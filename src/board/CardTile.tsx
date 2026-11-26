@@ -103,7 +103,7 @@ export const CardTile = memo(function CardTile({
       )}
       {item.description || item.dueAt || item.attachments.length || item.comments.length || item.checklists.length ? (
         <span className={fullCover ? "hidden" : tileMetaClass(full)}>
-          {item.description && "≡"}
+          {item.description && <Icon name="text" className={tileMetaIconClass} />}
           {item.dueAt && (
             <span className={tileMetaItemClass}>
               <Icon name="clock" className={tileMetaIconClass} />
@@ -116,10 +116,16 @@ export const CardTile = memo(function CardTile({
               {item.attachments.length}
             </span>
           )}
-          {item.comments.length > 0 && <span className={tileMetaItemClass}>☰ {item.comments.length}</span>}
+          {item.comments.length > 0 && (
+            <span className={tileMetaItemClass}>
+              <Icon name="message" className={tileMetaIconClass} />
+              {item.comments.length}
+            </span>
+          )}
           {item.checklists.map((checklist) => (
             <span key={checklist.id} className={tileMetaItemClass}>
-              ☑ {checklist.items.filter((entry) => entry.checked).length}/{checklist.items.length}
+              <Icon name="check-square" className={tileMetaIconClass} />
+              {checklist.items.filter((entry) => entry.checked).length}/{checklist.items.length}
             </span>
           ))}
         </span>

@@ -88,7 +88,7 @@ export function ListColumn({
           ⋮⋮
         </span>
         <NameEditor
-          className="min-w-0 flex-1 rounded-sm border-0 bg-transparent px-1.5 py-[7px] font-bold text-ink focus:bg-white max-phone:text-[16px]"
+          className="min-w-0 flex-1 rounded-sm border-0 bg-transparent px-1.5 py-[5px] text-[16px] leading-5 font-bold text-ink focus:bg-white"
           value={list.name}
           label={t("board.listTitleOf", { name: list.name })}
           onCommit={(name) => actions.rename(list.id, name)}

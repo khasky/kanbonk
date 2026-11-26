@@ -127,7 +127,7 @@ export function InboxView({
               )}
               {card.checklists.length > 0 && (
                 <span className={tileMetaItemClass}>
-                  ☑{" "}
+                  <Icon name="check-square" className={tileMetaIconClass} />{" "}
                   {card.checklists.reduce((count, list) => count + list.items.filter((item) => item.checked).length, 0)}
                   /{card.checklists.reduce((count, list) => count + list.items.length, 0)}
                 </span>
