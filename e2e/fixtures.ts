@@ -24,7 +24,7 @@ export async function importTrelloBoard(page: Page) {
   const dialog = page.getByRole("dialog", { name: "Import from Trello" });
   await dialog.locator("input[type=file]").setInputFiles("tests/trello-board.json");
   await dialog.getByRole("button", { name: "Import", exact: true }).click();
-  await expect(dialog.locator(".import-report")).toBeVisible();
-  await dialog.getByRole("button", { name: "Close" }).click();
+  // A finished import closes the dialog, opens the board and reports in a notice.
   await expect(dialog).toBeHidden();
+  await expect(page.getByRole("status").filter({ hasText: /^Took: \d+:\d\d\. Imported: / })).toBeVisible();
 }

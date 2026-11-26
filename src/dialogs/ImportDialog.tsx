@@ -13,7 +13,7 @@ import {
 import { type AppState, recordRevision, recordRevisions } from "../model";
 import { downloadTrelloAttachment, downloadTrelloComments, trelloBridgeAvailable } from "../trello/bridge";
 import { parseTrelloCsv } from "../trello/formats";
-import { ElapsedTime } from "../ui/ElapsedTime";
+import { ElapsedTime, formatElapsed } from "../ui/ElapsedTime";
 import { ensurePersonalWorkspace, personalWorkspaceId } from "../model/workspaces";
 import { Button } from "../ui/Button";
 import { FileButton } from "../ui/FileButton";
@@ -30,6 +30,7 @@ export function ImportDialog({
   deviceId,
   onBoardImported,
   onFilesRestored,
+  onImported,
   onClose,
 }: {
   state: AppState;
@@ -38,6 +39,8 @@ export function ImportDialog({
   deviceId: string;
   onBoardImported: (boardId: string) => void;
   onFilesRestored: () => void;
+  /** A board was imported: the dialog is done, and `summary` says how long it took and what came in. */
+  onImported: (summary: string) => void;
   onClose: () => void;
 }) {
   const [files, setFiles] = useState<File[]>([]);
@@ -46,13 +49,22 @@ export function ImportDialog({
   const [report, setReport] = useState("");
   const zips = files.filter(isZip);
 
-  /** Runs one import action with the busy flag, the timer and an error report. */
-  async function run(action: () => Promise<string>, failure: MessageKey) {
+  /**
+   * Runs one import action with the busy flag, the timer and an error report. With `finish`, a successful action
+   * hands its report to `onImported` instead of showing it here.
+   */
+  async function run(action: () => Promise<string>, failure: MessageKey, finish = false) {
+    const start = Date.now();
     setBusy(true);
-    setTime({ start: Date.now() });
+    setTime({ start });
     setReport("");
     try {
-      setReport(await action());
+      const done = await action();
+      if (finish) {
+        onImported(`${t("ui.took", { time: formatElapsed(Date.now() - start) })}. ${done.trim()}`);
+        return;
+      }
+      setReport(done);
     } catch (cause) {
       setReport(t(failure, { error: String(cause) }));
     } finally {
@@ -214,7 +226,7 @@ export function ImportDialog({
         </Button>
         <Button
           variant="primary"
-          onClick={() => void run(importBoard, "dialogs.importFailed")}
+          onClick={() => void run(importBoard, "dialogs.importFailed", true)}
           disabled={busy || !files.length}
         >
           {busy ? t("dialogs.importing") : t("dialogs.import")}

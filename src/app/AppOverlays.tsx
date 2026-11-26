@@ -242,6 +242,10 @@ export function AppOverlays({
           deviceId={deviceId}
           onBoardImported={app.setBoardId}
           onFilesRestored={app.bumpFileVersion}
+          onImported={(summary) => {
+            overlays.close("import");
+            app.setNotice(summary);
+          }}
           onClose={() => overlays.close("import")}
         />
       )}
