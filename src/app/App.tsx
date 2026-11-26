@@ -19,7 +19,7 @@ import { readLocalAuthor } from "../lib/storage";
 import { readDismissedReminders, type PanelName } from "../lib/uiPreferences";
 import type { Card, Member } from "../model";
 import { applyDueRules } from "../model/automation";
-import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
+import { inboxBoardId, inboxListId, inboxWorkspaceId } from "../model/inbox";
 import { dueReminders } from "../model/reminders";
 import { purgeExpired } from "../model/trash";
 import { InboxView } from "../panels/InboxView";
@@ -366,7 +366,12 @@ function App() {
             {panels.shownPanels.map((name) => (
               <PanelSlot key={name} name={name} layout={panels}>
                 {name === "inbox" ? (
-                  <InboxView state={state} onCreate={cardActions.createInboxCard} onOpen={setCardId} />
+                  <InboxView
+                    state={state}
+                    onCreate={cardActions.createInboxCard}
+                    onOpen={setCardId}
+                    onDropCard={(id) => cardActions.moveOrCopyCard(id, inboxListId, false)}
+                  />
                 ) : (
                   <PlannerView state={state} onOpen={openCardInPlace} />
                 )}

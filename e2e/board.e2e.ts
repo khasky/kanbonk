@@ -180,4 +180,9 @@ test("drags cards from the Inbox panel into a list and onto a card of the board"
   await expect(tiles).toHaveText([/Inbox second/, /Card from Trello/, /Inbox first/]);
   await page.reload();
   await expect(plans.locator("a[draggable=true]")).toHaveText([/Inbox second/, /Card from Trello/, /Inbox first/]);
+
+  // And back: a board card dropped on the Inbox moves there, with its label shown on the same tile as on the board.
+  await plans.getByRole("link", { name: /Card from Trello/ }).dragTo(inbox.getByLabel("New card in inbox"));
+  await expect(plans.getByRole("link", { name: /Card from Trello/ })).toHaveCount(0);
+  await expect(inbox.getByRole("link", { name: /Card from Trello/ })).toContainText("Important");
 });

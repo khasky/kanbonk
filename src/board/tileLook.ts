@@ -1,4 +1,4 @@
-/** Looks of a card tile, shared by the board's `CardTile` and the Inbox's tiles. */
+/** Looks of a card tile (`CardTile`), on a board and in the Inbox. */
 
 const tileBase =
   "flex w-full flex-col gap-[7px] rounded-lg border-0 bg-white px-3 py-[9px] text-left text-[16px] leading-5 no-underline shadow-tile-soft hover:shadow-[0_2px_7px_#091e4255]";
@@ -16,7 +16,7 @@ export const tileNameClass = (fullCover = false) =>
     : "flex items-center gap-[5px] wrap-anywhere";
 
 /**
- * The line of due date, attachments, comments and checklists; hidden when empty (the Inbox always renders it).
+ * The line of due date, attachments, comments and checklists; hidden when empty.
  * `inherit` takes the text color of a tile filled with its cover color.
  */
 export const tileMetaClass = (inherit = false) =>

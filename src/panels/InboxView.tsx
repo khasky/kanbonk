@@ -1,27 +1,47 @@
-import { useState } from "react";
-import { AppLink } from "../ui/AppLink";
-import { endDrag, startDrag, useDragState } from "../board/dragState";
-import { CardCover } from "../card/CardCover";
-import { formatDate, t } from "../i18n";
+import { useMemo, useState } from "react";
+import { CardTile } from "../board/CardTile";
+import { currentDrag, dragKind, endDrag, useDragState } from "../board/dragState";
+import { t } from "../i18n";
 import { inboxBoardId } from "../model/inbox";
-import { emptyBoardFilter, filterBoardCards, type AppState, type BoardFilter } from "../model";
-import { Icon } from "../ui/Icon";
+import { emptyBoardFilter, filterBoardCards, isCardAvailable, type AppState, type BoardFilter } from "../model";
 import { Button } from "../ui/Button";
 import { Input, Select } from "../ui/Field";
-import { tileClass, tileMetaClass, tileMetaIconClass, tileMetaItemClass, tileNameClass } from "../board/tileLook";
 
 const selectClass = "flex-[1_1_110px] max-phone:min-h-11";
 
+/**
+ * The Inbox: a form for new cards, a search, a due filter and a sort, and its cards as the same tiles as on a board.
+ * A card dragged from a board and dropped here moves into the Inbox.
+ */
 export function InboxView({
   state,
   onCreate,
   onOpen,
+  onDropCard,
 }: {
   state: AppState;
   onCreate: (name: string) => void;
   onOpen: (id: string) => void;
+  onDropCard: (id: string) => void;
 }) {
   const [draft, setDraft] = useState("");
+  const [dropping, setDropping] = useState(false);
+  const labels = useMemo(
+    () => new Map(state.labels.filter((item) => !item.deleted).map((item) => [item.id, item])),
+    [state.labels],
+  );
+  const cardById = useMemo(() => new Map(state.cards.map((item) => [item.id, item])), [state.cards]);
+  const subCardCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const item of state.cards)
+      if (item.parentCardId && isCardAvailable(state, item))
+        counts.set(item.parentCardId, (counts.get(item.parentCardId) ?? 0) + 1);
+    return counts;
+  }, [state]);
+  const tileActions = useMemo(() => ({ open: onOpen }), [onOpen]);
+  /** Whether the card being dragged comes from a board, so it can be dropped here. */
+  const fromBoard = (types: readonly string[]) =>
+    dragKind(types) === "card" && cardById.get(currentDrag().drag?.id ?? "")?.boardId !== inboxBoardId;
   const { drag, target } = useDragState();
   const [keyword, setKeyword] = useState("");
   const [due, setDue] = useState<BoardFilter["due"]>("any");
@@ -40,8 +60,24 @@ export function InboxView({
   }
   return (
     <section
-      className="inbox-view min-h-0 flex-1 overflow-auto bg-brand-soft p-4 text-ink"
+      className={`inbox-view min-h-0 flex-1 overflow-auto p-4 text-ink ${dropping ? "bg-[#cce0ff] outline-2 -outline-offset-2 outline-brand outline-dashed" : "bg-brand-soft"}`}
       aria-label={t("panels.inbox")}
+      onDragOver={(event) => {
+        if (!fromBoard(event.dataTransfer.types)) return;
+        event.preventDefault();
+        setDropping(true);
+      }}
+      onDragLeave={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropping(false);
+      }}
+      onDrop={(event) => {
+        setDropping(false);
+        if (!fromBoard(event.dataTransfer.types)) return;
+        event.preventDefault();
+        const id = event.dataTransfer.getData("text/kanbonk-card");
+        endDrag();
+        if (id) onDropCard(id);
+      }}
     >
       <header className="flex max-w-[760px] items-start justify-between gap-4">
         <div>
@@ -104,41 +140,15 @@ export function InboxView({
       </div>
       <div className="grid max-w-[760px] gap-2">
         {cards.map((card) => (
-          <AppLink
-            className={tileClass()}
+          <CardTile
             key={card.id}
-            href={`/c/${encodeURIComponent(card.id)}`}
-            style={drag?.id === card.id && target ? { display: "none" } : undefined}
-            draggable
-            onDragStart={(event) => {
-              event.dataTransfer.setData("text/kanbonk-card", card.id);
-              startDrag(event.currentTarget, { kind: "card", id: card.id });
-            }}
-            onDragEnd={endDrag}
-            onOpen={() => onOpen(card.id)}
-          >
-            <CardCover card={card} />
-            <span className={tileNameClass()}>{card.name}</span>
-            <span className={tileMetaClass()}>
-              {card.dueAt && (
-                <span className={tileMetaItemClass}>
-                  <Icon name="clock" className={tileMetaIconClass} /> {formatDate(card.dueAt)}
-                </span>
-              )}
-              {card.checklists.length > 0 && (
-                <span className={tileMetaItemClass}>
-                  <Icon name="check-square" className={tileMetaIconClass} />{" "}
-                  {card.checklists.reduce((count, list) => count + list.items.filter((item) => item.checked).length, 0)}
-                  /{card.checklists.reduce((count, list) => count + list.items.length, 0)}
-                </span>
-              )}
-              {card.attachments.length > 0 && (
-                <span className={tileMetaItemClass}>
-                  <Icon name="clip" className={tileMetaIconClass} /> {card.attachments.length}
-                </span>
-              )}
-            </span>
-          </AppLink>
+            card={card}
+            labels={labels}
+            parentName={card.parentCardId ? cardById.get(card.parentCardId)?.name : undefined}
+            subCardCount={subCardCounts.get(card.id)}
+            actions={tileActions}
+            hidden={drag?.id === card.id && Boolean(target)}
+          />
         ))}
         {!cards.length && (
           <p className="p-[22px] text-center text-ink-muted">
