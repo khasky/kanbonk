@@ -8,6 +8,7 @@ import {
   type BoardList,
   copyBoard,
   copyList,
+  moveListToBoard,
   newId,
   type Revision,
   recordRevision,
@@ -131,6 +132,30 @@ export function useBoardActions({
     });
   }
 
+  /** Moves a list with its cards to the very start or end of a board, this one or another. */
+  function moveListOnto(id: string, boardId: string, atStart: boolean) {
+    setState((current) => {
+      if (!current.lists.some((list) => list.id === id && !list.deletedAt)) return current;
+      const sourceBoardId = current.lists.find((list) => list.id === id)!.boardId;
+      const moved = moveListToBoard(current, id, boardId, atStart);
+      const known = new Set(current.labels.map((label) => label.id));
+      return recordRevisions(
+        moved.state,
+        [
+          { kind: "list", id },
+          ...moved.cardIds.map((cardId) => ({ kind: "card" as const, id: cardId })),
+          ...moved.state.labels
+            .filter((label) => !known.has(label.id))
+            .map((label) => ({ kind: "label" as const, id: label.id })),
+          ...(sourceBoardId === boardId
+            ? []
+            : [sourceBoardId, boardId].map((boardRef) => ({ kind: "board" as const, id: boardRef }))),
+        ],
+        deviceId,
+      );
+    });
+  }
+
   function sortList(id: string, by: "name" | "due") {
     setState((current) => {
       const cards = sortListCards(current.cards, id, by);
@@ -245,6 +270,7 @@ export function useBoardActions({
     updateList,
     moveList,
     copyListOnBoard,
+    moveListOnto,
     sortList,
     placeListAt,
     placeZoneAt,

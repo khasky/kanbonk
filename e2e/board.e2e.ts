@@ -41,6 +41,47 @@ test("creates a workspace, board, lists and cards that survive a reload", async 
   await expect(page).toHaveURL(/\/w\//);
 });
 
+test("moves a list with its cards to the very start of another board", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Create workspace" }).click();
+  await page.keyboard.type("Team space");
+  await page.keyboard.press("Enter");
+  for (const [board, list] of [
+    ["Target", "Later"],
+    ["Roadmap", "Ideas"],
+  ]) {
+    await page.getByRole("button", { name: "Add board to Team space" }).click();
+    await page.keyboard.type(board);
+    await page.keyboard.press("Enter");
+    await expect(page.getByLabel("Board title")).toHaveValue(board);
+    await page.getByRole("button", { name: "Add a list" }).click();
+    await page.keyboard.type(list);
+    await page.keyboard.press("Enter");
+    await expect(page.getByLabel(`List title ${list}`)).toBeVisible();
+  }
+  const ideas = page.locator(".list-column").filter({ has: page.getByLabel("List title Ideas") });
+  await ideas.getByRole("button", { name: "Add a card" }).click();
+  await page.keyboard.type("First idea");
+  await page.keyboard.press("Enter");
+  await expect(ideas.getByRole("link", { name: /First idea/ })).toBeVisible();
+
+  await page.getByLabel("List actions Ideas").click();
+  await page.getByRole("button", { name: "Move list", exact: true }).click();
+  const move = page.getByRole("dialog", { name: "Move list" });
+  await move.getByLabel("Board").selectOption({ label: "Target" });
+  await move.getByLabel("Position").selectOption({ label: "Very start" });
+  await move.getByRole("button", { name: "Move", exact: true }).click();
+  await expect(move).toBeHidden();
+  await expect(page.getByLabel("List title Ideas")).toHaveCount(0);
+
+  await page.getByRole("complementary").getByRole("link", { name: "Target", exact: true }).click();
+  await expect(page.getByLabel("Board title")).toHaveValue("Target");
+  const titles = page.locator(".list-column [aria-label^='List title']");
+  await expect(titles.nth(0)).toHaveValue("Ideas");
+  await expect(titles.nth(1)).toHaveValue("Later");
+  await expect(page.getByRole("link", { name: /First idea/ })).toBeVisible();
+});
+
 test("moves a card to another position and list from the card's list button", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Create workspace" }).click();

@@ -1,6 +1,6 @@
 import { t } from "../i18n";
 import { newId } from "./ids";
-import type { AppState, BoardList, Card } from "./types";
+import type { AppState, BoardList, Card, Label } from "./types";
 
 export function isCardAvailable(state: AppState, card?: Card): boolean {
   return Boolean(
@@ -56,6 +56,18 @@ export function sortListCards(cards: Card[], listId: string, by: "name" | "due")
   return cards.map((card) => (positions.has(card.id) ? { ...card, position: positions.get(card.id)! } : card));
 }
 
+/** The label of `boardId` with the name and color of `source`, added to `labels` when the board has none. */
+export function boardLabel(labels: Label[], source: Label, boardId: string): Label {
+  let label = labels.find(
+    (item) => item.boardId === boardId && !item.deleted && item.name === source.name && item.color === source.color,
+  );
+  if (!label) {
+    label = { ...source, id: newId(), boardId };
+    labels.push(label);
+  }
+  return label;
+}
+
 /** Moves or copies a card to the bottom of a list (or its top with `top`), on this or another board. */
 export function transferCard(
   state: AppState,
@@ -75,19 +87,7 @@ export function transferCard(
   const labelIds = crossBoard
     ? source.labelIds.flatMap((id) => {
         const sourceLabel = state.labels.find((label) => label.id === id && !label.deleted);
-        if (!sourceLabel) return [];
-        let targetLabel = labels.find(
-          (label) =>
-            label.boardId === targetBoard.id &&
-            !label.deleted &&
-            label.name === sourceLabel.name &&
-            label.color === sourceLabel.color,
-        );
-        if (!targetLabel) {
-          targetLabel = { ...sourceLabel, id: newId(), boardId: targetBoard.id };
-          labels.push(targetLabel);
-        }
-        return [targetLabel.id];
+        return sourceLabel ? [boardLabel(labels, sourceLabel, targetBoard.id).id] : [];
       })
     : [...source.labelIds];
 

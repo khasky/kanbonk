@@ -8,6 +8,7 @@ import { boardUnits, listDropIndex, zoneRuns } from "../model/zones";
 import { Icon } from "../ui/Icon";
 import type { TileActions } from "./CardTile";
 import { type ListActions, ListColumn } from "./ListColumn";
+import { ListMovePicker } from "./ListMovePicker";
 import { ZoneComposer, ZoneFrame } from "./ZoneFrame";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
@@ -111,6 +112,16 @@ export function BoardCanvas({
     },
     createCard,
     createFromTemplate: cardActions.addCardFromTemplate,
+    movePicker: (list, close) => (
+      <ListMovePicker
+        list={list}
+        state={state}
+        onMove={(boardId, atStart) => {
+          boardActions.moveListOnto(list.id, boardId, atStart);
+          close();
+        }}
+      />
+    ),
   };
 
   // While something is dragged over the board, its own element is hidden and a dark slot of its size stands where it

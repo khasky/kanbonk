@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { t } from "../i18n";
-import { type AppState, type Card, positionAt } from "../model";
+import { type AppState, type Board, type Card, positionAt } from "../model";
 import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import { Button } from "../ui/Button";
 import { Select } from "../ui/Field";
 
 const tabClass =
   "-mb-px cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-0 pt-1 pb-1.5 text-[14px] text-ink-subtle aria-selected:border-brand aria-selected:text-brand";
-const labelClass = "grid gap-1.5 text-[14px] font-bold text-ink";
+export const moveLabelClass = "grid gap-1.5 text-[14px] font-bold text-ink";
 /** Its options are styled in styles/index.css, where browsers allow it. */
-const selectClass = "move-select w-full min-w-0";
+export const moveSelectClass = "move-select w-full min-w-0";
 
 function sortedLists(state: AppState, boardId: string) {
   return state.lists
@@ -37,7 +37,7 @@ function PositionSelect({
   const current = listId === card.listId ? currentIndex(state, card) : -1;
   return (
     <Select
-      className={selectClass}
+      className={moveSelectClass}
       value={value}
       onChange={(event) => onChange(Number(event.target.value))}
       aria-label={label}
@@ -46,6 +46,44 @@ function PositionSelect({
         <option key={index} value={index} data-current={index === current ? t("card.current") : undefined}>
           {index + 1}
         </option>
+      ))}
+    </Select>
+  );
+}
+
+/** Open boards grouped by workspace, `currentBoardId` marked as current. */
+export function BoardSelect({
+  state,
+  boards,
+  currentBoardId,
+  value,
+  onChange,
+}: {
+  state: AppState;
+  boards: Board[];
+  currentBoardId: string;
+  value: string;
+  onChange: (boardId: string) => void;
+}) {
+  const workspaces = state.workspaces.filter(
+    (item) => item.id !== inboxWorkspaceId && !item.deletedAt && boards.some((board) => board.workspaceId === item.id),
+  );
+  return (
+    <Select className={moveSelectClass} value={value} onChange={(event) => onChange(event.target.value)}>
+      {workspaces.map((workspace) => (
+        <optgroup key={workspace.id} label={workspace.name}>
+          {boards
+            .filter((item) => item.workspaceId === workspace.id)
+            .map((item) => (
+              <option
+                key={item.id}
+                value={item.id}
+                data-current={item.id === currentBoardId ? t("card.current") : undefined}
+              >
+                {item.name}
+              </option>
+            ))}
+        </optgroup>
       ))}
     </Select>
   );
@@ -76,9 +114,6 @@ export function MovePicker({
   const [tab, setTab] = useState<"inbox" | "board">(inInbox ? "inbox" : "board");
   const boards = state.boards.filter(
     (item) => item.id !== inboxBoardId && !item.deletedAt && sortedLists(state, item.id).length,
-  );
-  const workspaces = state.workspaces.filter(
-    (item) => item.id !== inboxWorkspaceId && !item.deletedAt && boards.some((board) => board.workspaceId === item.id),
   );
   const [boardId, setBoardId] = useState(inInbox ? (boards[0]?.id ?? "") : card.boardId);
   const [listId, setListId] = useState(inInbox ? (sortedLists(state, boardId)[0]?.id ?? "") : card.listId);
@@ -128,41 +163,26 @@ export function MovePicker({
       ) : (
         <>
           <h5 className="m-0 text-[12px] font-semibold text-ink-subtle">{t("card.selectDestination")}</h5>
-          <label className={labelClass}>
+          <label className={moveLabelClass}>
             {t("card.board")}
-            <Select
-              className={selectClass}
+            <BoardSelect
+              state={state}
+              boards={boards}
+              currentBoardId={card.boardId}
               value={boardId}
-              onChange={(event) => {
-                const id = event.target.value;
+              onChange={(id) => {
                 const first = id === card.boardId ? card.listId : (sortedLists(state, id)[0]?.id ?? "");
                 setBoardId(id);
                 setListId(first);
                 setIndex(start(first));
               }}
-            >
-              {workspaces.map((workspace) => (
-                <optgroup key={workspace.id} label={workspace.name}>
-                  {boards
-                    .filter((item) => item.workspaceId === workspace.id)
-                    .map((item) => (
-                      <option
-                        key={item.id}
-                        value={item.id}
-                        data-current={item.id === card.boardId ? t("card.current") : undefined}
-                      >
-                        {item.name}
-                      </option>
-                    ))}
-                </optgroup>
-              ))}
-            </Select>
+            />
           </label>
           <div className="grid grid-cols-[1fr_115px] gap-3">
-            <label className={labelClass}>
+            <label className={moveLabelClass}>
               {t("card.list")}
               <Select
-                className={selectClass}
+                className={moveSelectClass}
                 value={listId}
                 onChange={(event) => {
                   setListId(event.target.value);
@@ -180,7 +200,7 @@ export function MovePicker({
                 ))}
               </Select>
             </label>
-            <label className={labelClass}>
+            <label className={moveLabelClass}>
               {t("card.position")}
               <PositionSelect card={card} state={state} listId={listId} value={index} onChange={setIndex} />
             </label>

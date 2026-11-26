@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { copyBoard, copyList, createCardFromTemplate, emptyState, transferCard, type AppState } from "../src/model";
+import {
+  copyBoard,
+  copyList,
+  createCardFromTemplate,
+  emptyState,
+  moveListToBoard,
+  transferCard,
+  type AppState,
+} from "../src/model";
 
 function fixture(): AppState {
   return {
@@ -157,6 +165,40 @@ describe("list copy", () => {
     const source = fixture();
     source.lists[0].deletedAt = "2026-01-01T00:00:00.000Z";
     expect(() => copyList(source, "from-list")).toThrow("cannot be copied");
+  });
+
+  it("moves a list with its cards and automation rules to the start of another board", () => {
+    const source = fixture();
+    source.lists[0].zoneId = "zone";
+    source.labels.push({ id: "label-c", boardId: "from", name: "Done", color: "#0f0" });
+    source.boards[0].automationRules = [
+      { id: "rule", listId: "from-list", action: "add-label", labelId: "label-c" },
+      { id: "other", listId: "elsewhere", action: "trash" },
+    ];
+    source.cards.push({ ...source.cards[0], id: "trashed", position: 5, deletedAt: "2026-01-01T00:00:00.000Z" });
+    const moved = moveListToBoard(source, "from-list", "to", true);
+    expect(moved.cardIds).toEqual(["card", "trashed"]);
+    expect(moved.state.lists[0]).toMatchObject({ boardId: "to", position: 0, zoneId: undefined });
+    expect(moved.state.cards[0]).toMatchObject({
+      boardId: "to",
+      listId: "from-list",
+      position: 1,
+      labelIds: ["label-b"],
+    });
+    expect(moved.state.cards[1]).toMatchObject({ boardId: "to", position: 5 });
+    const done = moved.state.labels.find((label) => label.boardId === "to" && label.name === "Done");
+    expect(moved.state.boards[0].automationRules?.map((rule) => rule.id)).toEqual(["other"]);
+    expect(moved.state.boards[1].automationRules).toEqual([
+      { ...source.boards[0].automationRules[0], labelId: done?.id },
+    ]);
+  });
+
+  it("moves a list to the end of its own board without touching its cards", () => {
+    const source = fixture();
+    source.lists.push({ id: "next", boardId: "from", name: "Next", position: 2 });
+    const moved = moveListToBoard(source, "from-list", "from", false);
+    expect(moved.state.lists[0].position).toBe(3);
+    expect(moved.state.cards).toBe(source.cards);
   });
 });
 

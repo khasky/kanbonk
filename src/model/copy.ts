@@ -1,7 +1,7 @@
 import { t } from "../i18n";
-import { transferCard } from "./cards";
+import { boardLabel, transferCard } from "./cards";
 import { newId } from "./ids";
-import type { AppState, Board } from "./types";
+import type { AppState, Board, Card } from "./types";
 
 export function copyList(
   state: AppState,
@@ -26,6 +26,64 @@ export function copyList(
     cardIds.push(result.cardId);
   }
   return { state: next, listId: copyId, cardIds };
+}
+
+/**
+ * Moves a list with its cards to the very start or end of a board. On another board the cards get that board's labels
+ * and members, as a moved card does, the list leaves its zone, and the source board's automation rules for the list go
+ * with it. Returns the moved cards' ids.
+ */
+export function moveListToBoard(
+  state: AppState,
+  listId: string,
+  boardId: string,
+  atStart: boolean,
+): { state: AppState; cardIds: string[] } {
+  const source = state.lists.find((list) => list.id === listId && !list.deletedAt);
+  const target = state.boards.find((board) => board.id === boardId && !board.deletedAt);
+  if (!source || !target) throw new Error(t("model.cardOrListUnavailable"));
+  const others = state.lists
+    .filter((list) => list.boardId === boardId && list.id !== listId && !list.deletedAt)
+    .map((list) => list.position);
+  const position = atStart ? Math.min(1, ...others) - 1 : Math.max(0, ...others) + 1;
+  const crossBoard = source.boardId !== boardId;
+  let next: AppState = {
+    ...state,
+    lists: state.lists.map((list) =>
+      list.id === listId ? { ...list, boardId, position, zoneId: crossBoard ? undefined : list.zoneId } : list,
+    ),
+  };
+  if (!crossBoard) return { state: next, cardIds: [] };
+
+  const cards = state.cards.filter((card) => card.listId === listId);
+  for (const card of cards.filter((item) => !item.deletedAt)) next = transferCard(next, card.id, listId, false).state;
+  const positions = new Map(cards.map((card) => [card.id, card.position]));
+  next.cards = next.cards.map((card): Card => {
+    const original = positions.get(card.id);
+    if (original === undefined) return card;
+    return { ...card, boardId, position: original };
+  });
+
+  const sourceBoard = state.boards.find((board) => board.id === source.boardId);
+  const rules = sourceBoard?.automationRules?.filter((rule) => rule.listId === listId) ?? [];
+  if (rules.length) {
+    const labels = [...next.labels];
+    const moved = rules.map((rule) => {
+      const label = rule.labelId ? state.labels.find((item) => item.id === rule.labelId && !item.deleted) : undefined;
+      return label ? { ...rule, labelId: boardLabel(labels, label, boardId).id } : rule;
+    });
+    next = {
+      ...next,
+      labels,
+      boards: next.boards.map((board) => {
+        if (board.id === source.boardId)
+          return { ...board, automationRules: board.automationRules?.filter((rule) => rule.listId !== listId) };
+        if (board.id === boardId) return { ...board, automationRules: [...(board.automationRules ?? []), ...moved] };
+        return board;
+      }),
+    };
+  }
+  return { state: next, cardIds: cards.map((card) => card.id) };
 }
 
 export function copyBoard(

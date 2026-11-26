@@ -1,7 +1,9 @@
+import { type ReactNode, useRef, useState } from "react";
 import type { BoardList, Card, Label, Member } from "../model";
 import { Icon } from "../ui/Icon";
 import { Menu, MenuItem, MenuSeparator } from "../ui/Menu";
 import { NameEditor } from "../ui/NameEditor";
+import { Popover } from "../ui/Popover";
 import { CardTile, type TileActions } from "./CardTile";
 import { ListCards } from "./ListCards";
 import { TemplateComposer } from "./TemplateComposer";
@@ -19,6 +21,8 @@ export interface ListActions {
   cancelCard: () => void;
   createCard: (listId: string) => void;
   createFromTemplate: (templateId: string, listId: string, name: string) => void;
+  /** The "Move list" form for the list; `close` closes its popover. */
+  movePicker: (list: BoardList, close: () => void) => ReactNode;
 }
 
 /**
@@ -59,6 +63,8 @@ export function ListColumn({
   draggedCardId?: string;
   cardSlot?: { index: number; height: number };
 }) {
+  const menuRef = useRef<HTMLDetailsElement>(null);
+  const [moving, setMoving] = useState(false);
   return (
     <section
       className="list-column flex max-h-full w-[272px] flex-none flex-col rounded-xl bg-surface-sunken p-2 shadow-tile-soft"
@@ -88,6 +94,7 @@ export function ListColumn({
           onCommit={(name) => actions.rename(list.id, name)}
         />
         <Menu
+          ref={menuRef}
           label={t("board.listActionsOf", { name: list.name })}
           summaryClassName="grid size-8 place-items-center rounded-sm text-[20px] leading-none text-ink-subtle group-open/menu:bg-line hover:bg-line max-phone:min-h-11 max-phone:min-w-11"
           touchRows
@@ -96,12 +103,18 @@ export function ListColumn({
           <MenuItem onClick={() => actions.run(list.id, "due")}>{t("board.sortByDue")}</MenuItem>
           <MenuItem onClick={() => actions.run(list.id, "move-left")}>{t("board.moveLeft")}</MenuItem>
           <MenuItem onClick={() => actions.run(list.id, "move-right")}>{t("board.moveRight")}</MenuItem>
+          <MenuItem onClick={() => setMoving(true)}>{t("board.moveList")}</MenuItem>
           <MenuItem onClick={() => actions.run(list.id, "copy")}>{t("board.copyList")}</MenuItem>
           <MenuSeparator />
           <MenuItem danger onClick={() => actions.run(list.id, "delete")}>
             {t("board.moveListToTrash")}
           </MenuItem>
         </Menu>
+        {moving && menuRef.current && (
+          <Popover title={t("board.moveList")} anchor={menuRef.current} onClose={() => setMoving(false)}>
+            {actions.movePicker(list, () => setMoving(false))}
+          </Popover>
+        )}
       </div>
       <ListCards
         cards={cards}
