@@ -17,6 +17,11 @@ export const panels = {
   historyColor: "Color",
   historyBackground: "Background",
   historyZones: "Zones",
+  historyRenamed: "{field}: “{from}” → “{to}”",
+  historyZoneAdded: "Zone “{name}” added",
+  historyZoneRemoved: "Zone “{name}” removed",
+  historyZoneRenamed: "Zone “{from}” renamed to “{to}”",
+  historyZoneColor: "Zone “{name}” color changed",
   historySize: "{size} KB",
 
   inbox: "Inbox",

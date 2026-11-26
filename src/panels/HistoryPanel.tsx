@@ -26,9 +26,13 @@ export function HistoryPanel({
         .reverse()
         .map(({ revision, changes }) => (
           <PanelRow key={revision.id}>
-            <PanelRowText>
+            <PanelRowText className="grid gap-0.5">
               <strong>{revision.snapshot.name}</strong>
-              <span className="text-sm">{changes}</span>
+              <ul className="m-0 list-none p-0 text-[14px]">
+                {changes.map((change) => (
+                  <li key={change}>{change}</li>
+                ))}
+              </ul>
               <PanelRowNote>
                 {formatDateTime(revision.createdAt)} · {revisionSize(revision.snapshot)}
               </PanelRowNote>

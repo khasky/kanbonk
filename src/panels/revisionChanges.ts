@@ -1,5 +1,5 @@
 import { currentLocale, type MessageKey, t } from "../i18n";
-import type { Revision } from "../model";
+import type { Revision, Zone } from "../model";
 
 type Snapshot = Revision["snapshot"];
 
@@ -23,26 +23,29 @@ const parts: Array<{ fields: string[]; key: MessageKey; counted?: boolean }> = [
   { fields: ["name"], key: "card.title" },
   { fields: ["description"], key: "card.description" },
   { fields: ["doc"], key: "board.viewDoc" },
-  { fields: ["labelIds"], key: "card.labels" },
-  { fields: ["memberIds", "members"], key: "card.members" },
+  { fields: ["labelIds"], key: "card.labels", counted: true },
+  { fields: ["memberIds", "members"], key: "card.members", counted: true },
   { fields: ["startAt", "dueAt", "dueReminderMinutes"], key: "card.dates" },
-  { fields: ["checklists"], key: "card.checklist" },
+  { fields: ["checklists"], key: "card.checklist", counted: true },
   { fields: ["comments"], key: "board.comments", counted: true },
   { fields: ["attachments"], key: "card.attachments", counted: true },
   { fields: ["cover"], key: "card.cover" },
   { fields: ["color"], key: "panels.historyColor" },
   { fields: ["background", "backgroundImageId"], key: "panels.historyBackground" },
   { fields: ["zones"], key: "panels.historyZones" },
-  { fields: ["automationRules"], key: "board.automation" },
+  { fields: ["automationRules"], key: "board.automation", counted: true },
   { fields: ["isTemplate"], key: "board.template" },
   { fields: ["starred"], key: "pages.starred" },
   { fields: ["position"], key: "card.position" },
 ];
 const partOf = new Map(parts.flatMap((part) => part.fields.map((field) => [field, part] as const)));
 
-/** What changed from `previous` to `current`, e.g. "Description, Comments (+2)"; the oldest kept version has no previous. */
-export function revisionChanges(previous: Snapshot | undefined, current: Snapshot): string {
-  if (!previous) return t("panels.historyOldest");
+/**
+ * What changed from `previous` to `current`, one line per change, e.g. "Title: “Plan” → “Release plan”", "Comments
+ * (+2)" or "Zone “Development” added"; the oldest kept version has no previous.
+ */
+export function revisionChanges(previous: Snapshot | undefined, current: Snapshot): string[] {
+  if (!previous) return [t("panels.historyOldest")];
   const before = previous as unknown as Record<string, unknown>;
   const after = current as unknown as Record<string, unknown>;
   const changed = new Set<(typeof parts)[number] | undefined>();
@@ -53,16 +56,37 @@ export function revisionChanges(previous: Snapshot | undefined, current: Snapsho
   const moved = changed.has(partOf.get("listId"));
   const names = parts
     .filter((part) => changed.has(part) && !(moved && part.key === "card.position"))
-    .map((part) => {
+    .flatMap((part) => {
       if (part.key === "panels.historyTrashed" && !after.deletedAt && !after.deleted)
-        return t("panels.historyRestored");
+        return [t("panels.historyRestored")];
+      if (part.key === "card.title")
+        return [t("panels.historyRenamed", { field: t(part.key), from: String(before.name), to: String(after.name) })];
+      if (part.key === "panels.historyZones") return zoneChanges(before.zones, after.zones);
       const name = t(part.key);
-      if (!part.counted) return name;
+      if (!part.counted) return [name];
       const delta = count(after[part.fields[0]]) - count(before[part.fields[0]]);
-      return delta ? `${name} (${delta > 0 ? "+" : "−"}${Math.abs(delta)})` : name;
+      return [delta ? `${name} (${delta > 0 ? "+" : "−"}${Math.abs(delta)})` : name];
     });
   if (changed.has(undefined)) names.push(t("panels.historyOther"));
-  return names.length ? names.join(", ") : t("panels.historyNoChanges");
+  return names.length ? names : [t("panels.historyNoChanges")];
+}
+
+/** The zones of a board that were added, removed, renamed or recolored. */
+function zoneChanges(before: unknown, after: unknown): string[] {
+  const old = new Map(((before as Zone[] | undefined) ?? []).map((zone) => [zone.id, zone]));
+  const now = (after as Zone[] | undefined) ?? [];
+  const lines = now.flatMap((zone) => {
+    const was = old.get(zone.id);
+    if (!was) return [t("panels.historyZoneAdded", { name: zone.name })];
+    return [
+      ...(was.name !== zone.name ? [t("panels.historyZoneRenamed", { from: was.name, to: zone.name })] : []),
+      ...(was.color !== zone.color ? [t("panels.historyZoneColor", { name: zone.name })] : []),
+    ];
+  });
+  const kept = new Set(now.map((zone) => zone.id));
+  for (const zone of old.values())
+    if (!kept.has(zone.id)) lines.push(t("panels.historyZoneRemoved", { name: zone.name }));
+  return lines.length ? lines : [t("panels.historyZones")];
 }
 
 function count(value: unknown): number {
