@@ -1,6 +1,6 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { sha256 } from "@noble/hashes/sha2.js";
-import { isViewCount, mediaReferences, newId, type AppState } from "../model";
+import { isRequiredFields, isViewCount, mediaReferences, newId, type AppState } from "../model";
 import { loadAttachment, saveAttachment } from "../lib/storage";
 import { mergeStates, type SyncConflict } from "../sync/sync";
 import { t } from "../i18n";
@@ -66,6 +66,7 @@ export function validState(state: Record<string, unknown>): boolean {
           (Array.isArray(board.zones) &&
             board.zones.every((zone) => hasIdName(zone) && typeof zone.color === "string"))) &&
         (board.members === undefined || (Array.isArray(board.members) && board.members.every(hasIdName))) &&
+        (board.requiredFields === undefined || isRequiredFields(board.requiredFields)) &&
         (board.automationRules === undefined ||
           (Array.isArray(board.automationRules) &&
             board.automationRules.every(

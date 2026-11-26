@@ -1,7 +1,8 @@
 import { memo } from "react";
 import { CardCover } from "../card/CardCover";
 import { readableTextColor } from "../model/labelColors";
-import type { Card, Label, Member } from "../model";
+import type { Card, Label, Member, MissingField } from "../model";
+import { missingFieldText } from "../model/requiredFieldsText";
 import { AppLink } from "../ui/AppLink";
 import { Icon } from "../ui/Icon";
 import { formatDate, t } from "../i18n";
@@ -10,6 +11,10 @@ import { viewAge, viewedTitle } from "../model/viewText";
 import { useLocale } from "../i18n/nodes";
 import { endDrag, startDrag } from "./dragState";
 import { tileClass, tileMetaClass, tileMetaIconClass, tileMetaItemClass, tileNameClass } from "./tileLook";
+
+/** A thing the card lacks under its board's required fields, as a warning on the tile and in the card. */
+export const missingBadgeClass =
+  "inline-flex items-center gap-1 rounded-[3px] bg-[#fff7d6] px-1.5 py-0.5 text-[11px] font-semibold text-[#6b4f00]";
 
 export interface TileActions {
   open: (id: string) => void;
@@ -24,6 +29,7 @@ export const CardTile = memo(function CardTile({
   subCardCount = 0,
   viewCount = 0,
   lastViewedAt,
+  missing,
   actions,
   hidden = false,
 }: {
@@ -35,6 +41,8 @@ export const CardTile = memo(function CardTile({
   /** Views of the card by everyone, and when it was last opened (see model/views). */
   viewCount?: number;
   lastViewedAt?: string;
+  /** What the card lacks under its board's required fields. */
+  missing?: MissingField[];
   actions: TileActions;
   /** Hidden while it is dragged to another place, which the board shows instead. */
   hidden?: boolean;
@@ -84,6 +92,23 @@ export const CardTile = memo(function CardTile({
       {parentName && (
         <span className="truncate text-[12px] opacity-75" title={t("board.parentCard")}>
           ↳ {parentName}
+        </span>
+      )}
+      {missing && missing.length > 0 && (
+        <span className="flex flex-wrap gap-1" aria-label={t("required.missing")}>
+          {missing
+            .map((entry) =>
+              missingFieldText(
+                entry,
+                (id) => labels.get(id)?.name ?? members?.find((member) => member.id === id)?.name,
+              ),
+            )
+            .map((text) => (
+              <span key={text} className={missingBadgeClass}>
+                <Icon name="alert" className="size-3.5 flex-none" />
+                {text}
+              </span>
+            ))}
         </span>
       )}
       {(item.memberIds ?? []).length > 0 && (

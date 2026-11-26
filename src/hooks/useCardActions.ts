@@ -3,9 +3,11 @@ import type { TriageItem } from "../ai/ai";
 import { applyCardButton, applyMoveRules } from "../model/automation";
 import { trashSubCards } from "../model/trash";
 import { inboxBoardId, inboxListId } from "../model/inbox";
+import { moveBlockedText } from "../model/requiredFieldsText";
 import { t } from "../i18n";
 import {
   type AppState,
+  blockedMove,
   type Card,
   convertChecklistItem,
   createCardFromTemplate,
@@ -36,14 +38,26 @@ export function useCardActions({
   setState,
   deviceId,
   onError,
+  onNotice,
 }: {
   state: AppState;
   setState: Dispatch<SetStateAction<AppState>>;
   deviceId: string;
   onError: (message: string) => void;
+  /** Tells why a card stayed in its list. */
+  onNotice: (message: string) => void;
 }) {
+  /** Whether the card may go to the list; a board that keeps incomplete cards in their lists says what is missing. */
+  function mayMove(card: Card, targetListId: string) {
+    const missing = blockedMove(state, card, targetListId);
+    if (missing.length) onNotice(moveBlockedText(state, card, missing));
+    return !missing.length;
+  }
+
   /** Applies a change to a card, then its move rules. */
   function updateCard(id: string, change: (item: Card) => Card) {
+    const card = state.cards.find((item) => item.id === id);
+    if (card && !mayMove(card, change(card).listId)) return;
     setState((current) =>
       trashSubCards(
         recordRevision(
@@ -87,7 +101,8 @@ export function useCardActions({
    */
   function moveOrCopyCard(id: string, targetListId: string, copy: boolean, top = false, position?: number) {
     const targetList = state.lists.find((list) => list.id === targetListId && !list.deletedAt);
-    if (!targetList) return undefined;
+    const card = state.cards.find((item) => item.id === id);
+    if (!targetList || (!copy && card && !mayMove(card, targetListId))) return undefined;
     const targetId = copy ? newId() : id;
     setState((current) => {
       const transferred = transferCard(current, id, targetListId, copy, targetId, top).state;

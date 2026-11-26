@@ -36,7 +36,30 @@ export interface Board extends Trashable {
   zones?: Zone[];
   /** Project document twin of the board (Markdown); links `/c/<id>` point at cards. */
   doc?: string;
+  /** What every card on the board must have; see model/requiredFields. */
+  requiredFields?: RequiredFields;
   starred: boolean;
+}
+
+/** Fields every card on a board must have, checked on the card and, with `blockMoves`, before it leaves its list. */
+export interface RequiredFields {
+  description?: boolean;
+  members?: boolean;
+  startDate?: boolean;
+  dueDate?: boolean;
+  labels?: boolean;
+  checklists?: boolean;
+  /** Every item of every checklist is checked. */
+  checklistsDone?: boolean;
+  /** Members and labels every card must have. */
+  memberIds?: string[];
+  labelIds?: string[];
+  /** Compared without case and surrounding spaces. */
+  descriptionRule?: { op: "contains" | "equals" | "starts-with"; text: string };
+  /** A checklist of this name, without case. */
+  checklistName?: string;
+  /** A card that lacks a field stays in its list. */
+  blockMoves?: boolean;
 }
 
 export interface Zone {

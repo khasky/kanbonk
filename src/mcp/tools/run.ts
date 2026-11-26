@@ -2,6 +2,7 @@
 // in tests, and could run in the app. Every change records revisions with the agent's device ID, so it syncs and
 // shows up in card history like an edit from any other trusted device.
 import {
+  blockedMove,
   cloneCard,
   createSubCard,
   emptyBoardFilter,
@@ -19,6 +20,7 @@ import { moveToTrash, restoreFromTrash, trashEntries, visibleState, type TrashKi
 import { createZone, moveListToList } from "../../model/zones";
 import { projectSummary } from "../../model/boardDoc";
 import { findDuplicates, mergeDuplicate } from "../../model/dedupe";
+import { moveBlockedText } from "../../model/requiredFieldsText";
 import { type Json, trashKinds } from "./definitions";
 
 export class ToolError extends Error {}
@@ -314,6 +316,8 @@ export function runTool(
       const target = list(args.listId);
       if (target.boardId !== moving.boardId)
         throw new ToolError("Moving cards between boards is not supported by this tool");
+      const missing = blockedMove(full, moving, target.id);
+      if (missing.length) throw new ToolError(moveBlockedText(full, moving, missing));
       const before = text(args, "beforeCardId");
       const position = before
         ? positionBefore(full.cards, moving.id, { ...card(before), listId: target.id })

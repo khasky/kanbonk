@@ -4,6 +4,7 @@ import { AutomationPanel } from "../board/AutomationPanel";
 import { BoardActivity } from "../board/BoardActivity";
 import { BoardAnalytics } from "../board/BoardAnalytics";
 import { ShareLabelsDialog } from "../dialogs/ShareLabelsDialog";
+import { RequiredFieldsPanel } from "../board/RequiredFieldsPanel";
 import { AiSettingsDialog } from "../dialogs/AiSettingsDialog";
 import { AuthorDialog } from "../dialogs/AuthorDialog";
 import { BackupDialog } from "../dialogs/BackupDialog";
@@ -58,6 +59,9 @@ export function AppOverlays({
   const [backupConflicts, setBackupConflicts] = useState<SyncConflict[]>([]);
   const [dedupeIgnored, ignorePair] = useStoredSet("kanbonk-dedupe-ignored");
   const cloneSource = open.cloneCardId ? state.cards.find((item) => item.id === open.cloneCardId) : undefined;
+  const requiredFieldsBoard = open.requiredFieldsBoardId
+    ? state.boards.find((item) => item.id === open.requiredFieldsBoardId && !item.deletedAt)
+    : undefined;
   const automationBoard = open.automationBoardId
     ? state.boards.find((item) => item.id === open.automationBoardId && !item.deletedAt)
     : undefined;
@@ -146,6 +150,17 @@ export function AppOverlays({
       )}
       {open.boardAbout && board && (
         <BoardAboutPanel board={board} onSave={saveBoardDescription} onClose={() => overlays.close("boardAbout")} />
+      )}
+      {requiredFieldsBoard && (
+        <RequiredFieldsPanel
+          state={state}
+          board={requiredFieldsBoard}
+          onSave={(requiredFields) => {
+            app.boardActions.updateBoard(requiredFieldsBoard.id, (item) => ({ ...item, requiredFields }));
+            overlays.close("requiredFieldsBoardId");
+          }}
+          onClose={() => overlays.close("requiredFieldsBoardId")}
+        />
       )}
       {open.shareLabelsBoardId && (
         <ShareLabelsDialog

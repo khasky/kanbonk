@@ -12,6 +12,7 @@ export type BoardMenuActions = {
   onActivity: () => void;
   onAnalytics: () => void;
   onShareLabels: () => void;
+  onRequiredFields: () => void;
   onHistory: () => void;
   onExport: () => void;
   onTrash: () => void;
@@ -35,6 +36,7 @@ export function BoardMenu({ background, actions }: { background: string; actions
     >
       <MenuItem onClick={actions.onCopy}>{t("board.copyBoard")}</MenuItem>
       <MenuItem onClick={actions.onAutomation}>{t("board.automation")}</MenuItem>
+      <MenuItem onClick={actions.onRequiredFields}>{t("required.title")}</MenuItem>
       <MenuItem onClick={actions.onActivity}>{t("board.activity")}</MenuItem>
       <MenuItem onClick={actions.onAnalytics}>{t("views.analytics")}</MenuItem>
       <MenuItem onClick={actions.onShareLabels}>{t("labelSharing.menuItem")}</MenuItem>

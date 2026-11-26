@@ -3,7 +3,9 @@ import { mentionedCardIds } from "../model/boardDoc";
 import { cardCreatedAt } from "../model/calendar";
 import { inboxBoardId } from "../model/inbox";
 import { importedCardForUrl, relatedCards } from "../model/links";
-import { isCardAvailable, subCards, viewStats, type AppState, type Card, type Member } from "../model";
+import { isCardAvailable, missingFields, subCards, viewStats, type AppState, type Card, type Member } from "../model";
+import { missingFieldText } from "../model/requiredFieldsText";
+import { missingBadgeClass } from "../board/CardTile";
 import { dependentsOf, prerequisitesOf } from "../model/trash";
 import { formatDateTime, type MessageKey, t } from "../i18n";
 import { tNodes } from "../i18n/nodes";
@@ -196,6 +198,13 @@ export function CardDialog({
   useEscapeToDismiss(onClose);
   const boardLabels = state.labels.filter((item) => item.boardId === card.boardId && !item.deleted);
   const boardMembers = state.boards.find((item) => item.id === card.boardId)?.members ?? [];
+  const missing = missingFields(card, state.boards.find((item) => item.id === card.boardId)?.requiredFields).map(
+    (entry) =>
+      missingFieldText(
+        entry,
+        (id) => boardLabels.find((item) => item.id === id)?.name ?? boardMembers.find((item) => item.id === id)?.name,
+      ),
+  );
   const assignable = [...boardMembers, ...team.filter((member) => !boardMembers.some((item) => item.id === member.id))];
   const canAssign = assignable.some((member) => member.id !== currentDeviceId) && card.boardId !== inboxBoardId;
   const children = subCards(state, card.id).filter((item) => isCardAvailable(state, item));
@@ -443,6 +452,22 @@ export function CardDialog({
               {created ? t("card.createdAt", { time: formatDateTime(created) }) : ""}
               {t("card.cardId", { id: card.id })}
             </p>
+            {missing.length > 0 && (
+              <section
+                className="mb-4 grid gap-1.5 rounded-md border border-warning bg-[#fffae6] px-3 py-2"
+                aria-label={t("required.missing")}
+              >
+                <strong className="text-[13px] text-[#6b4f00]">{t("required.missing")}</strong>
+                <ul className="m-0 flex list-none flex-wrap gap-1 p-0">
+                  {missing.map((text) => (
+                    <li key={text} className={missingBadgeClass}>
+                      <Icon name="alert" className="size-3.5 flex-none" />
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
             <div className="card-actions mb-5 flex flex-wrap gap-2">
               <QuickButton icon="plus" panel="add" expanded={expanded("add")} onClick={toggle("add")}>
                 {t("common.add")}

@@ -6,9 +6,20 @@ export function deleteLabel(state: AppState, labelId: string, deviceId: string):
   const label = state.labels.find((item) => item.id === labelId && !item.deleted);
   if (!label) return state;
   const affectedCards = state.cards.filter((card) => card.labelIds.includes(labelId));
+  const rules = state.boards.find((board) => board.id === label.boardId)?.requiredFields;
+  // A card cannot be asked for a label that is gone.
+  const requiredLabel = rules?.labelIds?.includes(labelId);
+  const boards = requiredLabel
+    ? state.boards.map((board) =>
+        board.id === label.boardId
+          ? { ...board, requiredFields: { ...rules, labelIds: rules?.labelIds?.filter((id) => id !== labelId) } }
+          : board,
+      )
+    : state.boards;
   const next = recordRevision(
     {
       ...state,
+      boards,
       labels: state.labels.map((item) => (item.id === labelId ? { ...item, deleted: true } : item)),
       cards: state.cards.map((card) =>
         card.labelIds.includes(labelId) ? { ...card, labelIds: card.labelIds.filter((id) => id !== labelId) } : card,
@@ -20,7 +31,10 @@ export function deleteLabel(state: AppState, labelId: string, deviceId: string):
   );
   return recordRevisions(
     next,
-    affectedCards.map((card) => ({ kind: "card" as const, id: card.id })),
+    [
+      ...affectedCards.map((card) => ({ kind: "card" as const, id: card.id })),
+      ...(requiredLabel ? [{ kind: "board" as const, id: label.boardId }] : []),
+    ],
     deviceId,
   );
 }

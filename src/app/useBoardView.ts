@@ -7,9 +7,11 @@ import {
   filterBoardCards,
   cardViewStats,
   isCardAvailable,
+  missingFields,
   type AppState,
   type BoardFilter,
   type Card,
+  type MissingField,
 } from "../model";
 
 /**
@@ -64,6 +66,16 @@ export function useBoardView(state: AppState, boardId: string | null, onError: (
 
   /** Views of each card of the open board, for the view badges. */
   const cardViews = useMemo(() => cardViewStats(state, boardId ?? undefined), [state, boardId]);
+  /** What each card of the open board lacks under the board's required fields, for the warning badges. */
+  const rules = board?.requiredFields;
+  const missingByCard = useMemo(() => {
+    const missing = new Map<string, MissingField[]>();
+    for (const item of state.cards) {
+      const found = item.boardId === boardId ? missingFields(item, rules) : [];
+      if (found.length) missing.set(item.id, found);
+    }
+    return missing;
+  }, [state.cards, boardId, rules]);
 
   function updateFilter(change: Partial<BoardFilter>) {
     if (!boardId) return;
@@ -95,6 +107,7 @@ export function useBoardView(state: AppState, boardId: string | null, onError: (
     cardById,
     subCardCounts,
     cardViews,
+    missingByCard,
     totalCardCount: boardId ? filterBoardCards(state, boardId, emptyBoardFilter()).length : 0,
     templates: state.cards.filter((item) => item.boardId === boardId && item.isTemplate),
   };

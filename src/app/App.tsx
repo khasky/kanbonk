@@ -78,7 +78,13 @@ function App() {
     onError: setError,
   });
   const panels = usePanelLayout({ ready, onError: setError });
-  const cardActions = useCardActions({ state, setState, deviceId: localDeviceId, onError: setError });
+  const cardActions = useCardActions({
+    state,
+    setState,
+    deviceId: localDeviceId,
+    onError: setError,
+    onNotice: setNotice,
+  });
   const boardActions = useBoardActions({ setState, deviceId: localDeviceId });
   const trash = useTrash({ fullState, setState, deviceId: localDeviceId, onNotice: setNotice });
   const { snapshots, refreshSnapshots, backupAsk, saveDueBackup, skipDueBackup } = useAutoBackup({
