@@ -11,6 +11,7 @@ import { CreationDialog } from "../dialogs/CreationDialog";
 import { DedupeDialog } from "../dialogs/DedupeDialog";
 import { t } from "../i18n";
 import { DeleteDialog } from "../dialogs/DeleteDialog";
+import { ExportDialog } from "../dialogs/ExportDialog";
 import { ImportDialog } from "../dialogs/ImportDialog";
 import { SettingsDialog } from "../dialogs/SettingsDialog";
 import { SyncDialog } from "../dialogs/SyncDialog";
@@ -247,6 +248,14 @@ export function AppOverlays({
             app.setNotice(summary);
           }}
           onClose={() => overlays.close("import")}
+        />
+      )}
+      {open.exportBoardId && (
+        <ExportDialog
+          state={app.fullState}
+          boardId={open.exportBoardId}
+          onClose={() => overlays.close("exportBoardId")}
+          onError={app.setError}
         />
       )}
       {open.boardCopy && (

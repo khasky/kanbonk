@@ -86,10 +86,15 @@ export function Modal({
   );
 }
 
-const dialogWidth = { sm: "w-[min(420px,100%)]", md: "w-[min(520px,100%)]", lg: "w-[min(620px,100%)]" };
+const dialogWidth = {
+  sm: "w-[min(420px,100%)]",
+  md: "w-[min(520px,100%)]",
+  lg: "w-[min(620px,100%)]",
+  xl: "w-[min(1100px,100%)]",
+};
 
 /**
- * A centered dialog box: a `Modal` with the app's dialog look, 420px wide (`md` 520px, `lg` 620px). On phones every
+ * A centered dialog box: a `Modal` with the app's dialog look, 420px wide (`md` 520px, `lg` 620px, `xl` 1100px). On phones every
  * button in it except inline text links (`data-inline`) becomes a 44px touch target. `className` adds layout only (grid, scrolling).
  */
 export function Dialog({

@@ -4,9 +4,7 @@ import type { ProposedCard } from "../board/AiPanel";
 import { BoardView } from "../board/BoardView";
 import type { TileActions } from "../board/CardTile";
 import type { TrashedCard } from "../card/CardDialog";
-import { exportTrelloCsv, exportTrelloJson } from "../trello/formats";
 import { t } from "../i18n";
-import { saveFile } from "../lib/platform";
 import { trashHref } from "../lib/router";
 import { saveAttachment } from "../lib/storage";
 import { type Card, newId, recordRevision } from "../model";
@@ -38,24 +36,6 @@ export function MainContent({
   const app = useApp();
   const { state, fullState, page, navigate, overlays, boardActions } = app;
   const board = view.board;
-
-  function downloadText(content: string, name: string, type: string) {
-    saveFile(new Blob([content], { type }), name).catch((cause) =>
-      app.setError(t("app.fileSaveError", { name, cause: String(cause) })),
-    );
-  }
-
-  function exportBoard(format: "trello-json" | "csv") {
-    if (!board) return;
-    if (format === "csv")
-      downloadText(`\ufeff${exportTrelloCsv(fullState, board.id)}`, `${board.name}.csv`, "text/csv;charset=utf-8");
-    else
-      downloadText(
-        JSON.stringify(exportTrelloJson(fullState, board.id), null, 2),
-        `${board.name}.json`,
-        "application/json",
-      );
-  }
 
   async function uploadBoardBackground(file: File | null) {
     if (!board || !file) return;
@@ -115,7 +95,7 @@ export function MainContent({
             onAutomation: () => overlays.open({ automationBoardId: board.id }),
             onActivity: () => overlays.open({ activityBoardId: board.id }),
             onHistory: () => overlays.open({ history: true }),
-            onExport: exportBoard,
+            onExport: () => overlays.open({ exportBoardId: board.id }),
             onTrash: () => app.trash.requestDelete("board", board.id),
             onBackgroundFile: (file) => void uploadBoardBackground(file),
             onBackgroundColor: (background) =>

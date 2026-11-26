@@ -11,7 +11,7 @@ export type BoardMenuActions = {
   onAutomation: () => void;
   onActivity: () => void;
   onHistory: () => void;
-  onExport: (format: "trello-json" | "csv") => void;
+  onExport: () => void;
   onTrash: () => void;
   onBackgroundFile: (file: File | null) => void;
   onBackgroundColor: (color: string) => void;
@@ -35,12 +35,7 @@ export function BoardMenu({ background, actions }: { background: string; actions
       <MenuItem onClick={actions.onAutomation}>{t("board.automation")}</MenuItem>
       <MenuItem onClick={actions.onActivity}>{t("board.activity")}</MenuItem>
       <MenuItem onClick={actions.onHistory}>{t("board.history")}</MenuItem>
-      <MenuItem onClick={() => actions.onExport("trello-json")} title={t("board.exportJsonHint")}>
-        {t("board.exportJson")}
-      </MenuItem>
-      <MenuItem onClick={() => actions.onExport("csv")} title={t("board.exportCsvHint")}>
-        {t("board.exportCsv")}
-      </MenuItem>
+      <MenuItem onClick={actions.onExport}>{t("board.exportBoard")}</MenuItem>
       <MenuItem onClick={actions.onTrash}>{t("board.moveBoardToTrash")}</MenuItem>
       <label
         className={`${menuItemClass} relative has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-brand`}

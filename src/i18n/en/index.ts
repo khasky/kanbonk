@@ -15,6 +15,7 @@ import { sync } from "./sync";
 import { trello } from "./trello";
 import { model } from "./model";
 import { ai } from "./ai";
+import { exporting } from "./exporting";
 
 /**
  * The English messages, the source of every translation. One namespace per area of the app, each in its own file;
@@ -38,4 +39,5 @@ export const en = {
   trello,
   model,
   ai,
+  exporting,
 };

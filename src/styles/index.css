@@ -244,6 +244,41 @@
   }
 }
 
+/* The board export printed to PDF (dialogs/ExportDialog.tsx): only the document, with page numbers. */
+.export-print {
+  display: none;
+}
+@media print {
+  @page {
+    margin: 16mm 14mm;
+    @bottom-center {
+      content: counter(page);
+      font-size: 10px;
+    }
+  }
+  body.printing-export > :not(.export-print) {
+    display: none !important;
+  }
+  body.printing-export .export-print {
+    display: block;
+  }
+  body.printing-export .export-cover {
+    min-height: 240mm;
+    break-after: page;
+  }
+  body.printing-export .export-list[data-page-break] {
+    break-before: page;
+  }
+  body.printing-export .export-card {
+    break-inside: avoid-page;
+  }
+  body.printing-export .export-document h2,
+  body.printing-export .export-document h3,
+  body.printing-export .export-document h4 {
+    break-after: avoid-page;
+  }
+}
+
 /* Printing one card (card/share.ts sets the body class): unlayered, so it wins over every layer. */
 @media print {
   body.printing-card * {

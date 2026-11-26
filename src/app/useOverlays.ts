@@ -9,6 +9,7 @@ export interface Overlays {
   reminders?: true;
   boardAbout?: true;
   boardCopy?: BoardCopyOptions;
+  exportBoardId?: string;
   creation?: { kind: "workspace" | "board"; workspaceId?: string };
   import?: true;
   author?: true;
