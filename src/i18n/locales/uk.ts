@@ -648,10 +648,6 @@ export default {
     coverColor: "Обкладинка {color}",
     customColor: "Власний колір",
     customCoverColor: "Власний колір обкладинки",
-    colorWholeCard: "Зафарбувати всю картку",
-    size: "Розмір",
-    sizeNormal: "Звичайний",
-    sizeFull: "Уся картка",
     removeCover: "Видалити обкладинку",
 
     searchLabelsPlaceholder: "Пошук міток…",

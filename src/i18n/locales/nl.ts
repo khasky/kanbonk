@@ -611,10 +611,6 @@ export default {
     coverColor: "Omslag {color}",
     customColor: "Aangepaste kleur",
     customCoverColor: "Aangepaste omslagkleur",
-    colorWholeCard: "Hele kaart kleuren",
-    size: "Grootte",
-    sizeNormal: "Normaal",
-    sizeFull: "Hele kaart",
     removeCover: "Omslag verwijderen",
 
     searchLabelsPlaceholder: "Labels zoeken…",

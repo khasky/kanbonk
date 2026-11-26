@@ -605,10 +605,6 @@ export default {
     coverColor: "カバー {color}",
     customColor: "カスタム カラー",
     customCoverColor: "カスタムのカバー色",
-    colorWholeCard: "カード全体に色を付ける",
-    size: "サイズ",
-    sizeNormal: "標準",
-    sizeFull: "カード全体",
     removeCover: "カバーを削除",
 
     searchLabelsPlaceholder: "ラベルを検索…",

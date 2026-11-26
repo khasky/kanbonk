@@ -604,10 +604,6 @@ export default {
     coverColor: "Ảnh bìa {color}",
     customColor: "Màu tùy chỉnh",
     customCoverColor: "Màu ảnh bìa tùy chỉnh",
-    colorWholeCard: "Tô màu toàn bộ thẻ",
-    size: "Kích thước",
-    sizeNormal: "Bình thường",
-    sizeFull: "Toàn thẻ",
     removeCover: "Gỡ ảnh bìa",
 
     searchLabelsPlaceholder: "Tìm nhãn…",

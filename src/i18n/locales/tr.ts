@@ -610,10 +610,6 @@ export default {
     coverColor: "Kapak {color}",
     customColor: "Özel renk",
     customCoverColor: "Özel kapak rengi",
-    colorWholeCard: "Tüm kartı renklendir",
-    size: "Boyut",
-    sizeNormal: "Normal",
-    sizeFull: "Tam kart",
     removeCover: "Kapağı kaldır",
 
     searchLabelsPlaceholder: "Etiketlerde ara…",

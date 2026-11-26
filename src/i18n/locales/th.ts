@@ -602,10 +602,6 @@ export default {
     coverColor: "หน้าปก {color}",
     customColor: "สีที่กำหนดเอง",
     customCoverColor: "สีหน้าปกที่กำหนดเอง",
-    colorWholeCard: "ลงสีทั้งการ์ด",
-    size: "ขนาด",
-    sizeNormal: "ปกติ",
-    sizeFull: "เต็มการ์ด",
     removeCover: "นำหน้าปกออก",
 
     searchLabelsPlaceholder: "ค้นหาป้ายกำกับ…",

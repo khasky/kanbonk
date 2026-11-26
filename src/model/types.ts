@@ -123,6 +123,7 @@ export interface Card extends Trashable {
   checklists: Checklist[];
   comments: Comment[];
   attachments: Attachment[];
+  /** Always shown at the normal size; "full" survives only in data saved before that size was dropped. */
   cover?: { attachmentId?: string; color?: string; size: "normal" | "full" };
   sourceTrelloId?: string;
   sourceTrelloShortLink?: string;

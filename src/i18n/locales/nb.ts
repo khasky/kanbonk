@@ -610,10 +610,6 @@ export default {
     coverColor: "Omslag {color}",
     customColor: "Egendefinert farge",
     customCoverColor: "Egendefinert omslagsfarge",
-    colorWholeCard: "Farg hele kortet",
-    size: "Størrelse",
-    sizeNormal: "Normal",
-    sizeFull: "Hele kortet",
     removeCover: "Fjern omslag",
 
     searchLabelsPlaceholder: "Søk i etiketter…",

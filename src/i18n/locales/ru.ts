@@ -643,10 +643,6 @@ export default {
     coverColor: "Обложка {color}",
     customColor: "Свой цвет",
     customCoverColor: "Свой цвет обложки",
-    colorWholeCard: "Закрасить всю карточку",
-    size: "Размер",
-    sizeNormal: "Обычный",
-    sizeFull: "Вся карточка",
     removeCover: "Удалить обложку",
 
     searchLabelsPlaceholder: "Поиск меток…",

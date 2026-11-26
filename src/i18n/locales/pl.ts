@@ -657,10 +657,6 @@ export default {
     coverColor: "Okładka {color}",
     customColor: "Własny kolor",
     customCoverColor: "Własny kolor okładki",
-    colorWholeCard: "Pokoloruj całą kartę",
-    size: "Rozmiar",
-    sizeNormal: "Normalny",
-    sizeFull: "Cała karta",
     removeCover: "Usuń okładkę",
 
     searchLabelsPlaceholder: "Szukaj etykiet…",

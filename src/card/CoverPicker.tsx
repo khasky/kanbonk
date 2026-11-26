@@ -2,7 +2,6 @@ import { ColorInput } from "../ui/ColorInput";
 import type { Card } from "../model";
 import { t } from "../i18n";
 import { Button } from "../ui/Button";
-import { Select } from "../ui/Field";
 
 const pressedClass = "aria-pressed:outline-2 aria-pressed:outline-offset-1 aria-pressed:outline-brand";
 
@@ -19,6 +18,7 @@ const coverColors = [
   "#626f86",
 ];
 
+/** A card's cover: a color or one of its images, always shown at the normal size above the title. */
 export function CoverPicker({ card, onChange }: { card: Card; onChange: (change: (card: Card) => Card) => void }) {
   const images = card.attachments.filter((item) => item.status === "local" && item.mimeType.startsWith("image/"));
   return (
@@ -31,7 +31,7 @@ export function CoverPicker({ card, onChange }: { card: Card; onChange: (change:
             style={{ background: color }}
             aria-label={t("card.coverColor", { color })}
             aria-pressed={card.cover?.color === color}
-            onClick={() => onChange((item) => ({ ...item, cover: { color, size: item.cover?.size ?? "normal" } }))}
+            onClick={() => onChange((item) => ({ ...item, cover: { color, size: "normal" } }))}
           />
         ))}
         <label
@@ -42,22 +42,10 @@ export function CoverPicker({ card, onChange }: { card: Card; onChange: (change:
             className="h-full w-full cursor-pointer border-0 p-0 opacity-85"
             value={card.cover?.color ?? "#579dff"}
             label={t("card.customCoverColor")}
-            onCommit={(color) =>
-              onChange((item) => ({ ...item, cover: { color, size: item.cover?.size ?? "normal" } }))
-            }
+            onCommit={(color) => onChange((item) => ({ ...item, cover: { color, size: "normal" } }))}
           />
         </label>
       </div>
-      <Button
-        variant="secondary"
-        className="justify-self-start"
-        onClick={() =>
-          onChange((item) => ({ ...item, cover: { color: item.cover?.color ?? "#579dff", size: "full" } }))
-        }
-        aria-pressed={card.cover?.size === "full" && Boolean(card.cover.color)}
-      >
-        {t("card.colorWholeCard")}
-      </Button>
       {images.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {images.map((image) => (
@@ -66,32 +54,13 @@ export function CoverPicker({ card, onChange }: { card: Card; onChange: (change:
               className={pressedClass}
               key={image.id}
               aria-pressed={card.cover?.attachmentId === image.id}
-              onClick={() =>
-                onChange((item) => ({ ...item, cover: { attachmentId: image.id, size: item.cover?.size ?? "normal" } }))
-              }
+              onClick={() => onChange((item) => ({ ...item, cover: { attachmentId: image.id, size: "normal" } }))}
             >
               {image.name}
             </Button>
           ))}
         </div>
       )}
-      <label className="flex items-center gap-2">
-        {t("card.size")}{" "}
-        <Select
-          size="sm"
-          value={card.cover?.size ?? "normal"}
-          disabled={!card.cover}
-          onChange={(event) =>
-            onChange((item) => ({
-              ...item,
-              cover: item.cover ? { ...item.cover, size: event.target.value as "normal" | "full" } : undefined,
-            }))
-          }
-        >
-          <option value="normal">{t("card.sizeNormal")}</option>
-          <option value="full">{t("card.sizeFull")}</option>
-        </Select>
-      </label>
       <Button
         variant="secondary"
         className="justify-self-start"

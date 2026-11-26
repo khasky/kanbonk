@@ -599,10 +599,6 @@ export default {
     coverColor: "封面 {color}",
     customColor: "自訂顏色",
     customCoverColor: "自訂封面顏色",
-    colorWholeCard: "為整張卡片上色",
-    size: "大小",
-    sizeNormal: "一般",
-    sizeFull: "整張卡片",
     removeCover: "移除封面",
 
     searchLabelsPlaceholder: "搜尋標籤…",

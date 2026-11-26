@@ -613,10 +613,6 @@ export default {
     coverColor: "Titelbild {color}",
     customColor: "Eigene Farbe",
     customCoverColor: "Eigene Titelbildfarbe",
-    colorWholeCard: "Ganze Karte einfärben",
-    size: "Größe",
-    sizeNormal: "Normal",
-    sizeFull: "Ganze Karte",
     removeCover: "Titelbild entfernen",
 
     searchLabelsPlaceholder: "Labels suchen…",

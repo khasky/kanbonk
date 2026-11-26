@@ -625,10 +625,6 @@ export default {
     coverColor: "Borító: {color}",
     customColor: "Egyéni szín",
     customCoverColor: "Egyéni borítószín",
-    colorWholeCard: "A teljes kártya színezése",
-    size: "Méret",
-    sizeNormal: "Normál",
-    sizeFull: "Teljes kártya",
     removeCover: "Borító eltávolítása",
 
     // Labels and members

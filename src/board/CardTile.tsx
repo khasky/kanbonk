@@ -34,18 +34,11 @@ export const CardTile = memo(function CardTile({
 }) {
   // A memoised tile still renders again in a newly chosen language.
   useLocale();
-  const full = item.cover?.size === "full";
-  const fullCover = full && Boolean(item.cover?.attachmentId);
   return (
     <AppLink
       href={`/c/${encodeURIComponent(item.id)}`}
-      className={tileClass(fullCover)}
-      style={{
-        ...(item.cover?.size === "full" && item.cover.color
-          ? { background: item.cover.color, color: readableTextColor(item.cover.color) }
-          : undefined),
-        display: hidden ? "none" : undefined,
-      }}
+      className={tileClass}
+      style={hidden ? { display: "none" } : undefined}
       data-card-id={item.id}
       draggable
       onDragStart={(event) => {
@@ -55,9 +48,9 @@ export const CardTile = memo(function CardTile({
       onDragEnd={endDrag}
       onOpen={() => actions.open(item.id)}
     >
-      <CardCover card={item} fill={fullCover} />
+      <CardCover card={item} />
       {item.labelIds.some((id) => labels.get(id)?.color) && (
-        <span className={fullCover ? "hidden" : "flex flex-wrap gap-1"}>
+        <span className="flex flex-wrap gap-1">
           {item.labelIds.map((id) => {
             const label = labels.get(id);
             return (
@@ -74,7 +67,7 @@ export const CardTile = memo(function CardTile({
           })}
         </span>
       )}
-      <span className={tileNameClass(fullCover)}>{item.name}</span>
+      <span className={tileNameClass}>{item.name}</span>
       {item.isTemplate && (
         <span className="self-start rounded-[3px] bg-line px-[5px] py-0.5 text-[11px] font-bold text-ink-subtle">
           {t("board.template")}
@@ -109,7 +102,7 @@ export const CardTile = memo(function CardTile({
       item.comments.length ||
       item.checklists.length ||
       subCardCount ? (
-        <span className={fullCover ? "hidden" : tileMetaClass(full)}>
+        <span className={tileMetaClass}>
           {item.description && <Icon name="text" className={tileMetaIconClass} />}
           {item.dueAt && (
             <span className={tileMetaItemClass}>

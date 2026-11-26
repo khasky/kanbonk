@@ -304,7 +304,7 @@ export function runTool(
           description: text(args, "description") ?? item.description,
           startAt: startAt === undefined ? item.startAt : (startAt ?? undefined),
           dueAt: dueAt === undefined ? item.dueAt : (dueAt ?? undefined),
-          cover: color === undefined ? item.cover : color ? { color, size: "full" } : undefined,
+          cover: color === undefined ? item.cover : color ? { color, size: "normal" } : undefined,
         })),
         { ok: true },
       );

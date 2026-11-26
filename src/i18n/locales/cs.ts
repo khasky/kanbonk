@@ -657,10 +657,6 @@ export default {
     coverColor: "Obálka {color}",
     customColor: "Vlastní barva",
     customCoverColor: "Vlastní barva obálky",
-    colorWholeCard: "Obarvit celou kartu",
-    size: "Velikost",
-    sizeNormal: "Normální",
-    sizeFull: "Celá karta",
     removeCover: "Odebrat obálku",
 
     searchLabelsPlaceholder: "Hledat štítky…",

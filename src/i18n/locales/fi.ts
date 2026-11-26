@@ -626,10 +626,6 @@ export default {
     coverColor: "Kansikuva: {color}",
     customColor: "Mukautettu väri",
     customCoverColor: "Mukautettu kansikuvan väri",
-    colorWholeCard: "Väritä koko kortti",
-    size: "Koko",
-    sizeNormal: "Normaali",
-    sizeFull: "Koko kortti",
     removeCover: "Poista kansikuva",
 
     // Labels and members

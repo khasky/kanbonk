@@ -632,10 +632,6 @@ export default {
     coverColor: "Couverture {color}",
     customColor: "Couleur personnalisée",
     customCoverColor: "Couleur de couverture personnalisée",
-    colorWholeCard: "Colorer toute la carte",
-    size: "Taille",
-    sizeNormal: "Normale",
-    sizeFull: "Carte entière",
     removeCover: "Retirer la couverture",
 
     searchLabelsPlaceholder: "Rechercher des étiquettes…",

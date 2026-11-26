@@ -631,10 +631,6 @@ export default {
     coverColor: "Copertina {color}",
     customColor: "Colore personalizzato",
     customCoverColor: "Colore personalizzato della copertina",
-    colorWholeCard: "Colora l'intera scheda",
-    size: "Dimensione",
-    sizeNormal: "Normale",
-    sizeFull: "Scheda intera",
     removeCover: "Rimuovi copertina",
 
     searchLabelsPlaceholder: "Cerca etichette…",

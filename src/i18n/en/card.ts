@@ -154,10 +154,6 @@ export const card = {
   coverColor: "Cover {color}",
   customColor: "Custom color",
   customCoverColor: "Custom cover color",
-  colorWholeCard: "Color the whole card",
-  size: "Size",
-  sizeNormal: "Normal",
-  sizeFull: "Full card",
   removeCover: "Remove cover",
 
   // Labels and members

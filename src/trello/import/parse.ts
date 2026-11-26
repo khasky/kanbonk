@@ -181,7 +181,8 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
         ? {
             attachmentId: coverAttachmentId,
             color: coverColor,
-            size: string(sourceCover.size) === "full" ? ("full" as const) : ("normal" as const),
+            // Kanbonk shows every cover at the normal size.
+            size: "normal" as const,
           }
         : undefined;
     return {
