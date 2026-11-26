@@ -34,9 +34,11 @@ export function ZoneFrame({
   /** The zone's lists; without them the zone shows a place to drop lists into. */
   children?: ReactNode;
 }) {
+  // A grid, not a flex column: its cards row then gets a definite height within the board, so the lists in it can
+  // keep to that height and scroll their cards, as lists outside zones do.
   return (
     <section
-      className="flex max-h-full flex-none flex-col rounded-[14px] border-2 border-solid bg-[#ffffff26]"
+      className="grid max-h-full flex-none grid-rows-[auto_minmax(0,1fr)] rounded-[14px] border-2 border-solid bg-[#ffffff26]"
       style={{ borderColor: zone.color, display: hidden ? "none" : undefined }}
       aria-label={t("board.zoneOf", { name: zone.name })}
       data-zone-id={zone.id}
