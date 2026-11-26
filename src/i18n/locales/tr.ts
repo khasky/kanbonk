@@ -1208,4 +1208,15 @@ export default {
     noNamedChecklist: "“{name}” kontrol listesi yok",
     moveBlocked: "“{name}”, zorunlu alanları tamamlanana kadar listesinde kalır: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Pano ayarları",
+    title: "Kart eskimesi",
+    enable: "Bir süredir değişmeyen kartları eskit",
+    mode: "Görünüm",
+    modeRegular: "Soldur",
+    modePirate: "Korsan: sararmış ve yırtık",
+    hint: "Kartlar değişmeden geçen 1, 2 ve 4 haftanın ardından eskir; herhangi bir değişiklik onları yeniden yeni yapar. Tüm cihazlarda geçerlidir.",
+    agedTitle: { one: "{count} haftadır değişmedi", other: "{count} haftadır değişmedi" },
+    changedAt: " · değiştirildi: {time}",
+  },
 } satisfies Translation;

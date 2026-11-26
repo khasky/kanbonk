@@ -3,7 +3,16 @@ import { mentionedCardIds } from "../model/boardDoc";
 import { cardCreatedAt } from "../model/calendar";
 import { inboxBoardId } from "../model/inbox";
 import { importedCardForUrl, relatedCards } from "../model/links";
-import { isCardAvailable, missingFields, subCards, viewStats, type AppState, type Card, type Member } from "../model";
+import {
+  isCardAvailable,
+  lastChangedAt,
+  missingFields,
+  subCards,
+  viewStats,
+  type AppState,
+  type Card,
+  type Member,
+} from "../model";
 import { missingFieldText } from "../model/requiredFieldsText";
 import { missingBadgeClass } from "../board/CardTile";
 import { dependentsOf, prerequisitesOf } from "../model/trash";
@@ -198,6 +207,10 @@ export function CardDialog({
   useEscapeToDismiss(onClose);
   const boardLabels = state.labels.filter((item) => item.boardId === card.boardId && !item.deleted);
   const boardMembers = state.boards.find((item) => item.id === card.boardId)?.members ?? [];
+  // On a board that ages its cards, the card says when it last changed.
+  const changedAt = state.boards.find((item) => item.id === card.boardId)?.cardAging
+    ? lastChangedAt(state, card, (id) => state.revisions.find((revision) => revision.id === id)?.createdAt)
+    : undefined;
   const missing = missingFields(card, state.boards.find((item) => item.id === card.boardId)?.requiredFields).map(
     (entry) =>
       missingFieldText(
@@ -450,6 +463,7 @@ export function CardDialog({
                 board: state.boards.find((item) => item.id === card.boardId)?.name ?? "",
               })}
               {created ? t("card.createdAt", { time: formatDateTime(created) }) : ""}
+              {changedAt ? t("cardAging.changedAt", { time: formatDateTime(changedAt) }) : ""}
               {t("card.cardId", { id: card.id })}
             </p>
             {missing.length > 0 && (

@@ -1,7 +1,15 @@
 import { memo } from "react";
 import { CardCover } from "../card/CardCover";
 import { readableTextColor } from "../model/labelColors";
-import type { Card, Label, Member, MissingField } from "../model";
+import {
+  agingWeeks,
+  type Card,
+  type CardAge,
+  type CardAgingMode,
+  type Label,
+  type Member,
+  type MissingField,
+} from "../model";
 import { missingFieldText } from "../model/requiredFieldsText";
 import { AppLink } from "../ui/AppLink";
 import { Icon } from "../ui/Icon";
@@ -30,6 +38,8 @@ export const CardTile = memo(function CardTile({
   viewCount = 0,
   lastViewedAt,
   missing,
+  age,
+  agingMode,
   actions,
   hidden = false,
 }: {
@@ -43,6 +53,9 @@ export const CardTile = memo(function CardTile({
   lastViewedAt?: string;
   /** What the card lacks under its board's required fields. */
   missing?: MissingField[];
+  /** How long the card has gone without a change, on a board that ages its cards; see model/cardAging. */
+  age?: CardAge;
+  agingMode?: CardAgingMode;
   actions: TileActions;
   /** Hidden while it is dragged to another place, which the board shows instead. */
   hidden?: boolean;
@@ -56,6 +69,9 @@ export const CardTile = memo(function CardTile({
       className={tileClass}
       style={hidden ? { display: "none" } : undefined}
       data-card-id={item.id}
+      data-aging={age ? agingMode : undefined}
+      data-age={age || undefined}
+      title={age ? t("cardAging.agedTitle", { count: agingWeeks[age - 1] }) : undefined}
       draggable
       onDragStart={(event) => {
         event.dataTransfer.setData("text/kanbonk-card", item.id);

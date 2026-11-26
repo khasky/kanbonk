@@ -151,7 +151,8 @@ function App() {
     if (ready && trackViews && cardId && cardKnown) countView("card", cardId);
   }, [ready, trackViews, cardId, cardKnown]);
 
-  const view = useBoardView(state, boardId, setError);
+  // Card ages change by the week, so the hour is fine enough and spares re-rendering the board every tick.
+  const view = useBoardView(state, boardId, setError, Math.floor(clock.now / 3_600_000) * 3_600_000);
   const backgroundUrl = useBoardBackground(view.board?.backgroundImageId, fileVersion, setError);
   const card = state.cards.find((item) => item.id === cardId && !item.deletedAt);
   const defaultWorkspaceId = state.workspaces.find((item) => item.id !== inboxWorkspaceId && !item.deletedAt)?.id;

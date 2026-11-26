@@ -1214,4 +1214,15 @@ export default {
     noNamedChecklist: "Ingen checklista ”{name}”",
     moveBlocked: "”{name}” stannar i sin lista tills de obligatoriska fälten är ifyllda: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Tavelinställningar",
+    title: "Kortåldrande",
+    enable: "Låt kort som inte ändrats på ett tag åldras",
+    mode: "Utseende",
+    modeRegular: "Blekna",
+    modePirate: "Pirat: gulnade och trasiga",
+    hint: "Kort åldras efter 1, 2 och 4 veckor utan ändring, och varje ändring gör dem nya igen. Gäller på alla enheter.",
+    agedTitle: { one: "Oförändrat i {count} vecka", other: "Oförändrat i {count} veckor" },
+    changedAt: " · ändrat {time}",
+  },
 } satisfies Translation;

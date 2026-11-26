@@ -6,6 +6,7 @@ import {
   emptyBoardFilter,
   filterBoardCards,
   cardViewStats,
+  boardCardAges,
   isCardAvailable,
   missingFields,
   type AppState,
@@ -18,7 +19,13 @@ import {
  * What the open board shows: its lists, the cards that pass the board's filter grouped by list, and lookup maps for
  * the card tiles. Filters are kept per board in localStorage.
  */
-export function useBoardView(state: AppState, boardId: string | null, onError: (message: string) => void) {
+export function useBoardView(
+  state: AppState,
+  boardId: string | null,
+  onError: (message: string) => void,
+  /** The time cards age against. */
+  now: number,
+) {
   const [boardFilters, setBoardFilters] = useState<Record<string, BoardFilter>>(readBoardFilters);
   const reportError = useEffectEvent(onError);
   useEffect(() => {
@@ -76,6 +83,8 @@ export function useBoardView(state: AppState, boardId: string | null, onError: (
     }
     return missing;
   }, [state.cards, boardId, rules]);
+  /** How long each card of the open board has gone without a change, when the board ages its cards. */
+  const cardAges = useMemo(() => (boardId ? boardCardAges(state, boardId, now) : new Map()), [state, boardId, now]);
 
   function updateFilter(change: Partial<BoardFilter>) {
     if (!boardId) return;
@@ -108,6 +117,8 @@ export function useBoardView(state: AppState, boardId: string | null, onError: (
     subCardCounts,
     cardViews,
     missingByCard,
+    cardAges,
+    agingMode: board?.cardAging,
     totalCardCount: boardId ? filterBoardCards(state, boardId, emptyBoardFilter()).length : 0,
     templates: state.cards.filter((item) => item.boardId === boardId && item.isTemplate),
   };

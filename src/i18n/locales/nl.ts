@@ -1219,4 +1219,15 @@ export default {
     noNamedChecklist: "Geen checklist “{name}”",
     moveBlocked: "“{name}” blijft in de lijst tot de verplichte velden zijn ingevuld: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Bordinstellingen",
+    title: "Kaartveroudering",
+    enable: "Kaarten laten verouderen die al een tijd niet zijn veranderd",
+    mode: "Weergave",
+    modeRegular: "Vervagen",
+    modePirate: "Piraat: vergeeld en gescheurd",
+    hint: "Kaarten verouderen na 1, 2 en 4 weken zonder wijziging, en elke wijziging maakt ze weer nieuw. Geldt op alle apparaten.",
+    agedTitle: { one: "{count} week niet gewijzigd", other: "{count} weken niet gewijzigd" },
+    changedAt: " · gewijzigd {time}",
+  },
 } satisfies Translation;

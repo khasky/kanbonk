@@ -306,3 +306,46 @@
     display: none;
   }
 }
+
+/* Card aging: tiles unchanged for 1, 2 and 4 weeks fade or, in pirate mode, yellow and tear. Hovered or focused,
+   a faded tile is readable again. Outside the layers, so it wins over the tile's own background. */
+[data-aging="regular"][data-age="1"] {
+  opacity: 0.8;
+}
+[data-aging="regular"][data-age="2"] {
+  opacity: 0.6;
+}
+[data-aging="regular"][data-age="3"] {
+  opacity: 0.4;
+}
+[data-aging="regular"]:is(:hover, :focus-visible) {
+  opacity: 1;
+}
+[data-aging="pirate"][data-age="1"] {
+  background: #fbf3d5;
+}
+[data-aging="pirate"][data-age="2"] {
+  background: radial-gradient(circle at 85% 20%, #e9cf7d55 0 14px, transparent 15px) #f6e6a6;
+}
+[data-aging="pirate"][data-age="3"] {
+  background: radial-gradient(circle at 15% 70%, #d9b45a66 0 18px, transparent 19px) #efd479;
+  padding-bottom: 17px;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 9px),
+    94% calc(100% - 4px),
+    88% calc(100% - 8px),
+    81% calc(100% - 2px),
+    73% calc(100% - 7px),
+    65% calc(100% - 1px),
+    57% calc(100% - 8px),
+    49% calc(100% - 3px),
+    41% calc(100% - 9px),
+    33% calc(100% - 2px),
+    25% calc(100% - 7px),
+    17% calc(100% - 1px),
+    9% calc(100% - 8px),
+    0 calc(100% - 3px)
+  );
+}

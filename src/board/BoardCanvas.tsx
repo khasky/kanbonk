@@ -228,6 +228,8 @@ export function BoardCanvas({
         subCardCounts={view.subCardCounts}
         cardViews={view.cardViews}
         missingByCard={view.missingByCard}
+        cardAges={view.cardAges}
+        agingMode={view.agingMode}
         tileActions={tileActions}
         templates={view.templates}
         composing={editingCardList === list.id}

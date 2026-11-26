@@ -1213,4 +1213,15 @@ export default {
     noNamedChecklist: "Ingen sjekkliste «{name}»",
     moveBlocked: "«{name}» blir i listen sin til de obligatoriske feltene er fylt ut: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Tavleinnstillinger",
+    title: "Kortaldring",
+    enable: "La kort som ikke er endret på en stund, eldes",
+    mode: "Utseende",
+    modeRegular: "Blekne",
+    modePirate: "Pirat: gulnet og revet",
+    hint: "Kort eldes etter 1, 2 og 4 uker uten endring, og enhver endring gjør dem nye igjen. Gjelder på alle enheter.",
+    agedTitle: { one: "Uendret i {count} uke", other: "Uendret i {count} uker" },
+    changedAt: " · endret {time}",
+  },
 } satisfies Translation;

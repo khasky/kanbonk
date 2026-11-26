@@ -36,6 +36,8 @@ export interface Board extends Trashable {
   zones?: Zone[];
   /** Project document twin of the board (Markdown); links `/c/<id>` point at cards. */
   doc?: string;
+  /** Cards that have not changed for a week or more fade ("regular") or yellow and tear ("pirate"); off when unset. */
+  cardAging?: "regular" | "pirate";
   /** What every card on the board must have; see model/requiredFields. */
   requiredFields?: RequiredFields;
   starred: boolean;

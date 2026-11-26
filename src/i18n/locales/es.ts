@@ -1230,4 +1230,19 @@ export default {
     noNamedChecklist: "Sin checklist “{name}”",
     moveBlocked: "“{name}” permanece en su lista hasta que tenga sus campos obligatorios: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Configuración del tablero",
+    title: "Envejecimiento de tarjetas",
+    enable: "Envejecer las tarjetas que llevan tiempo sin cambios",
+    mode: "Aspecto",
+    modeRegular: "Desvanecer",
+    modePirate: "Pirata: amarillentas y rotas",
+    hint: "Las tarjetas envejecen tras 1, 2 y 4 semanas sin cambios, y cualquier cambio las vuelve nuevas. Se aplica en todos los dispositivos.",
+    agedTitle: {
+      one: "Sin cambios desde hace {count} semana",
+      many: "Sin cambios desde hace {count} semanas",
+      other: "Sin cambios desde hace {count} semanas",
+    },
+    changedAt: " · modificada {time}",
+  },
 } satisfies Translation;

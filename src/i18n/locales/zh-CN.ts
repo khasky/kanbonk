@@ -1173,4 +1173,15 @@ export default {
     noNamedChecklist: "无“{name}”清单",
     moveBlocked: "“{name}”将留在其列表中，直到填写必填字段：{missing}。",
   },
+  cardAging: {
+    settingsTitle: "看板设置",
+    title: "卡片老化",
+    enable: "让一段时间未更改的卡片老化",
+    mode: "外观",
+    modeRegular: "褪色",
+    modePirate: "海盗风：泛黄破损",
+    hint: "卡片在 1、2、4 周未更改后会老化，任何更改都会让它恢复如新。适用于所有设备。",
+    agedTitle: { other: "{count} 周未更改" },
+    changedAt: " · 更改于 {time}",
+  },
 } satisfies Translation;

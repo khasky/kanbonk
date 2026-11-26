@@ -67,6 +67,7 @@ export function validState(state: Record<string, unknown>): boolean {
             board.zones.every((zone) => hasIdName(zone) && typeof zone.color === "string"))) &&
         (board.members === undefined || (Array.isArray(board.members) && board.members.every(hasIdName))) &&
         (board.requiredFields === undefined || isRequiredFields(board.requiredFields)) &&
+        (board.cardAging === undefined || board.cardAging === "regular" || board.cardAging === "pirate") &&
         (board.automationRules === undefined ||
           (Array.isArray(board.automationRules) &&
             board.automationRules.every(

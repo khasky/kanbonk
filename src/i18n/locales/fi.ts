@@ -1228,4 +1228,15 @@ export default {
     noNamedChecklist: "Ei tarkistuslistaa ”{name}”",
     moveBlocked: "”{name}” pysyy listallaan, kunnes sillä on pakolliset kentät: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Taulun asetukset",
+    title: "Korttien vanheneminen",
+    enable: "Vanhenna kortit, joita ei ole muutettu vähään aikaan",
+    mode: "Ulkoasu",
+    modeRegular: "Haalistus",
+    modePirate: "Merirosvo: kellastuneet ja repeytyneet",
+    hint: "Kortit vanhenevat 1, 2 ja 4 viikon jälkeen ilman muutoksia, ja mikä tahansa muutos tekee niistä taas uusia. Koskee kaikkia laitteita.",
+    agedTitle: { one: "Muuttamatta {count} viikon", other: "Muuttamatta {count} viikkoa" },
+    changedAt: " · muutettu {time}",
+  },
 } satisfies Translation;

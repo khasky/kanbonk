@@ -1196,4 +1196,15 @@ export default {
     noNamedChecklist: "「{name}」チェックリストなし",
     moveBlocked: "「{name}」は必須項目がそろうまでリストに留まります: {missing}。",
   },
+  cardAging: {
+    settingsTitle: "ボードの設定",
+    title: "カードのエイジング",
+    enable: "しばらく変更されていないカードを古びさせる",
+    mode: "見た目",
+    modeRegular: "薄くする",
+    modePirate: "海賊風：黄ばんで破れる",
+    hint: "変更のないまま 1、2、4 週間たつとカードが古びます。変更するとまた新しくなります。すべてのデバイスに適用されます。",
+    agedTitle: { other: "{count} 週間変更なし" },
+    changedAt: " · {time} に変更",
+  },
 } satisfies Translation;

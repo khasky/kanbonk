@@ -1,6 +1,16 @@
 import { type ReactNode, useState } from "react";
 import { t } from "../i18n";
-import type { BoardList, Card, Label, ListSort, Member, MissingField, ViewStats } from "../model";
+import type {
+  BoardList,
+  Card,
+  CardAge,
+  CardAgingMode,
+  Label,
+  ListSort,
+  Member,
+  MissingField,
+  ViewStats,
+} from "../model";
 import { trelloLabelColors } from "../model/labelColors";
 import { Button } from "../ui/Button";
 import { Textarea } from "../ui/Field";
@@ -56,6 +66,8 @@ export function ListColumn({
   subCardCounts,
   cardViews,
   missingByCard,
+  cardAges,
+  agingMode,
   tileActions,
   templates,
   composing,
@@ -78,6 +90,9 @@ export function ListColumn({
   cardViews: Map<string, ViewStats>;
   /** What each card lacks under the board's required fields. */
   missingByCard: Map<string, MissingField[]>;
+  /** How long each card has gone without a change, on a board that ages its cards. */
+  cardAges: Map<string, CardAge>;
+  agingMode?: CardAgingMode;
   tileActions: TileActions;
   templates: Card[];
   /** Whether the new-card composer is open in this list. */
@@ -205,6 +220,8 @@ export function ListColumn({
             viewCount={cardViews.get(item.id)?.total}
             lastViewedAt={cardViews.get(item.id)?.lastAt}
             missing={missingByCard.get(item.id)}
+            age={agingMode && cardAges.get(item.id)}
+            agingMode={agingMode}
             actions={tileActions}
             hidden={item.id === draggedCardId}
           />

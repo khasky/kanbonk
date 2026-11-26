@@ -1281,4 +1281,19 @@ export default {
     noNamedChecklist: "Pas de checklist « {name} »",
     moveBlocked: "« {name} » reste dans sa liste tant que ses champs obligatoires manquent : {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Paramètres du tableau",
+    title: "Vieillissement des cartes",
+    enable: "Faire vieillir les cartes qui n’ont pas changé depuis un moment",
+    mode: "Apparence",
+    modeRegular: "Estomper",
+    modePirate: "Pirate : jaunies et déchirées",
+    hint: "Les cartes vieillissent après 1, 2 et 4 semaines sans modification, et toute modification les rend à nouveau neuves. S’applique sur tous les appareils.",
+    agedTitle: {
+      one: "Inchangée depuis {count} semaine",
+      many: "Inchangée depuis {count} de semaines",
+      other: "Inchangée depuis {count} semaines",
+    },
+    changedAt: " · modifiée {time}",
+  },
 } satisfies Translation;

@@ -1190,4 +1190,15 @@ export default {
     noNamedChecklist: "Thiếu việc cần làm “{name}”",
     moveBlocked: "“{name}” sẽ ở lại danh sách cho đến khi có đủ trường bắt buộc: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Cài đặt bảng",
+    title: "Thẻ cũ dần",
+    enable: "Làm cũ các thẻ đã lâu không thay đổi",
+    mode: "Giao diện",
+    modeRegular: "Mờ dần",
+    modePirate: "Cướp biển: ố vàng và rách",
+    hint: "Thẻ cũ dần sau 1, 2 và 4 tuần không thay đổi, và mọi thay đổi sẽ khiến thẻ mới lại. Áp dụng trên mọi thiết bị.",
+    agedTitle: { other: "Không thay đổi trong {count} tuần" },
+    changedAt: " · thay đổi lúc {time}",
+  },
 } satisfies Translation;

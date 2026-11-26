@@ -13,6 +13,7 @@ export type BoardMenuActions = {
   onAnalytics: () => void;
   onShareLabels: () => void;
   onRequiredFields: () => void;
+  onSettings: () => void;
   onHistory: () => void;
   onExport: () => void;
   onTrash: () => void;
@@ -34,6 +35,7 @@ export function BoardMenu({ background, actions }: { background: string; actions
       summaryClassName="flex min-h-8 min-w-10 items-center justify-center gap-1.5 rounded-[3px] border-0 bg-[#ffffff26] px-2 py-1 text-[22px] leading-none text-white group-open/menu:bg-[#ffffff45] hover:bg-[#ffffff45] max-phone:min-h-11 max-phone:min-w-11 max-phone:flex-none"
       keepOpen={(target) => target.getAttribute("type") === "color"}
     >
+      <MenuItem onClick={actions.onSettings}>{t("cardAging.settingsTitle")}</MenuItem>
       <MenuItem onClick={actions.onCopy}>{t("board.copyBoard")}</MenuItem>
       <MenuItem onClick={actions.onAutomation}>{t("board.automation")}</MenuItem>
       <MenuItem onClick={actions.onRequiredFields}>{t("required.title")}</MenuItem>

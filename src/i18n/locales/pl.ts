@@ -1341,4 +1341,20 @@ export default {
     noNamedChecklist: "Brak listy zadań „{name}”",
     moveBlocked: "„{name}” zostaje na swojej liście, dopóki nie będzie mieć wymaganych pól: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Ustawienia tablicy",
+    title: "Starzenie kart",
+    enable: "Postarzaj karty, które dawno się nie zmieniły",
+    mode: "Wygląd",
+    modeRegular: "Blaknięcie",
+    modePirate: "Piracki: pożółkłe i podarte",
+    hint: "Karty starzeją się po 1, 2 i 4 tygodniach bez zmian, a każda zmiana czyni je znów nowymi. Działa na wszystkich urządzeniach.",
+    agedTitle: {
+      one: "Bez zmian od {count} tygodnia",
+      few: "Bez zmian od {count} tygodni",
+      many: "Bez zmian od {count} tygodni",
+      other: "Bez zmian od {count} tygodnia",
+    },
+    changedAt: " · zmieniono {time}",
+  },
 } satisfies Translation;

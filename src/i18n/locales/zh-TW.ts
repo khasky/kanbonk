@@ -1173,4 +1173,15 @@ export default {
     noNamedChecklist: "無「{name}」待辦清單",
     moveBlocked: "「{name}」會留在其列表中，直到填妥必填欄位：{missing}。",
   },
+  cardAging: {
+    settingsTitle: "看板設定",
+    title: "卡片老化",
+    enable: "讓一段時間未變更的卡片老化",
+    mode: "外觀",
+    modeRegular: "褪色",
+    modePirate: "海盜風：泛黃破損",
+    hint: "卡片在 1、2、4 週未變更後會老化，任何變更都會讓它恢復如新。適用於所有裝置。",
+    agedTitle: { other: "{count} 週未變更" },
+    changedAt: " · 變更於 {time}",
+  },
 } satisfies Translation;

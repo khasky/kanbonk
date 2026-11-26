@@ -1230,4 +1230,15 @@ export default {
     noNamedChecklist: "Nincs „{name}” ellenőrzőlista",
     moveBlocked: "A(z) „{name}” a listájában marad, amíg nincsenek meg a kötelező mezői: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Tábla beállításai",
+    title: "Kártyák öregedése",
+    enable: "A régóta nem módosított kártyák öregítése",
+    mode: "Megjelenés",
+    modeRegular: "Halványítás",
+    modePirate: "Kalóz: megsárgult és szakadt",
+    hint: "A kártyák 1, 2 és 4 hét változatlanság után öregszenek, és bármilyen módosítás újra újjá teszi őket. Minden eszközön érvényes.",
+    agedTitle: { one: "{count} hete nem módosult", other: "{count} hete nem módosult" },
+    changedAt: " · módosítva: {time}",
+  },
 } satisfies Translation;

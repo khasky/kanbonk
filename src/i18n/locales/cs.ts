@@ -1341,4 +1341,20 @@ export default {
     noNamedChecklist: "Chybí kontrolní seznam „{name}“",
     moveBlocked: "„{name}“ zůstane ve svém seznamu, dokud nebude mít povinná pole: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Nastavení nástěnky",
+    title: "Stárnutí karet",
+    enable: "Nechat stárnout karty, které se dlouho nezměnily",
+    mode: "Vzhled",
+    modeRegular: "Blednutí",
+    modePirate: "Pirátský: zažloutlé a potrhané",
+    hint: "Karty stárnou po 1, 2 a 4 týdnech bez změny a každá změna z nich udělá zase nové. Platí na všech zařízeních.",
+    agedTitle: {
+      one: "Beze změny {count} týden",
+      few: "Beze změny {count} týdny",
+      many: "Beze změny {count} týdne",
+      other: "Beze změny {count} týdnů",
+    },
+    changedAt: " · změněno {time}",
+  },
 } satisfies Translation;

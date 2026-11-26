@@ -1272,4 +1272,19 @@ export default {
     noNamedChecklist: "Nessuna checklist “{name}”",
     moveBlocked: "“{name}” resta nella sua lista finché non ha i campi obbligatori: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Impostazioni della bacheca",
+    title: "Invecchiamento delle schede",
+    enable: "Fai invecchiare le schede che non cambiano da un po’",
+    mode: "Aspetto",
+    modeRegular: "Sbiadire",
+    modePirate: "Pirata: ingiallite e strappate",
+    hint: "Le schede invecchiano dopo 1, 2 e 4 settimane senza modifiche, e ogni modifica le rende di nuovo nuove. Vale su tutti i dispositivi.",
+    agedTitle: {
+      one: "Invariata da {count} settimana",
+      many: "Invariata da {count} di settimane",
+      other: "Invariata da {count} settimane",
+    },
+    changedAt: " · modificata {time}",
+  },
 } satisfies Translation;

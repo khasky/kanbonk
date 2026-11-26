@@ -1224,4 +1224,19 @@ export default {
     noNamedChecklist: "Sem a checklist “{name}”",
     moveBlocked: "“{name}” fica na lista até ter seus campos obrigatórios: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Configurações do quadro",
+    title: "Envelhecimento de cartões",
+    enable: "Envelhecer cartões que estão há tempo sem mudanças",
+    mode: "Aparência",
+    modeRegular: "Desbotar",
+    modePirate: "Pirata: amarelados e rasgados",
+    hint: "Os cartões envelhecem após 1, 2 e 4 semanas sem mudanças, e qualquer mudança os deixa novos de novo. Vale em todos os dispositivos.",
+    agedTitle: {
+      one: "Sem mudanças há {count} semana",
+      many: "Sem mudanças há {count} semanas",
+      other: "Sem mudanças há {count} semanas",
+    },
+    changedAt: " · alterado {time}",
+  },
 } satisfies Translation;

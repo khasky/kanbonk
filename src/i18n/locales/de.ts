@@ -1228,4 +1228,15 @@ export default {
     noNamedChecklist: "Keine Checkliste „{name}“",
     moveBlocked: "Die Karte „{name}“ bleibt in ihrer Liste, bis ihre Pflichtfelder ausgefüllt sind: {missing}.",
   },
+  cardAging: {
+    settingsTitle: "Board-Einstellungen",
+    title: "Karten-Alterung",
+    enable: "Karten altern lassen, die sich länger nicht geändert haben",
+    mode: "Aussehen",
+    modeRegular: "Verblassen",
+    modePirate: "Piraten: vergilbt und zerrissen",
+    hint: "Karten altern nach 1, 2 und 4 Wochen ohne Änderung, und jede Änderung macht sie wieder neu. Gilt auf allen Geräten.",
+    agedTitle: { one: "Seit {count} Woche unverändert", other: "Seit {count} Wochen unverändert" },
+    changedAt: " · geändert {time}",
+  },
 } satisfies Translation;
