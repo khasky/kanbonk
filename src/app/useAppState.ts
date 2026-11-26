@@ -32,13 +32,19 @@ export function useAppState({
   const loaded = useEffectEvent(onLoaded);
   const reportError = useEffectEvent(onError);
   useEffect(() => {
+    // A load that resolves after a newer one started would overwrite changes made since.
+    let current = true;
     loadState()
       .then((state) => {
+        if (!current) return;
         setState(ensureInbox(state, localDeviceId));
         loaded();
         setReady(true);
       })
       .catch((cause) => reportError(t("app.openDataError", { cause: String(cause) })));
+    return () => {
+      current = false;
+    };
   }, [localDeviceId]);
 
   const saved = useEffectEvent(onSaved);
