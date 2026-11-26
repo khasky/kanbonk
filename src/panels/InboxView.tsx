@@ -3,7 +3,14 @@ import { CardTile } from "../board/CardTile";
 import { currentDrag, dragKind, endDrag, useDragState } from "../board/dragState";
 import { t } from "../i18n";
 import { inboxBoardId } from "../model/inbox";
-import { emptyBoardFilter, filterBoardCards, isCardAvailable, type AppState, type BoardFilter } from "../model";
+import {
+  cardViewStats,
+  emptyBoardFilter,
+  filterBoardCards,
+  isCardAvailable,
+  type AppState,
+  type BoardFilter,
+} from "../model";
 import { Button } from "../ui/Button";
 import { Input, Select } from "../ui/Field";
 
@@ -31,6 +38,7 @@ export function InboxView({
     [state.labels],
   );
   const cardById = useMemo(() => new Map(state.cards.map((item) => [item.id, item])), [state.cards]);
+  const cardViews = useMemo(() => cardViewStats(state), [state]);
   const subCardCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const item of state.cards)
@@ -146,6 +154,8 @@ export function InboxView({
             labels={labels}
             parentName={card.parentCardId ? cardById.get(card.parentCardId)?.name : undefined}
             subCardCount={subCardCounts.get(card.id)}
+            viewCount={cardViews.get(card.id)?.total}
+            lastViewedAt={cardViews.get(card.id)?.lastAt}
             actions={tileActions}
             hidden={drag?.id === card.id && Boolean(target)}
           />

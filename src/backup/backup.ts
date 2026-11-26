@@ -1,6 +1,6 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { sha256 } from "@noble/hashes/sha2.js";
-import { mediaReferences, newId, type AppState } from "../model";
+import { isViewCount, mediaReferences, newId, type AppState } from "../model";
 import { loadAttachment, saveAttachment } from "../lib/storage";
 import { mergeStates, type SyncConflict } from "../sync/sync";
 import { t } from "../i18n";
@@ -171,6 +171,7 @@ export function validState(state: Record<string, unknown>): boolean {
             typeof item.category === "string" &&
             ["change", "comment"].includes(item.category),
         ))) &&
+    (state.views === undefined || (Array.isArray(state.views) && state.views.every(isViewCount))) &&
     Object.values(value.heads).every((id) => typeof id === "string") &&
     (state.tombstones === undefined ||
       (isRecord(state.tombstones) && Object.values(state.tombstones).every((time) => typeof time === "string"))) &&

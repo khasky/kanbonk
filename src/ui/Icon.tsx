@@ -35,11 +35,20 @@ export type IconName =
   | "collapse"
   | "expand"
   | "card-template"
-  | "check";
+  | "check"
+  | "eye"
+  | "chart";
 
 export function Icon({ name, className }: { name: IconName; className?: string }) {
   const paths = {
     plus: <path d="M12 5v14M5 12h14" />,
+    eye: (
+      <>
+        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+        <circle cx="12" cy="12" r="3" />
+      </>
+    ),
+    chart: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
     close: <path d="M18 6 6 18M6 6l12 12" />,
     star: <path d="m12 2 3 6.5 7 1-5 5 .9 7.5L12 18.5 6.1 22l.9-7.5-5-5 7-1L12 2Z" />,
     search: (

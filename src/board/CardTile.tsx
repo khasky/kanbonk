@@ -5,6 +5,8 @@ import type { Card, Label, Member } from "../model";
 import { AppLink } from "../ui/AppLink";
 import { Icon } from "../ui/Icon";
 import { formatDate, t } from "../i18n";
+import { useViewPreferences } from "../lib/viewPreferences";
+import { viewAge, viewedTitle } from "../model/viewText";
 import { useLocale } from "../i18n/nodes";
 import { endDrag, startDrag } from "./dragState";
 import { tileClass, tileMetaClass, tileMetaIconClass, tileMetaItemClass, tileNameClass } from "./tileLook";
@@ -20,6 +22,8 @@ export const CardTile = memo(function CardTile({
   members,
   parentName,
   subCardCount = 0,
+  viewCount = 0,
+  lastViewedAt,
   actions,
   hidden = false,
 }: {
@@ -28,12 +32,16 @@ export const CardTile = memo(function CardTile({
   members?: Member[];
   parentName?: string;
   subCardCount?: number;
+  /** Views of the card by everyone, and when it was last opened (see model/views). */
+  viewCount?: number;
+  lastViewedAt?: string;
   actions: TileActions;
   /** Hidden while it is dragged to another place, which the board shows instead. */
   hidden?: boolean;
 }) {
   // A memoised tile still renders again in a newly chosen language.
   useLocale();
+  const viewBadge = useViewPreferences().showBadges && viewCount > 0;
   return (
     <AppLink
       href={`/c/${encodeURIComponent(item.id)}`}
@@ -101,7 +109,8 @@ export const CardTile = memo(function CardTile({
       item.attachments.length ||
       item.comments.length ||
       item.checklists.length ||
-      subCardCount ? (
+      subCardCount ||
+      viewBadge ? (
         <span className={tileMetaClass}>
           {item.description && <Icon name="text" className={tileMetaIconClass} />}
           {item.dueAt && (
@@ -134,6 +143,13 @@ export const CardTile = memo(function CardTile({
               {checklist.items.filter((entry) => entry.checked).length}/{checklist.items.length}
             </span>
           ))}
+          {viewBadge && (
+            <span className={tileMetaItemClass} title={viewedTitle(viewCount, lastViewedAt)}>
+              <Icon name="eye" className={tileMetaIconClass} />
+              {viewCount}
+              {lastViewedAt && ` · ${viewAge(lastViewedAt)}`}
+            </span>
+          )}
         </span>
       ) : null}
     </AppLink>

@@ -44,19 +44,44 @@ export function reorderLists(lists: BoardList[], movingId: string, targetId: str
   return lists.map((list) => (positions.has(list.id) ? { ...list, position: positions.get(list.id)! } : list));
 }
 
-export type ListSort = "name" | "due" | "newest" | "oldest";
+export type ListSort =
+  | "name"
+  | "due"
+  | "newest"
+  | "oldest"
+  | "most-viewed"
+  | "least-viewed"
+  | "recently-viewed"
+  | "least-recently-viewed";
 
-/** Orders a list's cards by name, by due date (cards without one last) or by when they were created. */
-export function sortListCards(cards: Card[], listId: string, by: ListSort): Card[] {
+/**
+ * Orders a list's cards by name, by due date (cards without one last), by when they were created, or by their views
+ * (`views`: count and last view per card; never-viewed cards count as viewed least and longest ago). Ties keep their
+ * current order.
+ */
+export function sortListCards(
+  cards: Card[],
+  listId: string,
+  by: ListSort,
+  views: Map<string, { total: number; lastAt?: string }> = new Map(),
+): Card[] {
   const created = (card: Card) => (card.createdAt ? Date.parse(card.createdAt) : 0);
   const due = (card: Card) => (card.dueAt ? Date.parse(card.dueAt) : Infinity);
+  const viewCount = (card: Card) => views.get(card.id)?.total ?? 0;
+  const lastView = (card: Card) => views.get(card.id)?.lastAt ?? "";
   const compare: Record<ListSort, (a: Card, b: Card) => number> = {
     name: (a, b) => a.name.localeCompare(b.name),
     due: (a, b) => due(a) - due(b),
     newest: (a, b) => created(b) - created(a),
     oldest: (a, b) => created(a) - created(b),
+    "most-viewed": (a, b) => viewCount(b) - viewCount(a),
+    "least-viewed": (a, b) => viewCount(a) - viewCount(b),
+    "recently-viewed": (a, b) => lastView(b).localeCompare(lastView(a)),
+    "least-recently-viewed": (a, b) => lastView(a).localeCompare(lastView(b)),
   };
-  const sorted = cards.filter((card) => card.listId === listId && !card.deletedAt).sort(compare[by]);
+  const sorted = cards
+    .filter((card) => card.listId === listId && !card.deletedAt)
+    .sort((a, b) => compare[by](a, b) || a.position - b.position);
   const positions = new Map(sorted.map((card, index) => [card.id, index + 1]));
   return cards.map((card) => (positions.has(card.id) ? { ...card, position: positions.get(card.id)! } : card));
 }

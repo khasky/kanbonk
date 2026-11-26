@@ -155,6 +155,23 @@ export interface ActivityEvent {
   category: "change" | "comment";
 }
 
+/**
+ * How often one device viewed a board or a card on one local day. Only that device changes its counter, so syncing
+ * devices keep the larger count. `id` is `kind:entityId:deviceId:day`.
+ */
+export interface ViewCount {
+  id: string;
+  kind: "board" | "card";
+  entityId: string;
+  boardId: string;
+  deviceId: string;
+  /** The device's author name when it last counted a view; views count per person by this name. */
+  author: string;
+  day: string;
+  count: number;
+  lastAt: string;
+}
+
 export interface AppState {
   workspaces: Workspace[];
   boards: Board[];
@@ -167,6 +184,8 @@ export interface AppState {
   ancestry: Record<string, string[]>;
   /** Permanently deleted entities ("kind:id" -> ISO time); synced so purges propagate. */
   tombstones?: Record<string, string>;
+  /** Board visits and card views, kept outside the history. */
+  views?: ViewCount[];
 }
 
 export interface BoardFilter {

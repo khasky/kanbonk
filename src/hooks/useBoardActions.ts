@@ -6,6 +6,7 @@ import {
   type AutomationRule,
   type Board,
   type BoardList,
+  cardViewStats,
   copyBoard,
   copyList,
   moveListToBoard,
@@ -169,7 +170,7 @@ export function useBoardActions({
 
   function sortList(id: string, by: ListSort) {
     setState((current) => {
-      const cards = sortListCards(current.cards, id, by);
+      const cards = sortListCards(current.cards, id, by, cardViewStats(current));
       const changed = cards.filter((card, index) => card.position !== current.cards[index].position);
       return recordRevisions(
         { ...current, cards },

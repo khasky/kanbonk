@@ -16,12 +16,22 @@ interface SyncHandlers {
   onSent?: () => void;
   /** Attachment storage; defaults to IndexedDB. A headless device (MCP server) passes its own. */
   files?: { load: (id: string) => Promise<Blob | undefined>; save: (id: string, blob: Blob) => Promise<void> };
+  /** Where this device is (the board and card open), sent to the trusted peer; see `sendPresence`. */
+  getPresence?: () => Presence;
+  /** Where the peer is; null when it left or the connection closed. */
+  onPresence?: (presence: Presence | null) => void;
   /** Device trust: when set, peers exchange a hello first and data flows only after the peer is trusted. */
   trust?: {
     self: PeerInfo;
     isTrusted: (peer: PeerInfo) => boolean;
     onPeer: (peer: PeerInfo) => Promise<boolean>;
   };
+}
+
+/** The board and card a device has open; ids are capped in length, as they come from the peer. */
+export interface Presence {
+  boardId?: string;
+  cardId?: string;
 }
 
 export interface PeerInfo {
@@ -137,6 +147,7 @@ export class LanSync {
       void this.receiveMessage(String(event.data));
     };
     channel.onclose = () => {
+      this.handlers.onPresence?.(null);
       this.handlers.onStatus(t("sync.connectionClosed"));
       if (!this.closed) this.handlers.onClosed?.();
     };
@@ -154,6 +165,7 @@ export class LanSync {
     };
     socket.onerror = () => this.handlers.onStatus(t("sync.serverConnectFailed"));
     socket.onclose = () => {
+      this.handlers.onPresence?.(null);
       this.handlers.onStatus(opened ? t("sync.serverClosed") : t("sync.serverUnavailable"));
       if (!this.closed) this.handlers.onClosed?.();
     };
@@ -168,6 +180,7 @@ export class LanSync {
         return;
       }
       if (this.socket && envelope.type === "peer-left") {
+        this.handlers.onPresence?.(null);
         this.handlers.onStatus(t("sync.peerDisconnected"));
         return;
       }
@@ -281,8 +294,17 @@ export class LanSync {
     }
     this.peerTrusted = true;
     this.handlers.onStatus(t("sync.peerConnected", { name: peer.name }));
+    await this.sendPresence();
     await this.sendState();
     await this.send({ type: "request-state" });
+  }
+
+  /** Tells a trusted, connected peer where this device is; nothing happens before that. */
+  async sendPresence(where?: Presence): Promise<void> {
+    const presence = where ?? this.handlers.getPresence?.();
+    if (!presence || !this.peerTrusted) return;
+    if (this.socket ? this.socket.readyState !== WebSocket.OPEN : this.channel?.readyState !== "open") return;
+    await this.send({ type: "presence", ...presence });
   }
 
   private async sendState() {
@@ -343,6 +365,11 @@ export class LanSync {
     if (!this.peerTrusted) return;
     if (packet.type === "request-state") {
       await this.sendState();
+      return;
+    }
+    if (packet.type === "presence") {
+      const id = (value: unknown) => (typeof value === "string" && value ? value.slice(0, 64) : undefined);
+      this.handlers.onPresence?.({ boardId: id(packet.boardId), cardId: id(packet.cardId) });
       return;
     }
     if (packet.type === "state") {

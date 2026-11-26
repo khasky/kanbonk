@@ -7,6 +7,13 @@ import { Button } from "../ui/Button";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
 import { t } from "../i18n";
 
+/** A person on another synced device who has this board open, and the card they are looking at, if any. */
+export interface BoardVisitor {
+  id: string;
+  name: string;
+  cardName?: string;
+}
+
 /** The bar above a board: title, favorite, description, view switch, search, filter and the board menu. */
 export function BoardToolbar({
   board,
@@ -21,6 +28,7 @@ export function BoardToolbar({
   filterOpen,
   onToggleFilter,
   menu,
+  visitors = [],
 }: {
   board: Board;
   /** The open view, or undefined when the board is not the current page. */
@@ -36,6 +44,7 @@ export function BoardToolbar({
   filterOpen: boolean;
   onToggleFilter: () => void;
   menu: BoardMenuActions;
+  visitors?: BoardVisitor[];
 }) {
   return (
     <div className="flex min-h-[58px] items-center gap-[7px] bg-[#0002] px-3.5 py-[9px] text-white max-phone:p-1.5 max-phone:not-in-[.panel-open]:whitespace-nowrap *:in-[.panel-open]:shrink-0">
@@ -87,6 +96,26 @@ export function BoardToolbar({
       >
         <Icon name="search" /> {filterCount ? t("board.filterCount", { count: filterCount }) : t("board.filter")}
       </Button>
+      {visitors.length > 0 && (
+        <ul className="m-0 flex list-none gap-1 p-0" aria-label={t("views.onlineNow")}>
+          {visitors.map((visitor) => {
+            const where = visitor.cardName
+              ? t("views.visitorOnCard", { name: visitor.name, card: visitor.cardName })
+              : t("views.visitorOnBoard", { name: visitor.name });
+            return (
+              <li
+                key={visitor.id}
+                className="relative grid size-8 place-items-center rounded-full bg-white text-[12px] font-bold text-ink"
+                title={where}
+                aria-label={where}
+              >
+                {visitor.name.slice(0, 2).toUpperCase()}
+                <span className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-white bg-[#22a06b]" />
+              </li>
+            );
+          })}
+        </ul>
+      )}
       <BoardMenu background={board.background} actions={menu} />
     </div>
   );

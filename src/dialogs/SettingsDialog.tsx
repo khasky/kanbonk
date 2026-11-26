@@ -22,6 +22,7 @@ import {
   type BackupFolder,
 } from "../lib/platform";
 import { setTrashRetention, trashRetentionChoices, useTrashRetention } from "../lib/trashRetention";
+import { setViewPreferences, useViewPreferences } from "../lib/viewPreferences";
 import { chooseLocale, chosenLocale, formatDateTime, type MessageKey, t } from "../i18n";
 import { isLocaleCode, locales, matchLocale } from "../i18n/locales";
 import { tNodes, useLocale } from "../i18n/nodes";
@@ -82,6 +83,7 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const retentionDays = useTrashRetention();
+  const viewPrefs = useViewPreferences();
 
   useEffect(() => {
     void (async () => {
@@ -262,6 +264,24 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
           </Select>
         </label>
         <Hint>{t("settings.trashHint")}</Hint>
+      </section>
+      <section className={dialogListClass}>
+        <h3>{t("views.settingsTitle")}</h3>
+        <label className={optionClass}>
+          <Checkbox
+            checked={viewPrefs.showBadges}
+            onChange={(event) => setViewPreferences({ showBadges: event.target.checked })}
+          />
+          {t("views.showBadges")}
+        </label>
+        <label className={optionClass}>
+          <Checkbox
+            checked={viewPrefs.track}
+            onChange={(event) => setViewPreferences({ track: event.target.checked })}
+          />
+          {t("views.trackMine")}
+        </label>
+        <Hint>{t("views.settingsHint")}</Hint>
       </section>
       <div className={dialogFooterClass}>
         <Button variant="secondary" size="lg" type="button" onClick={onClose} disabled={busy}>

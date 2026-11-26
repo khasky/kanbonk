@@ -13,6 +13,10 @@ const sorts: { by: ListSort; label: () => string }[] = [
   { by: "oldest", label: () => t("board.sortOldest") },
   { by: "name", label: () => t("board.sortName") },
   { by: "due", label: () => t("board.sortDue") },
+  { by: "most-viewed", label: () => t("views.sortMostViewed") },
+  { by: "least-viewed", label: () => t("views.sortLeastViewed") },
+  { by: "recently-viewed", label: () => t("views.sortRecentlyViewed") },
+  { by: "least-recently-viewed", label: () => t("views.sortLeastRecentlyViewed") },
 ];
 
 /** Trello's "List actions": the list's actions, with the steps that need a choice as submenus behind a back button. */

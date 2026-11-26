@@ -3,7 +3,7 @@ import { mentionedCardIds } from "../model/boardDoc";
 import { cardCreatedAt } from "../model/calendar";
 import { inboxBoardId } from "../model/inbox";
 import { importedCardForUrl, relatedCards } from "../model/links";
-import { isCardAvailable, subCards, type AppState, type Card, type Member } from "../model";
+import { isCardAvailable, subCards, viewStats, type AppState, type Card, type Member } from "../model";
 import { dependentsOf, prerequisitesOf } from "../model/trash";
 import { formatDateTime, type MessageKey, t } from "../i18n";
 import { tNodes } from "../i18n/nodes";
@@ -13,6 +13,7 @@ import { AttachmentsSection } from "./AttachmentsSection";
 import { ChecklistSection } from "./ChecklistSection";
 import { useCardActionsContext } from "./CardActionsContext";
 import { CardActivity } from "./CardActivity";
+import { CardViews } from "./CardViews";
 import { DatesChip, DatesForm } from "./CardDates";
 import { CardDescription } from "./CardDescription";
 import { DependencySummary, RelatedCards, SubCards } from "./CardRelations";
@@ -208,6 +209,7 @@ export function CardDialog({
         .find((item) => item.id === card.boardId)
         ?.automationRules?.filter((rule) => rule.trigger === "button") ?? []);
   const related = relatedCards(card, state);
+  const cardViews = viewStats((state.views ?? []).filter((view) => view.kind === "card" && view.entityId === card.id));
   const localCardForUrl = (url: string) => {
     const target = importedCardForUrl(url, state);
     return target && isCardAvailable(state, target) ? target : undefined;
@@ -597,6 +599,7 @@ export function CardDialog({
               onRemove={removeAttachment}
             />
           )}
+          {cardViews.total > 0 && <CardViews stats={cardViews} />}
         </div>
         <CardActivity
           card={card}

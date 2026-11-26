@@ -1,5 +1,6 @@
 import { sha256 } from "@noble/hashes/sha2.js";
 import { applyTombstones } from "../model/trash";
+import { mergeViews } from "../model/views";
 import { migrateLegacyState } from "../model/legacy";
 import {
   ancestryFromRevisions,
@@ -125,6 +126,7 @@ export function mergeStates(local: AppState, remote: AppState): { state: AppStat
     ...local,
     revisions,
     activity,
+    views: mergeViews(local.views, remote.views),
     heads: { ...local.heads },
     ancestry,
     labels: [...local.labels],

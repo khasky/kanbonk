@@ -1,6 +1,6 @@
 import { type ReactNode, useState } from "react";
 import { t } from "../i18n";
-import type { BoardList, Card, Label, ListSort, Member } from "../model";
+import type { BoardList, Card, Label, ListSort, Member, ViewStats } from "../model";
 import { trelloLabelColors } from "../model/labelColors";
 import { Button } from "../ui/Button";
 import { Textarea } from "../ui/Field";
@@ -54,6 +54,7 @@ export function ListColumn({
   members,
   cardById,
   subCardCounts,
+  cardViews,
   tileActions,
   templates,
   composing,
@@ -73,6 +74,7 @@ export function ListColumn({
   members?: Member[];
   cardById: Map<string, Card>;
   subCardCounts: Map<string, number>;
+  cardViews: Map<string, ViewStats>;
   tileActions: TileActions;
   templates: Card[];
   /** Whether the new-card composer is open in this list. */
@@ -197,6 +199,8 @@ export function ListColumn({
             members={members}
             parentName={item.parentCardId ? cardById.get(item.parentCardId)?.name : undefined}
             subCardCount={subCardCounts.get(item.id)}
+            viewCount={cardViews.get(item.id)?.total}
+            lastViewedAt={cardViews.get(item.id)?.lastAt}
             actions={tileActions}
             hidden={item.id === draggedCardId}
           />

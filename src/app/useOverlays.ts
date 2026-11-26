@@ -5,6 +5,7 @@ import type { BoardCopyOptions } from "../dialogs/BoardCopyDialog";
 export interface Overlays {
   history?: true;
   activityBoardId?: string;
+  analyticsBoardId?: string;
   automationBoardId?: string;
   reminders?: true;
   boardAbout?: true;

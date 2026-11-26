@@ -19,7 +19,7 @@ import {
   tabChannel,
   trustDevice,
 } from "../sync/devices";
-import { LanSync } from "../sync/lanSync";
+import { LanSync, type Presence } from "../sync/lanSync";
 import { type AppState, markMediaLocal, rememberStateIds } from "../model";
 import { shareFile } from "../lib/platform";
 import { loadAttachment, loadState, saveAttachment } from "../lib/storage";
@@ -42,6 +42,7 @@ export function useDeviceSync({
   setState,
   deviceId,
   authorName,
+  presence,
   onFilesChanged,
   onError,
 }: {
@@ -51,6 +52,8 @@ export function useDeviceSync({
   setState: Dispatch<SetStateAction<AppState>>;
   deviceId: string;
   authorName: string;
+  /** The board and card open here, shown to the connected device. */
+  presence: Presence;
   /** Called when received files may change what is on screen (board backgrounds). */
   onFilesChanged: () => void;
   onError: (message: string) => void;
@@ -70,6 +73,10 @@ export function useDeviceSync({
   const [status, setStatus] = useState("");
   const [online, setOnline] = useState(() => navigator.onLine !== false);
   const [conflicts, setConflicts] = useState<SyncConflict[]>([]);
+  /** Where the connected device is, and when it last said so; dropped when it goes quiet. */
+  const [peerPresence, setPeerPresence] = useState<(Presence & Peer & { at: number }) | null>(null);
+  const presenceRef = useRef(presence);
+  presenceRef.current = presence;
   const sessionRef = useRef<LanSync | null>(null);
   const reconnectTimer = useRef<number | undefined>(undefined);
   const reconnectDelay = useRef(5000);
@@ -128,6 +135,9 @@ export function useDeviceSync({
           },
         },
         getState: () => stateRef.current,
+        getPresence: () => presenceRef.current,
+        onPresence: (where) =>
+          setPeerPresence(where && session.peer ? { ...session.peer, ...where, at: Date.now() } : null),
         onState: async (remote) => {
           const merged = mergeStates(stateRef.current, remote);
           rememberStateIds(merged.state);
@@ -283,6 +293,20 @@ export function useDeviceSync({
     setStatus(t("hooks.versionChosen"));
   }
 
+  // Tell the connected device where this one is when that changes, and every half minute so it knows this one is
+  // still here; a device silent for 90 seconds is no longer shown.
+  const { boardId: presentBoardId, cardId: presentCardId } = presence;
+  useEffect(() => {
+    void sessionRef.current?.sendPresence({ boardId: presentBoardId, cardId: presentCardId });
+  }, [presentBoardId, presentCardId]);
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      void sessionRef.current?.sendPresence();
+      setPeerPresence((current) => (current && Date.now() - current.at > 90_000 ? null : current));
+    }, 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
   // Send local changes shortly after they happen, when a session is connected.
   useEffect(() => {
     if (!ready) return;
@@ -366,6 +390,7 @@ export function useDeviceSync({
         : t("hooks.badgeSynced");
 
   return {
+    peerPresence,
     trustedDevices,
     removeDevice,
     transport,

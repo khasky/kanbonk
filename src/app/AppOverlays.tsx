@@ -2,6 +2,7 @@ import { useState } from "react";
 import { type AiSettings, saveAiSettings } from "../ai/ai";
 import { AutomationPanel } from "../board/AutomationPanel";
 import { BoardActivity } from "../board/BoardActivity";
+import { BoardAnalytics } from "../board/BoardAnalytics";
 import { AiSettingsDialog } from "../dialogs/AiSettingsDialog";
 import { AuthorDialog } from "../dialogs/AuthorDialog";
 import { BackupDialog } from "../dialogs/BackupDialog";
@@ -144,6 +145,18 @@ export function AppOverlays({
       )}
       {open.boardAbout && board && (
         <BoardAboutPanel board={board} onSave={saveBoardDescription} onClose={() => overlays.close("boardAbout")} />
+      )}
+      {open.analyticsBoardId && (
+        <BoardAnalytics
+          state={state}
+          boardId={open.analyticsBoardId}
+          onClose={() => overlays.close("analyticsBoardId")}
+          onOpenCard={(item) => {
+            overlays.close("analyticsBoardId");
+            app.setCardId(item.id);
+          }}
+          onError={app.setError}
+        />
       )}
       {open.activityBoardId && (
         <BoardActivity

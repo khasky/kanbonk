@@ -5,6 +5,7 @@ import { readBoardFilters } from "../lib/uiPreferences";
 import {
   emptyBoardFilter,
   filterBoardCards,
+  cardViewStats,
   isCardAvailable,
   type AppState,
   type BoardFilter,
@@ -61,6 +62,9 @@ export function useBoardView(state: AppState, boardId: string | null, onError: (
     return counts;
   }, [state]);
 
+  /** Views of each card of the open board, for the view badges. */
+  const cardViews = useMemo(() => cardViewStats(state, boardId ?? undefined), [state, boardId]);
+
   function updateFilter(change: Partial<BoardFilter>) {
     if (!boardId) return;
     setBoardFilters((current) => ({
@@ -90,6 +94,7 @@ export function useBoardView(state: AppState, boardId: string | null, onError: (
     labelMap,
     cardById,
     subCardCounts,
+    cardViews,
     totalCardCount: boardId ? filterBoardCards(state, boardId, emptyBoardFilter()).length : 0,
     templates: state.cards.filter((item) => item.boardId === boardId && item.isTemplate),
   };

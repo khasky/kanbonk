@@ -94,6 +94,7 @@ export function MainContent({
               }),
             onAutomation: () => overlays.open({ automationBoardId: board.id }),
             onActivity: () => overlays.open({ activityBoardId: board.id }),
+            onAnalytics: () => overlays.open({ analyticsBoardId: board.id }),
             onHistory: () => overlays.open({ history: true }),
             onExport: () => overlays.open({ exportBoardId: board.id }),
             onTrash: () => app.trash.requestDelete("board", board.id),
@@ -101,6 +102,17 @@ export function MainContent({
             onBackgroundColor: (background) =>
               boardActions.updateBoard(board.id, (item) => ({ ...item, background, backgroundImageId: undefined })),
           }}
+          visitors={
+            app.sync.peerPresence?.boardId === board.id
+              ? [
+                  {
+                    id: app.sync.peerPresence.deviceId,
+                    name: app.sync.peerPresence.name,
+                    cardName: state.cards.find((item) => item.id === app.sync.peerPresence?.cardId)?.name,
+                  },
+                ]
+              : []
+          }
           onOpenAbout={() => overlays.open({ boardAbout: true })}
           onOpenCard={(item) => app.setCardId(item.id)}
           onOpenAiSettings={() => overlays.open({ ai: true })}

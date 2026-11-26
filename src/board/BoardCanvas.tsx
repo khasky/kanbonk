@@ -226,6 +226,7 @@ export function BoardCanvas({
         members={board.members}
         cardById={view.cardById}
         subCardCounts={view.subCardCounts}
+        cardViews={view.cardViews}
         tileActions={tileActions}
         templates={view.templates}
         composing={editingCardList === list.id}

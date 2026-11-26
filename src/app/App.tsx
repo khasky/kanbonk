@@ -22,6 +22,8 @@ import { applyDueRules } from "../model/automation";
 import { inboxBoardId, inboxListId, inboxWorkspaceId } from "../model/inbox";
 import { dueReminders } from "../model/reminders";
 import { purgeExpired } from "../model/trash";
+import { recordView } from "../model/views";
+import { useViewPreferences } from "../lib/viewPreferences";
 import { InboxView } from "../panels/InboxView";
 import { PlannerView } from "../panels/PlannerView";
 import { AppContext, type AppServices } from "./AppContext";
@@ -71,6 +73,7 @@ function App() {
     setState,
     deviceId: localDeviceId,
     authorName: localAuthor,
+    presence: { boardId: boardId ?? undefined, cardId: cardId ?? undefined },
     onFilesChanged: bumpFileVersion,
     onError: setError,
   });
@@ -112,6 +115,35 @@ function App() {
     () => dueReminders(state, clock.now, dismissedReminders),
     [state, clock.now, dismissedReminders],
   );
+
+  // Counts a visit to the open board and a view of the open card; opening them again soon after counts once.
+  const { track: trackViews } = useViewPreferences();
+  const countView = useEffectEvent((kind: "board" | "card", id: string) =>
+    setState((current) => {
+      const boardOfView =
+        kind === "board"
+          ? current.boards.find((item) => item.id === id && !item.deletedAt)?.id
+          : current.cards.find((item) => item.id === id && !item.deletedAt)?.boardId;
+      return boardOfView
+        ? recordView(current, {
+            kind,
+            entityId: id,
+            boardId: boardOfView,
+            deviceId: localDeviceId,
+            author: localAuthor,
+          })
+        : current;
+    }),
+  );
+  // A board or card opened before it reaches the data (a new board, an import) counts once it arrives.
+  const boardKnown = state.boards.some((item) => item.id === boardId);
+  const cardKnown = state.cards.some((item) => item.id === cardId);
+  useEffect(() => {
+    if (ready && trackViews && boardId && boardKnown) countView("board", boardId);
+  }, [ready, trackViews, boardId, boardKnown]);
+  useEffect(() => {
+    if (ready && trackViews && cardId && cardKnown) countView("card", cardId);
+  }, [ready, trackViews, cardId, cardKnown]);
 
   const view = useBoardView(state, boardId, setError);
   const backgroundUrl = useBoardBackground(view.board?.backgroundImageId, fileVersion, setError);

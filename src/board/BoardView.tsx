@@ -10,7 +10,7 @@ import { BoardCalendar } from "./BoardCalendar";
 import { BoardCanvas } from "./BoardCanvas";
 import { BoardFilterPanel } from "./BoardFilterPanel";
 import type { BoardMenuActions } from "./BoardMenu";
-import { BoardToolbar } from "./BoardToolbar";
+import { BoardToolbar, type BoardVisitor } from "./BoardToolbar";
 import type { TileActions } from "./CardTile";
 import { DocView } from "./DocView";
 
@@ -26,6 +26,7 @@ export function BoardView({
   cardActions,
   aiSettings,
   menu,
+  visitors,
   onOpenAbout,
   onOpenCard,
   onOpenAiSettings,
@@ -43,6 +44,7 @@ export function BoardView({
   cardActions: CardActions;
   aiSettings: AiSettings | null;
   menu: BoardMenuActions;
+  visitors?: BoardVisitor[];
   onOpenAbout: () => void;
   onOpenCard: (card: Card) => void;
   onOpenAiSettings: () => void;
@@ -68,6 +70,7 @@ export function BoardView({
         filterOpen={filterOpen}
         onToggleFilter={() => setFilterOpen((current) => !current)}
         menu={menu}
+        visitors={visitors}
       />
       {filterOpen && (
         <BoardFilterPanel
