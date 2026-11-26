@@ -19,6 +19,8 @@ import {
   type WeekRow,
 } from "../model/calendar";
 import { Hint } from "../ui/Hint";
+import { Icon } from "../ui/Icon";
+import { tileMetaIconClass, tileMetaItemClass } from "./tileLook";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
 import { Button } from "../ui/Button";
 import { formatDate, type MessageKey, t } from "../i18n";
@@ -48,8 +50,8 @@ const monthNames: MessageKey[] = [
 ];
 
 /** A bar's sides: a bar that continues from the previous week or into the next one is flat and flush on that side. */
-const barStart = { flush: "ml-0 rounded-l-none", own: "ml-[3px] rounded-l-sm" };
-const barEnd = { flush: "mr-0 rounded-r-none", own: "mr-[3px] rounded-r-sm" };
+const barStart = { flush: "ml-0 rounded-l-none", own: "ml-1 rounded-l-md" };
+const barEnd = { flush: "mr-0 rounded-r-none", own: "mr-1 rounded-r-md" };
 
 /** A year view's chip of a card, or the "N more" link under them. */
 const chipBase = `cursor-pointer rounded-sm border-0 px-1.5 py-[3px] text-left text-[12px] truncate`;
@@ -91,15 +93,15 @@ function CalendarWeek({
   const outside = (day: Date) => month !== undefined && day.getMonth() !== month;
   return (
     <div
-      className={`grid grid-cols-[repeat(7,minmax(0,1fr))] gap-y-0.5 border-t border-line pb-1.5 ${tall ? "min-h-[420px]" : "min-h-[110px] max-[761px]:min-h-20"}`}
-      style={{ gridTemplateRows: `26px repeat(${Math.max(row.lanes, 1)}, auto) 1fr` }}
+      className={`grid grid-cols-[repeat(7,minmax(0,1fr))] gap-y-1 border-t border-line ${tall ? "min-h-[420px]" : "min-h-[110px] max-[761px]:min-h-20"}`}
+      style={{ gridTemplateRows: `26px repeat(${Math.max(row.lanes, 1)}, auto) minmax(6px, 1fr)` }}
     >
       {row.days.map((day, index) => (
         <div
           key={dayKey(day)}
           data-day={dayKey(day)}
-          className={`min-w-0 border-l border-surface-sunken ${outside(day) ? "bg-surface-soft" : ""}`}
-          style={{ gridColumn: index + 1, gridRow: `1 / span ${row.lanes + 2}` }}
+          className={`min-w-0 border-l border-line ${outside(day) ? "bg-surface-soft" : "bg-surface-sunken"}`}
+          style={{ gridColumn: index + 1, gridRow: "1 / -1" }}
         >
           <span
             className={`m-0.5 inline-block rounded-[10px] px-1.5 py-[3px] text-[12px] ${dayKey(day) === today ? "bg-brand text-white" : outside(day) ? "text-ink-faint" : ""}`}
@@ -110,15 +112,14 @@ function CalendarWeek({
       ))}
       {row.segments.map((segment) => {
         const { card } = segment.item;
-        const color = labels.find((label) => card.labelIds.includes(label.id) && label.color)?.color;
+        const colors = labels.filter((label) => card.labelIds.includes(label.id) && label.color);
         return (
           <div
             key={card.id}
-            className={`group relative z-1 flex min-w-0 touch-none items-center gap-1 overflow-hidden border-l-4 border-l-brand-light px-1.5 py-0.5 text-left text-[12px] text-ellipsis whitespace-nowrap text-ink select-none max-[761px]:px-[3px] max-[761px]:py-px max-[761px]:text-[11px] ${segment.continuesBefore ? barStart.flush : barStart.own} ${segment.continuesAfter ? barEnd.flush : barEnd.own} ${dragging === card.id ? "cursor-grabbing bg-[#cce0ff] shadow-[0_2px_6px_#091e4240]" : "cursor-pointer bg-brand-soft hover:bg-[#cce0ff]"}`}
+            className={`group relative z-1 flex min-w-0 touch-none flex-col gap-1 bg-white px-2 py-1.5 text-left text-[14px] leading-[18px] text-ink select-none max-[761px]:px-1 max-[761px]:py-1 max-[761px]:text-[12px] ${segment.continuesBefore ? barStart.flush : barStart.own} ${segment.continuesAfter ? barEnd.flush : barEnd.own} ${dragging === card.id ? "cursor-grabbing shadow-[0_2px_7px_#091e4255]" : "cursor-pointer shadow-tile-soft hover:shadow-[0_2px_7px_#091e4255]"}`}
             style={{
               gridColumn: `${segment.column + 1} / span ${segment.span}`,
               gridRow: segment.lane + 2,
-              borderLeftColor: color,
             }}
             title={
               segment.item.end > segment.item.start
@@ -141,19 +142,31 @@ function CalendarWeek({
                 }}
               />
             )}
-            <button
-              className="min-w-0 flex-1 cursor-[inherit] overflow-hidden border-0 bg-transparent p-0 text-left text-ellipsis whitespace-nowrap text-inherit"
-              onClick={(event) => {
-                if (event.detail === 0) onOpen(card);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Delete") onDelete(card);
-              }}
-            >
-              {card.name}
-            </button>
-            {!segment.continuesAfter && (
-              <>
+            {colors.length > 0 && (
+              <span className="flex flex-wrap gap-1" aria-hidden="true">
+                {colors.map((label) => (
+                  <span
+                    key={label.id}
+                    className="h-2 w-10 rounded-full"
+                    style={{ background: label.color }}
+                    title={label.name}
+                  />
+                ))}
+              </span>
+            )}
+            <span className="flex min-w-0 items-center gap-1">
+              <button
+                className="min-w-0 flex-1 cursor-[inherit] overflow-hidden border-0 bg-transparent p-0 text-left text-ellipsis whitespace-nowrap text-inherit"
+                onClick={(event) => {
+                  if (event.detail === 0) onOpen(card);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Delete") onDelete(card);
+                }}
+              >
+                {card.name}
+              </button>
+              {!segment.continuesAfter && (
                 <button
                   className="flex-none cursor-pointer border-0 bg-transparent px-0.5 py-0 text-[14px] leading-none text-ink-subtle opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                   aria-label={t("board.deleteCardOf", { name: card.name })}
@@ -166,15 +179,40 @@ function CalendarWeek({
                 >
                   ×
                 </button>
-                <span
-                  className="absolute top-0 -right-0.5 bottom-0 w-2 cursor-ew-resize [@media(hover:none)]:w-3.5"
-                  aria-hidden="true"
-                  onPointerDown={(event) => {
-                    event.stopPropagation();
-                    onStartDrag(event, card, "end");
-                  }}
-                />
-              </>
+              )}
+            </span>
+            {card.description || card.attachments.length || card.comments.length || card.checklists.length ? (
+              <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-ink-muted">
+                {card.description && <Icon name="text" className={tileMetaIconClass} />}
+                {card.attachments.length > 0 && (
+                  <span className={tileMetaItemClass}>
+                    <Icon name="clip" className={tileMetaIconClass} />
+                    {card.attachments.length}
+                  </span>
+                )}
+                {card.comments.length > 0 && (
+                  <span className={tileMetaItemClass}>
+                    <Icon name="message" className={tileMetaIconClass} />
+                    {card.comments.length}
+                  </span>
+                )}
+                {card.checklists.map((checklist) => (
+                  <span key={checklist.id} className={tileMetaItemClass}>
+                    <Icon name="check-square" className={tileMetaIconClass} />
+                    {checklist.items.filter((entry) => entry.checked).length}/{checklist.items.length}
+                  </span>
+                ))}
+              </span>
+            ) : null}
+            {!segment.continuesAfter && (
+              <span
+                className="absolute top-0 -right-0.5 bottom-0 w-2 cursor-ew-resize [@media(hover:none)]:w-3.5"
+                aria-hidden="true"
+                onPointerDown={(event) => {
+                  event.stopPropagation();
+                  onStartDrag(event, card, "end");
+                }}
+              />
             )}
           </div>
         );
