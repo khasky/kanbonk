@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { buildDocx } from "../export/docx";
-import { Table, Td, Th } from "../ui/Table";
+import { SheetTable } from "../ui/SheetTable";
 import { ExportDocument } from "../export/ExportDocument";
 import {
   boardScope,
@@ -199,26 +199,7 @@ export function ExportDialog({
     const { header, rows } = table();
     return (
       <div className="overflow-auto rounded-sm border border-line">
-        <Table grid>
-          <thead className="sticky top-0 bg-surface-sunken">
-            <tr>
-              {header.map((name, index) => (
-                <Th key={`${name}-${index}`}>{name}</Th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.slice(0, previewRows).map((row, rowIndex) => (
-              <tr key={`${rowIndex}-${row[0]}`}>
-                {row.map((value, index) => (
-                  <Td top key={`${header[index]}-${index}`} className="max-w-[260px] whitespace-pre-wrap">
-                    {value.length > 300 ? `${value.slice(0, 300)}…` : value}
-                  </Td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        <SheetTable header={header} rows={rows.slice(0, previewRows)} />
         {rows.length > previewRows && (
           <p className="m-0 p-2 text-[12px] text-ink-muted">
             {t("exporting.previewMoreRows", { count: rows.length - previewRows })}
