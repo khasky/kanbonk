@@ -9,6 +9,9 @@ import { type MessageKey, t } from "../i18n";
 
 const labelClass = "grid gap-[5px]";
 
+type Trigger = NonNullable<AutomationRule["trigger"]>;
+const approvalTriggers: Trigger[] = ["approved", "declined"];
+
 /** How a due-date rule reads in the list of rules, by its lead time in minutes. */
 const dueLeads: Record<number, MessageKey> = {
   0: "board.atDueTime",
@@ -31,26 +34,35 @@ export function AutomationPanel({
     listId: string,
     action: AutomationRule["action"],
     labelId: string,
-    trigger: "move" | "button" | "due",
+    trigger: Trigger,
     name: string,
     leadMinutes: number,
+    targetListId: string,
   ) => void;
   onRemove: (ruleId: string) => void;
 }) {
   const lists = state.lists.filter((item) => item.boardId === board.id && !item.deletedAt);
   const labels = state.labels.filter((item) => item.boardId === board.id && !item.deleted);
-  const [trigger, setTrigger] = useState<"move" | "button" | "due">("move");
+  const [trigger, setTrigger] = useState<Trigger>("move");
   const [name, setName] = useState("");
   const [listId, setListId] = useState(lists[0]?.id ?? "");
   const [action, setAction] = useState<AutomationRule["action"]>("trash");
   const [labelId, setLabelId] = useState(labels[0]?.id ?? "");
   const [leadMinutes, setLeadMinutes] = useState(0);
+  const [targetListId, setTargetListId] = useState(lists[0]?.id ?? "");
+  // Moving to a list is the action of approval rules only: a card moved by a move rule would trigger others.
+  const canMove = approvalTriggers.includes(trigger);
+  const chosenAction = !canMove && action === "move-to-list" ? "trash" : action;
   const actionText = (rule: AutomationRule) =>
     rule.action === "trash"
       ? t("board.actionTrash")
-      : t("board.actionAddLabel", {
-          name: labels.find((item) => item.id === rule.labelId)?.name ?? t("board.unavailable"),
-        });
+      : rule.action === "move-to-list"
+        ? t("approvals.actionMove", {
+            list: lists.find((item) => item.id === rule.targetListId)?.name ?? t("board.listUnavailable"),
+          })
+        : t("board.actionAddLabel", {
+            name: labels.find((item) => item.id === rule.labelId)?.name ?? t("board.unavailable"),
+          });
   return (
     <SidePanel
       title={t("board.automation")}
@@ -63,20 +75,18 @@ export function AutomationPanel({
         className="mx-0 mt-4 mb-6 grid gap-3"
         onSubmit={(event) => {
           event.preventDefault();
-          onAdd(listId, action, labelId, trigger, name, leadMinutes);
+          onAdd(listId, chosenAction, labelId, trigger, name, leadMinutes, targetListId);
           if (trigger === "button") setName("");
         }}
       >
         <label className={labelClass}>
           {t("board.ruleType")}
-          <Select
-            className="w-full"
-            value={trigger}
-            onChange={(event) => setTrigger(event.target.value as "move" | "button" | "due")}
-          >
+          <Select className="w-full" value={trigger} onChange={(event) => setTrigger(event.target.value as Trigger)}>
             <option value="move">{t("board.movedToList")}</option>
             <option value="due">{t("board.dueArrives")}</option>
             <option value="button">{t("board.cardButton")}</option>
+            <option value="approved">{t("approvals.triggerApproved")}</option>
+            <option value="declined">{t("approvals.triggerDeclined")}</option>
           </Select>
         </label>
         {trigger === "move" ? (
@@ -121,14 +131,27 @@ export function AutomationPanel({
           {t("board.action")}
           <Select
             className="w-full"
-            value={action}
+            value={chosenAction}
             onChange={(event) => setAction(event.target.value as AutomationRule["action"])}
           >
             <option value="trash">{t("board.moveToTrash")}</option>
             <option value="add-label">{t("board.addLabel")}</option>
+            {canMove && <option value="move-to-list">{t("approvals.moveToList")}</option>}
           </Select>
         </label>
-        {action === "add-label" && (
+        {chosenAction === "move-to-list" && (
+          <label className={labelClass}>
+            {t("approvals.targetList")}
+            <Select className="w-full" value={targetListId} onChange={(event) => setTargetListId(event.target.value)}>
+              {lists.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+        )}
+        {chosenAction === "add-label" && (
           <label className={labelClass}>
             {t("board.label")}
             <Select className="w-full" value={labelId} onChange={(event) => setLabelId(event.target.value)}>
@@ -146,12 +169,13 @@ export function AutomationPanel({
           disabled={
             (trigger === "move" && !listId) ||
             (trigger === "button" && !name.trim()) ||
-            (action === "add-label" && !labelId)
+            (chosenAction === "add-label" && !labelId) ||
+            (chosenAction === "move-to-list" && !targetListId)
           }
         >
           {t("board.addRule")}
         </Button>
-        {action === "add-label" && !labels.length && <small>{t("board.createLabelFirst")}</small>}
+        {chosenAction === "add-label" && !labels.length && <small>{t("board.createLabelFirst")}</small>}
       </form>
       <h3 className="mx-0 mt-0 mb-2 text-[15px]">{t("board.boardRules")}</h3>
       {(board.automationRules ?? []).length ? (
@@ -160,15 +184,20 @@ export function AutomationPanel({
             <PanelRowText>
               {t("board.ruleSummary", {
                 trigger:
-                  rule.trigger === "button"
-                    ? t("board.ruleButton", { name: rule.name ?? "" })
-                    : rule.trigger === "due"
-                      ? dueLeads[rule.leadMinutes ?? 0]
-                        ? t(dueLeads[rule.leadMinutes ?? 0])
-                        : ""
-                      : t("board.ruleMoved", {
-                          list: state.lists.find((item) => item.id === rule.listId)?.name ?? t("board.listUnavailable"),
-                        }),
+                  rule.trigger === "approved"
+                    ? t("approvals.ruleApproved")
+                    : rule.trigger === "declined"
+                      ? t("approvals.ruleDeclined")
+                      : rule.trigger === "button"
+                        ? t("board.ruleButton", { name: rule.name ?? "" })
+                        : rule.trigger === "due"
+                          ? dueLeads[rule.leadMinutes ?? 0]
+                            ? t(dueLeads[rule.leadMinutes ?? 0])
+                            : ""
+                          : t("board.ruleMoved", {
+                              list:
+                                state.lists.find((item) => item.id === rule.listId)?.name ?? t("board.listUnavailable"),
+                            }),
                 action: actionText(rule),
               })}
             </PanelRowText>

@@ -1,4 +1,5 @@
 import { t } from "../i18n";
+import { carriedApprovals } from "./approvals";
 import { newId } from "./ids";
 import { priorityRank } from "./priority";
 import type { AppState, BoardList, Card, Label } from "./types";
@@ -139,6 +140,8 @@ export function transferCard(
       })
     : [...(source.memberIds ?? [])];
 
+  const approvals = carriedApprovals(source.approvals, sourceMembers, targetBoard.members, crossBoard, copy);
+
   const others = state.cards
     .filter((card) => card.listId === targetListId && (copy || card.id !== cardId) && !card.deletedAt)
     .map((card) => card.position);
@@ -151,6 +154,7 @@ export function transferCard(
     position,
     labelIds,
     memberIds,
+    approvals,
     ...(copy
       ? {
           createdAt: new Date().toISOString(),

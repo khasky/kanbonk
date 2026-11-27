@@ -2,7 +2,9 @@ import { type MessageKey, t } from "../i18n";
 import { csvTable } from "../export/calendarFiles";
 import { localDateTime } from "../lib/format";
 import { type AppState, type Board, type BoardFilter, type BoardList, type Card, priorities } from "../model";
+import { approvalStatus } from "../model/approvals";
 import { filterBoardCards } from "../model/search";
+import { approvalText } from "../card/ApprovalChip";
 import type { SortDirection } from "../ui/Table";
 
 /** A column of the Table view besides the card's name, which is always shown. */
@@ -15,6 +17,7 @@ export type TableColumn =
   | "due"
   | "priority"
   | "done"
+  | "approval"
   | "checklist"
   | "attachments"
   | "comments"
@@ -29,6 +32,7 @@ export const tableColumns: TableColumn[] = [
   "due",
   "priority",
   "done",
+  "approval",
   "checklist",
   "attachments",
   "comments",
@@ -46,6 +50,7 @@ export const columnNames: Record<TableColumn | "name", MessageKey> = {
   due: "table.due",
   priority: "table.priority",
   done: "table.done",
+  approval: "approvals.title",
   checklist: "table.checklist",
   attachments: "table.attachments",
   comments: "table.comments",
@@ -121,6 +126,10 @@ function sortValue(state: AppState, row: TableRow, by: TableSort["by"]): string 
       return card.priority && priorities.indexOf(card.priority);
     case "done":
       return card.doneAt;
+    case "approval": {
+      const status = approvalStatus(card);
+      return status && ["declined", "pending", "approved"].indexOf(status);
+    }
     case "checklist": {
       const { done, total } = checklistProgress(card);
       return total ? done / total : undefined;
@@ -201,6 +210,8 @@ export function tableCsv(state: AppState, rows: TableRow[], columns: TableColumn
         return card.priority ? t(`priority.${card.priority}`) : "";
       case "done":
         return dateCell(card.doneAt);
+      case "approval":
+        return approvalText(card, false) ?? "";
       case "checklist": {
         const { done, total } = checklistProgress(card);
         return total ? `${done}/${total}` : "";

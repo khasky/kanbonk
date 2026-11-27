@@ -3,8 +3,19 @@ import { formatDate, formatDateTime, t } from "../i18n";
 import type { CardActions } from "../hooks/useCardActions";
 import { localDateTime } from "../lib/format";
 import { saveFile } from "../lib/platform";
-import { type AppState, type Board, type BoardFilter, type Card, type Priority, priorities } from "../model";
+import {
+  type AppState,
+  type Board,
+  type BoardFilter,
+  type Card,
+  type Priority,
+  priorities,
+  memberOfDevice,
+  waitsOn,
+} from "../model";
+import { useIdentity } from "../lib/identity";
 import { exportFileName } from "../export/exportData";
+import { ApprovalChip } from "../card/ApprovalChip";
 import { MemberAvatar } from "../card/MemberPicker";
 import { PriorityPicker, priorityName } from "../card/PriorityPicker";
 import { fieldLabelClass } from "../dialogs/dialogLook";
@@ -131,6 +142,7 @@ export function BoardTable({
   const [due, setDue] = useState("");
   const [moveTo, setMoveTo] = useState("");
 
+  const identity = useIdentity();
   const otherBoards = workspaceBoards(state, board.id);
   const otherIds = (boardChoice[board.id] ?? []).filter((id) => otherBoards.some((item) => item.id === id));
   const all = tableRows(state, board.id, otherIds, filter);
@@ -300,6 +312,16 @@ export function BoardTable({
               aria-label={t("table.doneOf", { name: card.name })}
               checked={Boolean(card.doneAt)}
               onChange={() => (card.doneAt ? cardActions.reopenCardDone(card.id) : cardActions.finishCardDone(card.id))}
+            />
+          </Td>
+        );
+      case "approval":
+        return (
+          <Td>
+            <ApprovalChip
+              card={card}
+              mine={waitsOn(card, memberOfDevice(row.board?.members ?? [], identity.deviceId, identity.authorName)?.id)}
+              className="px-2 py-0.5 text-[12px]"
             />
           </Td>
         );

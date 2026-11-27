@@ -215,9 +215,10 @@ export function useBoardActions({
     listId: string,
     action: AutomationRule["action"],
     labelId?: string,
-    trigger: "move" | "button" | "due" = "move",
+    trigger: NonNullable<AutomationRule["trigger"]> = "move",
     name?: string,
     leadMinutes = 0,
+    targetListId?: string,
   ) {
     setState((current) => {
       const board = current.boards.find((item) => item.id === targetBoardId && !item.deletedAt);
@@ -234,6 +235,11 @@ export function useBoardActions({
         !current.labels.some((item) => item.id === labelId && item.boardId === targetBoardId && !item.deleted)
       )
         return current;
+      if (
+        action === "move-to-list" &&
+        !current.lists.some((item) => item.id === targetListId && item.boardId === targetBoardId && !item.deletedAt)
+      )
+        return current;
       const rule: AutomationRule = {
         id: newId(),
         listId: trigger === "move" ? listId : "",
@@ -243,6 +249,7 @@ export function useBoardActions({
         leadMinutes: trigger === "due" ? leadMinutes : undefined,
         action,
         labelId: action === "add-label" ? labelId : undefined,
+        targetListId: action === "move-to-list" ? targetListId : undefined,
       };
       return recordRevision(
         {

@@ -14,12 +14,15 @@ export interface Workspace extends Trashable {
 export interface AutomationRule {
   id: string;
   listId: string;
-  trigger?: "move" | "button" | "due";
+  /** "approved" and "declined" run when every approver approves the card, or one declines it. */
+  trigger?: "move" | "button" | "due" | "approved" | "declined";
   name?: string;
   createdAt?: string;
   leadMinutes?: number;
-  action: "trash" | "add-label";
+  action: "trash" | "add-label" | "move-to-list";
   labelId?: string;
+  /** The list a "move-to-list" rule moves the card to. */
+  targetListId?: string;
 }
 
 export interface Board extends Trashable {
@@ -183,6 +186,23 @@ export interface Card extends Trashable {
   priority?: Priority;
   /** When the card was finished (ISO); see model/cardDone. */
   doneAt?: string;
+  /** The board members asked to approve the card, with their decisions; see model/approvals. */
+  approvals?: Approval[];
+}
+
+export type ApprovalDecision = "approved" | "declined";
+
+/** Where a card's approval stands: declined by anyone, approved by all, or waiting on someone. */
+export type ApprovalStatus = "pending" | ApprovalDecision;
+
+/** A board member asked to approve a card, and their decision once made. */
+export interface Approval {
+  memberId: string;
+  decision?: ApprovalDecision;
+  /** When the decision was made (ISO). */
+  decidedAt?: string;
+  /** Why the card was declined, if the approver said. */
+  comment?: string;
 }
 
 export type Priority = "critical" | "high" | "medium" | "low";
@@ -250,6 +270,8 @@ export interface BoardFilter {
   due: "any" | "overdue" | "next-week" | "none";
   /** A priority, "none" for cards without one, or empty for any. */
   priority?: Priority | "none" | "";
+  /** An approval status, "none" for cards without approvers, or empty for any. */
+  approval?: ApprovalStatus | "none" | "";
 }
 
 export const emptyBoardFilter = (): BoardFilter => ({

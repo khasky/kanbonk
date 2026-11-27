@@ -22,6 +22,7 @@ import { tNodes } from "../i18n/nodes";
 import { Icon, type IconName } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
 import { AttachmentsSection } from "./AttachmentsSection";
+import { ApprovalSection, ApproverPicker } from "./ApprovalSection";
 import { ChecklistSection } from "./ChecklistSection";
 import { useCardActionsContext } from "./CardActionsContext";
 import { CardActivity } from "./CardActivity";
@@ -80,7 +81,8 @@ type Panel =
   | "move"
   | "attach"
   | "share"
-  | "priority";
+  | "priority"
+  | "approvers";
 
 const panelTitles: Record<Panel, MessageKey> = {
   add: "card.addToCard",
@@ -96,6 +98,7 @@ const panelTitles: Record<Panel, MessageKey> = {
   attach: "card.attach",
   share: "card.shareCard",
   priority: "priority.title",
+  approvers: "approvals.approvers",
 };
 
 /** A row of the "Add to card" popover: an icon in a framed square, a title and what it is for. */
@@ -309,6 +312,11 @@ export function CardDialog({
               <AddRowContent icon="dependency" title={t("card.dependency")} note={t("card.dependencyNote")} />
             </button>
           )}
+          {!card.isTemplate && !inInbox && (
+            <button className={addRowClass} onClick={() => openAt("approvers", anchor)}>
+              <AddRowContent icon="check" title={t("approvals.title")} note={t("approvals.addNote")} />
+            </button>
+          )}
           <button className={addRowClass} onClick={() => openAt("cover", anchor)}>
             <AddRowContent icon="image" title={t("card.cover")} note={t("card.coverNote")} />
           </button>
@@ -358,6 +366,14 @@ export function CardDialog({
         />
       );
     if (kind === "cover") return <CoverPicker card={card} onChange={onChange} />;
+    if (kind === "approvers")
+      return (
+        <ApproverPicker
+          card={card}
+          assignable={assignable}
+          onChange={(members) => actions.setCardApprovers(card.id, members)}
+        />
+      );
     if (kind === "dependency")
       return <DependencyPicker card={card} state={state} onAddDependency={onAddDependency} onClose={closePanel} />;
     if (kind === "transfer")
@@ -669,6 +685,9 @@ export function CardDialog({
                 onCreateSubCard={onCreateSubCard}
                 onNavigateCard={onNavigateCard}
               />
+            )}
+            {(card.approvals ?? []).length > 0 && (
+              <ApprovalSection card={card} boardMembers={boardMembers} assignable={assignable} actions={actions} />
             )}
             {card.checklists.map((checklist) => (
               <ChecklistSection

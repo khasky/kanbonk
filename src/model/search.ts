@@ -1,4 +1,5 @@
 import { trelloLabelColors } from "./labelColors";
+import { approvalStatus } from "./approvals";
 import type { AppState, Board, BoardFilter, BoardList, Card, Label } from "./types";
 
 const cardTexts = new WeakMap<Card, string>();
@@ -29,6 +30,7 @@ export function filterBoardCards(state: AppState, boardId: string, filter: Board
     if (filter.labelId && !card.labelIds.includes(filter.labelId)) return false;
     if (filter.memberId && !(card.memberIds ?? []).includes(filter.memberId)) return false;
     if (filter.priority && (card.priority ?? "none") !== filter.priority) return false;
+    if (filter.approval && (approvalStatus(card) ?? "none") !== filter.approval) return false;
     const due = card.dueAt ? new Date(card.dueAt).getTime() : NaN;
     if (filter.due === "none" && card.dueAt) return false;
     if (filter.due === "overdue" && !(due < now)) return false;

@@ -1,6 +1,8 @@
 import { memo } from "react";
 import { CardCover } from "../card/CardCover";
+import { ApprovalChip } from "../card/ApprovalChip";
 import { PriorityChip, priorityName } from "../card/PriorityPicker";
+import { useMyMember } from "../lib/identity";
 import { readableTextColor } from "../model/labelColors";
 import {
   agingWeeks,
@@ -10,6 +12,7 @@ import {
   type Label,
   type Member,
   type MissingField,
+  waitsOn,
 } from "../model";
 import { missingFieldText } from "../model/requiredFieldsText";
 import { AppLink } from "../ui/AppLink";
@@ -67,6 +70,7 @@ export const CardTile = memo(function CardTile({
   // A memoised tile still renders again in a newly chosen language.
   useLocale();
   const viewBadge = useViewPreferences().showBadges && viewCount > 0;
+  const me = useMyMember(members);
   return (
     <AppLink
       href={`/c/${encodeURIComponent(item.id)}`}
@@ -85,8 +89,9 @@ export const CardTile = memo(function CardTile({
       onOpen={() => actions.open(item.id)}
     >
       <CardCover card={item} />
-      {(item.priority || item.labelIds.some((id) => labels.get(id)?.color)) && (
+      {(item.priority || item.approvals?.length || item.labelIds.some((id) => labels.get(id)?.color)) && (
         <span className="flex flex-wrap gap-1">
+          <ApprovalChip card={item} mine={waitsOn(item, me?.id)} className="px-2 py-0.5 text-[11px]" />
           {item.priority && (
             <span title={t("priority.tileTitle", { priority: priorityName(item.priority) })}>
               <PriorityChip priority={item.priority} className="px-2 py-0.5 text-[11px]" />

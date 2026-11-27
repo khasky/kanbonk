@@ -3,6 +3,7 @@ import { type AiSettings, saveAiSettings } from "../ai/ai";
 import { AutomationPanel } from "../board/AutomationPanel";
 import { BoardActivity } from "../board/BoardActivity";
 import { BoardAnalytics } from "../board/BoardAnalytics";
+import { ApprovalsPanel } from "../board/ApprovalsPanel";
 import { PriorityOverview } from "../board/PriorityOverview";
 import { ShareLabelsDialog } from "../dialogs/ShareLabelsDialog";
 import { LabelCleanupPanel } from "../board/LabelCleanupPanel";
@@ -21,6 +22,7 @@ import { ExportDialog } from "../dialogs/ExportDialog";
 import { ImportDialog } from "../dialogs/ImportDialog";
 import { SettingsDialog } from "../dialogs/SettingsDialog";
 import { SyncDialog } from "../dialogs/SyncDialog";
+import { refreshIdentity } from "../lib/identity";
 import { saveLocalAuthor } from "../lib/storage";
 import {
   type Card,
@@ -241,6 +243,17 @@ export function AppOverlays({
           }}
         />
       )}
+      {open.approvalsBoardId && (
+        <ApprovalsPanel
+          state={state}
+          boardId={open.approvalsBoardId}
+          onClose={() => overlays.close("approvalsBoardId")}
+          onOpenCard={(item) => {
+            overlays.close("approvalsBoardId");
+            app.setCardId(item.id);
+          }}
+        />
+      )}
       {open.activityBoardId && (
         <BoardActivity
           state={state}
@@ -269,8 +282,17 @@ export function AppOverlays({
           board={automationBoard}
           state={state}
           onClose={() => overlays.close("automationBoardId")}
-          onAdd={(listId, action, labelId, trigger, name, leadMinutes) =>
-            app.boardActions.addAutomationRule(automationBoard.id, listId, action, labelId, trigger, name, leadMinutes)
+          onAdd={(listId, action, labelId, trigger, name, leadMinutes, targetListId) =>
+            app.boardActions.addAutomationRule(
+              automationBoard.id,
+              listId,
+              action,
+              labelId,
+              trigger,
+              name,
+              leadMinutes,
+              targetListId,
+            )
           }
           onRemove={(ruleId) => app.boardActions.removeAutomationRule(automationBoard.id, ruleId)}
         />
@@ -326,6 +348,8 @@ export function AppOverlays({
           name={app.localAuthor}
           onSave={(name) => {
             app.setLocalAuthor(saveLocalAuthor(name));
+            // Tiles and cards tell what waits on this device's member, found by this name.
+            refreshIdentity();
             overlays.close("author");
           }}
           onClose={() => overlays.close("author")}

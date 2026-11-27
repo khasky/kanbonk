@@ -1,4 +1,5 @@
 import { isCardAvailable, newId, recordRevision, type AppState, type AutomationRule, type Card } from "./index";
+import { approvalStatus } from "./approvals";
 import { applyDoneList } from "./cardDone";
 import { trashSubCards } from "./trash";
 
@@ -14,6 +15,17 @@ function applyAction(state: AppState, boardId: string, card: Card, rule: Automat
   ) {
     return { ...card, labelIds: [...card.labelIds, rule.labelId] };
   }
+  const target = state.lists.find(
+    (list) => list.id === rule.targetListId && list.boardId === boardId && !list.deletedAt,
+  );
+  if (rule.action === "move-to-list" && target && target.id !== card.listId) {
+    const position =
+      Math.max(
+        0,
+        ...state.cards.filter((item) => item.listId === target.id && !item.deletedAt).map((item) => item.position),
+      ) + 1;
+    return applyDoneList(state, card, { ...card, listId: target.id, position });
+  }
   return card;
 }
 
@@ -27,6 +39,17 @@ export function applyMoveRules(state: AppState, before: Card, moved: Card): Card
   return (board.automationRules ?? [])
     .filter((rule) => (rule.trigger === undefined || rule.trigger === "move") && rule.listId === list.id)
     .reduce((card, rule) => applyAction(state, board.id, card, rule), after);
+}
+
+/** A card just approved by all its approvers, or declined by one, takes the board's rules for that. */
+export function applyApprovalRules(state: AppState, card: Card): Card {
+  const status = approvalStatus(card);
+  if (status !== "approved" && status !== "declined") return card;
+  if (card.isTemplate || !isCardAvailable(state, card)) return card;
+  const board = state.boards.find((item) => item.id === card.boardId && !item.deletedAt);
+  return (board?.automationRules ?? [])
+    .filter((rule) => rule.trigger === status)
+    .reduce((item, rule) => applyAction(state, card.boardId, item, rule), card);
 }
 
 export function applyDueRules(state: AppState, now: number, deviceId: string): AppState {

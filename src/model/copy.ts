@@ -151,6 +151,7 @@ export function copyBoard(
     listId: listIds.get(card.listId)!,
     labelIds: card.labelIds.flatMap((id) => (labelIds.has(id) ? [labelIds.get(id)!] : [])),
     memberIds: [],
+    approvals: undefined,
     comments: [],
     sourceTrelloId: undefined,
     sourceTrelloShortLink: undefined,

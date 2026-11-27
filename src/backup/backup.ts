@@ -1,6 +1,7 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { sha256 } from "@noble/hashes/sha2.js";
 import {
+  isApprovals,
   isCardDoneSettings,
   isPriority,
   isRequiredFields,
@@ -131,6 +132,7 @@ export function validState(state: Record<string, unknown>): boolean {
         (card.mirrorId === undefined || typeof card.mirrorId === "string") &&
         (card.priority === undefined || isPriority(card.priority)) &&
         (card.doneAt === undefined || typeof card.doneAt === "string") &&
+        (card.approvals === undefined || isApprovals(card.approvals)) &&
         (card.automationRunKeys === undefined ||
           (Array.isArray(card.automationRunKeys) && card.automationRunKeys.every((key) => typeof key === "string"))) &&
         Array.isArray(card.checklists) &&

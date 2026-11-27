@@ -7,7 +7,11 @@ import { moveBlockedText } from "../model/requiredFieldsText";
 import { t } from "../i18n";
 import {
   type AppState,
+  type ApprovalDecision,
   blockedMove,
+  decideApproval,
+  resetApprovals,
+  setApprovers,
   type Card,
   convertChecklistItem,
   createCardFromTemplate,
@@ -150,6 +154,21 @@ export function useCardActions({
   /** Moves the cards to the trash, as deleting each one alone would. */
   function trashCards(ids: string[]) {
     setState((current) => ids.reduce((next, id) => moveToTrash(next, "card", id, deviceId), current));
+  }
+
+  /** Makes the members the card's approvers; members not on its board yet join it. */
+  function setCardApprovers(id: string, members: Member[]) {
+    setState((current) => setApprovers(current, id, members, deviceId));
+  }
+
+  /** Records an approver's decision on the card (undefined takes it back), then the board's approval rules. */
+  function decideCardApproval(id: string, memberId: string, decision: ApprovalDecision | undefined, comment?: string) {
+    setState((current) => decideApproval(current, id, memberId, decision, deviceId, comment));
+  }
+
+  /** Clears the decisions on the card. */
+  function resetCardApprovals(id: string) {
+    setState((current) => resetApprovals(current, id, deviceId));
   }
 
   /** Takes the done mark off the card. */
@@ -398,6 +417,9 @@ export function useCardActions({
     finishCardDone,
     reopenCardDone,
     trashCards,
+    setCardApprovers,
+    decideCardApproval,
+    resetCardApprovals,
     createCard,
     dropCardAt,
     createProposedCards,

@@ -98,6 +98,20 @@ export function BoardFilterPanel({
         </Select>
       </label>
       <label className={labelClass}>
+        {t("approvals.title")}
+        <Select
+          size="sm"
+          value={filter.approval ?? ""}
+          onChange={(event) => onChange({ approval: event.target.value as BoardFilter["approval"] })}
+        >
+          <option value="">{t("approvals.any")}</option>
+          <option value="pending">{t("approvals.pending")}</option>
+          <option value="approved">{t("approvals.approved")}</option>
+          <option value="declined">{t("approvals.declined")}</option>
+          <option value="none">{t("approvals.none")}</option>
+        </Select>
+      </label>
+      <label className={labelClass}>
         {t("board.dueDate")}
         <Select
           size="sm"
@@ -126,4 +140,5 @@ export const activeFilterCount = (filter: BoardFilter) =>
   Number(Boolean(filter.labelId)) +
   Number(Boolean(filter.memberId)) +
   Number(Boolean(filter.priority)) +
+  Number(Boolean(filter.approval)) +
   Number(filter.due !== "any");

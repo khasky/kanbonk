@@ -14,3 +14,4 @@ export * from "./mirrors";
 export * from "./priority";
 export * from "./cardDone";
 export * from "./labelCleanup";
+export * from "./approvals";
