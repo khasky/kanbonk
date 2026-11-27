@@ -15,7 +15,7 @@ const openClass =
   "grid size-8 flex-none place-items-center rounded-sm border-0 bg-transparent text-ink-subtle no-underline hover:bg-surface-sunken disabled:cursor-not-allowed disabled:opacity-50";
 
 /** The image of an attachment, read from this device, or "" while there is none. */
-function useImageUrl(attachment: Card["attachments"][number]) {
+export function useImageUrl(attachment: Card["attachments"][number]) {
   const [url, setUrl] = useState("");
   useEffect(() => {
     if (attachment.status !== "local" || !attachment.mimeType.startsWith("image/")) return;

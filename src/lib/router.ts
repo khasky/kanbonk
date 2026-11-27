@@ -35,7 +35,7 @@ export function parseRoute(pathname: string, search = "", state?: HistoryState |
     return {
       page: "board",
       id: parts[1],
-      view: params.get("view") === "calendar" ? "calendar" : params.get("view") === "doc" ? "doc" : "lists",
+      view: boardViews.find((item) => item === params.get("view")) ?? "lists",
       scale: scale === "week" || scale === "year" ? scale : "month",
       date: date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined,
     };
@@ -51,7 +51,9 @@ export function parseRoute(pathname: string, search = "", state?: HistoryState |
   return { page: "not-found" };
 }
 
-export type BoardView = "lists" | "calendar" | "doc";
+export type BoardView = "lists" | "calendar" | "doc" | "attachments";
+
+const boardViews: BoardView[] = ["lists", "calendar", "doc", "attachments"];
 
 export function trashHref(kind?: TrashKind): string {
   const type = Object.entries(trashKinds).find(([, value]) => value === kind)?.[0];
@@ -63,7 +65,7 @@ export function boardHref(
   options: { view?: BoardView; scale?: CalendarScale; date?: string } = {},
 ): string {
   const params = new URLSearchParams();
-  if (options.view === "doc") params.set("view", "doc");
+  if (options.view === "doc" || options.view === "attachments") params.set("view", options.view);
   if (options.view === "calendar") {
     params.set("view", "calendar");
     if (options.scale && options.scale !== "month") params.set("scale", options.scale);

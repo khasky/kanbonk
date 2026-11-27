@@ -78,6 +78,12 @@ export function BoardToolbar({
         <SegmentedTab selected={view === "doc"} onClick={() => navigate(boardHref(board.id, { view: "doc" }))}>
           {t("board.viewDoc")}
         </SegmentedTab>
+        <SegmentedTab
+          selected={view === "attachments"}
+          onClick={() => navigate(boardHref(board.id, { view: "attachments" }))}
+        >
+          {t("attachments.view")}
+        </SegmentedTab>
       </Segmented>
       <span className="flex-1 in-[.panel-open]:flex-[1_0_4px] max-phone:hidden" />
       <input

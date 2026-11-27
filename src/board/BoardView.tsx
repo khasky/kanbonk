@@ -6,6 +6,7 @@ import type { CardActions } from "../hooks/useCardActions";
 import { boardHref, type CalendarScale, type Route } from "../lib/router";
 import type { AppState, Board, Card } from "../model";
 import { AiPanel, type ProposedCard } from "./AiPanel";
+import { BoardAttachments } from "./BoardAttachments";
 import { BoardCalendar } from "./BoardCalendar";
 import { BoardCanvas } from "./BoardCanvas";
 import { BoardFilterPanel } from "./BoardFilterPanel";
@@ -100,6 +101,14 @@ export function BoardView({
               onOpenCard={onOpenCard}
             />
           }
+        />
+      ) : route.view === "attachments" ? (
+        <BoardAttachments
+          state={state}
+          cards={state.cards.filter((item) => view.filteredCardIds.has(item.id))}
+          lists={view.lists}
+          onOpenCard={onOpenCard}
+          onDownload={cardActions.downloadAttachment}
         />
       ) : route.view === "calendar" ? (
         <BoardCalendar
