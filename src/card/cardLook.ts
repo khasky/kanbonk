@@ -24,3 +24,7 @@ export const pickerRowClass = "flex gap-2";
 
 /** A one-line form under a list (new sub-card, new checklist items, labels): a `sm` field and its buttons. */
 export const inlineFormClass = "mt-2 flex gap-1.5";
+
+/** The "⋯" button of a section's menu in the card (a checklist, its items, the approvals). */
+export const menuButtonClass =
+  "grid size-7 place-items-center rounded-sm text-[18px] leading-none text-ink-subtle hover:bg-surface-sunken group-open/menu:bg-surface-sunken max-phone:min-h-11 max-phone:min-w-11";

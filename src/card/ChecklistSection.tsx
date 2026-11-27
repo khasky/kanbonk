@@ -5,14 +5,10 @@ import { Button } from "../ui/Button";
 import { SectionTitle } from "../ui/SectionTitle";
 import { Checkbox, Textarea } from "../ui/Field";
 import { Menu, MenuItem } from "../ui/Menu";
-import { detailSectionClass, inlineFormClass } from "./cardLook";
+import { detailSectionClass, inlineFormClass, menuButtonClass } from "./cardLook";
 import { t } from "../i18n";
 import { Icon } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
-
-/** The "⋯" button of a checklist's and an item's menu. */
-const menuButtonClass =
-  "grid size-7 place-items-center rounded-sm text-[18px] leading-none text-ink-subtle hover:bg-surface-sunken group-open/menu:bg-surface-sunken max-phone:min-h-11 max-phone:min-w-11";
 
 const itemNameClass =
   "min-w-0 flex-1 border-0 bg-transparent p-[5px] focus:rounded-sm focus:border focus:border-line focus:bg-white";

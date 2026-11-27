@@ -18,6 +18,8 @@ interface TextOptions {
   label: string;
   placeholder?: string;
   confirm?: string;
+  /** The text may be left empty. */
+  optional?: boolean;
 }
 
 type Ask = { id: number } & (
@@ -47,7 +49,10 @@ export function askConfirm(options: ConfirmOptions): Promise<boolean> {
   return new Promise((resolve) => push({ kind: "confirm", ...options, resolve }));
 }
 
-/** The app's replacement for `prompt()`: resolves the entered text, or undefined when the user cancels. */
+/**
+ * The app's replacement for `prompt()`: resolves the entered text (which may be empty when `optional`), or undefined
+ * when the user cancels.
+ */
 export function askText(options: TextOptions): Promise<string | undefined> {
   return new Promise((resolve) => push({ kind: "text", ...options, resolve }));
 }
@@ -72,7 +77,7 @@ function TextAsk({ ask, onCancel }: { ask: Extract<Ask, { kind: "text" }>; onCan
         <Button variant="secondary" size="lg" type="button" onClick={onCancel}>
           {t("common.cancel")}
         </Button>
-        <Button variant="primary" type="submit" disabled={!text.trim()}>
+        <Button variant="primary" type="submit" disabled={!ask.optional && !text.trim()}>
           {ask.confirm ?? t("common.ok")}
         </Button>
       </div>
