@@ -47,7 +47,7 @@ export function BoardToolbar({
   visitors?: BoardVisitor[];
 }) {
   return (
-    <div className="flex min-h-[58px] items-center gap-[7px] bg-[#0002] px-3.5 py-[9px] text-white max-phone:p-1.5 max-phone:not-in-[.panel-open]:whitespace-nowrap *:in-[.panel-open]:shrink-0">
+    <div className="flex min-h-[58px] items-center gap-[7px] bg-[#0002] px-3.5 py-[9px] text-white max-phone:flex-wrap max-phone:p-1.5 max-phone:not-in-[.panel-open]:whitespace-nowrap *:in-[.panel-open]:shrink-0">
       <NameEditor
         key={board.id}
         className="w-[min(360px,32vw)] min-w-[120px] rounded-[3px] border-0 bg-transparent px-[9px] py-1.5 text-[18px] font-bold text-white hover:bg-[#ffffff2b] focus:bg-[#ffffff2b] max-tablet:w-[170px] max-phone:min-h-11 max-phone:w-auto max-phone:min-w-20 max-phone:grow max-phone:basis-[120px]"
@@ -65,7 +65,11 @@ export function BoardToolbar({
       <Button variant="toolbar" onClick={onOpenAbout} aria-label={t("board.boardDescription")}>
         <Icon name="info" /> {t("board.description")}
       </Button>
-      <Segmented label={t("board.boardView")} tone="toolbar">
+      <Segmented
+        label={t("board.boardView")}
+        tone="toolbar"
+        className="max-phone:order-last max-phone:w-full max-phone:flex-nowrap max-phone:overflow-x-auto"
+      >
         <SegmentedTab selected={view === "lists"} onClick={() => navigate(boardHref(board.id))}>
           {t("board.viewLists")}
         </SegmentedTab>
@@ -83,6 +87,9 @@ export function BoardToolbar({
           onClick={() => navigate(boardHref(board.id, { view: "attachments" }))}
         >
           {t("attachments.view")}
+        </SegmentedTab>
+        <SegmentedTab selected={view === "table"} onClick={() => navigate(boardHref(board.id, { view: "table" }))}>
+          {t("table.view")}
         </SegmentedTab>
       </Segmented>
       <span className="flex-1 in-[.panel-open]:flex-[1_0_4px] max-phone:hidden" />

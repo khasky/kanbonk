@@ -51,9 +51,9 @@ export function parseRoute(pathname: string, search = "", state?: HistoryState |
   return { page: "not-found" };
 }
 
-export type BoardView = "lists" | "calendar" | "doc" | "attachments";
+export type BoardView = "lists" | "calendar" | "doc" | "attachments" | "table";
 
-const boardViews: BoardView[] = ["lists", "calendar", "doc", "attachments"];
+const boardViews: BoardView[] = ["lists", "calendar", "doc", "attachments", "table"];
 
 export function trashHref(kind?: TrashKind): string {
   const type = Object.entries(trashKinds).find(([, value]) => value === kind)?.[0];
@@ -65,7 +65,8 @@ export function boardHref(
   options: { view?: BoardView; scale?: CalendarScale; date?: string } = {},
 ): string {
   const params = new URLSearchParams();
-  if (options.view === "doc" || options.view === "attachments") params.set("view", options.view);
+  if (options.view === "doc" || options.view === "attachments" || options.view === "table")
+    params.set("view", options.view);
   if (options.view === "calendar") {
     params.set("view", "calendar");
     if (options.scale && options.scale !== "month") params.set("scale", options.scale);

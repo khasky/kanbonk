@@ -26,6 +26,7 @@ import { cardDone } from "./cardDone";
 import { calendar } from "./calendar";
 import { labelCleanup } from "./labelCleanup";
 import { attachments } from "./attachments";
+import { table } from "./table";
 
 /**
  * The English messages, the source of every translation. One namespace per area of the app, each in its own file;
@@ -60,4 +61,5 @@ export const en = {
   calendar,
   labelCleanup,
   attachments,
+  table,
 };

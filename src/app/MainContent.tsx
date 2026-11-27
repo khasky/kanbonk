@@ -124,6 +124,7 @@ export function MainContent({
           onCreateProposedCards={createProposedCards}
           onDeleteCard={(item) => app.trash.requestDelete("card", item.id)}
           onDeleteList={(listId) => app.trash.requestDelete("list", listId)}
+          onError={app.setError}
         />
       ) : page.page === "board" ? (
         <MissingPage what={t("app.boardNotFound")} />

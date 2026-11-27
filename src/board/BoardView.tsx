@@ -10,12 +10,13 @@ import { BoardAttachments } from "./BoardAttachments";
 import { BoardCalendar } from "./BoardCalendar";
 import { BoardCanvas } from "./BoardCanvas";
 import { BoardFilterPanel } from "./BoardFilterPanel";
+import { BoardTable } from "./BoardTable";
 import type { BoardMenuActions } from "./BoardMenu";
 import { BoardToolbar, type BoardVisitor } from "./BoardToolbar";
 import type { TileActions } from "./CardTile";
 import { DocView } from "./DocView";
 
-/** An open board: its toolbar and filter, then the lists, calendar or document view chosen in the toolbar. */
+/** An open board: its toolbar and filter, then the lists, calendar, document, attachments or table view chosen in the toolbar. */
 export function BoardView({
   state,
   board,
@@ -34,6 +35,7 @@ export function BoardView({
   onCreateProposedCards,
   onDeleteCard,
   onDeleteList,
+  onError,
 }: {
   state: AppState;
   board: Board;
@@ -52,6 +54,7 @@ export function BoardView({
   onCreateProposedCards: (items: ProposedCard[]) => void;
   onDeleteCard: (card: Card) => void;
   onDeleteList: (listId: string) => void;
+  onError: (message: string) => void;
 }) {
   const [filterOpen, setFilterOpen] = useState(false);
   const updateBoard = (change: (item: Board) => Board) => boardActions.updateBoard(board.id, change);
@@ -109,6 +112,15 @@ export function BoardView({
           lists={view.lists}
           onOpenCard={onOpenCard}
           onDownload={cardActions.downloadAttachment}
+        />
+      ) : route.view === "table" ? (
+        <BoardTable
+          state={state}
+          board={board}
+          filter={view.filter}
+          cardActions={cardActions}
+          onOpenCard={onOpenCard}
+          onError={onError}
         />
       ) : route.view === "calendar" ? (
         <BoardCalendar

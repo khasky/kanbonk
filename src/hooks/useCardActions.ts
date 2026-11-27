@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { TriageItem } from "../ai/ai";
 import { applyCardButton, applyMoveRules } from "../model/automation";
-import { trashSubCards } from "../model/trash";
+import { moveToTrash, trashSubCards } from "../model/trash";
 import { inboxBoardId, inboxListId } from "../model/inbox";
 import { moveBlockedText } from "../model/requiredFieldsText";
 import { t } from "../i18n";
@@ -145,6 +145,11 @@ export function useCardActions({
     const target = doneList(state, state.boards.find((board) => board.id === card.boardId)?.cardDone);
     if (target && target.id !== card.listId && !mayMove(card, target.id)) return;
     setState((current) => finishCard(current, id, deviceId));
+  }
+
+  /** Moves the cards to the trash, as deleting each one alone would. */
+  function trashCards(ids: string[]) {
+    setState((current) => ids.reduce((next, id) => moveToTrash(next, "card", id, deviceId), current));
   }
 
   /** Takes the done mark off the card. */
@@ -392,6 +397,7 @@ export function useCardActions({
     unlinkCardMirror,
     finishCardDone,
     reopenCardDone,
+    trashCards,
     createCard,
     dropCardAt,
     createProposedCards,
