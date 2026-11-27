@@ -75,3 +75,9 @@ export function Checkbox({
   const check = "m-0 size-4 flex-none cursor-pointer accent-brand disabled:cursor-not-allowed";
   return <input ref={ref} type={type} className={className ? `${check} ${className}` : check} {...props} />;
 }
+
+/** A native slider in the brand color; `className` may only add layout. */
+export function Range({ className, ...props }: Omit<InputHTMLAttributes<HTMLInputElement>, "type">) {
+  const look = "cursor-pointer accent-brand";
+  return <input type="range" className={className ? `${look} ${className}` : look} {...props} />;
+}

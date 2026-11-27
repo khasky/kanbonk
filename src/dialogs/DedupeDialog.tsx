@@ -5,7 +5,7 @@ import type { AppState, Card } from "../model";
 import { findDuplicates, pairKey, type DuplicatePair } from "../model/dedupe";
 import { inboxBoardId } from "../model/inbox";
 import { Button } from "../ui/Button";
-import { Checkbox } from "../ui/Field";
+import { Checkbox, Range } from "../ui/Field";
 import { Hint } from "../ui/Hint";
 import { optionLabelClass } from "./dialogLook";
 import { RowActions } from "../ui/PanelRow";
@@ -48,9 +48,7 @@ export function DedupeDialog({
       <Hint>{t("dialogs.duplicatesHint")}</Hint>
       <label className="flex flex-wrap items-center gap-2">
         {t("dialogs.similarityThreshold", { percent: Math.round(threshold * 100) })}
-        <input
-          className="accent-brand"
-          type="range"
+        <Range
           min={0.3}
           max={0.95}
           step={0.05}
