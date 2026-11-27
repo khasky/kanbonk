@@ -1,6 +1,6 @@
 import { askConfirm } from "../ui/AskDialog";
 import { Dialog } from "../ui/Modal";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type { AppState } from "../model";
 import {
   backupFolder,
@@ -23,6 +23,7 @@ import {
 } from "../lib/platform";
 import { setTrashRetention, trashRetentionChoices, useTrashRetention } from "../lib/trashRetention";
 import { setViewPreferences, useViewPreferences } from "../lib/viewPreferences";
+import { setWeekStartChoice, useWeekStartChoice, type WeekStartChoice } from "../lib/weekStart";
 import { chooseLocale, chosenLocale, formatDateTime, type MessageKey, t } from "../i18n";
 import { isLocaleCode, locales, matchLocale } from "../i18n/locales";
 import { tNodes, useLocale } from "../i18n/nodes";
@@ -68,6 +69,23 @@ function LanguageField() {
         ))}
       </Select>
     </label>
+  );
+}
+
+/** The first day of the week in calendars and date pickers on this device. */
+function WeekStartField() {
+  const choice = useWeekStartChoice();
+  const id = useId();
+  // The select sits beside its label, not in it, so its name is the label alone, without the chosen option's text.
+  return (
+    <div className={fieldLabelClass}>
+      <label htmlFor={id}>{t("calendar.weekStart")}</label>
+      <Select id={id} value={choice} onChange={(event) => setWeekStartChoice(event.target.value as WeekStartChoice)}>
+        <option value="auto">{t("calendar.weekStartAuto")}</option>
+        <option value="monday">{t("calendar.monday")}</option>
+        <option value="sunday">{t("calendar.sunday")}</option>
+      </Select>
+    </div>
   );
 }
 
@@ -142,6 +160,7 @@ export function SettingsDialog({ getState, onClose }: { getState: () => AppState
       <h2 className={dialogTitleClass}>{t("settings.title")}</h2>
       <section className={dialogListClass}>
         <LanguageField />
+        <WeekStartField />
         <Hint>{t("settings.languageHint")}</Hint>
       </section>
       <section className={dialogListClass}>

@@ -157,8 +157,11 @@ export function useCardActions({
     setState((current) => unlinkMirror(current, id, deviceId));
   }
 
-  /** Adds a card, or a card template with `isTemplate`, at the end of a list on the board and returns its id. */
-  function createCard(boardId: string, listId: string, name: string, isTemplate = false) {
+  /**
+   * Adds a card, or a card template with `isTemplate`, at the end of a list on the board and returns its id; `fields`
+   * fills in more of it, such as a due date.
+   */
+  function createCard(boardId: string, listId: string, name: string, isTemplate = false, fields: Partial<Card> = {}) {
     const created: Card = {
       id: newId(),
       boardId,
@@ -172,6 +175,7 @@ export function useCardActions({
       comments: [],
       attachments: [],
       ...(isTemplate ? { isTemplate } : {}),
+      ...fields,
     };
     setState((current) =>
       recordRevision({ ...current, cards: [...current.cards, created] }, "card", created.id, deviceId),

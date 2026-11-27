@@ -104,7 +104,9 @@ export function BoardView({
       ) : route.view === "calendar" ? (
         <BoardCalendar
           state={state}
+          boardName={board.name}
           cards={state.cards.filter((item) => view.filteredCardIds.has(item.id))}
+          lists={view.lists}
           scale={route.scale}
           date={route.date}
           onNavigate={(scale: CalendarScale, date?: string) =>
@@ -120,6 +122,7 @@ export function BoardView({
             }))
           }
           onDelete={onDeleteCard}
+          onCreateCard={(listId, name, dueAt) => cardActions.createCard(board.id, listId, name, false, { dueAt })}
         />
       ) : (
         <BoardCanvas

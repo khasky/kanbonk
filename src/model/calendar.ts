@@ -20,9 +20,12 @@ function dayIndex(date: Date): number {
   return Math.round(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / dayMs);
 }
 
-/** Monday-based start of week. */
-export function startOfWeek(date: Date): Date {
-  return addDays(date, -((date.getDay() + 6) % 7));
+/** The first day of a week: 0 for Sunday, 1 for Monday. */
+export type WeekStart = 0 | 1;
+
+/** The day a week starts on, Monday unless `first` says Sunday. */
+export function startOfWeek(date: Date, first: WeekStart = 1): Date {
+  return addDays(date, -((date.getDay() - first + 7) % 7));
 }
 
 /** Creation time: explicit field, else the timestamp encoded in a Trello id, else the first local revision. */
@@ -107,9 +110,9 @@ export function layoutWeek(weekStart: Date, items: CalendarItem[]): WeekRow {
   return { start: weekStart, days, segments, lanes: laneEnds.length };
 }
 
-export function calendarRange(scale: CalendarScale, anchor: Date): { from: Date; to: Date } {
+export function calendarRange(scale: CalendarScale, anchor: Date, first: WeekStart = 1): { from: Date; to: Date } {
   if (scale === "week") {
-    const from = startOfWeek(anchor);
+    const from = startOfWeek(anchor, first);
     return { from, to: addDays(from, 6) };
   }
   if (scale === "year")
@@ -120,10 +123,11 @@ export function calendarRange(scale: CalendarScale, anchor: Date): { from: Date;
   };
 }
 
-export function monthWeeks(anchor: Date, items: CalendarItem[]): WeekRow[] {
+export function monthWeeks(anchor: Date, items: CalendarItem[], first: WeekStart = 1): WeekRow[] {
   const { from, to } = calendarRange("month", anchor);
   const rows: WeekRow[] = [];
-  for (let start = startOfWeek(from); start <= to; start = addDays(start, 7)) rows.push(layoutWeek(start, items));
+  for (let start = startOfWeek(from, first); start <= to; start = addDays(start, 7))
+    rows.push(layoutWeek(start, items));
   return rows;
 }
 
@@ -162,7 +166,7 @@ function shiftIso(iso: string, days: number): string {
 }
 
 /** Day `day` at the time of day of `time` (noon when there is none). */
-function atDay(day: Date, time?: string): string {
+export function atDay(day: Date, time?: string): string {
   const source = time ? new Date(time) : undefined;
   return new Date(
     day.getFullYear(),
@@ -206,4 +210,44 @@ export function previewItem(item: CalendarItem, mode: CalendarDrag, delta: numbe
   if (mode === "move") return { ...item, start: shift(item.start, delta), end: shift(item.end, delta) };
   if (mode === "start") return { ...item, start: shift(item.start, Math.min(delta, span)) };
   return { ...item, end: shift(item.start, Math.max(0, span + delta)) };
+}
+
+/** The local day of an ISO time, or undefined for none or an invalid one. */
+export function localDay(iso?: string): Date | undefined {
+  const time = iso ? new Date(iso) : undefined;
+  return time && Number.isFinite(time.getTime())
+    ? new Date(time.getFullYear(), time.getMonth(), time.getDate())
+    : undefined;
+}
+
+/** A day's cards: due that day, starting that day, and running through it. */
+export function daySections(items: CalendarItem[], day: Date): { due: Card[]; starts: Card[]; ongoing: Card[] } {
+  const time = day.getTime();
+  const due = items.filter((item) => localDay(item.card.dueAt)?.getTime() === time);
+  const rest = items.filter((item) => !due.includes(item));
+  return {
+    due: due.map((item) => item.card),
+    starts: rest.filter((item) => item.start.getTime() === time).map((item) => item.card),
+    ongoing: rest.filter((item) => item.start.getTime() < time && item.end.getTime() > time).map((item) => item.card),
+  };
+}
+
+/** Where a card stands against its due date: done, overdue or upcoming; undefined without a due date. */
+export function dueStatus(card: Card, now: Date): "done" | "overdue" | "upcoming" | undefined {
+  if (!card.dueAt) return undefined;
+  if (card.doneAt) return "done";
+  return Date.parse(card.dueAt) < now.getTime() ? "overdue" : "upcoming";
+}
+
+/** Cards counted by due date: with one, done, overdue, upcoming, and without one. */
+export function dueSummary(cards: Card[], now: Date) {
+  const withDue = cards.filter((card) => card.dueAt).sort((a, b) => Date.parse(a.dueAt!) - Date.parse(b.dueAt!));
+  const status = (value: string) => withDue.filter((card) => dueStatus(card, now) === value);
+  return {
+    withDue,
+    done: status("done"),
+    overdue: status("overdue"),
+    upcoming: status("upcoming"),
+    noDue: cards.filter((card) => !card.dueAt),
+  };
 }

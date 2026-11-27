@@ -23,6 +23,7 @@ import { cardAging } from "./cardAging";
 import { mirrors } from "./mirrors";
 import { priority } from "./priority";
 import { cardDone } from "./cardDone";
+import { calendar } from "./calendar";
 
 /**
  * The English messages, the source of every translation. One namespace per area of the app, each in its own file;
@@ -54,4 +55,5 @@ export const en = {
   mirrors,
   priority,
   cardDone,
+  calendar,
 };

@@ -307,6 +307,44 @@
   }
 }
 
+/* Printing the board calendar (board/CalendarPrintExport.tsx sets the body classes): only the calendar, without its
+   buttons, optionally without card titles or colors. */
+@media print {
+  body.printing-calendar * {
+    visibility: hidden;
+  }
+  body.printing-calendar .board-calendar,
+  body.printing-calendar .board-calendar * {
+    visibility: visible;
+  }
+  /* The layout around the calendar neither places nor clips it, so it starts at the page's corner and runs on. */
+  body.printing-calendar :has(.board-calendar) {
+    position: static;
+    overflow: visible;
+    height: auto;
+    max-height: none;
+  }
+  body.printing-calendar .board-calendar {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    print-color-adjust: exact;
+  }
+  body.printing-calendar .board-calendar [data-print-skip] {
+    display: none;
+  }
+  body.printing-calendar.print-no-titles .board-calendar .calendar-bar-name {
+    visibility: hidden;
+  }
+  body.printing-calendar.print-monochrome .board-calendar {
+    filter: grayscale(1);
+  }
+}
+
 /* Card aging: tiles unchanged for 1, 2 and 4 weeks fade or, in pirate mode, yellow and tear. Hovered or focused,
    a faded tile is readable again. Outside the layers, so it wins over the tile's own background. */
 [data-aging="regular"][data-age="1"] {

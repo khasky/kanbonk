@@ -5,6 +5,8 @@ import { Button } from "../ui/Button";
 import { Input, Select } from "../ui/Field";
 import { Icon, type IconName } from "../ui/Icon";
 import { pickerLabelClass } from "./cardLook";
+import { startOfWeek } from "../model/calendar";
+import { useWeekStart } from "../lib/weekStart";
 
 const reminderOptions: Array<{ minutes: number; label: MessageKey; count?: number }> = [
   { minutes: 0, label: "card.atDueTime" },
@@ -18,8 +20,8 @@ const reminderOptions: Array<{ minutes: number; label: MessageKey; count?: numbe
   { minutes: 10080, label: "card.weeksBefore", count: 1 },
 ];
 
-/** Sunday to Saturday: 7 January 2024 was a Sunday. */
-const weekdays = Array.from({ length: 7 }, (_, index) => new Date(2024, 0, 7 + index));
+/** A week from its first day (0 for Sunday): 7 January 2024 was a Sunday. */
+const weekdaysFrom = (first: number) => Array.from({ length: 7 }, (_, index) => new Date(2024, 0, 7 + first + index));
 
 function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -117,6 +119,7 @@ export function DatesForm({
   const [target, setTarget] = useState<"start" | "due">(savedDue || fresh ? "due" : "start");
   const shownAt = savedDue ?? savedStart ?? today;
   const [month, setMonth] = useState(new Date(shownAt.getFullYear(), shownAt.getMonth(), 1));
+  const weekStart = useWeekStart();
 
   const start = startOn ? parseDay(startInput) : undefined;
   const due = dueOn ? parseDay(dueInput) : undefined;
@@ -157,7 +160,7 @@ export function DatesForm({
     onClose();
   }
 
-  const first = new Date(month.getFullYear(), month.getMonth(), 1 - month.getDay());
+  const first = startOfWeek(month, weekStart);
   const days = Array.from(
     { length: 42 },
     (_, index) => new Date(first.getFullYear(), first.getMonth(), first.getDate() + index),
@@ -177,7 +180,7 @@ export function DatesForm({
           <MonthButton icon="chevrons-right" label={t("card.nextYear")} onClick={() => shift(12)} />
         </div>
         <div className="mt-1 grid grid-cols-7 gap-y-0.5" role="grid" aria-label={t("card.calendar")}>
-          {weekdays.map((weekday) => (
+          {weekdaysFrom(weekStart).map((weekday) => (
             <span key={weekday.getDay()} className="py-1 text-center text-[12px] font-semibold text-ink-subtle">
               {formatDate(weekday, { weekday: "short" })}
             </span>

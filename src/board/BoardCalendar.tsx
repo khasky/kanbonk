@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import type { AppState, Card } from "../model";
+import type { AppState, BoardList, Card } from "../model";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import type { CalendarScale } from "../lib/router";
 import {
+  atDay,
   calendarItems,
   calendarRange,
   dayKey,
@@ -24,15 +25,19 @@ import { tileMetaIconClass, tileMetaItemClass } from "./tileLook";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
 import { Button } from "../ui/Button";
 import { formatDate, type MessageKey, t } from "../i18n";
+import { useWeekStart } from "../lib/weekStart";
+import { CalendarDayPanel, CalendarSummaryPanel } from "./CalendarPanels";
+import { CalendarPrintExport } from "./CalendarPrintExport";
 
+/** Sunday to Saturday, as `Date.getDay()` numbers them. */
 const weekdays: MessageKey[] = [
+  "board.sun",
   "board.mon",
   "board.tue",
   "board.wed",
   "board.thu",
   "board.fri",
   "board.sat",
-  "board.sun",
 ];
 const monthNames: MessageKey[] = [
   "board.january",
@@ -79,6 +84,7 @@ function CalendarWeek({
   onOpen,
   onStartDrag,
   onDelete,
+  onOpenDay,
 }: {
   row: WeekRow;
   month?: number;
@@ -89,6 +95,7 @@ function CalendarWeek({
   onOpen: (card: Card) => void;
   onStartDrag: (event: ReactPointerEvent, card: Card, mode: CalendarDrag) => void;
   onDelete: (card: Card) => void;
+  onOpenDay: (day: Date) => void;
 }) {
   const outside = (day: Date) => month !== undefined && day.getMonth() !== month;
   return (
@@ -103,11 +110,15 @@ function CalendarWeek({
           className={`min-w-0 border-l border-line ${outside(day) ? "bg-surface-soft" : "bg-surface-sunken"}`}
           style={{ gridColumn: index + 1, gridRow: "1 / -1" }}
         >
-          <span
-            className={`m-0.5 inline-block rounded-[10px] px-1.5 py-[3px] text-[12px] ${dayKey(day) === today ? "bg-brand text-white" : outside(day) ? "text-ink-faint" : ""}`}
+          <button
+            type="button"
+            className={`m-0.5 inline-block cursor-pointer rounded-[10px] border-0 px-1.5 py-[3px] text-[12px] ${dayKey(day) === today ? "bg-brand text-white" : `bg-transparent hover:bg-line ${outside(day) ? "text-ink-faint" : "text-ink"}`}`}
+            aria-label={t("calendar.openDay", { date: formatDate(day) })}
+            title={t("calendar.openDay", { date: formatDate(day) })}
+            onClick={() => onOpenDay(day)}
           >
             {day.getDate()}
-          </span>
+          </button>
         </div>
       ))}
       {row.segments.map((segment) => {
@@ -156,7 +167,7 @@ function CalendarWeek({
             )}
             <span className="flex min-w-0 items-center gap-1">
               <button
-                className="min-w-0 flex-1 cursor-[inherit] overflow-hidden border-0 bg-transparent p-0 text-left text-ellipsis whitespace-nowrap text-inherit"
+                className="calendar-bar-name min-w-0 flex-1 cursor-[inherit] overflow-hidden border-0 bg-transparent p-0 text-left text-ellipsis whitespace-nowrap text-inherit"
                 onClick={(event) => {
                   if (event.detail === 0) onOpen(card);
                 }}
@@ -223,23 +234,34 @@ function CalendarWeek({
 
 export function BoardCalendar({
   state,
+  boardName,
   cards,
+  lists,
   scale,
   date,
   onNavigate,
   onOpen,
   onReschedule,
   onDelete,
+  onCreateCard,
 }: {
   state: AppState;
+  boardName: string;
   cards: Card[];
+  /** The board's lists, for a card added from the day panel. */
+  lists: BoardList[];
   scale: CalendarScale;
   date?: string;
   onNavigate: (scale: CalendarScale, date?: string) => void;
   onOpen: (card: Card) => void;
   onReschedule: (card: Card, dates: { startAt?: string; dueAt?: string }) => void;
   onDelete: (card: Card) => void;
+  onCreateCard: (listId: string, name: string, dueAt: string) => void;
 }) {
+  const weekStart = useWeekStart();
+  const [openDay, setOpenDay] = useState<Date>();
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [exportAnchor, setExportAnchor] = useState<HTMLElement>();
   const [drag, setDrag] = useState<CalendarDragState | null>(null);
   const anchor = date ? parseDay(date) : new Date();
   const today = dayKey(new Date());
@@ -286,7 +308,7 @@ export function BoardCalendar({
     window.addEventListener("pointerup", up);
     window.addEventListener("pointercancel", cancel);
   }
-  const { from, to } = calendarRange(scale, anchor);
+  const { from, to } = calendarRange(scale, anchor, weekStart);
   const title =
     scale === "year"
       ? String(anchor.getFullYear())
@@ -296,35 +318,49 @@ export function BoardCalendar({
   const boardLabels = state.labels.filter((label) => !label.deleted);
   return (
     <section
-      className="mx-3 mt-0 mb-3 min-h-0 flex-1 overflow-auto rounded-[10px] bg-white p-3 text-ink"
+      className="board-calendar mx-3 mt-0 mb-3 min-h-0 flex-1 overflow-auto rounded-[10px] bg-white p-3 text-ink"
       aria-label={t("board.boardCalendar")}
     >
       <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
-        <Button
-          variant="secondary"
-          onClick={() => onNavigate(scale, dayKey(shiftAnchor(scale, anchor, -1)))}
-          aria-label={t("board.previous")}
-        >
-          ‹
-        </Button>
-        <Button variant="secondary" onClick={() => onNavigate(scale, undefined)}>
-          {t("board.today")}
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => onNavigate(scale, dayKey(shiftAnchor(scale, anchor, 1)))}
-          aria-label={t("board.next")}
-        >
-          ›
-        </Button>
+        <div className="contents" data-print-skip>
+          <Button
+            variant="secondary"
+            onClick={() => onNavigate(scale, dayKey(shiftAnchor(scale, anchor, -1)))}
+            aria-label={t("board.previous")}
+          >
+            ‹
+          </Button>
+          <Button variant="secondary" onClick={() => onNavigate(scale, undefined)}>
+            {t("board.today")}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => onNavigate(scale, dayKey(shiftAnchor(scale, anchor, 1)))}
+            aria-label={t("board.next")}
+          >
+            ›
+          </Button>
+        </div>
         <h2 className="mx-2 my-0 flex-1 text-[18px]">{title}</h2>
-        <Segmented label={t("board.calendarScale")}>
-          {(["week", "month", "year"] as const).map((item) => (
-            <SegmentedTab key={item} selected={scale === item} onClick={() => onNavigate(item, date)}>
-              {t(item === "week" ? "board.week" : item === "month" ? "board.month" : "board.year")}
-            </SegmentedTab>
-          ))}
-        </Segmented>
+        <div className="contents" data-print-skip>
+          <Button variant="secondary" onClick={() => setSummaryOpen(true)}>
+            {t("calendar.summary")}
+          </Button>
+          <Button
+            variant="secondary"
+            aria-expanded={Boolean(exportAnchor)}
+            onClick={(event) => setExportAnchor(exportAnchor ? undefined : event.currentTarget)}
+          >
+            {t("calendar.printExport")}
+          </Button>
+          <Segmented label={t("board.calendarScale")}>
+            {(["week", "month", "year"] as const).map((item) => (
+              <SegmentedTab key={item} selected={scale === item} onClick={() => onNavigate(item, date)}>
+                {t(item === "week" ? "board.week" : item === "month" ? "board.month" : "board.year")}
+              </SegmentedTab>
+            ))}
+          </Segmented>
+        </div>
       </div>
       {scale === "year" ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-3">
@@ -345,7 +381,8 @@ export function BoardCalendar({
                     onClick={() => onOpen(item.card)}
                     title={item.card.name}
                   >
-                    <small>{item.start.getMonth() === month ? item.start.getDate() : "…"}</small> {item.card.name}
+                    <small>{item.start.getMonth() === month ? item.start.getDate() : "…"}</small>{" "}
+                    <span className="calendar-bar-name">{item.card.name}</span>
                   </button>
                 ))}
                 {monthItems.length > 8 && (
@@ -363,13 +400,19 @@ export function BoardCalendar({
       ) : (
         <div>
           <div className="grid grid-cols-[repeat(7,1fr)] py-1 text-[12px] font-bold text-ink-muted">
-            {weekdays.map((day) => (
-              <span key={day} className="pl-1.5">
-                {t(day)}
-              </span>
-            ))}
+            {weekdays.map((_, index) => {
+              const day = weekdays[(index + weekStart) % 7];
+              return (
+                <span key={day} className="pl-1.5">
+                  {t(day)}
+                </span>
+              );
+            })}
           </div>
-          {(scale === "week" ? [layoutWeek(startOfWeek(anchor), items)] : monthWeeks(anchor, items)).map((row) => (
+          {(scale === "week"
+            ? [layoutWeek(startOfWeek(anchor, weekStart), items)]
+            : monthWeeks(anchor, items, weekStart)
+          ).map((row) => (
             <CalendarWeek
               key={dayKey(row.start)}
               row={row}
@@ -381,11 +424,49 @@ export function BoardCalendar({
               dragging={drag?.cardId}
               onStartDrag={startDrag}
               onDelete={onDelete}
+              onOpenDay={setOpenDay}
             />
           ))}
         </div>
       )}
-      <Hint>{t("board.calendarHint")}</Hint>
+      <div data-print-skip>
+        <Hint>{t("board.calendarHint")}</Hint>
+      </div>
+      {openDay && (
+        <CalendarDayPanel
+          day={openDay}
+          items={baseItems}
+          lists={lists}
+          onOpen={(card) => {
+            setOpenDay(undefined);
+            onOpen(card);
+          }}
+          onCreate={(listId, name) => onCreateCard(listId, name, atDay(openDay))}
+          onClose={() => setOpenDay(undefined)}
+        />
+      )}
+      {summaryOpen && (
+        <CalendarSummaryPanel
+          cards={cards}
+          lists={lists}
+          onOpen={(card) => {
+            setSummaryOpen(false);
+            onOpen(card);
+          }}
+          onClose={() => setSummaryOpen(false)}
+        />
+      )}
+      {exportAnchor && (
+        <CalendarPrintExport
+          state={state}
+          cards={cards}
+          from={from}
+          to={to}
+          fileName={`${boardName} ${title}`}
+          anchor={exportAnchor}
+          onClose={() => setExportAnchor(undefined)}
+        />
+      )}
     </section>
   );
 }

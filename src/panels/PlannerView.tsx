@@ -3,16 +3,18 @@ import { AppLink } from "../ui/AppLink";
 import { formatDate, formatTime, t } from "../i18n";
 import { isCardAvailable, type AppState, type Card } from "../model";
 import { Button } from "../ui/Button";
+import { startOfWeek } from "../model/calendar";
+import { useWeekStart } from "../lib/weekStart";
 
 const weekButtonClass = "max-phone:min-h-11";
 
 export function PlannerView({ state, onOpen }: { state: AppState; onOpen: (card: Card) => void }) {
   const [weekOffset, setWeekOffset] = useState(0);
+  const weekStart = useWeekStart();
   const today = new Date();
-  const start = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate() - ((today.getDay() + 6) % 7) + weekOffset * 7,
+  const start = startOfWeek(
+    new Date(today.getFullYear(), today.getMonth(), today.getDate() + weekOffset * 7),
+    weekStart,
   );
   const days = Array.from(
     { length: 7 },
