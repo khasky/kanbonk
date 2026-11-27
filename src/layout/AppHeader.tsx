@@ -30,7 +30,6 @@ export type AppMenuActions = {
   onSettings: () => void;
   onSync: () => void;
   onAi: () => void;
-  onDedupe: () => void;
   onAuthor: () => void;
 };
 
@@ -159,7 +158,6 @@ function AppMenu({ actions, navigate }: { actions: AppMenuActions; navigate: (hr
       <MenuItem onClick={actions.onSettings}>{t("layout.settings")}</MenuItem>
       <MenuItem onClick={actions.onSync}>{t("layout.sync")}</MenuItem>
       <MenuItem onClick={actions.onAi}>{t("layout.aiAssistant")}</MenuItem>
-      <MenuItem onClick={actions.onDedupe}>{t("layout.duplicates")}</MenuItem>
       <MenuItem onClick={() => navigate(trashHref())}>{t("layout.trash")}</MenuItem>
       <MenuItem onClick={actions.onAuthor}>{t("layout.myName")}</MenuItem>
     </Menu>

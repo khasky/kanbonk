@@ -33,7 +33,7 @@ Kanbonk is a single React + TypeScript application. The same build runs as a web
 | `layout/` | The app frame: top bar with the app menu, global search results, sidebar, resizable side panel slot |
 | `board/` | The board view (`BoardView`, `BoardCanvas`): toolbar and menu, filter, list column, card tile, calendar, zone frame, automation and activity panels, the board document (`DocView`) and AI panel |
 | `card/` | The card dialog and its sections: dates, description, checklists, labels, members, links, attachments and previews, sharing (`share.ts`: print, PNG, JSON, link, QR), comments; `CardActionsContext` gives them the card actions without props |
-| `dialogs/` | Modal dialogs: Trello import, backup, sync, settings, AI settings, create, copy board, clone card, delete, duplicates, author name |
+| `dialogs/` | Modal dialogs: Trello import, backup, sync, settings, AI settings, create, copy board, clone card, delete, author name |
 | `panels/` | Side panels: Inbox, Planner, reminders, history, board description |
 | `pages/` | Pages in the main area: home, workspace, trash, not-found |
 | `hooks/` | Changes to cards (`useCardActions`), boards and lists (`useBoardActions`), the trash, device sync, panel layout, automatic backups |

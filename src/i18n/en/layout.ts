@@ -20,7 +20,6 @@ export const layout = {
   settings: "Settings",
   sync: "Sync",
   aiAssistant: "AI assistant",
-  duplicates: "Duplicates across boards",
   trash: "Trash",
   myName: "My name",
   resizePanel: "Resize panel {name}",

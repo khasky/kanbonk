@@ -298,7 +298,6 @@ function App() {
     onSettings: () => overlays.open({ settings: true }),
     onSync: () => overlays.open({ sync: true }),
     onAi: () => overlays.open({ ai: true }),
-    onDedupe: () => overlays.open({ dedupe: true }),
     onAuthor: () => overlays.open({ author: true }),
   };
 

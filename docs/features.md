@@ -112,11 +112,13 @@ Due rules run once per due date while the app is open or at the next start. Rule
 
 ## Duplicate finder
 
-**⋯ → Duplicates across boards** finds cards with similar meaning on different boards. It runs on the device: card titles (weighted highest), descriptions and checklist items are compared with TF-IDF over English word stems (common English stop words are dropped and a light English stemmer strips suffixes, so "preparing reports" matches "prepare report") and title character trigrams, which also tolerate small typos. Word forms of other languages are not normalized; such text is matched by exact words and trigrams only. Templates and trashed cards are skipped.
+**Board menu → Find duplicates** pairs the board's cards that look like the same task, side by side, with why and how closely they match. It runs on the device; templates and trashed cards are skipped. Three match levels:
 
-- The slider sets the similarity threshold (default 0.55); a toggle includes pairs on the same board.
-- **Merge into first** / **Merge into second** keeps one card and moves the other's description, comments, checklists, attachments, dates and dependency links into it; the duplicate goes to the trash.
-- **Not a duplicate** hides the pair on this device.
+- **Strict**: the same title, whatever the capitals, accents or punctuation ("Café bill!" = "cafe bill").
+- **Normal** (default): also the same words in another order ("Login bug fix" = "Fix login bug") and typos ("Invoce Acme" = "Invoice Acme": one typo in a word of 4+ letters, two in a word of 8+; numbers must match exactly, so "Task 1" ≠ "Task 2").
+- **Loose**: also a title with extra words ("Send invoice Acme today" ⊃ "Invoice Acme") and cards whose text says much the same (TF-IDF over English word stems of titles, descriptions and checklist items).
+
+**Only cards in the same list** narrows the pairs. The fuller card (description, comments, checklist items, attachments, labels, members, due date) is kept by default; **Swap** keeps the other. **Merge…** asks first, listing what moves: the description, comments, checklists, attachments, labels, members and dates the kept card does not have yet, and dependency links. Both cards get a comment linking to the other, and the duplicate goes to the trash, where it can be restored. **Not a duplicate** hides the pair on this device.
 
 ## Offline work
 

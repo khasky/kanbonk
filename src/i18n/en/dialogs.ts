@@ -68,18 +68,6 @@ export const dialogs = {
   createWorkspace: "Create workspace",
   create: "Create",
 
-  duplicatesTitle: "Duplicates across boards",
-  duplicatesLabel: "Find duplicates",
-  duplicatesHint: "Text similarity (word stems, n-grams, TF-IDF) is computed locally; no data leaves this device.",
-  similarityThreshold: "Similarity threshold: {percent}%",
-  sameBoard: "Also search within the same board",
-  pairsFound: "Pairs found: {count}",
-  mergeIntoFirstTitle:
-    "Move the second card’s comments, checklists and attachments into the first, and the second card to the trash",
-  mergeIntoFirst: "Merge into first",
-  mergeIntoSecond: "Merge into second",
-  notDuplicate: "Not a duplicate",
-
   moveToTrash: "Move to trash",
   deleteWorkspaceTitle: "Delete workspace “{name}”?",
   deleteBoardTitle: "Delete board “{name}”?",

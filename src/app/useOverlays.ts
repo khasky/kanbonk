@@ -8,6 +8,7 @@ export interface Overlays {
   analyticsBoardId?: string;
   prioritiesBoardId?: string;
   approvalsBoardId?: string;
+  duplicatesBoardId?: string;
   shareLabelsBoardId?: string;
   cleanLabelsBoardId?: string;
   requiredFieldsBoardId?: string;
@@ -24,7 +25,6 @@ export interface Overlays {
   sync?: true;
   ai?: true;
   settings?: true;
-  dedupe?: true;
   cloneCardId?: string;
 }
 

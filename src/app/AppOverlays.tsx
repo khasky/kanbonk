@@ -4,6 +4,7 @@ import { AutomationPanel } from "../board/AutomationPanel";
 import { BoardActivity } from "../board/BoardActivity";
 import { BoardAnalytics } from "../board/BoardAnalytics";
 import { ApprovalsPanel } from "../board/ApprovalsPanel";
+import { DuplicatesPanel } from "../board/DuplicatesPanel";
 import { PriorityOverview } from "../board/PriorityOverview";
 import { ShareLabelsDialog } from "../dialogs/ShareLabelsDialog";
 import { LabelCleanupPanel } from "../board/LabelCleanupPanel";
@@ -15,7 +16,6 @@ import { BackupDialog } from "../dialogs/BackupDialog";
 import { BoardCopyDialog, type BoardCopyOptions } from "../dialogs/BoardCopyDialog";
 import { CloneCardDialog } from "../dialogs/CloneCardDialog";
 import { CreationDialog } from "../dialogs/CreationDialog";
-import { DedupeDialog } from "../dialogs/DedupeDialog";
 import { t } from "../i18n";
 import { DeleteDialog } from "../dialogs/DeleteDialog";
 import { ExportDialog } from "../dialogs/ExportDialog";
@@ -35,7 +35,7 @@ import {
   type Revision,
   shareLabels,
 } from "../model";
-import { mergeDuplicate, pairKey } from "../model/dedupe";
+import { mergeDuplicate } from "../model/dedupe";
 import { inboxWorkspaceId } from "../model/inbox";
 import { reminderSignature } from "../model/reminders";
 import type { SnapshotMeta } from "../lib/storage";
@@ -151,18 +151,21 @@ export function AppOverlays({
           onCancel={app.trash.cancelDelete}
         />
       )}
-      {open.dedupe && (
-        <DedupeDialog
+      {open.duplicatesBoardId && (
+        <DuplicatesPanel
           state={state}
+          boardId={open.duplicatesBoardId}
           ignored={dedupeIgnored}
-          onClose={() => overlays.close("dedupe")}
-          onOpen={(item) => {
-            overlays.close("dedupe");
+          onIgnore={ignorePair}
+          onClose={() => overlays.close("duplicatesBoardId")}
+          onOpenCard={(item) => {
+            overlays.close("duplicatesBoardId");
             app.setCardId(item.id);
           }}
-          onIgnore={(pair) => ignorePair(pairKey(pair.a.id, pair.b.id))}
-          onMerge={(keepId, dropId) => {
-            setState((current) => mergeDuplicate(current, keepId, dropId, deviceId));
+          onMerge={(keepId, dropId, notes) => {
+            setState((current) =>
+              mergeDuplicate(current, keepId, dropId, deviceId, { ...notes, author: app.localAuthor }),
+            );
             app.setNotice(t("app.cardsMerged"));
           }}
         />

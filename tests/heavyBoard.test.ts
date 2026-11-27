@@ -12,7 +12,7 @@ import { addImportedBoardWithRevisions, parseTrelloBoard } from "../src/trello/i
 import { exportTrelloCsv, exportTrelloJson, parseTrelloCsv } from "../src/trello/formats";
 import { mergeStates } from "../src/sync/sync";
 import { validState } from "../src/backup/backup";
-import { findDuplicates } from "../src/model/dedupe";
+import { findBoardDuplicates, findDuplicates } from "../src/model/dedupe";
 import { moveToTrash, visibleState } from "../src/model/trash";
 // Plain JS generator shared with the browser load test.
 import { bigBoard } from "../scripts/generate-big-board.mjs";
@@ -71,6 +71,7 @@ it("keeps every core operation fast on a 5000-card board", { timeout: 60_000 }, 
   expect(timed(() => visibleState(trashed.result)).ms).toBeLessThan(budget.filter);
 
   expect(timed(() => findDuplicates(state, { crossBoardOnly: false })).ms).toBeLessThan(budget.dedupe);
+  expect(timed(() => findBoardDuplicates(state, board.id, { level: "loose" })).ms).toBeLessThan(budget.dedupe);
 });
 
 const heavyExport = process.env.KANBONK_HEAVY_EXPORT ?? "";

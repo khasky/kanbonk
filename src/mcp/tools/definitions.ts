@@ -180,7 +180,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "merge_cards",
     description:
-      "Merge a duplicate into another card: description, comments, checklists, attachments, dates and dependency links move over; the duplicate goes to the trash.",
+      "Merge a duplicate into another card: description, comments, checklists, attachments, labels, members, dates and dependency links move over; the duplicate goes to the trash.",
     inputSchema: obj({ keepCardId: str("Card to keep"), dropCardId: str("Duplicate to merge and trash") }, [
       "keepCardId",
       "dropCardId",

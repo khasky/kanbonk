@@ -97,6 +97,7 @@ export function MainContent({
             onAnalytics: () => overlays.open({ analyticsBoardId: board.id }),
             onPriorities: () => overlays.open({ prioritiesBoardId: board.id }),
             onApprovals: () => overlays.open({ approvalsBoardId: board.id }),
+            onDuplicates: () => overlays.open({ duplicatesBoardId: board.id }),
             onShareLabels: () => overlays.open({ shareLabelsBoardId: board.id }),
             onCleanLabels: () => overlays.open({ cleanLabelsBoardId: board.id }),
             onRequiredFields: () => overlays.open({ requiredFieldsBoardId: board.id }),
