@@ -1336,4 +1336,34 @@ export default {
     csvDue: "Entrega",
     csvStatus: "Status",
   },
+  labelCleanup: {
+    title: "Limpar etiquetas",
+    hint: "Etiquetas removidas vão para a lixeira, de onde podem ser restauradas.",
+    unused: "Etiquetas não usadas",
+    unusedHint:
+      "Não estão em nenhum cartão, modelo ou cartão na lixeira, nem em nenhuma regra de automação ou campo obrigatório.",
+    noUnused: "Todas as etiquetas estão em uso.",
+    deleteChecked: "Excluir marcadas",
+    deleted: {
+      one: "{count} etiqueta movida para a lixeira.",
+      many: "{count} etiquetas movidas para a lixeira.",
+      other: "{count} etiquetas movidas para a lixeira.",
+    },
+    duplicates: "Duplicadas",
+    duplicatesHint:
+      "Etiquetas cujos nomes diferem apenas em maiúsculas ou espaços. Escolha a que será mantida: os cartões das outras a receberão.",
+    noDuplicates: "Nenhum nome duplicado.",
+    keep: "Manter {name}",
+    merge: "Mesclar",
+    merged: {
+      one: "{count} etiqueta mesclada em “{name}”.",
+      many: "{count} etiquetas mescladas em “{name}”.",
+      other: "{count} etiquetas mescladas em “{name}”.",
+    },
+    usage: "Uso",
+    noLabels: "Este quadro não tem etiquetas.",
+    cards: { one: "{count} cartão", many: "{count} cartões", other: "{count} cartões" },
+    inRules: "em regras",
+    unnamed: "Sem nome",
+  },
 } satisfies Translation;

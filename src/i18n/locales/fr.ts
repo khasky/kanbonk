@@ -1393,4 +1393,34 @@ export default {
     csvDue: "Échéance",
     csvStatus: "Statut",
   },
+  labelCleanup: {
+    title: "Nettoyer les étiquettes",
+    hint: "Les étiquettes supprimées vont dans la corbeille, d’où elles peuvent être restaurées.",
+    unused: "Étiquettes inutilisées",
+    unusedHint:
+      "Sur aucune carte, aucun modèle ni aucune carte de la corbeille, et dans aucune règle d’automatisation ni aucun champ obligatoire.",
+    noUnused: "Toutes les étiquettes sont utilisées.",
+    deleteChecked: "Supprimer la sélection",
+    deleted: {
+      one: "{count} étiquette placée dans la corbeille.",
+      many: "{count} d’étiquettes placées dans la corbeille.",
+      other: "{count} étiquettes placées dans la corbeille.",
+    },
+    duplicates: "Doublons",
+    duplicatesHint:
+      "Étiquettes dont les noms ne diffèrent que par la casse ou les espaces. Choisissez celle à conserver : les cartes des autres la recevront.",
+    noDuplicates: "Aucun nom en double.",
+    keep: "Conserver {name}",
+    merge: "Fusionner",
+    merged: {
+      one: "{count} étiquette fusionnée dans « {name} ».",
+      many: "{count} d’étiquettes fusionnées dans « {name} ».",
+      other: "{count} étiquettes fusionnées dans « {name} ».",
+    },
+    usage: "Utilisation",
+    noLabels: "Ce tableau n’a pas d’étiquettes.",
+    cards: { one: "{count} carte", many: "{count} de cartes", other: "{count} cartes" },
+    inRules: "dans des règles",
+    unnamed: "Sans nom",
+  },
 } satisfies Translation;

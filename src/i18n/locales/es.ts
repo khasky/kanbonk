@@ -1342,4 +1342,34 @@ export default {
     csvDue: "Vencimiento",
     csvStatus: "Estado",
   },
+  labelCleanup: {
+    title: "Limpiar etiquetas",
+    hint: "Las etiquetas eliminadas van a la papelera, desde donde se pueden restaurar.",
+    unused: "Etiquetas sin usar",
+    unusedHint:
+      "No están en ninguna tarjeta, plantilla ni tarjeta de la papelera, ni en ninguna regla de automatización o campo obligatorio.",
+    noUnused: "Todas las etiquetas están en uso.",
+    deleteChecked: "Eliminar marcadas",
+    deleted: {
+      one: "{count} etiqueta se movió a la papelera.",
+      many: "{count} etiquetas se movieron a la papelera.",
+      other: "{count} etiquetas se movieron a la papelera.",
+    },
+    duplicates: "Duplicados",
+    duplicatesHint:
+      "Etiquetas cuyos nombres solo difieren en mayúsculas o espacios. Elige cuál conservar: las tarjetas de las demás la recibirán.",
+    noDuplicates: "No hay nombres duplicados.",
+    keep: "Conservar {name}",
+    merge: "Combinar",
+    merged: {
+      one: "{count} etiqueta combinada en “{name}”.",
+      many: "{count} etiquetas combinadas en “{name}”.",
+      other: "{count} etiquetas combinadas en “{name}”.",
+    },
+    usage: "Uso",
+    noLabels: "Este tablero no tiene etiquetas.",
+    cards: { one: "{count} tarjeta", many: "{count} tarjetas", other: "{count} tarjetas" },
+    inRules: "en reglas",
+    unnamed: "Sin nombre",
+  },
 } satisfies Translation;

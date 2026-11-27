@@ -1328,4 +1328,29 @@ export default {
     csvDue: "Eräpäivä",
     csvStatus: "Tila",
   },
+  labelCleanup: {
+    title: "Siivoa tunnisteet",
+    hint: "Poistetut tunnisteet siirtyvät roskakoriin, josta ne voi palauttaa.",
+    unused: "Käyttämättömät tunnisteet",
+    unusedHint:
+      "Ei yhdelläkään kortilla, pohjalla tai roskakorin kortilla eikä missään automaatiosäännössä tai pakollisessa kentässä.",
+    noUnused: "Kaikki tunnisteet ovat käytössä.",
+    deleteChecked: "Poista valitut",
+    deleted: { one: "{count} tunniste siirretty roskakoriin.", other: "{count} tunnistetta siirretty roskakoriin." },
+    duplicates: "Kaksoiskappaleet",
+    duplicatesHint:
+      "Tunnisteet, joiden nimet eroavat vain kirjainkoon tai välilyöntien osalta. Valitse säilytettävä: muiden kortit saavat sen.",
+    noDuplicates: "Ei päällekkäisiä nimiä.",
+    keep: "Säilytä {name}",
+    merge: "Yhdistä",
+    merged: {
+      one: "{count} tunniste yhdistetty tunnisteeseen ”{name}”.",
+      other: "{count} tunnistetta yhdistetty tunnisteeseen ”{name}”.",
+    },
+    usage: "Käyttö",
+    noLabels: "Tällä taululla ei ole tunnisteita.",
+    cards: { one: "{count} kortti", other: "{count} korttia" },
+    inRules: "säännöissä",
+    unnamed: "Nimetön",
+  },
 } satisfies Translation;

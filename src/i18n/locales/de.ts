@@ -1328,4 +1328,29 @@ export default {
     csvDue: "Fällig",
     csvStatus: "Status",
   },
+  labelCleanup: {
+    title: "Labels aufräumen",
+    hint: "Entfernte Labels landen im Papierkorb und lassen sich dort wiederherstellen.",
+    unused: "Unbenutzte Labels",
+    unusedHint:
+      "Auf keiner Karte, Vorlage oder Karte im Papierkorb und in keiner Automatisierungsregel und keinem Pflichtfeld.",
+    noUnused: "Alle Labels werden verwendet.",
+    deleteChecked: "Markierte löschen",
+    deleted: {
+      one: "{count} Label in den Papierkorb verschoben.",
+      other: "{count} Labels in den Papierkorb verschoben.",
+    },
+    duplicates: "Duplikate",
+    duplicatesHint:
+      "Labels, deren Namen sich nur in Groß-/Kleinschreibung oder Leerzeichen unterscheiden. Wählen Sie das zu behaltende: Die Karten der anderen erhalten es.",
+    noDuplicates: "Keine doppelten Namen.",
+    keep: "{name} behalten",
+    merge: "Zusammenführen",
+    merged: { one: "{count} Label in „{name}“ zusammengeführt.", other: "{count} Labels in „{name}“ zusammengeführt." },
+    usage: "Verwendung",
+    noLabels: "Dieses Board hat keine Labels.",
+    cards: { one: "{count} Karte", other: "{count} Karten" },
+    inRules: "in Regeln",
+    unnamed: "Ohne Namen",
+  },
 } satisfies Translation;

@@ -5,6 +5,7 @@ import { BoardActivity } from "../board/BoardActivity";
 import { BoardAnalytics } from "../board/BoardAnalytics";
 import { PriorityOverview } from "../board/PriorityOverview";
 import { ShareLabelsDialog } from "../dialogs/ShareLabelsDialog";
+import { LabelCleanupPanel } from "../board/LabelCleanupPanel";
 import { RequiredFieldsPanel } from "../board/RequiredFieldsPanel";
 import { BoardSettingsPanel } from "../board/BoardSettingsPanel";
 import { AiSettingsDialog } from "../dialogs/AiSettingsDialog";
@@ -21,7 +22,17 @@ import { ImportDialog } from "../dialogs/ImportDialog";
 import { SettingsDialog } from "../dialogs/SettingsDialog";
 import { SyncDialog } from "../dialogs/SyncDialog";
 import { saveLocalAuthor } from "../lib/storage";
-import { type Card, cloneCard, cloneCardName, newId, recordRevision, type Revision, shareLabels } from "../model";
+import {
+  type Card,
+  cloneCard,
+  cloneCardName,
+  deleteLabels,
+  mergeLabels,
+  newId,
+  recordRevision,
+  type Revision,
+  shareLabels,
+} from "../model";
 import { mergeDuplicate, pairKey } from "../model/dedupe";
 import { inboxWorkspaceId } from "../model/inbox";
 import { reminderSignature } from "../model/reminders";
@@ -189,6 +200,22 @@ export function AppOverlays({
             app.setNotice(t("labelSharing.shared", { count: boardIds.length }));
           }}
           onClose={() => overlays.close("shareLabelsBoardId")}
+        />
+      )}
+      {open.cleanLabelsBoardId && (
+        <LabelCleanupPanel
+          state={state}
+          boardId={open.cleanLabelsBoardId}
+          onDelete={(labelIds) => {
+            setState((current) => deleteLabels(current, labelIds, deviceId));
+            app.setNotice(t("labelCleanup.deleted", { count: labelIds.length }));
+          }}
+          onMerge={(keepId, dropIds) => {
+            setState((current) => mergeLabels(current, keepId, dropIds, deviceId));
+            const name = state.labels.find((label) => label.id === keepId)?.name ?? "";
+            app.setNotice(t("labelCleanup.merged", { count: dropIds.length, name }));
+          }}
+          onClose={() => overlays.close("cleanLabelsBoardId")}
         />
       )}
       {open.analyticsBoardId && (

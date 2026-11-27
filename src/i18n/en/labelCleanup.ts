@@ -1,0 +1,21 @@
+/** Messages of the label cleanup panel: unused labels, duplicates and how often each label is used. */
+export const labelCleanup = {
+  title: "Clean up labels",
+  hint: "Removed labels go to the trash, where they can be restored.",
+  unused: "Unused labels",
+  unusedHint: "On no card, template or trashed card, and in no automation rule or required field.",
+  noUnused: "Every label is in use.",
+  deleteChecked: "Delete checked",
+  deleted: { one: "{count} label moved to the trash.", other: "{count} labels moved to the trash." },
+  duplicates: "Duplicates",
+  duplicatesHint: "Labels whose names differ only in case or spaces. Pick the one to keep: the others' cards get it.",
+  noDuplicates: "No duplicate names.",
+  keep: "Keep {name}",
+  merge: "Merge",
+  merged: { one: "{count} label merged into “{name}”.", other: "{count} labels merged into “{name}”." },
+  usage: "Usage",
+  noLabels: "This board has no labels.",
+  cards: { one: "{count} card", other: "{count} cards" },
+  inRules: "in rules",
+  unnamed: "No name",
+};

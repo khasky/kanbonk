@@ -1308,4 +1308,26 @@ export default {
     csvDue: "Bitiş",
     csvStatus: "Durum",
   },
+  labelCleanup: {
+    title: "Etiketleri temizle",
+    hint: "Kaldırılan etiketler çöp kutusuna taşınır ve oradan geri yüklenebilir.",
+    unused: "Kullanılmayan etiketler",
+    unusedHint:
+      "Hiçbir kartta, şablonda veya çöp kutusundaki kartta bulunmayan ve hiçbir otomasyon kuralında ya da zorunlu alanda kullanılmayan etiketler.",
+    noUnused: "Tüm etiketler kullanılıyor.",
+    deleteChecked: "İşaretlileri sil",
+    deleted: { one: "{count} etiket çöp kutusuna taşındı.", other: "{count} etiket çöp kutusuna taşındı." },
+    duplicates: "Kopyalar",
+    duplicatesHint:
+      "Adları yalnızca büyük/küçük harf veya boşluklarla farklılaşan etiketler. Tutulacak olanı seçin: diğerlerinin kartları onu alır.",
+    noDuplicates: "Yinelenen ad yok.",
+    keep: "Koru: {name}",
+    merge: "Birleştir",
+    merged: { one: "{count} etiket “{name}” ile birleştirildi.", other: "{count} etiket “{name}” ile birleştirildi." },
+    usage: "Kullanım",
+    noLabels: "Bu panoda etiket yok.",
+    cards: { one: "{count} kart", other: "{count} kart" },
+    inRules: "kurallarda",
+    unnamed: "Adsız",
+  },
 } satisfies Translation;

@@ -1314,4 +1314,29 @@ export default {
     csvDue: "Förfaller",
     csvStatus: "Status",
   },
+  labelCleanup: {
+    title: "Rensa etiketter",
+    hint: "Borttagna etiketter hamnar i papperskorgen och kan återställas därifrån.",
+    unused: "Oanvända etiketter",
+    unusedHint:
+      "Finns inte på något kort, någon mall eller något kort i papperskorgen, och inte i någon automatiseringsregel eller något obligatoriskt fält.",
+    noUnused: "Alla etiketter används.",
+    deleteChecked: "Ta bort markerade",
+    deleted: {
+      one: "{count} etikett flyttades till papperskorgen.",
+      other: "{count} etiketter flyttades till papperskorgen.",
+    },
+    duplicates: "Dubbletter",
+    duplicatesHint:
+      "Etiketter vars namn bara skiljer sig i versaler eller mellanslag. Välj den som ska behållas: de andras kort får den.",
+    noDuplicates: "Inga dubblettnamn.",
+    keep: "Behåll {name}",
+    merge: "Slå ihop",
+    merged: { one: "{count} etikett slogs ihop med ”{name}”.", other: "{count} etiketter slogs ihop med ”{name}”." },
+    usage: "Användning",
+    noLabels: "Den här tavlan har inga etiketter.",
+    cards: { one: "{count} kort", other: "{count} kort" },
+    inRules: "i regler",
+    unnamed: "Inget namn",
+  },
 } satisfies Translation;

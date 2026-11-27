@@ -1313,4 +1313,32 @@ export default {
     csvDue: "Forfall",
     csvStatus: "Status",
   },
+  labelCleanup: {
+    title: "Rydd opp i etiketter",
+    hint: "Fjernede etiketter havner i papirkurven, der de kan gjenopprettes.",
+    unused: "Ubrukte etiketter",
+    unusedHint:
+      "Ikke på noe kort, noen mal eller noe kort i papirkurven, og ikke i noen automatiseringsregel eller noe obligatorisk felt.",
+    noUnused: "Alle etiketter er i bruk.",
+    deleteChecked: "Slett avkryssede",
+    deleted: {
+      one: "{count} etikett ble flyttet til papirkurven.",
+      other: "{count} etiketter ble flyttet til papirkurven.",
+    },
+    duplicates: "Duplikater",
+    duplicatesHint:
+      "Etiketter der navnene bare skiller seg i store/små bokstaver eller mellomrom. Velg hvilken som skal beholdes: kortene til de andre får den.",
+    noDuplicates: "Ingen dupliserte navn.",
+    keep: "Behold {name}",
+    merge: "Slå sammen",
+    merged: {
+      one: "{count} etikett ble slått sammen med «{name}».",
+      other: "{count} etiketter ble slått sammen med «{name}».",
+    },
+    usage: "Bruk",
+    noLabels: "Denne tavlen har ingen etiketter.",
+    cards: { one: "{count} kort", other: "{count} kort" },
+    inRules: "i regler",
+    unnamed: "Uten navn",
+  },
 } satisfies Translation;

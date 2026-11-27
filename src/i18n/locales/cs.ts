@@ -1456,4 +1456,36 @@ export default {
     csvDue: "Termín",
     csvStatus: "Stav",
   },
+  labelCleanup: {
+    title: "Úklid štítků",
+    hint: "Odstraněné štítky se přesunou do koše, odkud je lze obnovit.",
+    unused: "Nepoužívané štítky",
+    unusedHint:
+      "Nejsou na žádné kartě, šabloně ani kartě v koši a nepoužívá je žádné pravidlo automatizace ani povinné pole.",
+    noUnused: "Všechny štítky se používají.",
+    deleteChecked: "Smazat označené",
+    deleted: {
+      one: "{count} štítek přesunut do koše.",
+      few: "{count} štítky přesunuty do koše.",
+      many: "{count} štítku přesunuto do koše.",
+      other: "{count} štítků přesunuto do koše.",
+    },
+    duplicates: "Duplikáty",
+    duplicatesHint:
+      "Štítky, jejichž názvy se liší jen velikostí písmen nebo mezerami. Vyberte, který ponechat: karty ostatních ho dostanou.",
+    noDuplicates: "Žádné duplicitní názvy.",
+    keep: "Ponechat {name}",
+    merge: "Sloučit",
+    merged: {
+      one: "{count} štítek sloučen do „{name}“.",
+      few: "{count} štítky sloučeny do „{name}“.",
+      many: "{count} štítku sloučeno do „{name}“.",
+      other: "{count} štítků sloučeno do „{name}“.",
+    },
+    usage: "Použití",
+    noLabels: "Tato nástěnka nemá žádné štítky.",
+    cards: { one: "{count} karta", few: "{count} karty", many: "{count} karty", other: "{count} karet" },
+    inRules: "v pravidlech",
+    unnamed: "Bez názvu",
+  },
 } satisfies Translation;

@@ -1290,4 +1290,26 @@ export default {
     csvDue: "Hết hạn",
     csvStatus: "Trạng thái",
   },
+  labelCleanup: {
+    title: "Dọn dẹp nhãn",
+    hint: "Nhãn đã xóa sẽ được chuyển vào thùng rác và có thể khôi phục từ đó.",
+    unused: "Nhãn không dùng",
+    unusedHint:
+      "Không có trên thẻ, mẫu hay thẻ nào trong thùng rác, và không được dùng trong quy tắc tự động hóa hay trường bắt buộc nào.",
+    noUnused: "Mọi nhãn đều đang được dùng.",
+    deleteChecked: "Xóa mục đã chọn",
+    deleted: { other: "Đã chuyển {count} nhãn vào thùng rác." },
+    duplicates: "Trùng lặp",
+    duplicatesHint:
+      "Các nhãn có tên chỉ khác nhau về chữ hoa/thường hoặc khoảng trắng. Chọn nhãn cần giữ: thẻ của các nhãn còn lại sẽ nhận nhãn đó.",
+    noDuplicates: "Không có tên trùng lặp.",
+    keep: "Giữ {name}",
+    merge: "Gộp",
+    merged: { other: "Đã gộp {count} nhãn vào “{name}”." },
+    usage: "Mức sử dụng",
+    noLabels: "Bảng này không có nhãn.",
+    cards: { other: "{count} thẻ" },
+    inRules: "trong quy tắc",
+    unnamed: "Không có tên",
+  },
 } satisfies Translation;

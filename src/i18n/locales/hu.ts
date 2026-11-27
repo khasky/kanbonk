@@ -1330,4 +1330,26 @@ export default {
     csvDue: "Határidő",
     csvStatus: "Állapot",
   },
+  labelCleanup: {
+    title: "Címkék rendbetétele",
+    hint: "Az eltávolított címkék a lomtárba kerülnek, ahonnan visszaállíthatók.",
+    unused: "Nem használt címkék",
+    unusedHint:
+      "Nincs rajta egyetlen kártyán, sablonon vagy lomtárban lévő kártyán sem, és nem használja automatizálási szabály vagy kötelező mező.",
+    noUnused: "Minden címke használatban van.",
+    deleteChecked: "Kijelöltek törlése",
+    deleted: { one: "{count} címke a lomtárba került.", other: "{count} címke a lomtárba került." },
+    duplicates: "Ismétlődések",
+    duplicatesHint:
+      "Címkék, amelyek neve csak kis- és nagybetűkben vagy szóközökben tér el. Válassza ki, melyik maradjon: a többi kártyái ezt kapják meg.",
+    noDuplicates: "Nincsenek ismétlődő nevek.",
+    keep: "{name} megtartása",
+    merge: "Egyesítés",
+    merged: { one: "{count} címke egyesítve ezzel: „{name}”.", other: "{count} címke egyesítve ezzel: „{name}”." },
+    usage: "Használat",
+    noLabels: "Ezen a táblán nincsenek címkék.",
+    cards: { one: "{count} kártya", other: "{count} kártya" },
+    inRules: "szabályokban",
+    unnamed: "Névtelen",
+  },
 } satisfies Translation;

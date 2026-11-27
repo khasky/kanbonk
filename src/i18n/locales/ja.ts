@@ -1296,4 +1296,26 @@ export default {
     csvDue: "期限",
     csvStatus: "状態",
   },
+  labelCleanup: {
+    title: "ラベルの整理",
+    hint: "削除したラベルはゴミ箱に移動し、そこから復元できます。",
+    unused: "未使用のラベル",
+    unusedHint:
+      "どのカード、テンプレート、ゴミ箱内のカードにも付いておらず、どの自動化ルールや必須項目でも使われていないラベルです。",
+    noUnused: "すべてのラベルが使用されています。",
+    deleteChecked: "チェックしたラベルを削除",
+    deleted: { other: "{count} 個のラベルをゴミ箱に移動しました。" },
+    duplicates: "重複",
+    duplicatesHint:
+      "大文字と小文字やスペースだけが異なる名前のラベルです。残すラベルを選ぶと、ほかのラベルが付いたカードにそのラベルが付きます。",
+    noDuplicates: "重複した名前はありません。",
+    keep: "{name} を残す",
+    merge: "統合",
+    merged: { other: "{count} 個のラベルを「{name}」に統合しました。" },
+    usage: "使用状況",
+    noLabels: "このボードにはラベルがありません。",
+    cards: { other: "{count} 枚のカード" },
+    inRules: "ルールで使用",
+    unnamed: "名前なし",
+  },
 } satisfies Translation;

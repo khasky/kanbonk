@@ -1456,4 +1456,36 @@ export default {
     csvDue: "Termin",
     csvStatus: "Stan",
   },
+  labelCleanup: {
+    title: "Porządkowanie etykiet",
+    hint: "Usunięte etykiety trafiają do kosza, skąd można je przywrócić.",
+    unused: "Nieużywane etykiety",
+    unusedHint:
+      "Nie ma ich na żadnej karcie, szablonie ani karcie w koszu i nie występują w regułach automatyzacji ani wymaganych polach.",
+    noUnused: "Wszystkie etykiety są używane.",
+    deleteChecked: "Usuń zaznaczone",
+    deleted: {
+      one: "{count} etykietę przeniesiono do kosza.",
+      few: "{count} etykiety przeniesiono do kosza.",
+      many: "{count} etykiet przeniesiono do kosza.",
+      other: "{count} etykiety przeniesiono do kosza.",
+    },
+    duplicates: "Duplikaty",
+    duplicatesHint:
+      "Etykiety, których nazwy różnią się tylko wielkością liter lub spacjami. Wybierz, którą zachować: karty pozostałych ją otrzymają.",
+    noDuplicates: "Brak powtarzających się nazw.",
+    keep: "Zachowaj {name}",
+    merge: "Scal",
+    merged: {
+      one: "{count} etykietę scalono z „{name}”.",
+      few: "{count} etykiety scalono z „{name}”.",
+      many: "{count} etykiet scalono z „{name}”.",
+      other: "{count} etykiety scalono z „{name}”.",
+    },
+    usage: "Użycie",
+    noLabels: "Ta tablica nie ma etykiet.",
+    cards: { one: "{count} karta", few: "{count} karty", many: "{count} kart", other: "{count} karty" },
+    inRules: "w regułach",
+    unnamed: "Bez nazwy",
+  },
 } satisfies Translation;

@@ -1384,4 +1384,34 @@ export default {
     csvDue: "Scadenza",
     csvStatus: "Stato",
   },
+  labelCleanup: {
+    title: "Pulisci etichette",
+    hint: "Le etichette rimosse finiscono nel cestino, da cui puoi ripristinarle.",
+    unused: "Etichette non usate",
+    unusedHint:
+      "Non presenti su alcuna scheda, modello o scheda nel cestino, né in alcuna regola di automazione o campo obbligatorio.",
+    noUnused: "Tutte le etichette sono in uso.",
+    deleteChecked: "Elimina selezionate",
+    deleted: {
+      one: "{count} etichetta spostata nel cestino.",
+      many: "{count} di etichette spostate nel cestino.",
+      other: "{count} etichette spostate nel cestino.",
+    },
+    duplicates: "Duplicati",
+    duplicatesHint:
+      "Etichette i cui nomi differiscono solo per maiuscole o spazi. Scegli quella da tenere: le schede delle altre la riceveranno.",
+    noDuplicates: "Nessun nome duplicato.",
+    keep: "Tieni {name}",
+    merge: "Unisci",
+    merged: {
+      one: "{count} etichetta unita in “{name}”.",
+      many: "{count} di etichette unite in “{name}”.",
+      other: "{count} etichette unite in “{name}”.",
+    },
+    usage: "Utilizzo",
+    noLabels: "Questa bacheca non ha etichette.",
+    cards: { one: "{count} scheda", many: "{count} di schede", other: "{count} schede" },
+    inRules: "nelle regole",
+    unnamed: "Senza nome",
+  },
 } satisfies Translation;

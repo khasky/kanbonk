@@ -1319,4 +1319,29 @@ export default {
     csvDue: "Vervaldatum",
     csvStatus: "Status",
   },
+  labelCleanup: {
+    title: "Labels opruimen",
+    hint: "Verwijderde labels gaan naar de prullenbak en kunnen daar worden hersteld.",
+    unused: "Ongebruikte labels",
+    unusedHint:
+      "Op geen enkele kaart, sjabloon of kaart in de prullenbak, en in geen automatiseringsregel of verplicht veld.",
+    noUnused: "Alle labels zijn in gebruik.",
+    deleteChecked: "Aangevinkte verwijderen",
+    deleted: {
+      one: "{count} label naar de prullenbak verplaatst.",
+      other: "{count} labels naar de prullenbak verplaatst.",
+    },
+    duplicates: "Duplicaten",
+    duplicatesHint:
+      "Labels waarvan de namen alleen verschillen in hoofdletters of spaties. Kies welke je houdt: de kaarten van de andere krijgen dat label.",
+    noDuplicates: "Geen dubbele namen.",
+    keep: "{name} houden",
+    merge: "Samenvoegen",
+    merged: { one: "{count} label samengevoegd met “{name}”.", other: "{count} labels samengevoegd met “{name}”." },
+    usage: "Gebruik",
+    noLabels: "Dit bord heeft geen labels.",
+    cards: { one: "{count} kaart", other: "{count} kaarten" },
+    inRules: "in regels",
+    unnamed: "Geen naam",
+  },
 } satisfies Translation;
