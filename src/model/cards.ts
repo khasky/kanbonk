@@ -1,5 +1,6 @@
 import { t } from "../i18n";
 import { newId } from "./ids";
+import { priorityRank } from "./priority";
 import type { AppState, BoardList, Card, Label } from "./types";
 
 export function isCardAvailable(state: AppState, card?: Card): boolean {
@@ -52,12 +53,14 @@ export type ListSort =
   | "most-viewed"
   | "least-viewed"
   | "recently-viewed"
-  | "least-recently-viewed";
+  | "least-recently-viewed"
+  | "priority-high"
+  | "priority-low";
 
 /**
  * Orders a list's cards by name, by due date (cards without one last), by when they were created, or by their views
- * (`views`: count and last view per card; never-viewed cards count as viewed least and longest ago). Ties keep their
- * current order.
+ * (`views`: count and last view per card; never-viewed cards count as viewed least and longest ago), or by priority
+ * either way (cards without one last). Ties keep their current order.
  */
 export function sortListCards(
   cards: Card[],
@@ -78,6 +81,9 @@ export function sortListCards(
     "least-viewed": (a, b) => viewCount(a) - viewCount(b),
     "recently-viewed": (a, b) => lastView(b).localeCompare(lastView(a)),
     "least-recently-viewed": (a, b) => lastView(a).localeCompare(lastView(b)),
+    "priority-high": (a, b) => priorityRank(a) - priorityRank(b),
+    "priority-low": (a, b) =>
+      !a.priority || !b.priority ? priorityRank(a) - priorityRank(b) : priorityRank(b) - priorityRank(a),
   };
   const sorted = cards
     .filter((card) => card.listId === listId && !card.deletedAt)

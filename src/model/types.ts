@@ -40,7 +40,27 @@ export interface Board extends Trashable {
   cardAging?: "regular" | "pirate";
   /** What every card on the board must have; see model/requiredFields. */
   requiredFields?: RequiredFields;
+  /** What finishing a card does on this board; see model/cardDone. */
+  cardDone?: CardDoneSettings;
   starred: boolean;
+}
+
+/** What happens to a card of the board when it is finished with its Done button. */
+export interface CardDoneSettings {
+  /** The list a finished card goes to, on this board or another; it stays in its list when unset. */
+  listId?: string;
+  /** To the top of that list rather than the bottom. */
+  top?: boolean;
+  /** A card moved into that list by hand is finished too, and one moved out of it is no longer. */
+  markInList?: boolean;
+  checkItems?: boolean;
+  clearDue?: boolean;
+  clearLabels?: boolean;
+  clearMembers?: boolean;
+  /** Moves the finished card to the trash instead. */
+  trash?: boolean;
+  /** No celebration when a card is finished. */
+  quiet?: boolean;
 }
 
 /** Fields every card on a board must have, checked on the card and, with `blockMoves`, before it leaves its list. */
@@ -159,7 +179,13 @@ export interface Card extends Trashable {
   parentCardId?: string;
   /** Cards with the same `mirrorId` mirror each other; see model/mirrors. */
   mirrorId?: string;
+  /** How urgent the card is; none when unset. See model/priority. */
+  priority?: Priority;
+  /** When the card was finished (ISO); see model/cardDone. */
+  doneAt?: string;
 }
+
+export type Priority = "critical" | "high" | "medium" | "low";
 
 export interface Revision {
   id: string;
@@ -222,12 +248,15 @@ export interface BoardFilter {
   labelId: string;
   memberId?: string;
   due: "any" | "overdue" | "next-week" | "none";
+  /** A priority, "none" for cards without one, or empty for any. */
+  priority?: Priority | "none" | "";
 }
 
 export const emptyBoardFilter = (): BoardFilter => ({
   keyword: "",
   labelId: "",
   memberId: "",
+  priority: "",
   due: "any",
 });
 

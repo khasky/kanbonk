@@ -121,6 +121,7 @@ export function BoardCanvas({
       else boardActions.sortList(listId, action);
     },
     setColor: (listId, color) => boardActions.updateList(listId, (item) => ({ ...item, color })),
+    setPriority: (listId, priority) => boardActions.setPriorityOfList(listId, priority),
     moveCards: (listId, targetListId) => {
       for (const item of state.cards
         .filter((card) => card.listId === listId && !card.deletedAt)

@@ -5,7 +5,7 @@ import type { AppState, Card, EntityKind, Member } from "./types";
 
 /**
  * Mirrors are real cards on any boards that share a `mirrorId`: a change to one goes to the others. They share the
- * content (title, description, dates, checklists, attachments, cover, comments), and the labels and members, mapped
+ * content (title, description, dates, checklists, attachments, cover, comments, priority), and the labels and members, mapped
  * to each mirror's board. Each keeps its own board, list and position.
  */
 
@@ -29,6 +29,7 @@ const content = (card: Card) => ({
   attachments: card.attachments,
   cover: card.cover,
   comments: card.comments,
+  priority: card.priority,
 });
 
 /**

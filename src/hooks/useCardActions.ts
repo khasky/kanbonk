@@ -13,6 +13,9 @@ import {
   createCardFromTemplate,
   createSubCard,
   deleteLabel,
+  doneList,
+  finishCard,
+  reopenCard,
   updateLabel,
   linkDependency,
   mirrorCard,
@@ -133,6 +136,20 @@ export function useCardActions({
       }),
     );
     return { targetId: copyId, boardId: targetList.boardId };
+  }
+
+  /** Finishes the card with its board's Done settings, unless the board keeps it in its list for missing fields. */
+  function finishCardDone(id: string) {
+    const card = state.cards.find((item) => item.id === id);
+    if (!card) return;
+    const target = doneList(state, state.boards.find((board) => board.id === card.boardId)?.cardDone);
+    if (target && target.id !== card.listId && !mayMove(card, target.id)) return;
+    setState((current) => finishCard(current, id, deviceId));
+  }
+
+  /** Takes the done mark off the card. */
+  function reopenCardDone(id: string) {
+    setState((current) => reopenCard(current, id, deviceId));
   }
 
   /** Stops the card mirroring its other copies. */
@@ -369,6 +386,8 @@ export function useCardActions({
     moveOrCopyCard,
     mirrorCardTo,
     unlinkCardMirror,
+    finishCardDone,
+    reopenCardDone,
     createCard,
     dropCardAt,
     createProposedCards,

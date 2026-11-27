@@ -1,6 +1,14 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { sha256 } from "@noble/hashes/sha2.js";
-import { isRequiredFields, isViewCount, mediaReferences, newId, type AppState } from "../model";
+import {
+  isCardDoneSettings,
+  isPriority,
+  isRequiredFields,
+  isViewCount,
+  mediaReferences,
+  newId,
+  type AppState,
+} from "../model";
 import { loadAttachment, saveAttachment } from "../lib/storage";
 import { mergeStates, type SyncConflict } from "../sync/sync";
 import { t } from "../i18n";
@@ -68,6 +76,7 @@ export function validState(state: Record<string, unknown>): boolean {
         (board.members === undefined || (Array.isArray(board.members) && board.members.every(hasIdName))) &&
         (board.requiredFields === undefined || isRequiredFields(board.requiredFields)) &&
         (board.cardAging === undefined || board.cardAging === "regular" || board.cardAging === "pirate") &&
+        (board.cardDone === undefined || isCardDoneSettings(board.cardDone)) &&
         (board.automationRules === undefined ||
           (Array.isArray(board.automationRules) &&
             board.automationRules.every(
@@ -120,6 +129,8 @@ export function validState(state: Record<string, unknown>): boolean {
         (card.memberIds === undefined ||
           (Array.isArray(card.memberIds) && card.memberIds.every((id) => typeof id === "string"))) &&
         (card.mirrorId === undefined || typeof card.mirrorId === "string") &&
+        (card.priority === undefined || isPriority(card.priority)) &&
+        (card.doneAt === undefined || typeof card.doneAt === "string") &&
         (card.automationRunKeys === undefined ||
           (Array.isArray(card.automationRunKeys) && card.automationRunKeys.every((key) => typeof key === "string"))) &&
         Array.isArray(card.checklists) &&

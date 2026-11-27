@@ -28,6 +28,7 @@ export function filterBoardCards(state: AppState, boardId: string, filter: Board
     if (card.boardId !== boardId || card.deletedAt || trashedListIds.has(card.listId)) return false;
     if (filter.labelId && !card.labelIds.includes(filter.labelId)) return false;
     if (filter.memberId && !(card.memberIds ?? []).includes(filter.memberId)) return false;
+    if (filter.priority && (card.priority ?? "none") !== filter.priority) return false;
     const due = card.dueAt ? new Date(card.dueAt).getTime() : NaN;
     if (filter.due === "none" && card.dueAt) return false;
     if (filter.due === "overdue" && !(due < now)) return false;

@@ -38,8 +38,9 @@ import { LinkEditor } from "./LinkEditor";
 import { CardMemberAvatars, MemberPicker } from "./MemberPicker";
 import { SharePanel } from "./SharePanel";
 import { MovePicker } from "./MovePicker";
+import { PriorityChip, PriorityPicker, priorityName } from "./PriorityPicker";
 import { TransferPicker } from "./TransferPicker";
-import { Button } from "../ui/Button";
+import { Button, buttonClass } from "../ui/Button";
 import { Backdrop, useEscapeToDismiss } from "../ui/Modal";
 import { Menu, MenuItem, MenuSeparator } from "../ui/Menu";
 import { Popover } from "../ui/Popover";
@@ -79,7 +80,8 @@ type Panel =
   | "transfer"
   | "move"
   | "attach"
-  | "share";
+  | "share"
+  | "priority";
 
 const panelTitles: Record<Panel, MessageKey> = {
   add: "card.addToCard",
@@ -94,6 +96,7 @@ const panelTitles: Record<Panel, MessageKey> = {
   move: "card.moveCard",
   attach: "card.attach",
   share: "card.shareCard",
+  priority: "priority.title",
 };
 
 /** A row of the "Add to card" popover: an icon in a framed square, a title and what it is for. */
@@ -345,6 +348,16 @@ export function CardDialog({
         </div>
       );
     if (kind === "link") return <LinkEditor onChange={onChange} onClose={closePanel} />;
+    if (kind === "priority")
+      return (
+        <PriorityPicker
+          current={card.priority ?? "none"}
+          onPick={(priority) => {
+            closePanel();
+            onChange((item) => ({ ...item, priority }));
+          }}
+        />
+      );
     if (kind === "cover") return <CoverPicker card={card} onChange={onChange} />;
     if (kind === "dependency")
       return <DependencyPicker card={card} state={state} onAddDependency={onAddDependency} onClose={closePanel} />;
@@ -494,6 +507,18 @@ export function CardDialog({
               </section>
             )}
             <div className="card-actions mb-5 flex flex-wrap gap-2">
+              {!card.isTemplate && (
+                <button
+                  type="button"
+                  className={`${buttonClass("outline", "sm")} aria-pressed:border-success aria-pressed:bg-success aria-pressed:text-white`}
+                  aria-pressed={Boolean(card.doneAt)}
+                  title={card.doneAt ? t("cardDone.reopenTitle", { time: formatDateTime(card.doneAt) }) : undefined}
+                  onClick={() => (card.doneAt ? actions.reopenCardDone(card.id) : actions.finishCardDone(card.id))}
+                >
+                  <Icon name="check" className="size-4" />
+                  {card.doneAt ? t("cardDone.done") : t("cardDone.markDone")}
+                </button>
+              )}
               <QuickButton icon="plus" panel="add" expanded={expanded("add")} onClick={toggle("add")}>
                 {t("common.add")}
               </QuickButton>
@@ -515,6 +540,11 @@ export function CardDialog({
               >
                 {t("card.checklist")}
               </QuickButton>
+              {!inInbox && (
+                <QuickButton icon="flag" panel="priority" expanded={expanded("priority")} onClick={toggle("priority")}>
+                  {t("priority.title")}
+                </QuickButton>
+              )}
               {canAssign && (
                 <QuickButton
                   icon="user-plus"
@@ -534,7 +564,7 @@ export function CardDialog({
             {card.isTemplate && (
               <p className="mt-0 mb-4 rounded-sm bg-brand-soft p-2.5 text-ink">{t("card.templateNotice")}</p>
             )}
-            {(members.length > 0 || card.labelIds.length > 0 || showDates) && (
+            {(members.length > 0 || card.labelIds.length > 0 || showDates || card.priority) && (
               <div className="mb-2 flex flex-wrap gap-x-6 gap-y-3">
                 {members.length > 0 && (
                   <div>
@@ -572,6 +602,21 @@ export function CardDialog({
                         </button>
                       )}
                     </div>
+                  </div>
+                )}
+                {card.priority && (
+                  <div>
+                    <div className={blockTitleClass}>{t("priority.title")}</div>
+                    <button
+                      type="button"
+                      className="cursor-pointer rounded-[3px] border-0 bg-transparent p-0 hover:opacity-85"
+                      data-panel="priority"
+                      aria-expanded={expanded("priority")}
+                      aria-label={t("priority.tileTitle", { priority: priorityName(card.priority) })}
+                      onClick={toggle("priority")}
+                    >
+                      <PriorityChip priority={card.priority} className="h-8 px-3 text-[14px]" />
+                    </button>
                   </div>
                 )}
                 {showDates && (

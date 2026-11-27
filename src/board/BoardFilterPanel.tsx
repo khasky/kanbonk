@@ -1,4 +1,5 @@
-import { type AppState, type Board, type BoardFilter, emptyBoardFilter } from "../model";
+import { type AppState, type Board, type BoardFilter, emptyBoardFilter, priorities } from "../model";
+import { priorityName } from "../card/PriorityPicker";
 import { Icon } from "../ui/Icon";
 import { Button } from "../ui/Button";
 import { SectionTitle } from "../ui/SectionTitle";
@@ -7,7 +8,7 @@ import { t } from "../i18n";
 
 const labelClass = "grid gap-[5px] font-semibold";
 
-/** Filters the cards shown on a board by text, label, member and due date. */
+/** Filters the cards shown on a board by text, label, member, priority and due date. */
 export function BoardFilterPanel({
   state,
   board,
@@ -81,6 +82,22 @@ export function BoardFilterPanel({
         </Select>
       </label>
       <label className={labelClass}>
+        {t("priority.title")}
+        <Select
+          size="sm"
+          value={filter.priority ?? ""}
+          onChange={(event) => onChange({ priority: event.target.value as BoardFilter["priority"] })}
+        >
+          <option value="">{t("priority.any")}</option>
+          {priorities.map((priority) => (
+            <option key={priority} value={priority}>
+              {priorityName(priority)}
+            </option>
+          ))}
+          <option value="none">{t("priority.none")}</option>
+        </Select>
+      </label>
+      <label className={labelClass}>
         {t("board.dueDate")}
         <Select
           size="sm"
@@ -108,4 +125,5 @@ export const activeFilterCount = (filter: BoardFilter) =>
   Number(Boolean(filter.keyword.trim())) +
   Number(Boolean(filter.labelId)) +
   Number(Boolean(filter.memberId)) +
+  Number(Boolean(filter.priority)) +
   Number(filter.due !== "any");

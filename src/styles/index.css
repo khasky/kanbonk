@@ -349,3 +349,24 @@
     0 calc(100% - 3px)
   );
 }
+
+/* Confetti over the app when a card is finished (app/DoneCheer). */
+.done-cheer > span {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  animation: done-cheer-fall 1.4s ease-in forwards;
+}
+@keyframes done-cheer-fall {
+  to {
+    transform: translate(var(--drift), 105vh) rotate(540deg);
+    opacity: 0.6;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .done-cheer {
+    display: none;
+  }
+}

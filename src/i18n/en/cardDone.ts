@@ -1,0 +1,21 @@
+/** Messages of finishing cards: the Done button, the done mark and what a board does with finished cards. */
+export const cardDone = {
+  markDone: "Mark done",
+  done: "Done",
+  reopenTitle: "Done {time}. Press to mark it not done.",
+  tileTitle: "Done",
+  title: "Finished cards",
+  moveTo: "Move a finished card to",
+  stayInList: "Leave it in its list",
+  position: "Position",
+  top: "Top of the list",
+  bottom: "Bottom of the list",
+  markInList: "A card moved to this list is done, and one moved out of it is not",
+  checkItems: "Check all checklist items",
+  clearDue: "Remove the due date",
+  clearLabels: "Remove labels",
+  clearMembers: "Remove members",
+  trash: "Move it to the trash",
+  cheer: "Celebrate finished cards",
+  hint: "The Done button on a card finishes it. Marking it not done again keeps what finishing it changed.",
+};

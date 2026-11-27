@@ -1,4 +1,5 @@
 import { isCardAvailable, newId, recordRevision, type AppState, type AutomationRule, type Card } from "./index";
+import { applyDoneList } from "./cardDone";
 import { trashSubCards } from "./trash";
 
 function applyAction(state: AppState, boardId: string, card: Card, rule: AutomationRule): Card {
@@ -16,8 +17,10 @@ function applyAction(state: AppState, boardId: string, card: Card, rule: Automat
   return card;
 }
 
-export function applyMoveRules(state: AppState, before: Card, after: Card): Card {
-  if (before.boardId === after.boardId && before.listId === after.listId) return after;
+/** A card moved to another list takes that list's move rules, and is finished or reopened by a list of done cards. */
+export function applyMoveRules(state: AppState, before: Card, moved: Card): Card {
+  if (before.boardId === moved.boardId && before.listId === moved.listId) return moved;
+  const after = applyDoneList(state, before, moved);
   const board = state.boards.find((item) => item.id === after.boardId && !item.deletedAt);
   const list = state.lists.find((item) => item.id === after.listId && item.boardId === board?.id && !item.deletedAt);
   if (!board || !list) return after;

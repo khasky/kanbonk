@@ -2,7 +2,7 @@
 export const mirrors = {
   mirror: "Mirror",
   title: "Mirrors",
-  hint: "A change here goes to every mirror: title, description, dates, checklists, attachments, cover, comments, labels and members.",
+  hint: "A change here goes to every mirror: title, description, dates, checklists, attachments, cover, comments, priority, labels and members.",
   where: "{board} · {list}",
   unlink: "Stop mirroring",
   created: "Mirror made in “{board}”, list “{list}”.",

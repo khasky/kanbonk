@@ -28,6 +28,7 @@ import { InboxView } from "../panels/InboxView";
 import { PlannerView } from "../panels/PlannerView";
 import { AppContext, type AppServices } from "./AppContext";
 import { AppOverlays } from "./AppOverlays";
+import { DoneCheer } from "./DoneCheer";
 import { AskDialogHost } from "../ui/AskDialog";
 import { MainContent } from "./MainContent";
 import { StatusBanners } from "./StatusBanners";
@@ -439,6 +440,7 @@ function App() {
             defaultWorkspaceId={defaultWorkspaceId}
           />
           <AskDialogHost />
+          <DoneCheer state={fullState} />
         </div>
       </CardActionsContext>
     </AppContext>

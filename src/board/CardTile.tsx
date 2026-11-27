@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { CardCover } from "../card/CardCover";
+import { PriorityChip, priorityName } from "../card/PriorityPicker";
 import { readableTextColor } from "../model/labelColors";
 import {
   agingWeeks,
@@ -84,8 +85,13 @@ export const CardTile = memo(function CardTile({
       onOpen={() => actions.open(item.id)}
     >
       <CardCover card={item} />
-      {item.labelIds.some((id) => labels.get(id)?.color) && (
+      {(item.priority || item.labelIds.some((id) => labels.get(id)?.color)) && (
         <span className="flex flex-wrap gap-1">
+          {item.priority && (
+            <span title={t("priority.tileTitle", { priority: priorityName(item.priority) })}>
+              <PriorityChip priority={item.priority} className="px-2 py-0.5 text-[11px]" />
+            </span>
+          )}
           {item.labelIds.map((id) => {
             const label = labels.get(id);
             return (
@@ -102,7 +108,15 @@ export const CardTile = memo(function CardTile({
           })}
         </span>
       )}
-      <span className={tileNameClass}>{item.name}</span>
+      <span className={tileNameClass}>
+        {item.doneAt && (
+          <span className="mr-1 inline-grid size-4 place-items-center rounded-full bg-success align-[-2px] text-white">
+            <Icon name="check" className="size-3" />
+            <span className="sr-only">{t("cardDone.tileTitle")}</span>
+          </span>
+        )}
+        {item.name}
+      </span>
       {item.isTemplate && (
         <span className="self-start rounded-[3px] bg-line px-[5px] py-0.5 text-[11px] font-bold text-ink-subtle">
           {t("board.template")}

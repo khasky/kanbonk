@@ -3,6 +3,7 @@ import { type AiSettings, saveAiSettings } from "../ai/ai";
 import { AutomationPanel } from "../board/AutomationPanel";
 import { BoardActivity } from "../board/BoardActivity";
 import { BoardAnalytics } from "../board/BoardAnalytics";
+import { PriorityOverview } from "../board/PriorityOverview";
 import { ShareLabelsDialog } from "../dialogs/ShareLabelsDialog";
 import { RequiredFieldsPanel } from "../board/RequiredFieldsPanel";
 import { BoardSettingsPanel } from "../board/BoardSettingsPanel";
@@ -159,9 +160,11 @@ export function AppOverlays({
       {settingsBoard && (
         <BoardSettingsPanel
           board={settingsBoard}
+          state={state}
           onCardAging={(cardAging) =>
             app.boardActions.updateBoard(settingsBoard.id, (item) => ({ ...item, cardAging }))
           }
+          onCardDone={(cardDone) => app.boardActions.updateBoard(settingsBoard.id, (item) => ({ ...item, cardDone }))}
           onClose={() => overlays.close("settingsBoardId")}
         />
       )}
@@ -198,6 +201,17 @@ export function AppOverlays({
             app.setCardId(item.id);
           }}
           onError={app.setError}
+        />
+      )}
+      {open.prioritiesBoardId && (
+        <PriorityOverview
+          state={state}
+          boardId={open.prioritiesBoardId}
+          onClose={() => overlays.close("prioritiesBoardId")}
+          onOpenCard={(item) => {
+            overlays.close("prioritiesBoardId");
+            app.setCardId(item.id);
+          }}
         />
       )}
       {open.activityBoardId && (

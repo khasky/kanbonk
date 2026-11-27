@@ -9,6 +9,7 @@ import type {
   ListSort,
   Member,
   MissingField,
+  Priority,
   ViewStats,
 } from "../model";
 import { trelloLabelColors } from "../model/labelColors";
@@ -31,6 +32,7 @@ export interface ListActions {
   rename: (listId: string, name: string) => void;
   run: (listId: string, action: ListSort | "move-left" | "move-right" | "copy" | "delete" | "trash-cards") => void;
   setColor: (listId: string, color: string | undefined) => void;
+  setPriority: (listId: string, priority: Priority | undefined) => void;
   moveCards: (listId: string, targetListId: string) => void;
   toggleCollapsed: (listId: string) => void;
   startCard: (listId: string) => void;
@@ -201,6 +203,7 @@ export function ListColumn({
             onMoveRight={() => actions.run(list.id, "move-right")}
             onMoveCards={(targetId) => actions.moveCards(list.id, targetId)}
             onSort={(by) => actions.run(list.id, by)}
+            onPriority={(priority) => actions.setPriority(list.id, priority)}
             onColor={(color) => actions.setColor(list.id, color)}
             onTrash={() => actions.run(list.id, "delete")}
             onTrashCards={() => actions.run(list.id, "trash-cards")}

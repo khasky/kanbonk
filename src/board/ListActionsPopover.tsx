@@ -1,12 +1,13 @@
 import { type ReactNode, useState } from "react";
 import { t } from "../i18n";
-import type { BoardList, ListSort } from "../model";
+import type { BoardList, ListSort, Priority } from "../model";
+import { PriorityPicker } from "../card/PriorityPicker";
 import { listColors, trelloLabelColors } from "../model/labelColors";
 import { Icon } from "../ui/Icon";
 import { MenuItem, MenuSeparator } from "../ui/Menu";
 import { Popover } from "../ui/Popover";
 
-type View = "main" | "move" | "move-cards" | "sort";
+type View = "main" | "move" | "move-cards" | "sort" | "priority";
 
 const sorts: { by: ListSort; label: () => string }[] = [
   { by: "newest", label: () => t("board.sortNewest") },
@@ -17,6 +18,8 @@ const sorts: { by: ListSort; label: () => string }[] = [
   { by: "least-viewed", label: () => t("views.sortLeastViewed") },
   { by: "recently-viewed", label: () => t("views.sortRecentlyViewed") },
   { by: "least-recently-viewed", label: () => t("views.sortLeastRecentlyViewed") },
+  { by: "priority-high", label: () => t("priority.sortHigh") },
+  { by: "priority-low", label: () => t("priority.sortLow") },
 ];
 
 /** Trello's "List actions": the list's actions, with the steps that need a choice as submenus behind a back button. */
@@ -31,6 +34,7 @@ export function ListActionsPopover({
   onMoveRight,
   onMoveCards,
   onSort,
+  onPriority,
   onColor,
   onTrash,
   onTrashCards,
@@ -47,6 +51,8 @@ export function ListActionsPopover({
   onMoveRight: () => void;
   onMoveCards: (targetListId: string) => void;
   onSort: (by: ListSort) => void;
+  /** Gives all the list's cards the priority, or none with undefined. */
+  onPriority: (priority: Priority | undefined) => void;
   onColor: (color: string | undefined) => void;
   onTrash: () => void;
   onTrashCards: () => void;
@@ -90,6 +96,12 @@ export function ListActionsPopover({
         </div>
       </Popover>
     );
+  if (view === "priority")
+    return (
+      <Popover title={t("priority.setForListTitle")} anchor={anchor} onClose={onClose} onBack={back}>
+        <PriorityPicker onPick={(priority) => run(() => onPriority(priority))()} />
+      </Popover>
+    );
 
   return (
     <Popover title={t("board.listActions")} anchor={anchor} onClose={onClose}>
@@ -99,6 +111,7 @@ export function ListActionsPopover({
         <MenuItem onClick={() => setView("move")}>{t("board.moveList")}</MenuItem>
         <MenuItem onClick={() => setView("move-cards")}>{t("board.moveAllCards")}</MenuItem>
         <MenuItem onClick={() => setView("sort")}>{t("board.sortBy")}</MenuItem>
+        <MenuItem onClick={() => setView("priority")}>{t("priority.setForList")}</MenuItem>
         <MenuItem onClick={run(onMoveLeft)}>{t("board.moveLeft")}</MenuItem>
         <MenuItem onClick={run(onMoveRight)}>{t("board.moveRight")}</MenuItem>
         <MenuSeparator />

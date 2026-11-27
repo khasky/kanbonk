@@ -21,6 +21,8 @@ import { labelSharing } from "./labelSharing";
 import { required } from "./required";
 import { cardAging } from "./cardAging";
 import { mirrors } from "./mirrors";
+import { priority } from "./priority";
+import { cardDone } from "./cardDone";
 
 /**
  * The English messages, the source of every translation. One namespace per area of the app, each in its own file;
@@ -50,4 +52,6 @@ export const en = {
   required,
   cardAging,
   mirrors,
+  priority,
+  cardDone,
 };

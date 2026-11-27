@@ -17,6 +17,8 @@ import {
   recordRevisions,
   restoreRevision,
   sortListCards,
+  setListPriority,
+  type Priority,
 } from "../model";
 import { moveToTrash } from "../model/trash";
 import { ensurePersonalWorkspace, personalWorkspaceId } from "../model/workspaces";
@@ -180,6 +182,11 @@ export function useBoardActions({
     });
   }
 
+  /** Gives every card of the list the priority, or none with undefined. */
+  function setPriorityOfList(id: string, priority: Priority | undefined) {
+    setState((current) => setListPriority(current, id, priority, deviceId));
+  }
+
   /** A dragged list dropped at `index` among the board's other lists, in a zone or outside zones. */
   function placeListAt(listId: string, index: number, zoneId: string | undefined) {
     setState((current) => placeList(current, listId, index, zoneId, deviceId));
@@ -284,6 +291,7 @@ export function useBoardActions({
     copyListOnBoard,
     moveListOnto,
     sortList,
+    setPriorityOfList,
     trashListCards,
     placeListAt,
     placeZoneAt,
