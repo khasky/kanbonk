@@ -31,7 +31,7 @@ const archiveExtensions = /\.(zip|rar|7z|tar|gz|tgz|bz2|xz)$/i;
 export function attachmentKind(attachment: Attachment): AttachmentKind {
   if (attachment.status === "link") return "link";
   const preview = previewKind(attachment.name, attachment.mimeType);
-  if (preview === "markdown" || preview === "text") return "document";
+  if (preview === "markdown" || preview === "text" || preview === "office") return "document";
   if (preview) return preview;
   if (documentExtensions.test(attachment.name)) return "document";
   if (archiveExtensions.test(attachment.name) || /zip|compressed|x-tar/.test(attachment.mimeType)) return "archive";

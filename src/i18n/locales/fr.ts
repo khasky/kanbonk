@@ -530,6 +530,13 @@ export default {
     modelLight: "Lumière",
     modelBackground: "Arrière-plan",
     modelError: "Impossible de lire ce fichier 3D. Téléchargez-le pour l’ouvrir dans une autre application.",
+    officeError: "Impossible de lire ce fichier. Téléchargez-le pour l’ouvrir dans Office ou une autre application.",
+    emptyDocument: "Ce document ne contient aucun texte à afficher.",
+    emptySheet: "Cette feuille est vide.",
+    sheets: "Feuilles",
+    sheetCut:
+      "Seules les 1000 premières lignes et les 100 premières colonnes sont affichées. Téléchargez le fichier pour le voir en entier.",
+    slideNumber: "Diapositive {number}",
     loading: "Chargement…",
     truncatedPreview: "Affichage du premier Mo. Téléchargez le fichier pour le voir en entier.",
     openCard: "Ouvrir la carte",

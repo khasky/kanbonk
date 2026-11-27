@@ -11,6 +11,7 @@ import { Button } from "../ui/Button";
 import { Hint } from "../ui/Hint";
 
 const ModelViewer = lazy(() => import("./ModelViewer"));
+const OfficeView = lazy(() => import("./OfficeView"));
 
 /** Text files are shown up to this size; the rest is left for the download. */
 const textLimit = 1_000_000;
@@ -23,11 +24,12 @@ const bodyLooks: Record<PreviewKind, string> = {
   markdown: "min-h-0 flex-1 overflow-auto p-4",
   text: "min-h-0 flex-1 overflow-auto p-4",
   model: "flex min-h-0 flex-1 flex-col",
+  office: "flex min-h-0 flex-1 flex-col overflow-auto bg-surface-soft p-4 max-phone:p-2",
 };
 
 type Content = { url?: string; text?: string; data?: ArrayBuffer; truncated?: boolean; error?: string };
 
-/** Shows a stored attachment in a dialog: images, PDF, Markdown (rendered), plain text and code, video, audio and 3D. */
+/** Shows a stored attachment in a dialog: images, PDF, Markdown (rendered), plain text and code, video, audio, 3D, and office documents. */
 export function AttachmentPreview({
   attachment,
   kind,
@@ -51,7 +53,7 @@ export function AttachmentPreview({
         if (!cancelled) setContent({ text, truncated: blob.size > textLimit });
         return;
       }
-      if (kind === "model") {
+      if (kind === "model" || kind === "office") {
         const data = await blob.arrayBuffer();
         if (!cancelled) setContent({ data });
         return;
@@ -99,7 +101,11 @@ export function AttachmentPreview({
           <audio src={content.url} controls autoPlay />
         ) : content.data ? (
           <Suspense fallback={<Hint>{t("card.loading")}</Hint>}>
-            <ModelViewer data={content.data} name={attachment.name} />
+            {kind === "office" ? (
+              <OfficeView data={content.data} name={attachment.name} />
+            ) : (
+              <ModelViewer data={content.data} name={attachment.name} />
+            )}
           </Suspense>
         ) : kind === "markdown" ? (
           <MarkdownText text={content.text ?? ""} />

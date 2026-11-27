@@ -519,6 +519,14 @@ export default {
     modelBackground: "Hintergrund",
     modelError:
       "Diese 3D-Datei konnte nicht gelesen werden. Die Datei herunterladen, um sie in einer anderen App zu öffnen.",
+    officeError:
+      "Diese Datei konnte nicht gelesen werden. Die Datei herunterladen, um sie in Office oder einer anderen App zu öffnen.",
+    emptyDocument: "Dieses Dokument enthält keinen Text zum Anzeigen.",
+    emptySheet: "Dieses Tabellenblatt ist leer.",
+    sheets: "Tabellenblätter",
+    sheetCut:
+      "Es werden nur die ersten 1000 Zeilen und 100 Spalten angezeigt. Die Datei herunterladen, um alles zu sehen.",
+    slideNumber: "Folie {number}",
     loading: "Wird geladen…",
     truncatedPreview: "Es wird das erste 1 MB angezeigt. Die Datei herunterladen, um alles zu sehen.",
     openCard: "Karte öffnen",

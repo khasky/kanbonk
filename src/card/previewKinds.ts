@@ -1,4 +1,4 @@
-export type PreviewKind = "image" | "pdf" | "markdown" | "text" | "video" | "audio" | "model";
+export type PreviewKind = "image" | "pdf" | "markdown" | "text" | "video" | "audio" | "model" | "office";
 
 const byExtension: Record<string, PreviewKind> = {
   ...Object.fromEntries(
@@ -11,8 +11,6 @@ const byExtension: Record<string, PreviewKind> = {
     [
       "txt",
       "log",
-      "csv",
-      "tsv",
       "json",
       "jsonl",
       "xml",
@@ -61,6 +59,9 @@ const byExtension: Record<string, PreviewKind> = {
   ),
   ...Object.fromEntries(["mp4", "webm", "ogv", "mov"].map((ext) => [ext, "video" as const])),
   ...Object.fromEntries(
+    ["docx", "xlsx", "pptx", "odt", "ods", "odp", "csv", "tsv"].map((ext) => [ext, "office" as const]),
+  ),
+  ...Object.fromEntries(
     ["fbx", "obj", "stl", "gcode", "gco", "gltf", "glb", "ply", "3mf"].map((ext) => [ext, "model" as const]),
   ),
   ...Object.fromEntries(
@@ -83,7 +84,7 @@ export function previewKind(name: string, mimeType: string): PreviewKind | undef
   if (/^image\/(png|jpe?g|gif|webp|avif|bmp|svg\+xml|x-icon|vnd\.microsoft\.icon)$/.test(type)) return "image";
   if (/^video\/(mp4|webm|ogg|quicktime)$/.test(type)) return "video";
   if (/^audio\//.test(type)) return "audio";
-  if (byExtension[extension] === "model") return "model";
+  if (byExtension[extension] === "model" || byExtension[extension] === "office") return byExtension[extension];
   if (textTypes.test(type)) return "text";
   return byExtension[extension];
 }
