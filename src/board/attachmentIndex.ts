@@ -2,13 +2,14 @@ import type { AppState, Attachment, BoardList, Card } from "../model";
 import { previewKind } from "../card/previewKinds";
 
 /** What an attachment is, for the type filter of the board's attachments. */
-export type AttachmentKind = "image" | "video" | "audio" | "pdf" | "document" | "archive" | "link" | "other";
+export type AttachmentKind = "image" | "video" | "audio" | "pdf" | "model" | "document" | "archive" | "link" | "other";
 
 export const attachmentKinds: AttachmentKind[] = [
   "image",
   "video",
   "audio",
   "pdf",
+  "model",
   "document",
   "archive",
   "link",

@@ -97,6 +97,16 @@ export function AttachmentRow({
       <Icon name="external" className="size-5" />
     </Button>
   );
+  if (preview === "model")
+    open = (
+      <Button
+        variant="secondary"
+        onClick={() => setPreviewOpen(true)}
+        aria-label={t("card.view3dName", { name: attachment.name })}
+      >
+        {t("card.view3d")}
+      </Button>
+    );
   if (isLink)
     open = webUrl ? (
       <a

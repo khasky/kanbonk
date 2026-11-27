@@ -10,6 +10,7 @@ export const attachments = {
   video: "Videos",
   audio: "Audio",
   pdf: "PDF",
+  model: "3D models",
   document: "Documents",
   archive: "Archives",
   link: "Links",

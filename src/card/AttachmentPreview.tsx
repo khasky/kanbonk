@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Attachment } from "../model";
 import { loadAttachment } from "../lib/storage";
@@ -10,6 +10,8 @@ import { previewMimeType, type PreviewKind } from "./previewKinds";
 import { Button } from "../ui/Button";
 import { Hint } from "../ui/Hint";
 
+const ModelViewer = lazy(() => import("./ModelViewer"));
+
 /** Text files are shown up to this size; the rest is left for the download. */
 const textLimit = 1_000_000;
 
@@ -20,11 +22,12 @@ const bodyLooks: Record<PreviewKind, string> = {
   pdf: "min-h-0 flex-1 overflow-auto p-0",
   markdown: "min-h-0 flex-1 overflow-auto p-4",
   text: "min-h-0 flex-1 overflow-auto p-4",
+  model: "flex min-h-0 flex-1 flex-col",
 };
 
-type Content = { url?: string; text?: string; truncated?: boolean; error?: string };
+type Content = { url?: string; text?: string; data?: ArrayBuffer; truncated?: boolean; error?: string };
 
-/** Shows a stored attachment in a dialog: images, PDF, Markdown (rendered), plain text and code, video and audio. */
+/** Shows a stored attachment in a dialog: images, PDF, Markdown (rendered), plain text and code, video, audio and 3D. */
 export function AttachmentPreview({
   attachment,
   kind,
@@ -46,6 +49,11 @@ export function AttachmentPreview({
       if (kind === "text" || kind === "markdown") {
         const text = await blob.slice(0, textLimit).text();
         if (!cancelled) setContent({ text, truncated: blob.size > textLimit });
+        return;
+      }
+      if (kind === "model") {
+        const data = await blob.arrayBuffer();
+        if (!cancelled) setContent({ data });
         return;
       }
       url = URL.createObjectURL(new Blob([blob], { type: previewMimeType(kind, attachment.name, blob.type) }));
@@ -89,6 +97,10 @@ export function AttachmentPreview({
           <video className="max-h-full max-w-full object-contain" src={content.url} controls autoPlay />
         ) : kind === "audio" ? (
           <audio src={content.url} controls autoPlay />
+        ) : content.data ? (
+          <Suspense fallback={<Hint>{t("card.loading")}</Hint>}>
+            <ModelViewer data={content.data} name={attachment.name} />
+          </Suspense>
         ) : kind === "markdown" ? (
           <MarkdownText text={content.text ?? ""} />
         ) : (

@@ -25,6 +25,7 @@ const kindNames: Record<AttachmentKind, MessageKey> = {
   video: "attachments.video",
   audio: "attachments.audio",
   pdf: "attachments.pdf",
+  model: "attachments.model",
   document: "attachments.document",
   archive: "attachments.archive",
   link: "attachments.link",
