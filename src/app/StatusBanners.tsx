@@ -33,23 +33,20 @@ export function StatusBanners({
         >
           {notice}
           {noticeCardId && (
-            <button
-              className="cursor-pointer border-0 bg-transparent p-0 text-inherit underline"
+            <Button
+              variant="text"
+              className="underline"
               onClick={() => {
                 onDismissNotice();
                 onOpenCard(noticeCardId);
               }}
             >
               {t("app.open")}
-            </button>
+            </Button>
           )}
-          <button
-            className="border-0 bg-transparent text-inherit"
-            onClick={onDismissNotice}
-            aria-label={t("app.dismissMessage")}
-          >
+          <Button variant="text" onClick={onDismissNotice} aria-label={t("app.dismissMessage")}>
             <Icon name="close" />
-          </button>
+          </Button>
         </div>
       )}
       {backupAsk && (
@@ -75,13 +72,9 @@ export function StatusBanners({
           role="alert"
         >
           {error}
-          <button
-            className="border-0 bg-transparent text-inherit"
-            onClick={onDismissError}
-            aria-label={t("app.dismissMessage")}
-          >
+          <Button variant="text" onClick={onDismissError} aria-label={t("app.dismissMessage")}>
             <Icon name="close" />
-          </button>
+          </Button>
         </div>
       )}
     </>

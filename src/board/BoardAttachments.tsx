@@ -5,9 +5,11 @@ import type { AppState, BoardList, Card } from "../model";
 import { AttachmentPreview } from "../card/AttachmentPreview";
 import { useImageUrl } from "../card/AttachmentRow";
 import { previewKind } from "../card/previewKinds";
+import { Button, buttonClass } from "../ui/Button";
 import { Input, Select } from "../ui/Field";
 import { Hint } from "../ui/Hint";
 import { Icon } from "../ui/Icon";
+import { Table, Td, Th } from "../ui/Table";
 import {
   type AttachmentKind,
   type AttachmentSort,
@@ -36,11 +38,8 @@ const sorts: Array<[AttachmentSort, MessageKey]> = [
   ["card", "attachments.card"],
 ];
 
-const cellClass = "border-t border-line px-2 py-1.5 align-middle";
-const iconButtonClass =
-  "grid size-8 flex-none cursor-pointer place-items-center rounded-sm border-0 bg-transparent text-ink-subtle hover:bg-surface-sunken disabled:cursor-not-allowed disabled:opacity-50";
-const linkClass =
-  "min-w-0 cursor-pointer border-0 bg-transparent p-0 text-left text-[14px] font-semibold wrap-anywhere text-ink hover:underline disabled:cursor-default disabled:no-underline";
+const nameClass =
+  "min-w-0 text-left text-[14px] wrap-anywhere disabled:cursor-default disabled:text-ink disabled:no-underline";
 
 /** One attachment: its thumbnail and name (opening a preview, the link or the linked card), card, list, size and date. */
 function AttachmentLine({
@@ -66,38 +65,44 @@ function AttachmentLine({
   const label = t("attachments.open", { name: attachment.name });
 
   let name = (
-    <button
-      type="button"
-      className={linkClass}
+    <Button
+      variant="text"
+      className={nameClass}
       disabled={missing}
       aria-label={label}
       onClick={() => (canPreview ? setPreviewOpen(true) : onDownload(attachment.id, attachment.name))}
     >
       {attachment.name}
-    </button>
+    </Button>
   );
   if (webUrl)
     name = (
-      <a className={linkClass} href={attachment.sourceUrl} target="_blank" rel="noopener noreferrer" aria-label={label}>
+      <a
+        className={buttonClass("text", undefined, nameClass)}
+        href={attachment.sourceUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label}
+      >
         {attachment.name}
       </a>
     );
   else if (item.kind === "link")
     name = (
-      <button
-        type="button"
-        className={linkClass}
+      <Button
+        variant="text"
+        className={nameClass}
         disabled={!linked || Boolean(linked.deletedAt)}
         aria-label={label}
         onClick={() => linked && onOpenCard(linked)}
       >
         {attachment.name}
-      </button>
+      </Button>
     );
 
   return (
     <tr>
-      <td className={cellClass}>
+      <Td>
         <span className="flex min-w-0 items-center gap-2.5">
           <span className="grid h-9 w-12 flex-none place-items-center overflow-hidden rounded-[3px] bg-surface-sunken text-[11px] font-bold text-ink-subtle uppercase">
             {imageUrl ? (
@@ -110,39 +115,45 @@ function AttachmentLine({
           </span>
           <span className="grid min-w-0 gap-0.5">
             {name}
-            {missing && <small className="text-ink-subtle">{t("attachments.missing")}</small>}
+            {missing && (
+              <Hint as="small" tone="subtle">
+                {t("attachments.missing")}
+              </Hint>
+            )}
           </span>
         </span>
-      </td>
-      <td className={`${cellClass} max-w-[220px] max-phone:max-w-[110px]`}>
-        <button
-          type="button"
-          className="max-w-full cursor-pointer truncate border-0 bg-transparent p-0 text-left text-[14px] text-brand hover:underline"
+      </Td>
+      <Td className="max-w-[220px] max-phone:max-w-[110px]">
+        <Button
+          variant="link-quiet"
+          className="max-w-full truncate text-left text-[14px]"
           aria-label={t("attachments.openCard", { name: card.name })}
           onClick={() => onOpenCard(card)}
         >
           {card.name}
-        </button>
-      </td>
-      <td className={`${cellClass} text-[14px] text-ink-subtle max-phone:hidden`}>{list?.name}</td>
-      <td className={`${cellClass} text-[13px] whitespace-nowrap text-ink-subtle`}>
+        </Button>
+      </Td>
+      <Td muted className="max-phone:hidden">
+        {list?.name}
+      </Td>
+      <Td muted className="whitespace-nowrap">
         {item.kind === "link" ? "—" : formatSize(attachment.size)}
-      </td>
-      <td className={`${cellClass} text-[13px] whitespace-nowrap text-ink-subtle max-phone:hidden`}>
+      </Td>
+      <Td muted className="whitespace-nowrap max-phone:hidden">
         {attachment.addedAt && formatDateTime(attachment.addedAt, { dateStyle: "medium" })}
-      </td>
-      <td className={`${cellClass} w-10`}>
+      </Td>
+      <Td className="w-10">
         {item.kind !== "link" && (
-          <button
-            type="button"
-            className={iconButtonClass}
+          <Button
+            variant="icon"
+            className="size-8 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={missing}
             aria-label={t("attachments.download", { name: attachment.name })}
             title={t("card.download")}
             onClick={() => onDownload(attachment.id, attachment.name)}
           >
             <Icon name="download" className="size-4" />
-          </button>
+          </Button>
         )}
         {previewOpen && preview && (
           <AttachmentPreview
@@ -152,7 +163,7 @@ function AttachmentLine({
             onClose={() => setPreviewOpen(false)}
           />
         )}
-      </td>
+      </Td>
     </tr>
   );
 }
@@ -231,21 +242,21 @@ export function BoardAttachments({
       </div>
       {all.length ? (
         <>
-          <p className="m-0 text-[13px] text-ink-subtle" aria-live="polite">
+          <Hint tone="subtle" className="m-0" aria-live="polite">
             {t("attachments.count", { count: shown.length, size: formatSize(size) })}
-          </p>
+          </Hint>
           {shown.length ? (
-            <table className="w-full border-collapse text-left">
+            <Table>
               <thead>
-                <tr className="text-[12px] text-ink-muted">
-                  <th className="px-2 py-1 font-bold">{t("attachments.file")}</th>
-                  <th className="px-2 py-1 font-bold">{t("attachments.card")}</th>
-                  <th className="px-2 py-1 font-bold max-phone:hidden">{t("attachments.list")}</th>
-                  <th className="px-2 py-1 font-bold">{t("attachments.size")}</th>
-                  <th className="px-2 py-1 font-bold max-phone:hidden">{t("attachments.added")}</th>
-                  <th className="px-2 py-1">
+                <tr>
+                  <Th>{t("attachments.file")}</Th>
+                  <Th>{t("attachments.card")}</Th>
+                  <Th className="max-phone:hidden">{t("attachments.list")}</Th>
+                  <Th>{t("attachments.size")}</Th>
+                  <Th className="max-phone:hidden">{t("attachments.added")}</Th>
+                  <Th>
                     <span className="sr-only">{t("card.download")}</span>
-                  </th>
+                  </Th>
                 </tr>
               </thead>
               <tbody>
@@ -259,15 +270,19 @@ export function BoardAttachments({
                   />
                 ))}
               </tbody>
-            </table>
+            </Table>
           ) : (
-            <p className="m-0 text-[14px] text-ink-subtle">{t("attachments.noMatch")}</p>
+            <Hint tone="subtle" className="m-0">
+              {t("attachments.noMatch")}
+            </Hint>
           )}
         </>
       ) : (
-        <p className="m-0 text-[14px] text-ink-subtle">{t("attachments.none")}</p>
+        <Hint tone="subtle" className="m-0">
+          {t("attachments.none")}
+        </Hint>
       )}
-      <Hint>{t("attachments.hint")}</Hint>
+      <Hint className="m-0">{t("attachments.hint")}</Hint>
     </section>
   );
 }

@@ -2,6 +2,7 @@ import { ColorInput } from "../ui/ColorInput";
 import type { Card } from "../model";
 import { t } from "../i18n";
 import { Button } from "../ui/Button";
+import { Swatch } from "../ui/Swatch";
 
 const pressedClass = "aria-pressed:outline-2 aria-pressed:outline-offset-1 aria-pressed:outline-brand";
 
@@ -25,12 +26,12 @@ export function CoverPicker({ card, onChange }: { card: Card; onChange: (change:
     <div className="grid gap-3">
       <div className="flex flex-wrap gap-1.5">
         {coverColors.map((color) => (
-          <button
-            className={`h-8 w-[50px] rounded-sm border-2 border-transparent ${pressedClass}`}
+          <Swatch
             key={color}
-            style={{ background: color }}
-            aria-label={t("card.coverColor", { color })}
-            aria-pressed={card.cover?.color === color}
+            className="w-[50px]"
+            color={color}
+            label={t("card.coverColor", { color })}
+            pressed={card.cover?.color === color}
             onClick={() => onChange((item) => ({ ...item, cover: { color, size: "normal" } }))}
           />
         ))}

@@ -61,10 +61,9 @@ export function BoardSettingsPanel({
             <legend className="mb-1 p-0 text-[13px] font-semibold text-ink-subtle">{t("cardAging.mode")}</legend>
             {modes.map(([mode, label]) => (
               <label className={optionClass} key={mode}>
-                <input
+                <Checkbox
                   type="radio"
                   name="card-aging-mode"
-                  className="accent-brand"
                   checked={board.cardAging === mode}
                   onChange={() => onCardAging(mode)}
                 />

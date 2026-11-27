@@ -7,6 +7,7 @@ import { Input } from "../ui/Field";
 import { t } from "../i18n";
 import { addListClass, composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
 import { endDrag, startDrag } from "./dragState";
+import { NameEditor } from "../ui/NameEditor";
 
 /**
  * A frame drawn around adjacent lists of one zone; its header drags the whole zone. A zone without lists is shown at
@@ -62,20 +63,12 @@ export function ZoneFrame({
         >
           ⋮⋮
         </span>
-        <input
+        <NameEditor
           className="rounded-sm border-0 bg-transparent px-1.5 py-1 font-bold text-white focus:bg-[#0003]"
-          aria-label={t("board.zoneName")}
+          label={t("board.zoneName")}
           size={Math.max(6, zone.name.length + 1)}
-          defaultValue={zone.name}
-          key={zone.name}
-          onBlur={(event) => {
-            const name = event.target.value.trim();
-            if (name && name !== zone.name) onRename(name);
-            else event.target.value = zone.name;
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") event.currentTarget.blur();
-          }}
+          value={zone.name}
+          onCommit={onRename}
         />
         <small title={t("board.cardsInZone")}>{cardCount}</small>
         <ColorInput

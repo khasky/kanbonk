@@ -5,6 +5,7 @@ import { Dialog, submitWith } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { Checkbox, Input, Select } from "../ui/Field";
 import { fieldLabelClass, optionLabelClass } from "./dialogLook";
+import { Hint } from "../ui/Hint";
 
 const optionClass = `${optionLabelClass} font-normal`;
 
@@ -70,7 +71,7 @@ export function BoardCopyDialog({
         />
         {t("dialogs.keepTemplates")}
       </label>
-      <p className="m-0 text-[13px] text-ink-muted">{t("dialogs.copyBoardNote")}</p>
+      <Hint className="m-0">{t("dialogs.copyBoardNote")}</Hint>
       <div className="mt-1 flex justify-end gap-2">
         <Button variant="secondary" size="lg" type="button" onClick={onClose}>
           {t("common.cancel")}

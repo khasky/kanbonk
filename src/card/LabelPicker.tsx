@@ -4,12 +4,15 @@ import { labelColorOptions, readableTextColor } from "../model/labelColors";
 import type { Card, Label } from "../model";
 import { t } from "../i18n";
 import { Button } from "../ui/Button";
+import { LabelChip } from "../ui/LabelChip";
 import { Checkbox, Input } from "../ui/Field";
 import { Icon } from "../ui/Icon";
+import { ColorInput } from "../ui/ColorInput";
 
 /** The label and member pickers; `label-picker` is a hook for tests. */
 export const labelPickerClass = "label-picker flex flex-col gap-1.5";
 
+const presetColors = labelColorOptions.map(({ color }) => color).filter(Boolean);
 const colorFieldClass = "h-8 w-[42px] min-w-0 flex-none self-center rounded-sm border border-ink-faint bg-white p-0.5";
 const groupTitleClass = "mt-1.5 mb-0.5 text-[12px] font-semibold text-ink-subtle";
 
@@ -63,15 +66,7 @@ export function LabelPicker({
                 }))
               }
             />
-            <span
-              className="flex min-h-8 flex-1 items-center rounded-sm px-3 font-semibold wrap-anywhere"
-              style={{
-                background: label.color || "#dfe1e6",
-                color: readableTextColor(label.color || "#dfe1e6"),
-              }}
-            >
-              {label.name}
-            </span>
+            <LabelChip label={label} size="lg" className="flex-1" />
           </label>
           <Button
             variant="icon"
@@ -96,13 +91,12 @@ export function LabelPicker({
             onChange={(event) => setEditingLabelName(event.target.value)}
             aria-label={t("card.labelName")}
           />
-          <input
+          <ColorInput
             className={colorFieldClass}
-            type="color"
-            list="label-color-presets"
+            presets={presetColors}
             value={editingLabelColor || "#dfe1e6"}
-            onChange={(event) => setEditingLabelColor(event.target.value)}
-            aria-label={t("card.editedLabelColor")}
+            onCommit={setEditingLabelColor}
+            label={t("card.editedLabelColor")}
           />
           {boardLabels.find((label) => label.id === editingLabelId)?.linkId && (
             <small className="w-full text-ink-muted">{t("labelSharing.editHint")}</small>
@@ -157,21 +151,13 @@ export function LabelPicker({
           placeholder={t("card.labelName")}
           aria-label={t("card.newLabel")}
         />
-        <input
+        <ColorInput
           className={colorFieldClass}
-          type="color"
-          list="label-color-presets"
+          presets={presetColors}
           value={labelColor}
-          onChange={(event) => setLabelColor(event.target.value)}
-          aria-label={t("card.labelColor")}
+          onCommit={setLabelColor}
+          label={t("card.labelColor")}
         />
-        <datalist id="label-color-presets">
-          {labelColorOptions
-            .filter(({ color }) => color)
-            .map(({ color }) => (
-              <option key={color} value={color} />
-            ))}
-        </datalist>
         <Button
           variant="secondary"
           onClick={() => {

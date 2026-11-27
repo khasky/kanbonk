@@ -15,6 +15,7 @@ import {
   pageHeadingClass,
   tileGridClass,
 } from "./pageLook";
+import { NameEditor } from "../ui/NameEditor";
 
 export function WorkspacePage({
   state,
@@ -38,19 +39,11 @@ export function WorkspacePage({
     <section className={pageClass} aria-label={workspace.name}>
       <header className={pageHeaderClass}>
         <WorkspaceAvatar name={workspace.name} size="lg" />
-        <input
+        <NameEditor
           className="flex-1 rounded-sm border border-transparent px-2 py-1.5 text-[22px] font-bold text-ink hover:border-ink-faint focus:border-ink-faint"
-          aria-label={t("pages.workspaceName")}
-          defaultValue={workspace.name}
-          key={workspace.name}
-          onBlur={(event) => {
-            const name = event.target.value.trim();
-            if (name && name !== workspace.name) onRename(name);
-            else event.target.value = workspace.name;
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") event.currentTarget.blur();
-          }}
+          label={t("pages.workspaceName")}
+          value={workspace.name}
+          onCommit={onRename}
         />
         {workspace.id !== inboxWorkspaceId && (
           <Button variant="danger" onClick={onDelete}>

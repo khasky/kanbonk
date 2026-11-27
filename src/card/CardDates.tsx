@@ -2,7 +2,7 @@ import { type MouseEvent, useState } from "react";
 import { formatDate, formatDateTime, type MessageKey, t } from "../i18n";
 import type { Card } from "../model";
 import { Button } from "../ui/Button";
-import { Input, Select } from "../ui/Field";
+import { Input, Select, Checkbox } from "../ui/Field";
 import { Icon, type IconName } from "../ui/Icon";
 import { pickerLabelClass } from "./cardLook";
 import { startOfWeek } from "../model/calendar";
@@ -69,14 +69,9 @@ function atMinutes(day: Date, minutes: number) {
 
 function MonthButton({ icon, label, onClick }: { icon: IconName; label: string; onClick: () => void }) {
   return (
-    <button
-      type="button"
-      className="grid size-8 place-items-center rounded-sm border-0 bg-transparent text-ink-subtle hover:bg-surface-sunken"
-      onClick={onClick}
-      aria-label={label}
-    >
+    <Button variant="icon" type="button" className="size-8" onClick={onClick} aria-label={label}>
       <Icon name={icon} className="size-4" />
-    </button>
+    </Button>
   );
 }
 
@@ -217,9 +212,7 @@ export function DatesForm({
       <div className={pickerLabelClass}>
         {t("card.startDate")}
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            className="m-0 size-4 accent-brand"
+          <Checkbox
             checked={startOn}
             onChange={(event) => {
               setStartOn(event.target.checked);
@@ -246,9 +239,7 @@ export function DatesForm({
       <div className={pickerLabelClass}>
         {t("card.dueDate")}
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            className="m-0 size-4 accent-brand"
+          <Checkbox
             checked={dueOn}
             onChange={(event) => {
               setDueOn(event.target.checked);

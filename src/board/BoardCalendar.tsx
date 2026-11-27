@@ -368,12 +368,13 @@ export function BoardCalendar({
             const monthItems = itemsInMonth(items, anchor.getFullYear(), month);
             return (
               <div className="flex min-h-[120px] flex-col gap-[3px] rounded-lg border border-line p-2" key={name}>
-                <button
-                  className="cursor-pointer border-0 bg-transparent px-0 py-0.5 text-left font-bold text-ink"
+                <Button
+                  variant="text"
+                  className="py-0.5 font-bold"
                   onClick={() => onNavigate("month", dayKey(new Date(anchor.getFullYear(), month, 1)))}
                 >
                   {t(name)} <small>{monthItems.length || ""}</small>
-                </button>
+                </Button>
                 {monthItems.slice(0, 8).map((item) => (
                   <button
                     key={item.card.id}

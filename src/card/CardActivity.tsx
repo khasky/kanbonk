@@ -13,8 +13,7 @@ const dateClass = "text-[12px] text-ink-muted";
 const avatarClass = "grid size-8 flex-none place-items-center rounded-full font-bold";
 const commentPlaceholderClass =
   "w-full cursor-text rounded-lg border-0 bg-white px-3 py-2.5 text-left text-ink-subtle shadow-tile hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-white";
-const commentActionClass =
-  "cursor-pointer border-0 bg-transparent px-0 py-[3px] text-[12px] text-ink-subtle hover:underline";
+const commentActionClass = "py-[3px] text-[12px]";
 
 /** Comments, with the card's change history mixed in when details are shown. Only own comments can be edited. */
 export function CardActivity({
@@ -153,8 +152,9 @@ export function CardActivity({
                       onNavigateCard={onNavigateCard}
                     />
                     {!readOnly && canEditComment(entry, currentDeviceId) && (
-                      <div className="mt-[5px] flex gap-2">
-                        <button
+                      <div className="mt-[5px] flex gap-2 text-ink-subtle">
+                        <Button
+                          variant="text"
                           className={commentActionClass}
                           onClick={() => {
                             setEditingCommentId(entry.id);
@@ -162,10 +162,10 @@ export function CardActivity({
                           }}
                         >
                           {t("common.edit")}
-                        </button>
-                        <button className={commentActionClass} onClick={() => deleteComment(entry.id)}>
+                        </Button>
+                        <Button variant="text" className={commentActionClass} onClick={() => deleteComment(entry.id)}>
                           {t("common.delete")}
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </>

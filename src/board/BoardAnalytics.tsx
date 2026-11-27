@@ -4,10 +4,13 @@ import { saveFile } from "../lib/platform";
 import { type AppState, type Card, type ViewCount, viewerName } from "../model";
 import { lastDays, viewStats } from "../model/views";
 import { viewAge } from "../model/viewText";
+import { csvTable } from "../export/calendarFiles";
 import { exportFileName } from "../export/exportData";
 import { Button } from "../ui/Button";
+import { Hint } from "../ui/Hint";
 import { SidePanel } from "../ui/Modal";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
+import { Table, Td, Th } from "../ui/Table";
 
 const periods = [7, 30, 90] as const;
 type CardSort = "views" | "people" | "last" | "name";
@@ -17,7 +20,6 @@ const cardColumns: { by: CardSort; label: MessageKey }[] = [
   { by: "people", label: "views.columnPeople" },
   { by: "last", label: "views.columnLastViewed" },
 ];
-const cellClass = "border-b border-line px-2 py-1.5 text-left align-top";
 const sectionTitleClass = "mt-5 mb-2 text-[15px] font-semibold";
 
 interface CardRow {
@@ -27,11 +29,6 @@ interface CardRow {
   people: number;
   allTime: number;
   lastAt?: string;
-}
-
-function csvCell(value: string | number) {
-  const text = String(value);
-  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
 /**
@@ -133,13 +130,12 @@ export function BoardAnalytics({
       t("views.columnLastViewed"),
     ];
     const lines = sortedRows.map((row) =>
-      [row.card.name, row.list, row.views, row.people, row.allTime, row.lastAt ?? ""].map(csvCell).join(","),
+      [row.card.name, row.list, row.views, row.people, row.allTime, row.lastAt ?? ""].map(String),
     );
     const name = exportFileName(`${board?.name ?? "board"} ${t("views.analytics")}`, "csv");
-    saveFile(
-      new Blob([`\ufeff${[header.map(csvCell).join(","), ...lines].join("\r\n")}\r\n`], { type: "text/csv" }),
-      name,
-    ).catch((cause) => onError(t("app.fileSaveError", { name, cause: String(cause) })));
+    saveFile(new Blob([`\ufeff${csvTable([header, ...lines])}\r\n`], { type: "text/csv" }), name).catch((cause) =>
+      onError(t("app.fileSaveError", { name, cause: String(cause) })),
+    );
   }
 
   return (
@@ -197,83 +193,81 @@ export function BoardAnalytics({
 
       <h3 className={sectionTitleClass}>{t("views.cards")}</h3>
       <div className="max-h-[320px] overflow-auto">
-        <table className="w-full border-collapse text-[13px]">
+        <Table>
           <thead className="sticky top-0 bg-white">
             <tr>
               {cardColumns.map((column) => (
-                <th
+                <Th
                   key={column.by}
-                  className={cellClass}
-                  aria-sort={sort.by === column.by ? (sort.descending ? "descending" : "ascending") : undefined}
+                  sort={sort.by === column.by ? (sort.descending ? "descending" : "ascending") : undefined}
+                  onSort={() =>
+                    setSort((current) => ({
+                      by: column.by,
+                      descending: current.by === column.by ? !current.descending : column.by !== "name",
+                    }))
+                  }
                 >
-                  <button
-                    type="button"
-                    className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-inherit hover:underline"
-                    onClick={() =>
-                      setSort((current) => ({
-                        by: column.by,
-                        descending: current.by === column.by ? !current.descending : column.by !== "name",
-                      }))
-                    }
-                  >
-                    {t(column.label)}
-                    {sort.by === column.by ? (sort.descending ? " ↓" : " ↑") : ""}
-                  </button>
-                </th>
+                  {t(column.label)}
+                </Th>
               ))}
             </tr>
           </thead>
           <tbody>
             {sortedRows.map((row) => (
               <tr key={row.card.id}>
-                <td className={cellClass}>
-                  <button
-                    type="button"
-                    data-inline
-                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-brand hover:underline"
-                    onClick={() => onOpenCard(row.card)}
-                  >
+                <Td top>
+                  <Button variant="link-quiet" onClick={() => onOpenCard(row.card)}>
                     {row.card.name}
-                  </button>
+                  </Button>
                   <div className="text-[12px] text-ink-subtle">{row.list}</div>
-                </td>
-                <td className={`${cellClass} tabular-nums`}>{row.views}</td>
-                <td className={`${cellClass} tabular-nums`}>{row.people}</td>
-                <td className={cellClass} title={row.lastAt ? formatDateTime(row.lastAt) : undefined}>
+                </Td>
+                <Td top className="tabular-nums">
+                  {row.views}
+                </Td>
+                <Td top className="tabular-nums">
+                  {row.people}
+                </Td>
+                <Td top title={row.lastAt ? formatDateTime(row.lastAt) : undefined}>
                   {row.lastAt ? viewAge(row.lastAt) : t("views.never")}
-                </td>
+                </Td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       </div>
 
       <h3 className={sectionTitleClass}>{t("views.people")}</h3>
       {data.people.length === 0 ? (
-        <p className="m-0 text-[14px] text-ink-subtle">{t("views.noViews")}</p>
+        <Hint tone="subtle" className="m-0">
+          {t("views.noViews")}
+        </Hint>
       ) : (
-        <table className="w-full border-collapse text-[13px]">
+        <Table>
           <thead>
             <tr>
-              <th className={cellClass}>{t("views.columnPerson")}</th>
-              <th className={cellClass}>{t("views.boardVisits")}</th>
-              <th className={cellClass}>{t("views.cardViewsTotal")}</th>
-              <th className={cellClass}>{t("views.columnLastSeen")}</th>
+              <Th>{t("views.columnPerson")}</Th>
+              <Th>{t("views.boardVisits")}</Th>
+              <Th>{t("views.cardViewsTotal")}</Th>
+              <Th>{t("views.columnLastSeen")}</Th>
             </tr>
           </thead>
           <tbody>
             {data.people.map((person) => (
               <tr key={person.name}>
-                <td className={cellClass}>{person.name}</td>
-                <td className={`${cellClass} tabular-nums`}>{person.visits}</td>
-                <td className={`${cellClass} tabular-nums`}>{person.cardViews}</td>
-                <td className={cellClass} title={formatDateTime(person.lastAt)}>
+                <Td top>{person.name}</Td>
+                <Td top className="tabular-nums">
+                  {person.visits}
+                </Td>
+                <Td top className="tabular-nums">
+                  {person.cardViews}
+                </Td>
+                <Td top title={formatDateTime(person.lastAt)}>
                   {viewAge(person.lastAt)}
-                </td>
+                </Td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       )}
     </SidePanel>
   );

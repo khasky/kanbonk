@@ -7,12 +7,13 @@ const tones = {
 
 /**
  * A short note under a control or section. `tone="subtle"` matches the darker intro text of the import and sync
- * dialogs. `as="small"` for a note inside a label or row.
+ * dialogs. `as="small"` for a note inside a label or row. `className` may only add layout (margins).
  */
 export function Hint({
   as: Tag = "p",
   tone = "muted",
+  className,
   ...props
 }: HTMLAttributes<HTMLElement> & { as?: "p" | "small"; tone?: keyof typeof tones }) {
-  return <Tag className={tones[tone]} {...props} />;
+  return <Tag className={className ? `${tones[tone]} ${className}` : tones[tone]} {...props} />;
 }

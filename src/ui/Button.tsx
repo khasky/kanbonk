@@ -5,8 +5,11 @@ export type ButtonVariant =
   | "primary-danger"
   | "secondary"
   | "outline"
+  | "done"
   | "danger"
   | "link"
+  | "link-quiet"
+  | "text"
   | "icon"
   | "toolbar";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -29,6 +32,11 @@ const sized: Partial<Record<ButtonVariant, { look: string; size: ButtonSize }>> 
     look: "h-8 text-[15px] flex items-center gap-1.5 rounded-sm border border-line bg-white font-medium text-ink hover:bg-surface-sunken aria-expanded:border-ink-subtle aria-expanded:bg-ink-subtle aria-expanded:text-white disabled:cursor-not-allowed disabled:opacity-50",
     size: "md",
   },
+  // Pressed (`aria-pressed`), it turns green: the card's Done toggle.
+  done: {
+    look: "h-8 text-[15px] flex items-center gap-1.5 rounded-sm border border-line bg-white font-medium text-ink hover:bg-surface-sunken aria-pressed:border-success aria-pressed:bg-success aria-pressed:text-white disabled:cursor-not-allowed disabled:opacity-50",
+    size: "md",
+  },
   danger: {
     look: "text-[14px] rounded-sm border-0 bg-danger-soft font-normal text-danger disabled:cursor-not-allowed disabled:opacity-50",
     size: "md",
@@ -41,9 +49,11 @@ const paddings: Record<ButtonSize, string> = {
   lg: "px-3 py-2",
 };
 
-const fixed: Record<"link" | "icon" | "toolbar", string> = {
+const fixed: Record<"link" | "link-quiet" | "text" | "icon" | "toolbar", string> = {
   link: "cursor-pointer border-0 bg-transparent p-0 text-brand underline",
-  icon: "grid place-items-center rounded-sm border-0 bg-transparent p-[5px] text-ink-subtle hover:bg-line",
+  "link-quiet": "cursor-pointer border-0 bg-transparent p-0 text-left text-brand hover:underline",
+  text: "cursor-pointer border-0 bg-transparent p-0 text-left text-inherit hover:underline",
+  icon: "grid cursor-pointer place-items-center rounded-sm border-0 bg-transparent p-[5px] text-ink-subtle hover:bg-line aria-expanded:bg-line disabled:cursor-not-allowed disabled:opacity-50",
   // Labels shrink to their icon on tablets; on phones the button becomes a 44px touch target.
   toolbar:
     "flex min-h-8 items-center gap-1.5 rounded-[3px] border-0 bg-[#ffffff26] px-[9px] py-[7px] text-white hover:bg-[#ffffff45] max-tablet:text-[0px] max-tablet:[&>svg]:text-[length:initial] max-phone:min-h-11 max-phone:min-w-11 max-phone:flex-none max-phone:justify-center",
@@ -59,11 +69,14 @@ export function buttonClass(variant: ButtonVariant, size?: ButtonSize, className
 /**
  * The app's buttons. `primary` is the main action of a form or dialog, `primary-danger` a confirmed destructive one,
  * `secondary` a grey one for every other action (also the Cancel or Close of a dialog footer), `outline` a white
- * framed one with an optional icon (the card's quick actions and section buttons), `danger` a soft red
- * destructive one, `link` an inline text link, `icon` a borderless icon button, `toolbar` a button on the board's
+ * framed one with an optional icon (the card's quick actions and section buttons), `done` an outline toggle that
+ * turns green when pressed, `danger` a soft red
+ * destructive one, `link` an inline text link, `link-quiet` a brand-colored text button underlined on hover (a card's name
+ * in a list or table), `text` a text button in the color of its surroundings, underlined on hover, `icon` a
+ * borderless icon button (give it a `size-*` to make it a fixed square), `toolbar` a button on the board's
  * colored toolbar.
  *
- * `size` sets the padding of `primary`, `primary-danger`, `secondary`, `outline` and `danger`: `sm` 6×9px (rows, section titles,
+ * `size` sets the padding of `primary`, `primary-danger`, `secondary`, `outline`, `done` and `danger`: `sm` 6×9px (rows, section titles,
  * small forms; default of `secondary`), `md` 7×11px (the card's actions; default of `outline` and `danger`), `lg` 8×12px (dialog
  * footers and forms; default of the primaries).
  * Their text is 14px; `outline` (only in the open card) has 15px text and is always 32px high, as the card's buttons in Trello.

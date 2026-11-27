@@ -4,11 +4,14 @@ export function NameEditor({
   value,
   label,
   className,
+  size,
   onCommit,
 }: {
   value: string;
   label: string;
   className?: string;
+  /** The field's width in characters. */
+  size?: number;
   onCommit: (name: string) => void;
 }) {
   const [draft, setDraft] = useState(value);
@@ -31,6 +34,7 @@ export function NameEditor({
   return (
     <input
       className={className}
+      size={size}
       aria-label={label}
       value={draft}
       onFocus={() => {

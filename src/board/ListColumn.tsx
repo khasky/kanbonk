@@ -24,8 +24,7 @@ import { ListActionsPopover } from "./ListActionsPopover";
 import { ListCards } from "./ListCards";
 import { TemplateComposer } from "./TemplateComposer";
 
-const headerButtonClass =
-  "grid size-8 flex-none cursor-pointer place-items-center rounded-sm border-0 bg-transparent text-ink-subtle hover:bg-line aria-expanded:bg-line max-phone:min-h-11 max-phone:min-w-11";
+const headerButtonClass = "size-8 flex-none max-phone:min-h-11 max-phone:min-w-11";
 
 /** What a list column can ask the board to do; every handler gets the list's id. */
 export interface ListActions {
@@ -143,14 +142,15 @@ export function ListColumn({
         style={listBackground(list, hidden)}
         data-list-id={list.id}
       >
-        <button
+        <Button
+          variant="icon"
           className={headerButtonClass}
           onClick={() => actions.toggleCollapsed(list.id)}
           aria-label={t("board.expandListOf", { name: list.name })}
           title={t("board.expandList")}
         >
           <Icon name="expand" className="size-4" />
-        </button>
+        </Button>
         <span className="flex min-h-0 items-center gap-2 overflow-hidden text-[16px] font-bold text-ink [writing-mode:vertical-rl]">
           <span className="truncate">{list.name}</span>
           {count}
@@ -174,15 +174,17 @@ export function ListColumn({
           onCommit={(name) => actions.rename(list.id, name)}
         />
         {count}
-        <button
+        <Button
+          variant="icon"
           className={headerButtonClass}
           onClick={() => actions.toggleCollapsed(list.id)}
           aria-label={t("board.collapseListOf", { name: list.name })}
           title={t("board.collapseList")}
         >
           <Icon name="collapse" className="size-4" />
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="icon"
           className={`${headerButtonClass} text-[20px] leading-none`}
           aria-label={t("board.listActionsOf", { name: list.name })}
           aria-expanded={Boolean(menuAnchor)}
@@ -190,7 +192,7 @@ export function ListColumn({
           onClick={(event) => setMenuAnchor(menuAnchor ? undefined : event.currentTarget)}
         >
           ⋯
-        </button>
+        </Button>
         {menuAnchor && (
           <ListActionsPopover
             list={list}
@@ -263,15 +265,16 @@ export function ListColumn({
           <button className={`${addCardClass} flex-1`} onClick={() => actions.startCard(list.id)}>
             <Icon name="plus" /> {t("board.addCard")}
           </button>
-          <button
-            className={`${headerButtonClass} size-9`}
+          <Button
+            variant="icon"
+            className="size-9 flex-none max-phone:min-h-11 max-phone:min-w-11"
             aria-label={t("board.createFromTemplate")}
             aria-expanded={Boolean(templateAnchor)}
             title={t("board.createFromTemplate")}
             onClick={(event) => setTemplateAnchor(templateAnchor ? undefined : event.currentTarget)}
           >
             <Icon name="card-template" className="size-4" />
-          </button>
+          </Button>
         </div>
       )}
       {templateAnchor && (

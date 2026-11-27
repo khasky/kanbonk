@@ -6,6 +6,8 @@ import { listColors, trelloLabelColors } from "../model/labelColors";
 import { Icon } from "../ui/Icon";
 import { MenuItem, MenuSeparator } from "../ui/Menu";
 import { Popover } from "../ui/Popover";
+import { Swatch } from "../ui/Swatch";
+import { Button } from "../ui/Button";
 
 type View = "main" | "move" | "move-cards" | "sort" | "priority";
 
@@ -121,30 +123,27 @@ export function ListActionsPopover({
             const color = trelloLabelColors[name];
             const label = name[0].toUpperCase() + name.slice(1);
             return (
-              <button
+              <Swatch
                 key={name}
-                type="button"
-                className="grid h-8 cursor-pointer place-items-center rounded-sm border-0 text-white hover:opacity-85"
-                style={{ background: color }}
-                aria-label={label}
-                aria-pressed={list.color === name}
-                title={label}
+                color={color}
+                label={label}
+                pressed={list.color === name}
                 onClick={() => onColor(name)}
               >
                 {list.color === name && <Icon name="check" className="size-4" />}
-              </button>
+              </Swatch>
             );
           })}
         </div>
-        <button
-          type="button"
-          className="mx-1 mb-1 flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-sm border-0 bg-surface-sunken text-ink-subtle hover:bg-line disabled:cursor-not-allowed disabled:opacity-50"
+        <Button
+          variant="secondary"
+          className="mx-1 mb-1 flex h-8 items-center justify-center gap-1.5"
           disabled={!list.color}
           onClick={() => onColor(undefined)}
         >
           <Icon name="close" className="size-4" />
           {t("board.removeColor")}
-        </button>
+        </Button>
         <MenuSeparator />
         <MenuItem danger onClick={run(onTrash)}>
           {t("board.moveListToTrash")}

@@ -11,7 +11,7 @@ import { DetailTitle } from "./DetailTitle";
 
 const dependencyLineClass = "my-1.5 flex flex-wrap items-center gap-1.5";
 /** A sub-card or the parent card, as a blue text link. */
-const cardLinkClass = "cursor-pointer border-0 bg-transparent px-0 py-0.5 text-left text-brand";
+const cardLinkClass = "py-0.5";
 
 /** Cards this card depends on and cards it blocks. */
 export function DependencySummary({
@@ -79,9 +79,9 @@ export function SubCards({
         <p>
           {tNodes("card.parent", {
             card: (
-              <button className={cardLinkClass} onClick={() => onNavigateCard(parentCard)}>
+              <Button variant="link-quiet" className={cardLinkClass} onClick={() => onNavigateCard(parentCard)}>
                 {parentCard.name}
-              </button>
+              </Button>
             ),
           })}
         </p>
@@ -90,9 +90,9 @@ export function SubCards({
         <ul className="mt-0 mb-2 pl-[18px]">
           {childCards.map((item) => (
             <li key={item.id}>
-              <button className={cardLinkClass} onClick={() => onNavigateCard(item)}>
+              <Button variant="link-quiet" className={cardLinkClass} onClick={() => onNavigateCard(item)}>
                 {item.name}
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

@@ -80,6 +80,9 @@ export function calendarIcs(items: DatedCard[], link: (card: Card) => string, no
 
 const csvCell = (text: string) => (/[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text);
 
+/** Rows of text as CSV: cells quoted where needed, rows ended with CRLF. */
+export const csvTable = (rows: string[][]) => rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
+
 const statusNames = {
   done: "calendar.done",
   overdue: "calendar.overdue",
@@ -109,5 +112,5 @@ export function calendarCsv(state: AppState, items: DatedCard[], now = new Date(
       status ? t(statusNames[status]) : "",
     ];
   });
-  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
+  return csvTable([header, ...rows]);
 }

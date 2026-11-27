@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { buildDocx } from "../export/docx";
+import { Table, Td, Th } from "../ui/Table";
 import { ExportDocument } from "../export/ExportDocument";
 import {
   boardScope,
@@ -198,13 +199,11 @@ export function ExportDialog({
     const { header, rows } = table();
     return (
       <div className="overflow-auto rounded-sm border border-line">
-        <table className="w-max min-w-full border-collapse text-[12px]">
+        <Table grid>
           <thead className="sticky top-0 bg-surface-sunken">
             <tr>
               {header.map((name, index) => (
-                <th key={`${name}-${index}`} className="border border-line px-2 py-1 text-left font-semibold">
-                  {name}
-                </th>
+                <Th key={`${name}-${index}`}>{name}</Th>
               ))}
             </tr>
           </thead>
@@ -212,17 +211,14 @@ export function ExportDialog({
             {rows.slice(0, previewRows).map((row, rowIndex) => (
               <tr key={`${rowIndex}-${row[0]}`}>
                 {row.map((value, index) => (
-                  <td
-                    key={`${header[index]}-${index}`}
-                    className="max-w-[260px] border border-line px-2 py-1 align-top whitespace-pre-wrap"
-                  >
+                  <Td top key={`${header[index]}-${index}`} className="max-w-[260px] whitespace-pre-wrap">
                     {value.length > 300 ? `${value.slice(0, 300)}…` : value}
-                  </td>
+                  </Td>
                 ))}
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
         {rows.length > previewRows && (
           <p className="m-0 p-2 text-[12px] text-ink-muted">
             {t("exporting.previewMoreRows", { count: rows.length - previewRows })}

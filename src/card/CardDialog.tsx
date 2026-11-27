@@ -40,7 +40,7 @@ import { SharePanel } from "./SharePanel";
 import { MovePicker } from "./MovePicker";
 import { PriorityChip, PriorityPicker, priorityName } from "./PriorityPicker";
 import { TransferPicker } from "./TransferPicker";
-import { Button, buttonClass } from "../ui/Button";
+import { Button } from "../ui/Button";
 import { Backdrop, useEscapeToDismiss } from "../ui/Modal";
 import { Menu, MenuItem, MenuSeparator } from "../ui/Menu";
 import { Popover } from "../ui/Popover";
@@ -54,8 +54,7 @@ const phoneTouch =
   "max-phone:[&_:is(input,textarea,select)]:text-[16px] max-phone:[&_button:not([data-inline],.markdown-card-link)]:min-h-11";
 const modalClass = `${dialogLook} ${phoneTouch} max-h-[calc(100dvh-96px)] overflow-hidden shadow-dialog max-tablet:max-h-none max-phone:max-h-dvh`;
 const pageClass = `${dialogLook} ${phoneTouch} mx-auto my-5 max-h-none flex-none overflow-visible shadow-[0_1px_3px_#091e4240]`;
-const topButtonClass =
-  "grid size-8 place-items-center rounded-sm border-0 bg-transparent text-ink-subtle hover:bg-line aria-expanded:bg-line";
+const topButtonClass = "size-8";
 const blockTitleClass = "mb-1.5 text-[13px] font-semibold text-ink-subtle";
 const addChipClass =
   "grid size-8 place-items-center border border-line bg-white text-ink-subtle hover:bg-surface-sunken aria-expanded:bg-line disabled:cursor-not-allowed disabled:opacity-50";
@@ -419,7 +418,8 @@ export function CardDialog({
         </fieldset>
         <div className="flex items-center gap-1">
           <fieldset className={lockClass} disabled={locked}>
-            <button
+            <Button
+              variant="icon"
               className={topButtonClass}
               data-panel="cover"
               aria-expanded={expanded("cover")}
@@ -428,7 +428,7 @@ export function CardDialog({
               title={t("card.cover")}
             >
               <Icon name="image" />
-            </button>
+            </Button>
             <Menu
               ref={menuRef}
               label={t("card.cardActions")}
@@ -450,14 +450,15 @@ export function CardDialog({
               </MenuItem>
             </Menu>
           </fieldset>
-          <button
+          <Button
+            variant="icon"
             className={topButtonClass}
             onClick={onClose}
             aria-label={t("card.closeCard")}
             title={t("card.closeCard")}
           >
             <Icon name="close" />
-          </button>
+          </Button>
         </div>
       </header>
       {trash && (
@@ -508,16 +509,16 @@ export function CardDialog({
             )}
             <div className="card-actions mb-5 flex flex-wrap gap-2">
               {!card.isTemplate && (
-                <button
-                  type="button"
-                  className={`${buttonClass("outline", "sm")} aria-pressed:border-success aria-pressed:bg-success aria-pressed:text-white`}
+                <Button
+                  variant="done"
+                  size="sm"
                   aria-pressed={Boolean(card.doneAt)}
                   title={card.doneAt ? t("cardDone.reopenTitle", { time: formatDateTime(card.doneAt) }) : undefined}
                   onClick={() => (card.doneAt ? actions.reopenCardDone(card.id) : actions.finishCardDone(card.id))}
                 >
                   <Icon name="check" className="size-4" />
                   {card.doneAt ? t("cardDone.done") : t("cardDone.markDone")}
-                </button>
+                </Button>
               )}
               <QuickButton icon="plus" panel="add" expanded={expanded("add")} onClick={toggle("add")}>
                 {t("common.add")}

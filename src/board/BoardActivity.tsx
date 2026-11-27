@@ -6,6 +6,7 @@ import { Button } from "../ui/Button";
 import { MarkdownText } from "../ui/MarkdownText";
 import { PanelRow, PanelRowNote, PanelRowText } from "../ui/PanelRow";
 import { formatDateTime, t } from "../i18n";
+import { Segmented, SegmentedTab } from "../ui/Segmented";
 
 // A comment's summary is "Author: text" ("Author: commented on card “Name”: text" from a Trello import); the text is
 // Markdown, so it is shown apart from the plain heading.
@@ -16,9 +17,6 @@ function splitComment(item: ActivityEvent): { heading: string; text: string } | 
   const heading = (item.deviceId === "trello" ? trelloCommentHeading : commentHeading).exec(item.summary)?.[0];
   return heading ? { heading: heading.trimEnd(), text: item.summary.slice(heading.length) } : undefined;
 }
-
-const filterClass =
-  "rounded-sm border-0 bg-surface-sunken px-3 py-2 text-ink aria-pressed:bg-brand-soft aria-pressed:font-bold aria-pressed:text-brand";
 
 export function BoardActivity({
   state,
@@ -47,27 +45,27 @@ export function BoardActivity({
   };
   return (
     <SidePanel title={t("board.activity")} label={t("board.boardActivity")} onClose={onClose}>
-      <div className="flex gap-2 border-b border-line py-3.5">
-        <button
-          className={filterClass}
-          aria-pressed={filter === "all"}
-          onClick={() => {
-            setFilter("all");
-            setLimit(50);
-          }}
-        >
-          {t("board.all")}
-        </button>
-        <button
-          className={filterClass}
-          aria-pressed={filter === "comment"}
-          onClick={() => {
-            setFilter("comment");
-            setLimit(50);
-          }}
-        >
-          {t("board.comments")}
-        </button>
+      <div className="border-b border-line py-3.5">
+        <Segmented label={t("board.activity")}>
+          <SegmentedTab
+            selected={filter === "all"}
+            onClick={() => {
+              setFilter("all");
+              setLimit(50);
+            }}
+          >
+            {t("board.all")}
+          </SegmentedTab>
+          <SegmentedTab
+            selected={filter === "comment"}
+            onClick={() => {
+              setFilter("comment");
+              setLimit(50);
+            }}
+          >
+            {t("board.comments")}
+          </SegmentedTab>
+        </Segmented>
       </div>
       {entries.length ? (
         entries.slice(0, limit).map((item) => {

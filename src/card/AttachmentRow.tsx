@@ -5,14 +5,13 @@ import { platform } from "../lib/platform";
 import { loadAttachment } from "../lib/storage";
 import { AttachmentPreview } from "./AttachmentPreview";
 import { previewKind } from "./previewKinds";
-import { Button } from "../ui/Button";
+import { Button, buttonClass } from "../ui/Button";
 import { Input } from "../ui/Field";
 import { Icon } from "../ui/Icon";
 import { Menu, MenuItem } from "../ui/Menu";
 import { Popover } from "../ui/Popover";
 
-const openClass =
-  "grid size-8 flex-none place-items-center rounded-sm border-0 bg-transparent text-ink-subtle no-underline hover:bg-surface-sunken disabled:cursor-not-allowed disabled:opacity-50";
+const openClass = "size-8 flex-none";
 
 /** The image of an attachment, read from this device, or "" while there is none. */
 export function useImageUrl(attachment: Card["attachments"][number]) {
@@ -87,7 +86,8 @@ export function AttachmentRow({
 
   const openLabel = t("card.openAttachment", { name: attachment.name });
   let open = (
-    <button
+    <Button
+      variant="icon"
       className={openClass}
       onClick={() => (canPreview ? setPreviewOpen(true) : onDownload(attachment.id, attachment.name))}
       disabled={attachment.status === "missing"}
@@ -95,15 +95,22 @@ export function AttachmentRow({
       title={canPreview ? t("card.preview") : t("card.download")}
     >
       <Icon name="external" className="size-5" />
-    </button>
+    </Button>
   );
   if (isLink)
     open = webUrl ? (
-      <a className={openClass} href={attachment.sourceUrl} target="_blank" rel="noopener noreferrer" title={openLabel}>
+      <a
+        className={buttonClass("icon", undefined, `${openClass} no-underline`)}
+        href={attachment.sourceUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={openLabel}
+      >
         <Icon name="external" className="size-5" />
       </a>
     ) : (
-      <button
+      <Button
+        variant="icon"
         className={openClass}
         onClick={() => openCard && onNavigateCard(openCard)}
         disabled={!openCard}
@@ -111,7 +118,7 @@ export function AttachmentRow({
         title={t("card.openCard")}
       >
         <Icon name="external" className="size-5" />
-      </button>
+      </Button>
     );
 
   return (

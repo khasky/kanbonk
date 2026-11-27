@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { t, type MessageKey } from "../i18n";
 import { type AppState, type Board, missingFields, type RequiredFields } from "../model";
-import { readableTextColor } from "../model/labelColors";
+import { LabelChip } from "../ui/LabelChip";
 import { optionLabelClass } from "../dialogs/dialogLook";
 import { Button } from "../ui/Button";
 import { Checkbox, Input, Select } from "../ui/Field";
 import { SidePanel } from "../ui/Modal";
+import { Hint } from "../ui/Hint";
 
 type Flag = "description" | "members" | "startDate" | "dueDate" | "labels" | "checklists" | "checklistsDone";
 const flags: Flag[] = ["description", "members", "startDate", "dueDate", "labels", "checklists", "checklistsDone"];
@@ -72,7 +73,7 @@ export function RequiredFieldsPanel({
           onSave(draft);
         }}
       >
-        <p className="m-0 text-[13px] text-ink-muted">{t("required.hint")}</p>
+        <Hint className="m-0">{t("required.hint")}</Hint>
         <fieldset className={groupClass}>
           <legend className={legendClass}>{t("required.everyCard")}</legend>
           {flags.map((flag) => (
@@ -105,15 +106,7 @@ export function RequiredFieldsPanel({
                   checked={Boolean(rules.labelIds?.includes(label.id))}
                   onChange={() => change({ labelIds: toggle(rules.labelIds, label.id) })}
                 />
-                <span
-                  className="flex min-h-7 min-w-12 items-center rounded-sm px-3 font-semibold wrap-anywhere"
-                  style={{
-                    background: label.color || "#dfe1e6",
-                    color: readableTextColor(label.color || "#dfe1e6"),
-                  }}
-                >
-                  {label.name}
-                </span>
+                <LabelChip label={label} />
               </label>
             ))}
           </fieldset>
@@ -152,9 +145,9 @@ export function RequiredFieldsPanel({
           />
           {t("required.blockMoves")}
         </label>
-        <p className="m-0 text-[13px] text-ink-muted" role="status">
+        <Hint className="m-0" role="status">
           {incomplete ? t("required.incompleteCards", { count: incomplete }) : t("required.allComplete")}
-        </p>
+        </Hint>
         <div className="flex justify-end gap-2">
           <Button variant="secondary" size="lg" type="button" onClick={onClose}>
             {t("common.cancel")}

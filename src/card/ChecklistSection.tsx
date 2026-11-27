@@ -1,5 +1,5 @@
 import { askConfirm } from "../ui/AskDialog";
-import { useEffect, useState, type DragEvent as ReactDragEvent } from "react";
+import { useState, type DragEvent as ReactDragEvent } from "react";
 import { moveChecklistItem, newId, type Card, type Checklist } from "../model";
 import { Button } from "../ui/Button";
 import { SectionTitle } from "../ui/SectionTitle";
@@ -8,6 +8,7 @@ import { Menu, MenuItem } from "../ui/Menu";
 import { detailSectionClass, inlineFormClass } from "./cardLook";
 import { t } from "../i18n";
 import { Icon } from "../ui/Icon";
+import { NameEditor } from "../ui/NameEditor";
 
 /** The "⋯" button of a checklist's and an item's menu. */
 const menuButtonClass =
@@ -31,9 +32,6 @@ export function ChecklistSection({
 }) {
   const [draft, setDraft] = useState("");
   const [hideChecked, setHideChecked] = useState(false);
-  const [titleDraft, setTitleDraft] = useState(checklist.name);
-  const [itemNames, setItemNames] = useState<Record<string, string>>({});
-  useEffect(() => setTitleDraft(checklist.name), [checklist.name]);
   const checked = checklist.items.filter((item) => item.checked).length;
 
   function updateList(change: (list: Checklist) => Checklist) {
@@ -56,18 +54,11 @@ export function ChecklistSection({
     setDraft("");
   }
 
-  function saveItemName(itemId: string, currentName: string) {
-    const name = (itemNames[itemId] ?? currentName).trim();
-    if (name && name !== currentName)
-      updateList((list) => ({
-        ...list,
-        items: list.items.map((item) => (item.id === itemId ? { ...item, name } : item)),
-      }));
-    setItemNames((current) => {
-      const next = { ...current };
-      delete next[itemId];
-      return next;
-    });
+  function renameItem(itemId: string, name: string) {
+    updateList((list) => ({
+      ...list,
+      items: list.items.map((item) => (item.id === itemId ? { ...item, name } : item)),
+    }));
   }
 
   function itemAction(itemId: string, action: string) {
@@ -120,19 +111,11 @@ export function ChecklistSection({
           <span className="grid size-6 flex-none place-items-center text-ink-subtle">
             <Icon name="check-square" />
           </span>
-          <input
+          <NameEditor
             className="w-[min(240px,35vw)] min-w-0 border-0 bg-transparent p-0.5 text-inherit focus:bg-white"
-            value={titleDraft}
-            onChange={(event) => setTitleDraft(event.target.value)}
-            onBlur={() => {
-              const name = titleDraft.trim();
-              if (name && name !== checklist.name) updateList((list) => ({ ...list, name }));
-              else setTitleDraft(checklist.name);
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") event.currentTarget.blur();
-            }}
-            aria-label={t("card.checklistTitle")}
+            value={checklist.name}
+            onCommit={(name) => updateList((list) => ({ ...list, name }))}
+            label={t("card.checklistTitle")}
           />
         </h3>
         <Button variant="secondary" onClick={() => setHideChecked((value) => !value)} aria-pressed={hideChecked}>
@@ -185,15 +168,11 @@ export function ChecklistSection({
               }
               aria-label={t("card.checkItem", { name: item.name })}
             />
-            <input
+            <NameEditor
               className={item.checked ? `${itemNameClass} text-ink-muted line-through` : `${itemNameClass} text-ink`}
-              value={itemNames[item.id] ?? item.name}
-              onChange={(event) => setItemNames((current) => ({ ...current, [item.id]: event.target.value }))}
-              onBlur={() => saveItemName(item.id, item.name)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") event.currentTarget.blur();
-              }}
-              aria-label={t("card.itemTitle", { name: item.name })}
+              value={item.name}
+              onCommit={(name) => renameItem(item.id, name)}
+              label={t("card.itemTitle", { name: item.name })}
             />
             <Menu label={t("card.itemActions", { name: item.name })} summaryClassName={menuButtonClass}>
               <MenuItem onClick={() => itemAction(item.id, "up")}>{t("card.moveUp")}</MenuItem>

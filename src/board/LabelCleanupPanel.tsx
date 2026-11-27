@@ -1,27 +1,18 @@
 import { useState } from "react";
 import { t } from "../i18n";
 import { type AppState, duplicateLabels, type Label, labelUsage, unusedLabels } from "../model";
-import { readableTextColor } from "../model/labelColors";
 import { dialogListClass } from "../dialogs/dialogLook";
 import { Button } from "../ui/Button";
 import { Checkbox } from "../ui/Field";
 import { Hint } from "../ui/Hint";
+import { LabelChip } from "../ui/LabelChip";
 import { SidePanel } from "../ui/Modal";
 
 const sectionClass = "mb-3 grid gap-1.5";
 const titleClass = "m-0 text-[14px]";
-const emptyClass = "m-0 text-[13px] text-ink-subtle";
 
-function LabelChip({ label }: { label: Label }) {
-  const color = label.color || "#dfe1e6";
-  return (
-    <span
-      className="flex min-h-7 min-w-12 items-center rounded-sm px-2.5 font-semibold wrap-anywhere"
-      style={{ background: color, color: readableTextColor(color) }}
-    >
-      {label.name || t("labelCleanup.unnamed")}
-    </span>
-  );
+function CleanupChip({ label }: { label: Label }) {
+  return <LabelChip label={label}>{label.name || t("labelCleanup.unnamed")}</LabelChip>;
 }
 
 /** The board's unused labels to delete, its duplicate labels to merge, and how many cards carry each label. */
@@ -67,7 +58,7 @@ export function LabelCleanupPanel({
                       })
                     }
                   />
-                  <LabelChip label={label} />
+                  <CleanupChip label={label} />
                 </label>
               ))}
               <Button
@@ -80,7 +71,9 @@ export function LabelCleanupPanel({
               </Button>
             </>
           ) : (
-            <p className={emptyClass}>{t("labelCleanup.noUnused")}</p>
+            <Hint tone="subtle" className="m-0">
+              {t("labelCleanup.noUnused")}
+            </Hint>
           )}
         </section>
         <section className={sectionClass} aria-label={t("labelCleanup.duplicates")}>
@@ -94,14 +87,14 @@ export function LabelCleanupPanel({
                 <fieldset key={groupId} className="m-0 grid gap-1.5 rounded-md border border-line p-2">
                   {group.map((usage) => (
                     <label key={usage.label.id} className="flex cursor-pointer items-center gap-2.5">
-                      <input
+                      <Checkbox
                         type="radio"
                         name={`keep-${groupId}`}
                         checked={usage.label.id === kept}
                         aria-label={t("labelCleanup.keep", { name: usage.label.name })}
                         onChange={() => setKeep((current) => ({ ...current, [groupId]: usage.label.id }))}
                       />
-                      <LabelChip label={usage.label} />
+                      <CleanupChip label={usage.label} />
                       <small className="text-ink-muted">{t("labelCleanup.cards", { count: usage.cards })}</small>
                     </label>
                   ))}
@@ -121,7 +114,9 @@ export function LabelCleanupPanel({
               );
             })
           ) : (
-            <p className={emptyClass}>{t("labelCleanup.noDuplicates")}</p>
+            <Hint tone="subtle" className="m-0">
+              {t("labelCleanup.noDuplicates")}
+            </Hint>
           )}
         </section>
         <section className={sectionClass} aria-label={t("labelCleanup.usage")}>
@@ -130,7 +125,7 @@ export function LabelCleanupPanel({
             <ul className="m-0 grid list-none gap-1 p-0">
               {usage.map((item) => (
                 <li key={item.label.id} className="flex items-center gap-2.5">
-                  <LabelChip label={item.label} />
+                  <CleanupChip label={item.label} />
                   <span className="text-[13px] text-ink-subtle">
                     {t("labelCleanup.cards", { count: item.cards })}
                     {item.inRules && ` · ${t("labelCleanup.inRules")}`}
@@ -139,7 +134,9 @@ export function LabelCleanupPanel({
               ))}
             </ul>
           ) : (
-            <p className={emptyClass}>{t("labelCleanup.noLabels")}</p>
+            <Hint tone="subtle" className="m-0">
+              {t("labelCleanup.noLabels")}
+            </Hint>
           )}
         </section>
       </div>

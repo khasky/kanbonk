@@ -2,11 +2,12 @@ import { useState } from "react";
 import { t } from "../i18n";
 import type { AppState } from "../model";
 import { inboxBoardId } from "../model/inbox";
-import { readableTextColor } from "../model/labelColors";
+import { LabelChip } from "../ui/LabelChip";
 import { Dialog, submitWith } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { Checkbox } from "../ui/Field";
 import { optionLabelClass } from "./dialogLook";
+import { Hint } from "../ui/Hint";
 
 const groupClass = "m-0 grid max-h-[32dvh] min-w-0 gap-1.5 overflow-auto border-0 p-0";
 const legendClass = "mb-1 p-0 text-[13px] font-semibold text-ink-subtle";
@@ -50,7 +51,7 @@ export function ShareLabelsDialog({
       })}
     >
       <h2 className="mx-0 mt-0 mb-1 text-[20px]">{t("labelSharing.title")}</h2>
-      <p className="m-0 text-[13px] text-ink-muted">{t("labelSharing.hint")}</p>
+      <Hint className="m-0">{t("labelSharing.hint")}</Hint>
       <fieldset className={groupClass}>
         <legend className={legendClass}>{t("labelSharing.labels")}</legend>
         {labels.length === 0 ? (
@@ -71,15 +72,7 @@ export function ShareLabelsDialog({
                     checked={labelIds.includes(label.id)}
                     onChange={() => setLabelIds((current) => toggle(current, label.id))}
                   />
-                  <span
-                    className="flex min-h-8 min-w-12 items-center rounded-sm px-3 font-semibold wrap-anywhere"
-                    style={{
-                      background: label.color || "#dfe1e6",
-                      color: readableTextColor(label.color || "#dfe1e6"),
-                    }}
-                  >
-                    {label.name}
-                  </span>
+                  <LabelChip label={label} size="lg" />
                   {shared > 0 && (
                     <small className="text-ink-muted">{t("labelSharing.sharedWith", { count: shared })}</small>
                   )}

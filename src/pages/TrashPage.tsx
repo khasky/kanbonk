@@ -45,7 +45,9 @@ export function TrashPage({
       <header className={pageHeaderClass}>
         <div className="flex-1">
           <h1 className="m-0 text-[24px]">{t("pages.trash")}</h1>
-          <p className="mt-1 mb-0 text-[13px] text-ink-subtle">{t("pages.trashPeriod", { count: days })}</p>
+          <Hint tone="subtle" className="mt-1 mb-0">
+            {t("pages.trashPeriod", { count: days })}
+          </Hint>
         </div>
         {all.length > 0 && (
           <Button variant="danger" onClick={onEmpty}>
@@ -72,13 +74,14 @@ export function TrashPage({
             <PanelRow look="boxed" key={`${entry.kind}:${entry.id}`}>
               <PanelRowText className="flex flex-col gap-[3px]">
                 {entry.kind === "card" ? (
-                  <button
+                  <Button
+                    variant="text"
                     type="button"
-                    className="self-start border-0 bg-transparent p-0 text-left font-semibold text-ink hover:underline"
+                    className="self-start font-semibold"
                     onClick={() => setViewedCardId(entry.id)}
                   >
                     {entry.name}
-                  </button>
+                  </Button>
                 ) : (
                   <strong>{entry.name}</strong>
                 )}
