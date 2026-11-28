@@ -268,15 +268,16 @@ export function ExportDialog({
                   return (
                     <li key={list.id}>
                       <div className="flex items-center gap-1.5">
-                        <button
+                        <Button
                           type="button"
-                          className="grid size-6 place-items-center rounded-sm border-0 bg-transparent text-ink-subtle hover:bg-line"
+                          variant="icon"
+                          className="size-6"
                           aria-expanded={open}
                           aria-label={t("exporting.showCards", { name: list.name })}
                           onClick={() => setExpanded((current) => toggle(current, list.id, !current.has(list.id)))}
                         >
                           <Icon name={open ? "chevron-down" : "chevron-right"} />
-                        </button>
+                        </Button>
                         <label className={`${optionClass} min-w-0 flex-1`}>
                           <Checkbox
                             checked={ticked}

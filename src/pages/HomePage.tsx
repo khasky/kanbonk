@@ -4,7 +4,7 @@ import type { AppState } from "../model";
 import { inboxWorkspaceId } from "../model/inbox";
 import { Button } from "../ui/Button";
 import { WorkspaceAvatar } from "../ui/WorkspaceAvatar";
-import { createTileClass, emptyClass, pageClass, pageTitleClass, tileGridClass, workspaceTileClass } from "./pageLook";
+import { emptyClass, pageClass, pageTitleClass, tileGridClass, workspaceTileClass } from "./pageLook";
 
 export function HomePage({
   state,
@@ -43,9 +43,9 @@ export function HomePage({
               </AppLink>
             );
           })}
-          <button className={createTileClass} onClick={onCreate}>
+          <Button variant="create-tile" onClick={onCreate}>
             {t("pages.createWorkspaceTile")}
-          </button>
+          </Button>
         </div>
       ) : (
         <div className={emptyClass}>

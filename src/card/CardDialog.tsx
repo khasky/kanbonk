@@ -40,6 +40,7 @@ import { MovePicker } from "./MovePicker";
 import { PriorityChip, PriorityPicker, priorityName } from "./PriorityPicker";
 import { TransferPicker } from "./TransferPicker";
 import { Button } from "../ui/Button";
+import { FileButton } from "../ui/FileButton";
 import { Backdrop, useEscapeToDismiss } from "../ui/Modal";
 import { Menu, MenuItem, MenuSeparator } from "../ui/Menu";
 import { Popover } from "../ui/Popover";
@@ -55,15 +56,11 @@ const modalClass = `${dialogLook} ${phoneTouch} max-h-[calc(100dvh-96px)] overfl
 const pageClass = `${dialogLook} ${phoneTouch} mx-auto my-5 max-h-none flex-none overflow-visible shadow-[0_1px_3px_#091e4240]`;
 const topButtonClass = "size-8";
 const blockTitleClass = "mb-1.5 text-[13px] font-semibold text-ink-subtle";
-const addChipClass =
-  "grid size-8 place-items-center border border-line bg-white text-ink-subtle hover:bg-surface-sunken aria-expanded:bg-line disabled:cursor-not-allowed disabled:opacity-50";
 /**
  * Groups controls that a trashed card disables; `contents` leaves the layout as if it were not there. A menu's "⋯"
  * inside a disabled one is disabled by the menu itself (ui/Menu.tsx).
  */
 const lockClass = "contents";
-const addRowClass =
-  "flex w-full cursor-pointer items-center gap-3 rounded-sm border-0 bg-transparent p-1.5 text-left text-ink hover:bg-surface-sunken";
 
 /** The popovers of the card's buttons. */
 type Panel =
@@ -257,20 +254,16 @@ export function CardDialog({
 
   /** A row that picks files from this device and attaches them. */
   const fileRow = (
-    <label className={`file-button ${addRowClass} has-focus-visible:outline-2 has-focus-visible:outline-brand`}>
+    <FileButton
+      variant="row"
+      multiple
+      onFiles={(files) => {
+        closePanel();
+        onAttach(files);
+      }}
+    >
       <AddRowContent icon="clip" title={t("card.attachment")} note={t("card.attachmentNote")} />
-      <input
-        className="sr-only"
-        type="file"
-        multiple
-        onChange={(event) => {
-          const files = Array.from(event.target.files ?? []);
-          event.target.value = "";
-          closePanel();
-          onAttach(files);
-        }}
-      />
-    </label>
+    </FileButton>
   );
 
   function panelBody(kind: Panel, anchor: HTMLElement): ReactNode {
@@ -278,40 +271,40 @@ export function CardDialog({
       return (
         <div className="grid gap-0.5">
           {!inInbox && (
-            <button className={addRowClass} onClick={() => openAt("labels", anchor)}>
+            <Button variant="row" onClick={() => openAt("labels", anchor)}>
               <AddRowContent icon="tag" title={t("card.labels")} note={t("card.labelsNote")} />
-            </button>
+            </Button>
           )}
           {!card.isTemplate && (
-            <button className={addRowClass} onClick={() => openAt("dates", anchor)}>
+            <Button variant="row" onClick={() => openAt("dates", anchor)}>
               <AddRowContent icon="clock" title={t("card.dates")} note={t("card.datesNote")} />
-            </button>
+            </Button>
           )}
-          <button className={addRowClass} onClick={() => openAt("checklist", anchor)}>
+          <Button variant="row" onClick={() => openAt("checklist", anchor)}>
             <AddRowContent icon="check-square" title={t("card.checklist")} note={t("card.checklistNote")} />
-          </button>
+          </Button>
           {canAssign && (
-            <button className={addRowClass} onClick={() => openAt("members", anchor)}>
+            <Button variant="row" onClick={() => openAt("members", anchor)}>
               <AddRowContent icon="user-plus" title={t("card.members")} note={t("card.membersNote")} />
-            </button>
+            </Button>
           )}
           {fileRow}
-          <button className={addRowClass} onClick={() => openAt("link", anchor)}>
+          <Button variant="row" onClick={() => openAt("link", anchor)}>
             <AddRowContent icon="link" title={t("card.link")} note={t("card.linkNote")} />
-          </button>
+          </Button>
           {!inInbox && (
-            <button className={addRowClass} onClick={() => openAt("dependency", anchor)}>
+            <Button variant="row" onClick={() => openAt("dependency", anchor)}>
               <AddRowContent icon="dependency" title={t("card.dependency")} note={t("card.dependencyNote")} />
-            </button>
+            </Button>
           )}
           {!card.isTemplate && !inInbox && (
-            <button className={addRowClass} onClick={() => openAt("approvers", anchor)}>
+            <Button variant="row" onClick={() => openAt("approvers", anchor)}>
               <AddRowContent icon="check" title={t("approvals.title")} note={t("approvals.addNote")} />
-            </button>
+            </Button>
           )}
-          <button className={addRowClass} onClick={() => openAt("cover", anchor)}>
+          <Button variant="row" onClick={() => openAt("cover", anchor)}>
             <AddRowContent icon="image" title={t("card.cover")} note={t("card.coverNote")} />
-          </button>
+          </Button>
         </div>
       );
     if (kind === "labels")
@@ -413,8 +406,9 @@ export function CardDialog({
     >
       <header className="card-dialog-top flex h-14 flex-none items-center justify-between gap-3 border-b border-line px-5">
         <fieldset className={lockClass} disabled={locked}>
-          <button
-            className="flex h-8 items-center gap-1 rounded-sm border-0 bg-surface-sunken px-2 text-[14px] font-medium text-ink hover:bg-line aria-expanded:bg-line"
+          <Button
+            variant="secondary"
+            className="flex h-8 items-center gap-1"
             data-panel="move"
             aria-expanded={expanded("move")}
             aria-label={t("card.cardList")}
@@ -422,7 +416,7 @@ export function CardDialog({
           >
             {inInbox ? t("layout.inbox") : (lists.find((item) => item.id === card.listId)?.name ?? "—")}
             <Icon name="chevron-down" className="size-4" />
-          </button>
+          </Button>
         </fieldset>
         <div className="flex items-center gap-1">
           <fieldset className={lockClass} disabled={locked}>
@@ -581,15 +575,16 @@ export function CardDialog({
                     <div className="flex flex-wrap gap-1" aria-label={t("card.cardMembers")}>
                       <CardMemberAvatars card={card} boardMembers={boardMembers} />
                       {canAssign && (
-                        <button
-                          className={`${addChipClass} rounded-full`}
+                        <Button
+                          variant="icon-framed"
+                          className="size-8"
                           data-panel="members"
                           aria-expanded={expanded("members")}
                           onClick={toggle("members")}
                           aria-label={t("card.assignMembers")}
                         >
                           <Icon name="plus" className="size-4" />
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -600,15 +595,16 @@ export function CardDialog({
                     <div className="flex flex-wrap gap-1">
                       <CardLabelChips card={card} boardLabels={boardLabels} />
                       {!inInbox && (
-                        <button
-                          className={`${addChipClass} rounded-sm`}
+                        <Button
+                          variant="icon-framed"
+                          className="size-8"
                           data-panel="labels"
                           aria-expanded={expanded("labels")}
                           onClick={toggle("labels")}
                           aria-label={t("card.changeLabels")}
                         >
                           <Icon name="plus" className="size-4" />
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -616,16 +612,16 @@ export function CardDialog({
                 {card.priority && (
                   <div>
                     <div className={blockTitleClass}>{t("priority.title")}</div>
-                    <button
+                    <Button
                       type="button"
-                      className="cursor-pointer rounded-[3px] border-0 bg-transparent p-0 hover:opacity-85"
+                      variant="text"
                       data-panel="priority"
                       aria-expanded={expanded("priority")}
                       aria-label={t("priority.tileTitle", { priority: priorityName(card.priority) })}
                       onClick={toggle("priority")}
                     >
                       <PriorityChip priority={card.priority} className="h-8 px-3 text-[14px]" />
-                    </button>
+                    </Button>
                   </div>
                 )}
                 {showDates && (

@@ -6,15 +6,7 @@ import type { AppState } from "../model";
 import { inboxWorkspaceId } from "../model/inbox";
 import { Button } from "../ui/Button";
 import { WorkspaceAvatar } from "../ui/WorkspaceAvatar";
-import {
-  boardTileClass,
-  createTileClass,
-  emptyClass,
-  pageClass,
-  pageHeaderClass,
-  pageHeadingClass,
-  tileGridClass,
-} from "./pageLook";
+import { boardTileClass, emptyClass, pageClass, pageHeaderClass, pageHeadingClass, tileGridClass } from "./pageLook";
 import { NameEditor } from "../ui/NameEditor";
 
 export function WorkspacePage({
@@ -66,9 +58,9 @@ export function WorkspacePage({
               {board.starred && <span aria-label={t("pages.starred")}>★</span>}
             </AppLink>
           ))}
-          <button className={createTileClass} onClick={onCreateBoard}>
+          <Button variant="create-tile" onClick={onCreateBoard}>
             {t("pages.createBoardTile")}
-          </button>
+          </Button>
         </div>
       ) : (
         <div className={emptyClass}>

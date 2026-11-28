@@ -5,7 +5,7 @@ import { Icon } from "../ui/Icon";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
 import { t } from "../i18n";
-import { addListClass, composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
+import { composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
 import { endDrag, startDrag } from "./dragState";
 import { NameEditor } from "../ui/NameEditor";
 
@@ -77,14 +77,14 @@ export function ZoneFrame({
           value={zone.color}
           onCommit={onColor}
         />
-        <button
-          className="rounded-sm border-0 bg-transparent px-1.5 py-0 text-[16px] text-white hover:bg-[#0003]"
+        <Button
+          variant="icon-inverse"
           onClick={onDelete}
           aria-label={t("board.removeZoneOf", { name: zone.name })}
           title={t("board.removeZoneHint")}
         >
-          ×
-        </button>
+          <Icon name="close" className="size-4" />
+        </Button>
       </header>
       <div className="flex min-h-0 items-start gap-3 p-2">
         {children ?? (
@@ -108,9 +108,9 @@ export function ZoneComposer({ onCreate }: { onCreate: (name: string) => void })
   const [name, setName] = useState<string>();
   if (name === undefined)
     return (
-      <button className={addListClass} onClick={() => setName("")}>
+      <Button variant="add-list" onClick={() => setName("")}>
         <Icon name="plus" /> {t("board.newZone")}
-      </button>
+      </Button>
     );
   const submit = () => {
     if (name.trim()) onCreate(name.trim());

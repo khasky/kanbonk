@@ -2,6 +2,7 @@ import { type MouseEvent, useState } from "react";
 import { formatDate, formatDateTime, type MessageKey, t } from "../i18n";
 import type { Card } from "../model";
 import { Button } from "../ui/Button";
+import { DayButton } from "../ui/DayButton";
 import { Input, Select, Checkbox } from "../ui/Field";
 import { Icon, type IconName } from "../ui/Icon";
 import { pickerLabelClass } from "./cardLook";
@@ -73,15 +74,6 @@ function MonthButton({ icon, label, onClick }: { icon: IconName; label: string; 
       <Icon name={icon} className="size-4" />
     </Button>
   );
-}
-
-function dayClass(selected: boolean, between: boolean, inMonth: boolean, today: boolean) {
-  const look = selected
-    ? "rounded-[3px] bg-brand font-semibold text-white hover:bg-brand-hover"
-    : between
-      ? "bg-brand-soft text-ink hover:bg-[#cce0ff]"
-      : `rounded-[3px] bg-transparent hover:bg-surface-sunken ${today ? "font-semibold text-brand" : inMonth ? "text-ink" : "text-ink-faint"}`;
-  return `relative h-8 cursor-pointer border-0 text-[14px] ${look}`;
 }
 
 /**
@@ -186,13 +178,15 @@ export function DatesForm({
             const between = Boolean(start && due && time > start.getTime() && time < due.getTime());
             const isToday = time === today.getTime();
             return (
-              <button
+              <DayButton
                 key={time}
-                type="button"
-                className={dayClass(selected, between, day.getMonth() === month.getMonth(), isToday)}
+                look="cell"
+                selected={selected}
+                between={between}
+                today={isToday}
+                outside={day.getMonth() !== month.getMonth()}
                 onClick={() => pick(day)}
                 aria-pressed={selected}
-                aria-current={isToday ? "date" : undefined}
                 aria-label={formatDate(day, {
                   weekday: "long",
                   month: "long",
@@ -201,10 +195,7 @@ export function DatesForm({
                 })}
               >
                 {day.getDate()}
-                {isToday && !selected && (
-                  <span className="absolute inset-x-2.5 bottom-1 h-0.5 rounded-full bg-brand" aria-hidden="true" />
-                )}
-              </button>
+              </DayButton>
             );
           })}
         </div>
@@ -338,12 +329,10 @@ export function DatesChip({
     .filter(Boolean)
     .join(" – ");
   return (
-    <button
-      className={
-        overdue
-          ? "flex h-8 items-center gap-2 rounded-sm border-0 bg-danger-soft px-3 font-medium text-danger hover:bg-[#ffd5d2] disabled:cursor-default disabled:hover:bg-danger-soft"
-          : "flex h-8 items-center gap-2 rounded-sm border-0 bg-surface-sunken px-3 font-medium text-ink hover:bg-line disabled:cursor-default disabled:hover:bg-surface-sunken"
-      }
+    <Button
+      variant={overdue ? "danger" : "secondary"}
+      size="md"
+      className="flex h-8 items-center gap-2"
       onClick={onClick}
       aria-expanded={expanded}
       aria-label={t("card.datesLabel", { text })}
@@ -352,6 +341,6 @@ export function DatesChip({
       {overdue && (
         <span className="rounded-[3px] bg-danger px-1 text-[12px] font-semibold text-white">{t("card.overdue")}</span>
       )}
-    </button>
+    </Button>
   );
 }

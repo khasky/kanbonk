@@ -20,13 +20,12 @@ export function RemindersPanel({
       {reminders.length ? (
         reminders.map((item) => (
           <PanelRow key={item.id}>
-            <button
-              className="flex-1 whitespace-normal rounded-sm border-0 bg-transparent px-[9px] py-1.5 text-left text-ink hover:bg-brand-soft"
-              onClick={() => onOpen(item)}
-            >
-              {item.name}
-              <PanelRowNote>{formatDateTime(item.dueAt!)}</PanelRowNote>
-            </button>
+            <Button variant="row" className="flex-1" onClick={() => onOpen(item)}>
+              <span className="min-w-0 wrap-anywhere">
+                {item.name}
+                <PanelRowNote>{formatDateTime(item.dueAt!)}</PanelRowNote>
+              </span>
+            </Button>
             <Button
               variant="secondary"
               className="flex-none"

@@ -273,13 +273,14 @@ export function BoardGraph({
                 const middle = halfway(edgeCurve(from, to));
                 const active = selectedEdge && sameEdge(selectedEdge, edge);
                 return (
-                  <button
+                  <Button
                     key={`${edge.kind}${edge.from}${edge.to}`}
                     type="button"
+                    variant="dot"
                     aria-label={edgeText(edge)}
                     aria-pressed={Boolean(active)}
                     title={edgeText(edge)}
-                    className={`absolute size-3.5 -translate-1/2 cursor-pointer rounded-full border-2 border-white p-0 shadow hover:scale-125 ${
+                    className={`absolute ${
                       active
                         ? "bg-brand"
                         : edge.kind === "blocks" && !edge.resolved
@@ -305,9 +306,10 @@ export function BoardGraph({
                     } ${node.external ? "opacity-70" : ""}`}
                     style={{ left: node.x, top: node.y, width: nodeSize.width, height: nodeSize.height }}
                   >
-                    <button
+                    <Button
                       type="button"
-                      className="grid min-w-0 flex-1 cursor-pointer content-start gap-0.5 rounded-md border-0 bg-transparent px-2 py-1.5 text-left text-ink"
+                      variant="text"
+                      className="grid min-w-0 flex-1 content-start gap-0.5 px-2 py-1.5"
                       aria-label={`${card.name}, ${t(statusLook[node.status].key)}`}
                       aria-pressed={active}
                       onClick={() => setSelected({ card: card.id })}
@@ -338,7 +340,7 @@ export function BoardGraph({
                           );
                         })}
                       </span>
-                    </button>
+                    </Button>
                     <span
                       className="absolute top-1/2 -right-2 size-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-white bg-brand shadow"
                       aria-hidden="true"

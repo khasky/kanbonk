@@ -4,14 +4,13 @@ import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import type { AppState } from "../model";
 import { boardHref, trashHref } from "../lib/router";
 import { AppLink } from "../ui/AppLink";
+import { Button, buttonClass } from "../ui/Button";
 import { Icon, type IconName } from "../ui/Icon";
 import { WorkspaceAvatar } from "../ui/WorkspaceAvatar";
 import type { PanelName } from "../lib/uiPreferences";
 
 const collapsedKey = "kanbonk-sidebar-collapsed";
 
-const plainButton = "border-0 bg-transparent text-inherit hover:bg-brand-soft";
-const smallButton = `grid place-items-center p-1 ${plainButton}`;
 const boardLook =
   "flex w-full items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap rounded-sm border-0 py-[7px] pr-[9px] pl-[42px] text-left text-inherit no-underline hover:bg-brand-soft";
 
@@ -35,7 +34,7 @@ function NavLink({
   onClick: () => void;
 }) {
   const props = {
-    className: `flex w-full items-center gap-3 rounded-sm border-0 p-1.5 text-left font-bold text-brand no-underline hover:bg-brand-soft ${active ? "bg-brand-soft" : "bg-transparent"} ${collapsed ? "justify-center" : ""}`,
+    className: buttonClass("nav", undefined, collapsed ? "justify-center" : undefined),
     "aria-label": label,
     title: collapsed ? label : undefined,
     children: (
@@ -47,7 +46,17 @@ function NavLink({
       </>
     ),
   };
-  return href ? <AppLink {...props} href={href} onOpen={onClick} /> : <button {...props} onClick={onClick} />;
+  return href ? (
+    <AppLink {...props} href={href} onOpen={onClick} aria-current={active ? "page" : undefined} />
+  ) : (
+    <Button
+      variant="nav"
+      {...props}
+      className={collapsed ? "justify-center" : undefined}
+      aria-pressed={active}
+      onClick={onClick}
+    />
+  );
 }
 
 /**
@@ -92,15 +101,15 @@ export function Sidebar({
           : "sidebar w-[260px] flex-none overflow-auto border-r border-line bg-surface-soft px-2.5 py-[18px] max-tablet:w-[190px] max-phone:hidden"
       }
     >
-      <button
-        className={`grid size-7 place-items-center rounded-sm border-0 bg-transparent text-[18px] leading-none text-ink-subtle hover:bg-brand-soft ${collapsed ? "m-[0_auto_8px]" : "m-[-8px_0_6px_auto]"}`}
+      <Button
+        variant="icon"
+        className={`size-7 ${collapsed ? "m-[0_auto_8px]" : "m-[-8px_0_6px_auto]"}`}
         onClick={toggle}
         aria-label={collapsed ? t("layout.expandSidebar") : t("layout.collapseSidebar")}
-        aria-expanded={!collapsed}
         title={collapsed ? t("layout.expandSidebar") : t("layout.collapseSidebar")}
       >
-        {collapsed ? "»" : "«"}
-      </button>
+        <Icon name={collapsed ? "chevron-right" : "chevron-left"} />
+      </Button>
       <NavLink
         icon="inbox"
         label={t("layout.inbox")}
@@ -140,9 +149,9 @@ export function Sidebar({
         }
       >
         {t("layout.workspaces")}
-        <button className={smallButton} onClick={onCreateWorkspace} aria-label={t("layout.createWorkspace")}>
+        <Button variant="icon" onClick={onCreateWorkspace} aria-label={t("layout.createWorkspace")}>
           <Icon name="plus" />
-        </button>
+        </Button>
       </div>
       {state.workspaces
         .filter((item) => item.id !== inboxWorkspaceId && !item.deletedAt)
@@ -159,13 +168,14 @@ export function Sidebar({
                 <WorkspaceAvatar name={workspace.name} />
                 {!collapsed && <span className="truncate">{workspace.name}</span>}
               </AppLink>
-              <button
-                className={collapsed ? "hidden" : smallButton}
+              <Button
+                variant="icon"
+                className={collapsed ? "hidden" : undefined}
                 onClick={() => onCreateBoard(workspace.id)}
                 aria-label={t("layout.addBoardTo", { name: workspace.name })}
               >
                 <Icon name="plus" />
-              </button>
+              </Button>
             </div>
             {state.boards
               .filter((item) => item.workspaceId === workspace.id && item.id !== inboxBoardId && !item.deletedAt)

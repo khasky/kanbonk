@@ -1,4 +1,5 @@
 import { t } from "../i18n";
+import { Checkbox } from "../ui/Field";
 import { MarkdownText } from "../ui/MarkdownText";
 import type { ExportDocModel } from "./exportData";
 
@@ -77,7 +78,7 @@ export function ExportDocument({ model }: { model: ExportDocModel }) {
                   <ul className="m-0 list-none pl-3">
                     {checklist.items.map((item) => (
                       <li key={item.id} className="flex items-baseline gap-1.5">
-                        <input type="checkbox" checked={item.checked} readOnly tabIndex={-1} aria-label={item.name} />
+                        <Checkbox checked={item.checked} readOnly tabIndex={-1} aria-label={item.name} />
                         <span className={item.checked ? "text-[#6b778c] line-through" : ""}>{item.name}</span>
                       </li>
                     ))}

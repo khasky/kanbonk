@@ -91,6 +91,35 @@ export function MenuItem({
   return <button className={look + touch} {...props} />;
 }
 
+/** A row of a `Menu` that picks one file from this device; it clears itself, so the same file can be picked again. */
+export function MenuFileItem({
+  children,
+  accept,
+  onFile,
+}: {
+  children: ReactNode;
+  accept?: string;
+  onFile: (file: File | null) => void;
+}) {
+  const touch = use(TouchRowsContext) ? " max-phone:min-h-11" : "";
+  return (
+    <label
+      className={`${menuItemClass} relative has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-brand${touch}`}
+    >
+      {children}
+      <input
+        type="file"
+        className="sr-only"
+        accept={accept}
+        onChange={(event) => {
+          onFile(event.target.files?.[0] ?? null);
+          event.target.value = "";
+        }}
+      />
+    </label>
+  );
+}
+
 /** A line between groups of menu rows. */
 export function MenuSeparator() {
   return <hr className="mx-0 my-[3px] w-full border-x-0 border-b-0 border-t border-line" />;

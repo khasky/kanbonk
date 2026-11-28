@@ -28,6 +28,3 @@ export const workspaceTileClass = `${tile} flex-col bg-surface-soft text-ink`;
 
 /** A board tile; its color comes from the board's background. */
 export const boardTileClass = `${tile} flex-row items-start justify-between text-[16px] text-white`;
-
-/** The "+ Create" tile at the end of a grid. */
-export const createTileClass = `${tile} flex-col items-center justify-center bg-surface-sunken text-ink-subtle`;

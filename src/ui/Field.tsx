@@ -3,45 +3,56 @@ import type { InputHTMLAttributes, Ref, SelectHTMLAttributes, TextareaHTMLAttrib
 export type FieldSize = "sm" | "md";
 
 // 16px text on phones keeps iOS from zooming into a focused field.
-const look =
-  "rounded-sm border border-ink-faint bg-white font-normal text-ink placeholder:text-ink-muted disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-ink-muted max-phone:text-[16px]";
+const looks = {
+  light:
+    "rounded-sm border border-ink-faint bg-white font-normal text-ink placeholder:text-ink-muted disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-ink-muted max-phone:text-[16px]",
+  dark: "rounded-sm border border-[#6b778c] bg-[#22272b] font-normal text-white placeholder:text-[#c7d1db] disabled:cursor-not-allowed disabled:opacity-50 max-phone:text-[16px]",
+  toolbar:
+    "rounded-md border border-[#ffffff55] bg-[#ffffff33] text-inherit placeholder:text-inherit placeholder:opacity-80 focus:bg-white focus:text-ink focus:outline-2 focus:outline-brand max-phone:text-[16px]",
+};
+export type FieldTone = keyof typeof looks;
 const sizes: Record<FieldSize, string> = {
   sm: "px-2 py-1.5 text-[14px]",
   md: "p-2.5 text-[14px]",
 };
 
-function fieldClass(size: FieldSize, className?: string) {
-  return className ? `${look} ${sizes[size]} ${className}` : `${look} ${sizes[size]}`;
+function fieldClass(size: FieldSize, className?: string, tone: FieldTone = "light") {
+  const look = `${looks[tone]} ${sizes[size]}`;
+  return className ? `${look} ${className}` : look;
 }
 
 /**
  * The app's form fields. `size="md"` (default) is the field of a dialog, composer or form; `sm` a compact field in a
  * dense row (filters, card dates, the boxes under the card's actions). `className` may only add layout (width,
- * height, margins, flex, resize).
+ * height, margins, flex, resize). `tone` is `dark` on the dark top bar, `toolbar` on a board's colored toolbar.
  */
 export function Input({
   size = "md",
+  tone,
   className,
   ref,
   ...props
 }: Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
   size?: FieldSize;
+  tone?: FieldTone;
   ref?: Ref<HTMLInputElement>;
 }) {
-  return <input ref={ref} className={fieldClass(size, className)} {...props} />;
+  return <input ref={ref} className={fieldClass(size, className, tone)} {...props} />;
 }
 
-/** A dropdown with the look of `Input`. */
+/** A dropdown with the look of `Input`; `tone="dark"` is one on the dark top bar. */
 export function Select({
   size = "md",
+  tone,
   className,
   ref,
   ...props
 }: Omit<SelectHTMLAttributes<HTMLSelectElement>, "size"> & {
   size?: FieldSize;
+  tone?: FieldTone;
   ref?: Ref<HTMLSelectElement>;
 }) {
-  return <select ref={ref} className={fieldClass(size, className)} {...props} />;
+  return <select ref={ref} className={fieldClass(size, className, tone)} {...props} />;
 }
 
 /** A multi-line field with the look of `Input`; it resizes vertically. */

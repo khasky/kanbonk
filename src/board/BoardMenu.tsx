@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { ColorInput } from "../ui/ColorInput";
-import { Menu, MenuItem, menuItemClass } from "../ui/Menu";
+import { Menu, MenuFileItem, MenuItem } from "../ui/Menu";
 import { t } from "../i18n";
 
 /** Background presets offered in the board menu; the first one is the default for new boards. */
@@ -53,20 +53,9 @@ export function BoardMenu({ background, actions }: { background: string; actions
       <MenuItem onClick={actions.onHistory}>{t("board.history")}</MenuItem>
       <MenuItem onClick={actions.onExport}>{t("board.exportBoard")}</MenuItem>
       <MenuItem onClick={actions.onTrash}>{t("board.moveBoardToTrash")}</MenuItem>
-      <label
-        className={`${menuItemClass} relative has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-brand`}
-      >
+      <MenuFileItem accept="image/*" onFile={actions.onBackgroundFile}>
         {t("board.backgroundFromFile")}
-        <input
-          type="file"
-          className="sr-only"
-          accept="image/*"
-          onChange={(event) => {
-            actions.onBackgroundFile(event.target.files?.[0] ?? null);
-            event.target.value = "";
-          }}
-        />
-      </label>
+      </MenuFileItem>
       <label className="mt-[3px] grid w-full cursor-default gap-1.5 rounded-none border-x-0 border-b-0 border-t border-line bg-transparent p-2.5 text-left text-inherit">
         {t("board.backgroundColor")}
         <ColorInput

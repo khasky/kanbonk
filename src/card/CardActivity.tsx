@@ -11,8 +11,6 @@ import { useCardActionsContext } from "./CardActionsContext";
 
 const dateClass = "text-[12px] text-ink-muted";
 const avatarClass = "grid size-8 flex-none place-items-center rounded-full font-bold";
-const commentPlaceholderClass =
-  "w-full cursor-text rounded-lg border-0 bg-white px-3 py-2.5 text-left text-ink-subtle shadow-tile hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-white";
 const commentActionClass = "py-[3px] text-[12px]";
 
 /** Comments, with the card's change history mixed in when details are shown. Only own comments can be edited. */
@@ -109,9 +107,9 @@ export function CardActivity({
           onCancel={() => setWritingComment(false)}
         />
       ) : (
-        <button className={commentPlaceholderClass} disabled={readOnly} onClick={() => setWritingComment(true)}>
+        <Button variant="placeholder-raised" disabled={readOnly} onClick={() => setWritingComment(true)}>
           {t("card.writeComment")}
-        </button>
+        </Button>
       )}
       <div className="mt-4 grid gap-4">
         {activityFeed.map((item) => {

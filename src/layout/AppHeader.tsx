@@ -3,25 +3,18 @@ import { t } from "../i18n";
 import { inboxBoardId } from "../model/inbox";
 import type { AppState } from "../model";
 import { linkHref, trashHref } from "../lib/router";
-import { Icon } from "../ui/Icon";
+import { Button } from "../ui/Button";
+import { Select } from "../ui/Field";
+import { SearchField } from "../ui/SearchField";
 import { Menu, MenuItem } from "../ui/Menu";
 import type { PanelName } from "../lib/uiPreferences";
 
 /** The value the mobile board picker uses for the Planner panel, which is not a board. */
 export const plannerViewId = "kanbonk-planner";
 
-/** Touch-sized buttons on phones. */
-const phoneButton = "max-phone:min-h-11 max-phone:px-2.5 max-phone:py-2 max-phone:text-[14px]";
-const topbarButton = `rounded-[3px] border-0 bg-topbar-button px-3 py-[7px] text-inherit ${phoneButton}`;
-
-/** The sync badge; it stays visible on phones only while changes wait or the device is offline. */
-function badgeClass(sync: DeviceSync): string {
-  const look = !sync.online
-    ? "bg-ink-muted text-white"
-    : sync.pendingChanges
-      ? "bg-[#7f5f01] text-[#fff7d6]"
-      : "bg-[#164b35] text-[#baf3db] max-phone:hidden";
-  return `cursor-pointer whitespace-nowrap rounded-[20px] border-0 px-[9px] py-[5px] text-[12px] ${phoneButton} ${look}`;
+/** The state of the sync badge; it stays visible on phones only while changes wait or the device is offline. */
+function badgeState(sync: DeviceSync): "offline" | "pending" | "synced" {
+  return !sync.online ? "offline" : sync.pendingChanges ? "pending" : "synced";
 }
 
 export type AppMenuActions = {
@@ -78,8 +71,10 @@ export function AppHeader({
         <img className="block size-[26px] rounded-[22%]" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" />
         <strong className="max-phone:hidden">Kanbonk</strong>
       </a>
-      <select
-        className="hidden max-phone:order-2 max-phone:block max-phone:h-11 max-phone:min-w-[120px] max-phone:flex-[1_1_calc(50%_-_12px)] max-phone:rounded-sm max-phone:border max-phone:border-[#6b778c] max-phone:bg-[#22272b] max-phone:text-[16px] max-phone:text-white"
+      <Select
+        size="sm"
+        tone="dark"
+        className="hidden max-phone:order-2 max-phone:block max-phone:h-11 max-phone:min-w-[120px] max-phone:flex-[1_1_calc(50%_-_12px)]"
         aria-label={t("layout.chooseBoard")}
         value={
           shownPanels.includes("inbox")
@@ -100,31 +95,28 @@ export function AppHeader({
               {state.workspaces.find((workspace) => workspace.id === item.workspaceId)?.name} / {item.name}
             </option>
           ))}
-      </select>
-      <button className={`ml-6 max-phone:ml-0 ${topbarButton}`} onClick={onCreate}>
+      </Select>
+      <Button variant="topbar" className="ml-6 max-phone:ml-0" onClick={onCreate}>
         {t("layout.create")}
-      </button>
-      <button
-        className={topbarButton}
+      </Button>
+      <Button
+        variant="topbar"
         onClick={onOpenReminders}
         aria-label={t("layout.remindersLabel", { count: reminderCount })}
       >
         {reminderCount ? t("layout.remindersCount", { count: reminderCount }) : t("layout.reminders")}
-      </button>
+      </Button>
       <AppMenu actions={menu} navigate={navigate} />
-      <label className="mx-auto flex h-8 w-[min(480px,40vw)] items-center gap-2 rounded-sm border border-[#6b778c] bg-[#22272b] px-[9px] max-tablet:w-[30vw] max-phone:order-2 max-phone:mx-0 max-phone:h-11 max-phone:w-auto max-phone:min-w-[120px] max-phone:flex-[1_1_calc(50%_-_12px)]">
-        <Icon name="search" />
-        <input
-          value={search}
-          onChange={(event) => onSearch(event.target.value)}
-          className="w-full border-0 bg-transparent text-white outline-none placeholder:text-[#c7d1db] max-phone:min-w-0 max-phone:text-[16px]"
-          placeholder={t("layout.search")}
-          aria-label={t("layout.searchCards")}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") onSearch("");
-          }}
-        />
-      </label>
+      <SearchField
+        className="mx-auto w-[min(480px,40vw)] max-tablet:w-[30vw] max-phone:order-2 max-phone:mx-0 max-phone:h-11 max-phone:w-auto max-phone:min-w-[120px] max-phone:flex-[1_1_calc(50%_-_12px)]"
+        value={search}
+        onChange={(event) => onSearch(event.target.value)}
+        placeholder={t("layout.search")}
+        aria-label={t("layout.searchCards")}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") onSearch("");
+        }}
+      />
       <a
         className={`rounded-[3px] px-3 py-[7px] whitespace-nowrap no-underline max-[761px]:hidden ${trashActive ? "bg-brand-light text-topbar" : "bg-topbar-button text-surface-sunken hover:bg-brand-light hover:text-topbar"}`}
         href={linkHref(trashHref())}
@@ -136,9 +128,15 @@ export function AppHeader({
       >
         {trashCount ? t("layout.trashLinkCount", { count: trashCount }) : t("layout.trashLink")}
       </a>
-      <button className={badgeClass(sync)} onClick={menu.onSync} title={t("layout.syncTitle")}>
+      <Button
+        variant="badge"
+        data-state={badgeState(sync)}
+        className={badgeState(sync) === "synced" ? "max-phone:hidden" : undefined}
+        onClick={menu.onSync}
+        title={t("layout.syncTitle")}
+      >
         {sync.badge}
-      </button>
+      </Button>
     </header>
   );
 }

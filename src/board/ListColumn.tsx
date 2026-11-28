@@ -18,7 +18,7 @@ import { Button } from "../ui/Button";
 import { Textarea } from "../ui/Field";
 import { Icon } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
-import { addCardClass, composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
+import { composeActionsClass, composeClass, dragHandleClass } from "./boardLook";
 import { CardTile, type TileActions } from "./CardTile";
 import { endDrag, startDrag } from "./dragState";
 import { ListActionsPopover } from "./ListActionsPopover";
@@ -267,9 +267,9 @@ export function ListColumn({
         </div>
       ) : (
         <div className="mt-[5px] flex items-center gap-1">
-          <button className={`${addCardClass} flex-1`} onClick={() => actions.startCard(list.id)}>
+          <Button variant="add-card" className="flex-1" onClick={() => actions.startCard(list.id)}>
             <Icon name="plus" /> {t("board.addCard")}
-          </button>
+          </Button>
           <Button
             variant="icon"
             className="size-9 flex-none max-phone:min-h-11 max-phone:min-w-11"

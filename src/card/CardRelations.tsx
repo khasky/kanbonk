@@ -204,12 +204,9 @@ export function RelatedCards({
         <div className="flex items-center gap-2.5 border-b border-line py-2 wrap-anywhere" key={`${link.url}-${index}`}>
           <span className="min-w-[70px] text-[12px] text-ink-muted">{link.source}</span>
           {link.target && isCardAvailable(state, link.target) ? (
-            <button
-              className="rounded-sm border-0 bg-brand-soft px-2 py-1.5 text-left text-brand"
-              onClick={() => onNavigateCard(link.target!)}
-            >
+            <Button variant="link-quiet" onClick={() => onNavigateCard(link.target!)}>
               {link.target.name}
-            </button>
+            </Button>
           ) : link.target ? (
             <small className="text-danger">{t("card.cardUnavailableName", { name: link.target.name })}</small>
           ) : (

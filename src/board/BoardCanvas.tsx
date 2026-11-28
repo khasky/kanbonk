@@ -14,7 +14,7 @@ import { ZoneComposer, ZoneFrame } from "./ZoneFrame";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
 import { t } from "../i18n";
-import { addListClass, composeActionsClass, composeClass } from "./boardLook";
+import { composeActionsClass, composeClass } from "./boardLook";
 import { currentDrag, dragKind, dropTargetAt, endDrag, setDropTarget, useDragState } from "./dragState";
 
 /** The id of the stand-in list that marks where a dragged list would land. `data-drop-slot` marks slots for tests. */
@@ -341,8 +341,8 @@ export function BoardCanvas({
             </div>
           </div>
         ) : (
-          <button
-            className={addListClass}
+          <Button
+            variant="add-list"
             onClick={() => {
               setEditingList(true);
               setEditingCardList(null);
@@ -350,7 +350,7 @@ export function BoardCanvas({
             }}
           >
             <Icon name="plus" /> {t("board.addList")}
-          </button>
+          </Button>
         )}
         {!editingList && <ZoneComposer onCreate={(name) => boardActions.addZone(board.id, name)} />}
       </div>

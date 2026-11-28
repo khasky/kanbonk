@@ -4,9 +4,8 @@ import { type AppState, type Board, type Card, positionAt } from "../model";
 import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
 import { Button } from "../ui/Button";
 import { Select } from "../ui/Field";
+import { Segmented, SegmentedTab } from "../ui/Segmented";
 
-const tabClass =
-  "-mb-px cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-0 pt-1 pb-1.5 text-[14px] text-ink-subtle aria-selected:border-brand aria-selected:text-brand";
 export const moveLabelClass = "grid gap-1.5 text-[14px] font-bold text-ink";
 /** Its options are styled in styles/index.css, where browsers allow it. */
 export const moveSelectClass = "move-select w-full min-w-0";
@@ -133,19 +132,14 @@ export function MovePicker({
 
   return (
     <div className="grid gap-4">
-      <div className="flex gap-6 border-b border-line" role="tablist">
-        <button
-          role="tab"
-          aria-selected={tab === "inbox"}
-          className={tabClass}
-          onClick={() => choose("inbox", inboxListId)}
-        >
+      <Segmented label={t("card.selectDestination")} className="justify-self-start">
+        <SegmentedTab selected={tab === "inbox"} onClick={() => choose("inbox", inboxListId)}>
           {t("layout.inbox")}
-        </button>
-        <button role="tab" aria-selected={tab === "board"} className={tabClass} onClick={() => choose("board", listId)}>
+        </SegmentedTab>
+        <SegmentedTab selected={tab === "board"} onClick={() => choose("board", listId)}>
           {t("card.board")}
-        </button>
-      </div>
+        </SegmentedTab>
+      </Segmented>
       {tab === "inbox" ? (
         <div className="flex items-center justify-between gap-3">
           <span className="text-[14px] text-ink">{t("card.selectPosition")}</span>

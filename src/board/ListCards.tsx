@@ -1,6 +1,7 @@
 import { startTransition, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Card } from "../model";
 import { t } from "../i18n";
+import { Button } from "../ui/Button";
 
 /**
  * Renders a list's cards only while the list is near the viewport, and long lists in pages: the next page mounts when
@@ -66,12 +67,9 @@ export function ListCards({
       {withSlot(cards.slice(0, limit), render, draggedId, slot)}
       {more && (
         <div ref={sentinel} className="py-1.5">
-          <button
-            className="w-full cursor-pointer rounded-md border-0 bg-[#091e420f] p-1.5"
-            onClick={() => setLimit((value) => value + listPageSize)}
-          >
+          <Button variant="secondary" className="w-full" onClick={() => setLimit((value) => value + listPageSize)}>
             {t("board.showMoreOf", { count: Math.min(listPageSize, cards.length - limit), rest: cards.length - limit })}
-          </button>
+          </Button>
         </div>
       )}
     </div>

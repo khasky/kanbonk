@@ -4,6 +4,7 @@ import { Icon } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
 import { BoardMenu, type BoardMenuActions } from "./BoardMenu";
 import { Button } from "../ui/Button";
+import { Input } from "../ui/Field";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
 import { t } from "../i18n";
 
@@ -96,9 +97,11 @@ export function BoardToolbar({
         </SegmentedTab>
       </Segmented>
       <span className="flex-1 in-[.panel-open]:flex-[1_0_4px] max-phone:hidden" />
-      <input
+      <Input
         type="search"
-        className="h-8 w-[200px] max-w-[32vw] rounded-md border border-[#ffffff55] bg-[#ffffff33] px-2.5 py-0 text-inherit placeholder:text-inherit placeholder:opacity-80 focus:bg-white focus:text-ink focus:outline-2 focus:outline-brand"
+        size="sm"
+        tone="toolbar"
+        className="h-8 w-[200px] max-w-[32vw]"
         value={keyword}
         onChange={(event) => onKeyword(event.target.value)}
         placeholder={t("board.searchBoard")}

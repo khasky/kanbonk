@@ -24,6 +24,7 @@ import { Icon } from "../ui/Icon";
 import { tileMetaIconClass, tileMetaItemClass } from "./tileLook";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
 import { Button } from "../ui/Button";
+import { DayButton } from "../ui/DayButton";
 import { formatDate, type MessageKey, t } from "../i18n";
 import { useWeekStart } from "../lib/weekStart";
 import { CalendarDayPanel, CalendarSummaryPanel } from "./CalendarPanels";
@@ -59,7 +60,6 @@ const barStart = { flush: "ml-0 rounded-l-none", own: "ml-1 rounded-l-md" };
 const barEnd = { flush: "mr-0 rounded-r-none", own: "mr-1 rounded-r-md" };
 
 /** A year view's chip of a card, or the "N more" link under them. */
-const chipBase = `cursor-pointer rounded-sm border-0 px-1.5 py-[3px] text-left text-[12px] truncate`;
 
 interface CalendarDragState {
   cardId: string;
@@ -110,15 +110,16 @@ function CalendarWeek({
           className={`min-w-0 border-l border-line ${outside(day) ? "bg-surface-soft" : "bg-surface-sunken"}`}
           style={{ gridColumn: index + 1, gridRow: "1 / -1" }}
         >
-          <button
-            type="button"
-            className={`m-0.5 inline-block cursor-pointer rounded-[10px] border-0 px-1.5 py-[3px] text-[12px] ${dayKey(day) === today ? "bg-brand text-white" : `bg-transparent hover:bg-line ${outside(day) ? "text-ink-faint" : "text-ink"}`}`}
+          <DayButton
+            look="label"
+            today={dayKey(day) === today}
+            outside={outside(day)}
             aria-label={t("calendar.openDay", { date: formatDate(day) })}
             title={t("calendar.openDay", { date: formatDate(day) })}
             onClick={() => onOpenDay(day)}
           >
             {day.getDate()}
-          </button>
+          </DayButton>
         </div>
       ))}
       {row.segments.map((segment) => {
@@ -166,8 +167,9 @@ function CalendarWeek({
               </span>
             )}
             <span className="flex min-w-0 items-center gap-1">
-              <button
-                className="calendar-bar-name min-w-0 flex-1 cursor-[inherit] overflow-hidden border-0 bg-transparent p-0 text-left text-ellipsis whitespace-nowrap text-inherit"
+              <Button
+                variant="text"
+                className="calendar-bar-name min-w-0 flex-1 truncate"
                 onClick={(event) => {
                   if (event.detail === 0) onOpen(card);
                 }}
@@ -176,10 +178,11 @@ function CalendarWeek({
                 }}
               >
                 {card.name}
-              </button>
+              </Button>
               {!segment.continuesAfter && (
-                <button
-                  className="flex-none cursor-pointer border-0 bg-transparent px-0.5 py-0 text-[14px] leading-none text-ink-subtle opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+                <Button
+                  variant="icon"
+                  className="flex-none p-0 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                   aria-label={t("board.deleteCardOf", { name: card.name })}
                   title={t("common.delete")}
                   onPointerDown={(event) => event.stopPropagation()}
@@ -188,8 +191,8 @@ function CalendarWeek({
                     onDelete(card);
                   }}
                 >
-                  ×
-                </button>
+                  <Icon name="close" className="size-3.5" />
+                </Button>
               )}
             </span>
             {card.description || card.attachments.length || card.comments.length || card.checklists.length ? (
@@ -376,23 +379,19 @@ export function BoardCalendar({
                   {t(name)} <small>{monthItems.length || ""}</small>
                 </Button>
                 {monthItems.slice(0, 8).map((item) => (
-                  <button
-                    key={item.card.id}
-                    className={`${chipBase} bg-brand-soft`}
-                    onClick={() => onOpen(item.card)}
-                    title={item.card.name}
-                  >
+                  <Button key={item.card.id} variant="chip" onClick={() => onOpen(item.card)} title={item.card.name}>
                     <small>{item.start.getMonth() === month ? item.start.getDate() : "…"}</small>{" "}
                     <span className="calendar-bar-name">{item.card.name}</span>
-                  </button>
+                  </Button>
                 ))}
                 {monthItems.length > 8 && (
-                  <button
-                    className={`${chipBase} bg-transparent text-brand`}
+                  <Button
+                    variant="link-quiet"
+                    className="px-1.5 py-[3px]"
                     onClick={() => onNavigate("month", dayKey(new Date(anchor.getFullYear(), month, 1)))}
                   >
-                    {t("board.moreCount", { count: monthItems.length - 8 })}
-                  </button>
+                    <small>{t("board.moreCount", { count: monthItems.length - 8 })}</small>
+                  </Button>
                 )}
               </div>
             );

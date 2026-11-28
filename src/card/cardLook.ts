@@ -6,13 +6,6 @@ export const detailSectionClass = "my-6";
 /** The heading of the activity panel, with its controls inline. */
 export const detailTitleClass = "mt-0 mb-3 flex min-h-8 items-center gap-3 text-[15px] font-semibold";
 
-/**
- * A grey "click to write" field: the empty description. `!`: the card dialog makes its buttons 44px high on phones,
- * which must not shrink this one.
- */
-export const placeholderClass =
-  "min-h-14! w-full cursor-text rounded-sm border-0 bg-surface-sunken p-2.5 text-left text-ink-subtle hover:bg-line";
-
 /** The content of a popover opened by a card button (move, share, checklist, link, dependency, cover). */
 export const pickerBoxClass = "flex flex-col gap-3";
 
