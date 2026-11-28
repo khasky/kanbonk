@@ -650,6 +650,8 @@ export default {
     hideCheckedItems: "Nascondi elementi spuntati",
     checklistActions: "Azioni della checklist {name}",
     deleteChecklist: "Elimina checklist",
+    deleteChecklistTitle: "Eliminare la checklist “{name}”?",
+    deleteChecklistMessage: "La checklist e tutti i suoi elementi verranno rimossi dalla scheda.",
     dragItem: "Trascina elemento",
     checkItem: "Spunta elemento {name}",
     itemTitle: "Titolo dell'elemento {name}",

@@ -620,6 +620,8 @@ export default {
     hideCheckedItems: "Ocultar itens marcados",
     checklistActions: "Ações da checklist {name}",
     deleteChecklist: "Excluir checklist",
+    deleteChecklistTitle: "Excluir a checklist “{name}”?",
+    deleteChecklistMessage: "A checklist e todos os seus itens serão removidos do cartão.",
     dragItem: "Arrastar item",
     checkItem: "Marcar o item {name}",
     itemTitle: "Título do item {name}",

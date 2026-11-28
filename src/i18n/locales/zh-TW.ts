@@ -617,6 +617,8 @@ export default {
     hideCheckedItems: "隱藏已勾選的項目",
     checklistActions: "待辦清單動作 {name}",
     deleteChecklist: "刪除待辦清單",
+    deleteChecklistTitle: "刪除檢查清單「{name}」？",
+    deleteChecklistMessage: "檢查清單及其所有項目將從卡片中移除。",
     dragItem: "拖曳項目",
     checkItem: "勾選項目 {name}",
     itemTitle: "項目標題 {name}",

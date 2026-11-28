@@ -155,6 +155,8 @@ export const card = {
   hideCheckedItems: "Hide checked items",
   checklistActions: "Checklist actions {name}",
   deleteChecklist: "Delete checklist",
+  deleteChecklistTitle: "Delete the checklist “{name}”?",
+  deleteChecklistMessage: "The checklist and all its items are removed from the card.",
   dragItem: "Drag item",
   checkItem: "Check item {name}",
   itemTitle: "Item title {name}",

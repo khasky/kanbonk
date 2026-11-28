@@ -656,6 +656,8 @@ export default {
     hideCheckedItems: "Masquer les éléments cochés",
     checklistActions: "Actions de la checklist {name}",
     deleteChecklist: "Supprimer la checklist",
+    deleteChecklistTitle: "Supprimer la checklist « {name} » ?",
+    deleteChecklistMessage: "La checklist et tous ses éléments seront retirés de la carte.",
     dragItem: "Faire glisser l’élément",
     checkItem: "Cocher l’élément {name}",
     itemTitle: "Titre de l’élément {name}",

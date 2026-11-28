@@ -629,6 +629,8 @@ export default {
     hideCheckedItems: "Afgevinkte items verbergen",
     checklistActions: "Checklistacties {name}",
     deleteChecklist: "Checklist verwijderen",
+    deleteChecklistTitle: "Checklist ‘{name}’ verwijderen?",
+    deleteChecklistMessage: "De checklist en alle items erin worden van de kaart verwijderd.",
     dragItem: "Item slepen",
     checkItem: "Item {name} afvinken",
     itemTitle: "Titel van item {name}",

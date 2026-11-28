@@ -628,6 +628,8 @@ export default {
     hideCheckedItems: "İşaretli öğeleri gizle",
     checklistActions: "{name} kontrol listesi işlemleri",
     deleteChecklist: "Kontrol listesini sil",
+    deleteChecklistTitle: "“{name}” kontrol listesi silinsin mi?",
+    deleteChecklistMessage: "Kontrol listesi ve tüm öğeleri karttan kaldırılır.",
     dragItem: "Öğeyi sürükle",
     checkItem: "{name} öğesini işaretle",
     itemTitle: "{name} öğe başlığı",

@@ -622,6 +622,8 @@ export default {
     hideCheckedItems: "Ẩn các mục đã đánh dấu",
     checklistActions: "Thao tác danh sách việc cần làm {name}",
     deleteChecklist: "Xóa danh sách việc cần làm",
+    deleteChecklistTitle: "Xóa danh sách kiểm tra “{name}”?",
+    deleteChecklistMessage: "Danh sách kiểm tra và mọi mục trong đó sẽ bị xóa khỏi thẻ.",
     dragItem: "Kéo mục",
     checkItem: "Đánh dấu mục {name}",
     itemTitle: "Tiêu đề mục {name}",

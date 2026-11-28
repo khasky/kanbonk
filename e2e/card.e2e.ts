@@ -139,3 +139,24 @@ test("replies to comments in threads, hides replies and keeps a deleted comment'
   await expect(reopened.getByText("Comment deleted")).toBeVisible();
   await expect(reopened.locator("article", { hasText: "Thanks" })).toBeVisible();
 });
+
+test("asks before deleting a checklist and keeps it when cancelled", async ({ page }) => {
+  await importTrelloBoard(page);
+  await page.getByRole("link", { name: /Card from Trello/ }).click();
+  const card = page.getByRole("dialog", { name: "Card from Trello" });
+  const remove = async () => {
+    await card.getByLabel("Checklist actions Steps").click();
+    await card.getByRole("button", { name: "Delete checklist" }).click();
+    return page.getByRole("alertdialog", { name: "Delete the checklist “Steps”?" });
+  };
+
+  const ask = await remove();
+  await expect(ask).toContainText("The checklist and all its items are removed from the card.");
+  await ask.getByRole("button", { name: "Cancel" }).click();
+  await expect(ask).toBeHidden();
+  await expect(card.getByLabel("Check item Remaining")).toBeVisible();
+
+  await (await remove()).getByRole("button", { name: "Delete" }).click();
+  await expect(card.getByLabel("Check item Remaining")).toHaveCount(0);
+  await expect(card).toBeVisible();
+});

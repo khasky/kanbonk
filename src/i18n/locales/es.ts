@@ -626,6 +626,8 @@ export default {
     hideCheckedItems: "Ocultar elementos marcados",
     checklistActions: "Acciones del checklist {name}",
     deleteChecklist: "Eliminar checklist",
+    deleteChecklistTitle: "¿Eliminar la lista de control «{name}»?",
+    deleteChecklistMessage: "La lista de control y todos sus elementos se quitarán de la tarjeta.",
     dragItem: "Arrastrar elemento",
     checkItem: "Marcar el elemento {name}",
     itemTitle: "Título del elemento {name}",

@@ -666,6 +666,8 @@ export default {
     hideCheckedItems: "Скрыть отмеченные элементы",
     checklistActions: "Действия с чек-листом {name}",
     deleteChecklist: "Удалить чек-лист",
+    deleteChecklistTitle: "Удалить чек-лист «{name}»?",
+    deleteChecklistMessage: "Чек-лист и все его пункты будут удалены из карточки.",
     dragItem: "Перетащить элемент",
     checkItem: "Отметить элемент {name}",
     itemTitle: "Название элемента {name}",

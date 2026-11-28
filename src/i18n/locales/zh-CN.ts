@@ -617,6 +617,8 @@ export default {
     hideCheckedItems: "隐藏已勾选的项目",
     checklistActions: "清单操作 {name}",
     deleteChecklist: "删除清单",
+    deleteChecklistTitle: "删除清单“{name}”？",
+    deleteChecklistMessage: "清单及其所有项目将从卡片中删除。",
     dragItem: "拖动项目",
     checkItem: "勾选项目 {name}",
     itemTitle: "项目标题 {name}",

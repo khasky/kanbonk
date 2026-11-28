@@ -623,6 +623,8 @@ export default {
     hideCheckedItems: "チェック済みの項目を非表示",
     checklistActions: "チェックリストの操作 {name}",
     deleteChecklist: "チェックリストを削除",
+    deleteChecklistTitle: "チェックリスト「{name}」を削除しますか？",
+    deleteChecklistMessage: "チェックリストとそのすべての項目がカードから削除されます。",
     dragItem: "項目をドラッグ",
     checkItem: "項目 {name} をチェック",
     itemTitle: "項目名 {name}",

@@ -642,6 +642,8 @@ export default {
     hideCheckedItems: "Kipipált elemek elrejtése",
     checklistActions: "Ellenőrzőlista-műveletek: {name}",
     deleteChecklist: "Ellenőrzőlista törlése",
+    deleteChecklistTitle: "Törli a(z) „{name}” ellenőrzőlistát?",
+    deleteChecklistMessage: "Az ellenőrzőlista és minden eleme lekerül a kártyáról.",
     dragItem: "Elem húzása",
     checkItem: "Elem kipipálása: {name}",
     itemTitle: "Elem címe: {name}",

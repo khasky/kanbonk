@@ -680,6 +680,8 @@ export default {
     hideCheckedItems: "Skrýt zaškrtnuté položky",
     checklistActions: "Akce kontrolního seznamu {name}",
     deleteChecklist: "Smazat kontrolní seznam",
+    deleteChecklistTitle: "Smazat kontrolní seznam „{name}“?",
+    deleteChecklistMessage: "Kontrolní seznam i všechny jeho položky budou z karty odebrány.",
     dragItem: "Přetáhnout položku",
     checkItem: "Zaškrtnout položku {name}",
     itemTitle: "Název položky {name}",

@@ -81,7 +81,15 @@ export function ChecklistSection({
     else if (action.startsWith("to:")) onChange((current) => moveChecklistItem(current, itemId, action.slice(3)));
   }
 
-  function deleteChecklist() {
+  /** Deletes the checklist with its items once the user confirms; its sub-card links go with it. */
+  async function deleteChecklist() {
+    const confirmed = await askConfirm({
+      title: t("card.deleteChecklistTitle", { name: checklist.name }),
+      message: t("card.deleteChecklistMessage"),
+      confirm: t("common.delete"),
+      danger: true,
+    });
+    if (!confirmed) return;
     for (const linkedCardId of new Set(
       checklist.items.flatMap((item) => (item.linkedCardId ? [item.linkedCardId] : [])),
     ))
@@ -119,7 +127,7 @@ export function ChecklistSection({
           {hideChecked ? t("card.showCheckedItems") : t("card.hideCheckedItems")}
         </Button>
         <Menu label={t("card.checklistActions", { name: checklist.name })} summaryClassName={menuButtonClass}>
-          <MenuItem danger onClick={deleteChecklist}>
+          <MenuItem danger onClick={() => void deleteChecklist()}>
             {t("card.deleteChecklist")}
           </MenuItem>
         </Menu>

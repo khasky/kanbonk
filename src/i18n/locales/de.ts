@@ -635,6 +635,8 @@ export default {
     hideCheckedItems: "Abgehakte Elemente ausblenden",
     checklistActions: "Checklisten-Aktionen {name}",
     deleteChecklist: "Checkliste löschen",
+    deleteChecklistTitle: "Checkliste „{name}“ löschen?",
+    deleteChecklistMessage: "Die Checkliste und alle ihre Punkte werden von der Karte entfernt.",
     dragItem: "Element ziehen",
     checkItem: "Element {name} abhaken",
     itemTitle: "Titel des Elements {name}",

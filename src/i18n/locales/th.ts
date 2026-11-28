@@ -620,6 +620,8 @@ export default {
     hideCheckedItems: "ซ่อนรายการที่เลือกแล้ว",
     checklistActions: "การดำเนินการของรายการตรวจสอบ {name}",
     deleteChecklist: "ลบรายการตรวจสอบ",
+    deleteChecklistTitle: "ลบเช็กลิสต์ “{name}” ไหม",
+    deleteChecklistMessage: "เช็กลิสต์และรายการทั้งหมดในนั้นจะถูกนำออกจากการ์ด",
     dragItem: "ลากรายการ",
     checkItem: "ทำเครื่องหมายรายการ {name}",
     itemTitle: "ชื่อรายการ {name}",

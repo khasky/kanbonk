@@ -628,6 +628,8 @@ export default {
     hideCheckedItems: "Dölj markerade objekt",
     checklistActions: "Checklistans åtgärder {name}",
     deleteChecklist: "Ta bort checklista",
+    deleteChecklistTitle: "Ta bort checklistan ”{name}”?",
+    deleteChecklistMessage: "Checklistan och alla dess punkter tas bort från kortet.",
     dragItem: "Dra objekt",
     checkItem: "Markera objektet {name}",
     itemTitle: "Objektets titel {name}",

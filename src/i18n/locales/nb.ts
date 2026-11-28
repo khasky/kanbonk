@@ -628,6 +628,8 @@ export default {
     hideCheckedItems: "Skjul avkryssede elementer",
     checklistActions: "Sjekklistehandlinger {name}",
     deleteChecklist: "Slett sjekkliste",
+    deleteChecklistTitle: "Slette sjekklisten «{name}»?",
+    deleteChecklistMessage: "Sjekklisten og alle punktene i den fjernes fra kortet.",
     dragItem: "Dra element",
     checkItem: "Kryss av elementet {name}",
     itemTitle: "Elementtittel {name}",

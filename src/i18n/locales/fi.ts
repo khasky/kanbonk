@@ -643,6 +643,8 @@ export default {
     hideCheckedItems: "Piilota valmiit kohteet",
     checklistActions: "Tarkistuslistan toiminnot: {name}",
     deleteChecklist: "Poista tarkistuslista",
+    deleteChecklistTitle: "Poistetaanko tarkistuslista ”{name}”?",
+    deleteChecklistMessage: "Tarkistuslista ja kaikki sen kohdat poistetaan kortilta.",
     dragItem: "Vedä kohdetta",
     checkItem: "Merkitse kohde valmiiksi: {name}",
     itemTitle: "Kohteen otsikko: {name}",

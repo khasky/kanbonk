@@ -680,6 +680,8 @@ export default {
     hideCheckedItems: "Ukryj zaznaczone elementy",
     checklistActions: "Działania listy zadań {name}",
     deleteChecklist: "Usuń listę zadań",
+    deleteChecklistTitle: "Usunąć listę kontrolną „{name}”?",
+    deleteChecklistMessage: "Lista kontrolna i wszystkie jej elementy zostaną usunięte z karty.",
     dragItem: "Przeciągnij element",
     checkItem: "Zaznacz element {name}",
     itemTitle: "Tytuł elementu {name}",

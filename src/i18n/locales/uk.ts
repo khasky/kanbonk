@@ -671,6 +671,8 @@ export default {
     hideCheckedItems: "Приховати позначені пункти",
     checklistActions: "Дії з чек-листом {name}",
     deleteChecklist: "Видалити чек-лист",
+    deleteChecklistTitle: "Видалити чек-лист «{name}»?",
+    deleteChecklistMessage: "Чек-лист і всі його пункти буде видалено з картки.",
     dragItem: "Перетягнути пункт",
     checkItem: "Позначити пункт {name}",
     itemTitle: "Назва пункту {name}",
