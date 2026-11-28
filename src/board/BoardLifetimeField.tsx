@@ -2,6 +2,7 @@ import { useState } from "react";
 import { t } from "../i18n";
 import type { Lifetime } from "../model";
 import { Checkbox, Input } from "../ui/Field";
+import { optionLabelClass } from "../dialogs/dialogLook";
 import { Hint } from "../ui/Hint";
 
 /** A board made temporary in the creation dialog or the settings starts with a day. */
@@ -10,7 +11,7 @@ export const defaultLifetime: Lifetime = { days: 1, hours: 0 };
 const numberClass = "w-20";
 
 /**
- * "Temporary board" with the time it lives in days and hours, as in the creation dialog, the board's settings and
+ * "Temporary board" with the time it lives in days and hours (and what that means, once ticked), as in the creation dialog, the board's settings and
  * the dialog that brings an expired board back. `value` undefined is a board kept for good; `onChange` gets a
  * lifetime only while it is at least an hour long, so half-typed numbers change nothing.
  */
@@ -39,7 +40,7 @@ export function BoardLifetimeField({
   };
   return (
     <div className="grid gap-2">
-      <label className="flex items-center gap-2">
+      <label className={`${optionLabelClass} font-normal`}>
         <Checkbox
           checked={Boolean(value)}
           onChange={(event) => {
@@ -78,7 +79,7 @@ export function BoardLifetimeField({
         </div>
       )}
       {value && note && <span className="pl-6 text-[13px] text-ink-subtle">{note}</span>}
-      <Hint>{t("board.temporaryHint")}</Hint>
+      {value && <Hint className="m-0 pl-6">{t("board.temporaryHint")}</Hint>}
     </div>
   );
 }
