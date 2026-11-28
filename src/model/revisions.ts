@@ -5,6 +5,7 @@ import type {
   Board,
   BoardList,
   Card,
+  Comment,
   EntityKind,
   Label,
   Revision,
@@ -27,6 +28,12 @@ export function recordRevision(state: AppState, kind: EntityKind, entityId: stri
 }
 
 const revisionLimit = 30;
+
+/** " (reply to Ann)" for a reply, after its author in the board activity. */
+function replyTarget(card: Card | undefined, comment: Comment): string {
+  const parent = comment.parentId && card?.comments.find((item) => item.id === comment.parentId);
+  return parent ? ` (reply to ${parent.author})` : "";
+}
 
 /** Records revisions for many entities in one pass: linear in the state size however many entities change. */
 export function recordRevisions(
@@ -143,7 +150,7 @@ export function recordRevisions(
         boardId: currentBoardId,
         createdAt: comment.createdAt,
         deviceId,
-        summary: `${comment.author}: ${comment.text}`,
+        summary: `${comment.author}${replyTarget(oldCard ?? newCard, comment)}: ${comment.text}`,
         category: "comment",
       });
   }

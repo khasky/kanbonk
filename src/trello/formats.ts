@@ -1,4 +1,5 @@
 import { t } from "../i18n";
+import { liveComments } from "../model/comments";
 import { newId, type AppState, type Board, type BoardList, type Card, type Label } from "../model/index";
 import { trelloLabelColors } from "../model/labelColors";
 import { cardCreatedAt } from "../model/calendar";
@@ -51,7 +52,7 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
           board: { id: board.id, name: board.name },
         },
       });
-    for (const comment of card.comments)
+    for (const comment of liveComments(card.comments))
       actions.push({
         id: comment.id,
         type: "commentCard",
@@ -59,6 +60,8 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
         memberCreator: { id: comment.authorDeviceId ?? "kanbonk", fullName: comment.author },
         data: {
           text: comment.text,
+          // Trello has no threads; Kanbonk's import reads the reply back from this field, which Trello ignores.
+          ...(comment.parentId ? { kanbonkReplyTo: comment.parentId } : {}),
           card: { id: card.id, name: card.name, shortLink: card.id },
           list: { id: card.listId, name: listName.get(card.listId) },
           board: { id: board.id, name: board.name },
@@ -218,7 +221,7 @@ export function exportTrelloCsv(state: AppState, boardId: string): string {
       items.length,
       items.filter((item) => item.checked).length,
       0,
-      card.comments.length,
+      liveComments(card.comments).length,
       lastActivity,
       card.listId,
       listName.get(card.listId) ?? "",

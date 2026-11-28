@@ -92,6 +92,12 @@ export const card = {
   newComment: "New comment",
   send: "Send",
   writeComment: "Write a comment…",
+  reply: "Reply",
+  replyTo: "Reply to {name}",
+  inReplyTo: "In reply to {name}",
+  commentDeleted: "Comment deleted",
+  hideReplies: "Hide replies",
+  showReplies: { one: "Show {count} reply", other: "Show {count} replies" },
   editComment: "Edit comment",
 
   // Dates

@@ -582,6 +582,17 @@ export default {
     newComment: "Nowy komentarz",
     send: "Wyślij",
     writeComment: "Napisz komentarz…",
+    reply: "Odpowiedz",
+    replyTo: "Odpowiedz użytkownikowi {name}",
+    inReplyTo: "W odpowiedzi do {name}",
+    commentDeleted: "Komentarz usunięty",
+    hideReplies: "Ukryj odpowiedzi",
+    showReplies: {
+      one: "Pokaż {count} odpowiedź",
+      few: "Pokaż {count} odpowiedzi",
+      many: "Pokaż {count} odpowiedzi",
+      other: "Pokaż {count} odpowiedzi",
+    },
     editComment: "Edytuj komentarz",
 
     atDueTime: "W terminie",

@@ -63,8 +63,11 @@ function cardBody(card: DocCard, model: ExportDocModel): string {
     parts.push(paragraph(run(t("exporting.fieldComments")), '<w:pStyle w:val="Heading3"/><w:keepNext/>'));
     for (const comment of card.comments)
       parts.push(
-        paragraph(run(`${comment.author} · ${comment.date}`, '<w:b/><w:sz w:val="18"/>'), "<w:keepNext/>"),
-        paragraph(run(comment.text), '<w:ind w:left="240"/>'),
+        paragraph(
+          run(`${comment.depth ? "↳ " : ""}${comment.author} · ${comment.date}`, '<w:b/><w:sz w:val="18"/>'),
+          `<w:ind w:left="${comment.depth * 360}"/><w:keepNext/>`,
+        ),
+        paragraph(run(comment.text), `<w:ind w:left="${240 + comment.depth * 360}"/>`),
       );
   }
   return parts.join("");

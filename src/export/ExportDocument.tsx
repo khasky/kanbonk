@@ -89,8 +89,13 @@ export function ExportDocument({ model }: { model: ExportDocModel }) {
                 <>
                   <h4 className="mt-3 mb-1 text-[13px]">{t("exporting.fieldComments")}</h4>
                   {card.comments.map((comment, commentIndex) => (
-                    <div key={`${comment.date}-${commentIndex}`} className="mb-1.5">
+                    <div
+                      key={`${comment.date}-${commentIndex}`}
+                      className="mb-1.5"
+                      style={{ marginLeft: comment.depth * 20 }}
+                    >
                       <div className="text-[12px] font-semibold">
+                        {comment.depth ? "↳ " : ""}
                         {comment.author} · {comment.date}
                       </div>
                       <div className="pl-3 whitespace-pre-wrap">{comment.text}</div>

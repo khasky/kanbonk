@@ -578,6 +578,17 @@ export default {
     newComment: "Новий коментар",
     send: "Надіслати",
     writeComment: "Напишіть коментар…",
+    reply: "Відповісти",
+    replyTo: "Відповісти {name}",
+    inReplyTo: "У відповідь {name}",
+    commentDeleted: "Коментар видалено",
+    hideReplies: "Сховати відповіді",
+    showReplies: {
+      one: "Показати {count} відповідь",
+      few: "Показати {count} відповіді",
+      many: "Показати {count} відповідей",
+      other: "Показати {count} відповіді",
+    },
     editComment: "Редагувати коментар",
 
     atDueTime: "У момент терміну",

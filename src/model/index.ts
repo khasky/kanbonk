@@ -15,3 +15,4 @@ export * from "./priority";
 export * from "./cardDone";
 export * from "./labelCleanup";
 export * from "./approvals";
+export * from "./comments";

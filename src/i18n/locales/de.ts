@@ -560,6 +560,12 @@ export default {
     newComment: "Neuer Kommentar",
     send: "Senden",
     writeComment: "Kommentar schreiben…",
+    reply: "Antworten",
+    replyTo: "{name} antworten",
+    inReplyTo: "Als Antwort an {name}",
+    commentDeleted: "Kommentar gelöscht",
+    hideReplies: "Antworten ausblenden",
+    showReplies: { one: "{count} Antwort anzeigen", other: "{count} Antworten anzeigen" },
     editComment: "Kommentar bearbeiten",
 
     atDueTime: "Zum Fälligkeitszeitpunkt",

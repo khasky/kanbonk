@@ -126,6 +126,9 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
     checklistsByCard.set(cardId, [...(checklistsByCard.get(cardId) || []), checklist]);
   }
   const commentsByCard = new Map<string, Comment[]>();
+  // Trello's comments have no replies; a Kanbonk export names the comment action a reply answers in `kanbonkReplyTo`.
+  const commentIds = new Map<string, string>();
+  const replies: Array<{ comment: Comment; replyTo: string }> = [];
   const completeComments = source.kanbonkCommentsComplete === true && Array.isArray(source.kanbonkComments);
   for (const action of array(completeComments ? source.kanbonkComments : source.actions)) {
     if (action.type !== "commentCard") continue;
@@ -138,8 +141,11 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
       authorDeviceId: `trello:${string(object(action.memberCreator).id) || "unknown"}`,
       createdAt: string(action.date) || new Date().toISOString(),
     };
+    if (string(action.id)) commentIds.set(string(action.id), comment.id);
+    if (string(data.kanbonkReplyTo)) replies.push({ comment, replyTo: string(data.kanbonkReplyTo) });
     commentsByCard.set(cardId, [...(commentsByCard.get(cardId) || []), comment]);
   }
+  for (const { comment, replyTo } of replies) comment.parentId = commentIds.get(replyTo);
   const createdByCard = new Map<string, string>();
   for (const action of array(source.actions))
     if (action.type === "createCard" && Number.isFinite(Date.parse(string(action.date))))

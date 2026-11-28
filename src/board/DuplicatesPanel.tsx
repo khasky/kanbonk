@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { liveComments } from "../model/comments";
 import { type MessageKey, t } from "../i18n";
 import type { AppState, Card } from "../model";
 import {
@@ -37,7 +38,7 @@ function contentNote(card: Card): string {
   const parts = [
     card.description.trim() && t("duplicates.hasDescription"),
     card.checklists.length && t("duplicates.checklists", { count: card.checklists.length }),
-    card.comments.length && t("duplicates.comments", { count: card.comments.length }),
+    liveComments(card.comments).length && t("duplicates.comments", { count: liveComments(card.comments).length }),
     card.attachments.length && t("duplicates.attachments", { count: card.attachments.length }),
   ].filter((part): part is string => Boolean(part));
   return parts.length ? parts.join(" · ") : t("duplicates.empty");
@@ -82,7 +83,7 @@ export function DuplicatesPanel({
     const moving = [
       parts.description && t("duplicates.theDescription"),
       parts.checklists.length && t("duplicates.checklists", { count: parts.checklists.length }),
-      parts.comments.length && t("duplicates.comments", { count: parts.comments.length }),
+      liveComments(parts.comments).length && t("duplicates.comments", { count: liveComments(parts.comments).length }),
       parts.attachments.length && t("duplicates.attachments", { count: parts.attachments.length }),
       parts.labelIds.length && t("duplicates.labels", { count: parts.labelIds.length }),
       parts.memberIds.length && t("duplicates.members", { count: parts.memberIds.length }),

@@ -555,6 +555,12 @@ export default {
     newComment: "Ny kommentar",
     send: "Skicka",
     writeComment: "Skriv en kommentar…",
+    reply: "Svara",
+    replyTo: "Svara {name}",
+    inReplyTo: "Som svar till {name}",
+    commentDeleted: "Kommentaren har tagits bort",
+    hideReplies: "Dölj svar",
+    showReplies: { one: "Visa {count} svar", other: "Visa {count} svar" },
     editComment: "Redigera kommentar",
 
     atDueTime: "Vid förfallotid",

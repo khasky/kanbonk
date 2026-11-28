@@ -544,6 +544,12 @@ export default {
     newComment: "新留言",
     send: "傳送",
     writeComment: "撰寫留言…",
+    reply: "回覆",
+    replyTo: "回覆 {name}",
+    inReplyTo: "回覆 {name}",
+    commentDeleted: "留言已刪除",
+    hideReplies: "隱藏回覆",
+    showReplies: { other: "顯示 {count} 則回覆" },
     editComment: "編輯留言",
 
     atDueTime: "到期時",

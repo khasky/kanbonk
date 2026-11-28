@@ -555,6 +555,12 @@ export default {
     newComment: "Yeni yorum",
     send: "Gönder",
     writeComment: "Yorum yazın…",
+    reply: "Yanıtla",
+    replyTo: "{name} adlı kişiyi yanıtla",
+    inReplyTo: "{name} adlı kişiye yanıt",
+    commentDeleted: "Yorum silindi",
+    hideReplies: "Yanıtları gizle",
+    showReplies: { one: "{count} yanıtı göster", other: "{count} yanıtı göster" },
     editComment: "Yorumu düzenle",
 
     atDueTime: "Bitiş zamanında",

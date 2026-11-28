@@ -1,4 +1,5 @@
 import { type MessageKey, t } from "../i18n";
+import { liveComments } from "../model/comments";
 import { csvTable } from "../export/calendarFiles";
 import { localDateTime } from "../lib/format";
 import { type AppState, type Board, type BoardFilter, type BoardList, type Card, priorities } from "../model";
@@ -137,7 +138,7 @@ function sortValue(state: AppState, row: TableRow, by: TableSort["by"]): string 
     case "attachments":
       return card.attachments.length;
     case "comments":
-      return card.comments.length;
+      return liveComments(card.comments).length;
     case "created":
       return card.createdAt;
   }
@@ -219,7 +220,7 @@ export function tableCsv(state: AppState, rows: TableRow[], columns: TableColumn
       case "attachments":
         return String(card.attachments.length);
       case "comments":
-        return String(card.comments.length);
+        return String(liveComments(card.comments).length);
       case "created":
         return dateCell(card.createdAt);
     }

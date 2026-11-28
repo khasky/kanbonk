@@ -549,6 +549,12 @@ export default {
     newComment: "Bình luận mới",
     send: "Gửi",
     writeComment: "Viết bình luận…",
+    reply: "Trả lời",
+    replyTo: "Trả lời {name}",
+    inReplyTo: "Trả lời {name}",
+    commentDeleted: "Bình luận đã bị xóa",
+    hideReplies: "Ẩn câu trả lời",
+    showReplies: { other: "Hiện {count} câu trả lời" },
     editComment: "Chỉnh sửa bình luận",
 
     atDueTime: "Vào lúc hết hạn",

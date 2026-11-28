@@ -59,7 +59,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "get_card",
     description:
-      "Full card: description, dates, priority, done, labels, members, checklists, comments, approvals, links (sub-cards, dependencies, related, duplicates), mirrors and the required fields it lacks.",
+      "Full card: description, dates, priority, done, labels, members, checklists, comments (replies name their parentId), approvals, links (sub-cards, dependencies, related, duplicates), mirrors and the required fields it lacks.",
     inputSchema: obj({ cardId: str("Card ID") }, ["cardId"]),
     readOnly: true,
   },
@@ -195,8 +195,11 @@ export const tools: ToolDefinition[] = [
   },
   {
     name: "add_comment",
-    description: "Add a Markdown comment to a card.",
-    inputSchema: obj({ cardId: str("Card ID"), text: str("Markdown") }, ["cardId", "text"]),
+    description: "Add a Markdown comment to a card, or a reply to one of its comments.",
+    inputSchema: obj(
+      { cardId: str("Card ID"), text: str("Markdown"), replyToCommentId: str("Comment of the card to reply to") },
+      ["cardId", "text"],
+    ),
   },
   {
     name: "add_checklist",

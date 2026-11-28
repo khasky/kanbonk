@@ -147,6 +147,10 @@ export interface Comment {
   author: string;
   authorDeviceId?: string;
   createdAt: string;
+  /** The comment this one replies to; see model/comments. */
+  parentId?: string;
+  /** A deleted comment kept, without its text, for the replies under it. */
+  deleted?: true;
 }
 
 export function canEditComment(comment: Comment, deviceId: string): boolean {

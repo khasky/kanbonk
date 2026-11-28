@@ -578,6 +578,17 @@ export default {
     newComment: "Новый комментарий",
     send: "Отправить",
     writeComment: "Напишите комментарий…",
+    reply: "Ответить",
+    replyTo: "Ответить {name}",
+    inReplyTo: "В ответ {name}",
+    commentDeleted: "Комментарий удалён",
+    hideReplies: "Скрыть ответы",
+    showReplies: {
+      one: "Показать {count} ответ",
+      few: "Показать {count} ответа",
+      many: "Показать {count} ответов",
+      other: "Показать {count} ответа",
+    },
     editComment: "Изменить комментарий",
 
     atDueTime: "В момент срока",

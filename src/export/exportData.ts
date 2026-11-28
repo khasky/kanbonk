@@ -1,6 +1,7 @@
 import { type MessageKey, t } from "../i18n";
 import { localDateTime } from "../lib/format";
 import type { AppState, Board, BoardList, Card, Checklist, Comment, Label, Member } from "../model";
+import { threadOrder } from "../model/comments";
 
 export type ExportFormat = "xlsx" | "docx" | "pdf" | "trello-csv" | "trello-json";
 
@@ -193,7 +194,12 @@ const checkMark = (checked: boolean) => (checked ? "[x]" : "[ ]");
 const checklistText = (checklist: Checklist) =>
   [checklist.name, ...checklist.items.map((item) => `${checkMark(item.checked)} ${item.name}`)].join("\n");
 
-const commentText = (comment: Comment) => `${comment.author} (${dateText(comment.createdAt)}): ${comment.text}`;
+/** A comment as a line of a cell; a reply is indented under the comment it answers. */
+const commentText = (comment: Comment, depth: number) =>
+  `${"  ".repeat(depth)}${depth ? "↳ " : ""}${comment.author} (${dateText(comment.createdAt)}): ${comment.text}`;
+
+/** The live comments in thread order with their depth; a deleted comment's replies keep their place under it. */
+const exportedComments = (card: Card) => threadOrder(card.comments).filter(({ comment }) => !comment.deleted);
 
 /** Plain-text values of a card's fields, as a spreadsheet cell or a line of a document shows them. */
 export function cardFieldText(scope: BoardScope, card: Card, field: ExportField): string {
@@ -229,7 +235,9 @@ export function cardFieldText(scope: BoardScope, card: Card, field: ExportField)
         )
         .join("\n");
     case "comments":
-      return card.comments.map(commentText).join("\n\n");
+      return exportedComments(card)
+        .map(({ comment, depth }) => commentText(comment, depth))
+        .join("\n\n");
   }
 }
 
@@ -316,7 +324,8 @@ export interface DocCard {
   details: { label: string; value: string }[];
   description?: string;
   checklists?: Checklist[];
-  comments?: { author: string; date: string; text: string }[];
+  /** In thread order; `depth` is 0 for a comment and 1 or more for a reply. */
+  comments?: { author: string; date: string; text: string; depth: number }[];
 }
 
 export interface DocLook {
@@ -367,11 +376,12 @@ export function exportDocModel(
         description: fields.includes("description") && card.description ? card.description : undefined,
         checklists: fields.includes("checklists") && card.checklists.length ? card.checklists : undefined,
         comments:
-          fields.includes("comments") && card.comments.length
-            ? card.comments.map((comment) => ({
+          fields.includes("comments") && exportedComments(card).length
+            ? exportedComments(card).map(({ comment, depth }) => ({
                 author: comment.author,
                 date: dateText(comment.createdAt),
                 text: comment.text,
+                depth,
               }))
             : undefined,
       })),

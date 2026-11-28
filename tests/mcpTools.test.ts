@@ -49,7 +49,16 @@ describe("MCP tools", () => {
       items: Array<{ id: string }>;
     };
     call("set_checklist_item", { cardId: a, itemId: checklist.items[1].id, checked: true });
-    call("add_comment", { cardId: a, text: "Done" });
+    const question = call("add_comment", { cardId: a, text: "Done?" }).id;
+    const answer = call("add_comment", { cardId: a, text: "Yes", replyToCommentId: question }).id;
+    expect(() => call("add_comment", { cardId: a, text: "x", replyToCommentId: "nope" })).toThrow(ToolError);
+    const thread = (
+      call("get_card", { cardId: a }) as unknown as { comments: Array<{ id: string; parentId?: string }> }
+    ).comments;
+    expect(thread.map((item) => [item.id, item.parentId])).toEqual([
+      [question, undefined],
+      [answer, question],
+    ]);
     call("add_dependency", { cardId: b, dependsOnCardId: a });
     const details = call("get_card", { cardId: b }) as unknown as { dependsOn: string[] };
     expect(details.dependsOn).toEqual([a]);

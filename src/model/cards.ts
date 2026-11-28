@@ -1,5 +1,6 @@
 import { t } from "../i18n";
 import { carriedApprovals } from "./approvals";
+import { copyComments } from "./comments";
 import { newId } from "./ids";
 import { priorityRank } from "./priority";
 import type { AppState, BoardList, Card, Label } from "./types";
@@ -166,7 +167,7 @@ export function transferCard(
             id: newId(),
             items: list.items.map((item) => ({ ...item, id: newId() })),
           })),
-          comments: source.comments.map((comment) => ({ ...comment, id: newId() })),
+          comments: copyComments(source.comments, newId),
         }
       : {}),
   };

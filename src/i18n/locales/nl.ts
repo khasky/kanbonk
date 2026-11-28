@@ -556,6 +556,12 @@ export default {
     newComment: "Nieuwe opmerking",
     send: "Versturen",
     writeComment: "Schrijf een opmerking…",
+    reply: "Beantwoorden",
+    replyTo: "{name} beantwoorden",
+    inReplyTo: "Als antwoord op {name}",
+    commentDeleted: "Opmerking verwijderd",
+    hideReplies: "Antwoorden verbergen",
+    showReplies: { one: "{count} antwoord tonen", other: "{count} antwoorden tonen" },
     editComment: "Opmerking bewerken",
 
     atDueTime: "Op vervaltijd",

@@ -21,6 +21,7 @@ import {
   reopenCard,
   searchCards,
   syncMirrors,
+  threadOrder,
   transferCard,
   type AppState,
   type Card,
@@ -207,7 +208,14 @@ export function runTool(
         boardId: target.boardId,
         description: target.description,
         checklists: target.checklists,
-        comments: target.comments.map(({ author, text: body, createdAt }) => ({ author, text: body, createdAt })),
+        comments: threadOrder(target.comments).map(({ comment }) => ({
+          id: comment.id,
+          parentId: comment.parentId,
+          author: comment.author,
+          text: comment.text,
+          createdAt: comment.createdAt,
+          deleted: comment.deleted,
+        })),
         subCards: state.cards.filter((item) => item.parentCardId === target.id).map((item) => cardView(state, item)),
         dependsOn: target.checklists.flatMap((item) =>
           item.items.flatMap((entry) => (entry.linkedCardId ? [entry.linkedCardId] : [])),
@@ -495,12 +503,16 @@ export function runTool(
     }
     case "add_comment": {
       const target = card(args.cardId);
+      const replyTo = text(args, "replyToCommentId");
+      if (replyTo && !target.comments.some((item) => item.id === replyTo && !item.deleted))
+        throw new ToolError(`Comment ${replyTo} not found on the card`);
       const comment = {
         id: newId(),
         text: text(args, "text", true)!,
         author: "AI agent",
         authorDeviceId: deviceId,
         createdAt: now.toISOString(),
+        ...(replyTo ? { parentId: replyTo } : {}),
       };
       return done(
         changeCard(target.id, (item) => ({ ...item, comments: [...item.comments, comment] })),

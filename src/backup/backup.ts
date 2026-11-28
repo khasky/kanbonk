@@ -150,7 +150,9 @@ export function validState(state: Record<string, unknown>): boolean {
             typeof comment.id === "string" &&
             typeof comment.text === "string" &&
             typeof comment.author === "string" &&
-            typeof comment.createdAt === "string",
+            typeof comment.createdAt === "string" &&
+            (comment.parentId === undefined || typeof comment.parentId === "string") &&
+            (comment.deleted === undefined || comment.deleted === true),
         ) &&
         Array.isArray(card.attachments) &&
         card.attachments.every(

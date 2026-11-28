@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { liveComments } from "../model/comments";
 import type { AppState, BoardList, Card } from "../model";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import type { CalendarScale } from "../lib/router";
@@ -195,7 +196,10 @@ function CalendarWeek({
                 </Button>
               )}
             </span>
-            {card.description || card.attachments.length || card.comments.length || card.checklists.length ? (
+            {card.description ||
+            card.attachments.length ||
+            liveComments(card.comments).length ||
+            card.checklists.length ? (
               <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-ink-muted">
                 {card.description && <Icon name="text" className={tileMetaIconClass} />}
                 {card.attachments.length > 0 && (
@@ -204,10 +208,10 @@ function CalendarWeek({
                     {card.attachments.length}
                   </span>
                 )}
-                {card.comments.length > 0 && (
+                {liveComments(card.comments).length > 0 && (
                   <span className={tileMetaItemClass}>
                     <Icon name="message" className={tileMetaIconClass} />
-                    {card.comments.length}
+                    {liveComments(card.comments).length}
                   </span>
                 )}
                 {card.checklists.map((checklist) => (

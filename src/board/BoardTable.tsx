@@ -1,4 +1,5 @@
 import { Fragment, type MouseEvent, type ReactNode, useState } from "react";
+import { liveComments } from "../model/comments";
 import { formatDate, formatDateTime, t } from "../i18n";
 import type { CardActions } from "../hooks/useCardActions";
 import { localDateTime } from "../lib/format";
@@ -342,7 +343,7 @@ export function BoardTable({
       case "comments":
         return (
           <Td muted className="tabular-nums">
-            {card.comments.length || ""}
+            {liveComments(card.comments).length || ""}
           </Td>
         );
       case "created":

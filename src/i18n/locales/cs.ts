@@ -582,6 +582,17 @@ export default {
     newComment: "Nový komentář",
     send: "Odeslat",
     writeComment: "Napište komentář…",
+    reply: "Odpovědět",
+    replyTo: "Odpovědět uživateli {name}",
+    inReplyTo: "V odpovědi uživateli {name}",
+    commentDeleted: "Komentář smazán",
+    hideReplies: "Skrýt odpovědi",
+    showReplies: {
+      one: "Zobrazit {count} odpověď",
+      few: "Zobrazit {count} odpovědi",
+      many: "Zobrazit {count} odpovědi",
+      other: "Zobrazit {count} odpovědí",
+    },
     editComment: "Upravit komentář",
 
     atDueTime: "V čase termínu",

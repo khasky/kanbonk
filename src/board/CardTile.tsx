@@ -1,4 +1,5 @@
 import { epicBadgeClass } from "../card/CardRelations";
+import { liveComments } from "../model/comments";
 import { memo } from "react";
 import { CardCover } from "../card/CardCover";
 import { ApprovalChip } from "../card/ApprovalChip";
@@ -201,7 +202,7 @@ export const CardTile = memo(function CardTile({
       {item.description ||
       item.dueAt ||
       item.attachments.length ||
-      item.comments.length ||
+      liveComments(item.comments).length ||
       item.checklists.length ||
       subCardCount ||
       linkCount ||
@@ -226,10 +227,10 @@ export const CardTile = memo(function CardTile({
               {item.attachments.length}
             </span>
           )}
-          {item.comments.length > 0 && (
+          {liveComments(item.comments).length > 0 && (
             <span className={tileMetaItemClass}>
               <Icon name="message" className={tileMetaIconClass} />
-              {item.comments.length}
+              {liveComments(item.comments).length}
             </span>
           )}
           {subCardCount > 0 && (

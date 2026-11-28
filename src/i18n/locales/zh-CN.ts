@@ -544,6 +544,12 @@ export default {
     newComment: "新评论",
     send: "发送",
     writeComment: "写评论…",
+    reply: "回复",
+    replyTo: "回复 {name}",
+    inReplyTo: "回复 {name}",
+    commentDeleted: "评论已删除",
+    hideReplies: "隐藏回复",
+    showReplies: { other: "显示 {count} 条回复" },
     editComment: "编辑评论",
 
     atDueTime: "截止时",

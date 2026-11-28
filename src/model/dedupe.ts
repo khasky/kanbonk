@@ -1,4 +1,5 @@
 import { newId, recordRevisions, type AppState, type Card, type Comment } from "./index";
+import { liveComments } from "./comments";
 import { moveToTrash } from "./trash";
 
 const stopWords = new Set(
@@ -184,7 +185,7 @@ function matchTitles(first: Title, second: Title): { reason: MatchReason; score:
 export function cardContent(card: Card): number {
   return (
     (card.description.trim() ? 1 : 0) +
-    card.comments.length +
+    liveComments(card.comments).length +
     card.checklists.reduce((sum, list) => sum + list.items.length + 1, 0) +
     card.attachments.length +
     card.labelIds.length +

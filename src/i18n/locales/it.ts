@@ -568,6 +568,12 @@ export default {
     newComment: "Nuovo commento",
     send: "Invia",
     writeComment: "Scrivi un commento…",
+    reply: "Rispondi",
+    replyTo: "Rispondi a {name}",
+    inReplyTo: "In risposta a {name}",
+    commentDeleted: "Commento eliminato",
+    hideReplies: "Nascondi risposte",
+    showReplies: { one: "Mostra {count} risposta", many: "Mostra {count} risposte", other: "Mostra {count} risposte" },
     editComment: "Modifica commento",
 
     atDueTime: "Alla scadenza",

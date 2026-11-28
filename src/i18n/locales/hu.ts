@@ -566,6 +566,12 @@ export default {
     newComment: "Új megjegyzés",
     send: "Küldés",
     writeComment: "Írjon megjegyzést…",
+    reply: "Válasz",
+    replyTo: "Válasz neki: {name}",
+    inReplyTo: "Válaszként neki: {name}",
+    commentDeleted: "Megjegyzés törölve",
+    hideReplies: "Válaszok elrejtése",
+    showReplies: { one: "{count} válasz megjelenítése", other: "{count} válasz megjelenítése" },
     editComment: "Megjegyzés szerkesztése",
 
     // Dates

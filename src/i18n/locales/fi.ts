@@ -567,6 +567,12 @@ export default {
     newComment: "Uusi kommentti",
     send: "Lähetä",
     writeComment: "Kirjoita kommentti…",
+    reply: "Vastaa",
+    replyTo: "Vastaa: {name}",
+    inReplyTo: "Vastauksena: {name}",
+    commentDeleted: "Kommentti poistettu",
+    hideReplies: "Piilota vastaukset",
+    showReplies: { one: "Näytä {count} vastaus", other: "Näytä {count} vastausta" },
     editComment: "Muokkaa kommenttia",
 
     // Dates

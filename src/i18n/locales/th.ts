@@ -547,6 +547,12 @@ export default {
     newComment: "ความคิดเห็นใหม่",
     send: "ส่ง",
     writeComment: "เขียนความคิดเห็น…",
+    reply: "ตอบกลับ",
+    replyTo: "ตอบกลับ {name}",
+    inReplyTo: "ตอบกลับถึง {name}",
+    commentDeleted: "ความคิดเห็นถูกลบแล้ว",
+    hideReplies: "ซ่อนการตอบกลับ",
+    showReplies: { other: "แสดงการตอบกลับ {count} รายการ" },
     editComment: "แก้ไขความคิดเห็น",
 
     atDueTime: "ณ เวลาครบกำหนด",

@@ -106,3 +106,36 @@ test("folds a long description behind Show more", async ({ page }) => {
   await card.getByRole("button", { name: "Show less" }).click();
   await expect(card.getByRole("button", { name: "Show more" })).toBeVisible();
 });
+
+test("replies to comments in threads, hides replies and keeps a deleted comment's replies", async ({ page }) => {
+  await importTrelloBoard(page);
+  await page.getByRole("link", { name: /Card from Trello/ }).click();
+  const card = page.getByRole("dialog", { name: "Card from Trello" });
+  const activity = card.locator(".activity-panel");
+  const comment = (text: string) => activity.locator("article", { hasText: text });
+
+  await card.getByText("Write a comment").click();
+  await page.keyboard.type("Question");
+  await activity.getByRole("button", { name: "Send" }).click();
+  await comment("Question").getByRole("button", { name: "Reply" }).click();
+  await page.keyboard.type("Answer");
+  await activity.getByRole("button", { name: "Send" }).click();
+  await comment("Answer").getByRole("button", { name: "Reply" }).click();
+  await page.keyboard.type("Thanks");
+  await activity.getByRole("button", { name: "Send" }).click();
+  await expect(comment("Thanks")).toBeVisible();
+
+  await activity.getByRole("button", { name: "Hide replies" }).first().click();
+  await expect(comment("Answer")).toHaveCount(0);
+  await activity.getByRole("button", { name: "Show 2 replies" }).click();
+  await expect(comment("Thanks")).toBeVisible();
+
+  await comment("Answer").getByRole("button", { name: "Delete" }).click();
+  await expect(activity.getByText("Comment deleted")).toBeVisible();
+  await expect(comment("Thanks")).toBeVisible();
+
+  await page.reload();
+  const reopened = page.getByRole("dialog", { name: "Card from Trello" }).locator(".activity-panel");
+  await expect(reopened.getByText("Comment deleted")).toBeVisible();
+  await expect(reopened.locator("article", { hasText: "Thanks" })).toBeVisible();
+});

@@ -550,6 +550,12 @@ export default {
     newComment: "新しいコメント",
     send: "送信",
     writeComment: "コメントを入力…",
+    reply: "返信",
+    replyTo: "{name} に返信",
+    inReplyTo: "{name} への返信",
+    commentDeleted: "コメントは削除されました",
+    hideReplies: "返信を隠す",
+    showReplies: { other: "{count} 件の返信を表示" },
     editComment: "コメントを編集",
 
     atDueTime: "期限の時刻",
