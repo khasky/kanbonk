@@ -22,7 +22,7 @@ interface AppState {
 | Entity | Key fields | Parent |
 |---|---|---|
 | `Workspace` | `name`, `background`, `backgroundGradient`, `backgroundImageId` (all optional; the default green when unset) | — |
-| `Board` | `name`, `description`, `background` (a color, also under a gradient or image), `backgroundGradient` (a Trello gradient name), `backgroundImageId`, `starred`, `members`, `automationRules`, `zones`, `doc` (Markdown project document) | workspace (`workspaceId`) |
+| `Board` | `name`, `description`, `background` (a color, also under a gradient or image), `backgroundGradient` (a Trello gradient name), `backgroundImageId`, `expiresAt` (a temporary board moves to the trash then), `starred`, `members`, `automationRules`, `zones`, `doc` (Markdown project document) | workspace (`workspaceId`) |
 | `BoardList` | `name`, `position`, `zoneId` | board (`boardId`) |
 | `Card` | `name`, `description` (Markdown), `position`, `createdAt`, `startAt`, `dueAt`, `labelIds`, `memberIds`, `checklists`, `comments` (a reply names the comment it answers in `parentId`; a deleted comment with replies stays with `deleted`), `attachments`, `cover` (a color, a gradient or an image attachment; it fills the whole tile), `isTemplate`, `parentCardId` (sub-card of another card) | list (`listId`) and board (`boardId`) |
 | `Label` | `name`, `color` | board |

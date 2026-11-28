@@ -1,5 +1,13 @@
-import { t, type MessageKey } from "../i18n";
-import type { AppState, Board, CardAgingMode, CardDoneSettings } from "../model";
+import { formatDateTime, t, type MessageKey } from "../i18n";
+import {
+  type AppState,
+  type Board,
+  type CardAgingMode,
+  type CardDoneSettings,
+  type Lifetime,
+  lifetimeLeft,
+} from "../model";
+import { BoardLifetimeField } from "./BoardLifetimeField";
 import { inboxBoardId } from "../model/inbox";
 import { dialogListClass, optionLabelClass } from "../dialogs/dialogLook";
 import { Checkbox, Select } from "../ui/Field";
@@ -26,6 +34,7 @@ export function BoardSettingsPanel({
   board,
   onCardAging,
   onCardDone,
+  onLifetime,
   onClose,
 }: {
   state: AppState;
@@ -34,6 +43,8 @@ export function BoardSettingsPanel({
   onCardAging: (mode: CardAgingMode | undefined) => void;
   /** What finishing a card does; undefined when it only marks the card done. */
   onCardDone: (settings: CardDoneSettings | undefined) => void;
+  /** Makes the board temporary for a time from now, or keeps it for good with undefined. */
+  onLifetime: (lifetime: Lifetime | undefined) => void;
   onClose: () => void;
 }) {
   const done = board.cardDone ?? {};
@@ -133,6 +144,16 @@ export function BoardSettingsPanel({
         </label>
         <Hint>{t("cardDone.hint")}</Hint>
       </section>
+      {board.id !== inboxBoardId && (
+        <section className={`${dialogListClass} mt-5`}>
+          <h3 className="m-0 text-[16px]">{t("board.lifetimeTitle")}</h3>
+          <BoardLifetimeField
+            value={board.expiresAt ? lifetimeLeft(board.expiresAt) : undefined}
+            onChange={onLifetime}
+            note={board.expiresAt && t("board.expiresAt", { date: formatDateTime(board.expiresAt) })}
+          />
+        </section>
+      )}
     </SidePanel>
   );
 }

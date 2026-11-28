@@ -209,7 +209,10 @@ export function restoreFromTrash(state: AppState, kind: TrashKind, id: string, d
   const restored = [...toRestore.values()];
   if (!restored.length) return { state, restored };
   const next = patch(state, restored, (item) => {
-    const { deletedAt: _deletedAt, deletedBatch: _deletedBatch, ...rest } = item;
+    const { deletedAt, deletedBatch: _deletedBatch, ...rest } = item;
+    // A temporary board whose time ran out comes back for good, or it would go straight back to the trash.
+    if ("expiresAt" in rest && typeof rest.expiresAt === "string" && deletedAt && deletedAt >= rest.expiresAt)
+      rest.expiresAt = undefined;
     return rest as TrashEntity;
   });
   return { state: record(next, restored, deviceId), restored };

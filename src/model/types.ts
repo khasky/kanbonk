@@ -52,6 +52,8 @@ export interface Board extends Trashable {
   requiredFields?: RequiredFields;
   /** What finishing a card does on this board; see model/cardDone. */
   cardDone?: CardDoneSettings;
+  /** A temporary board moves to the trash at this time; see model/boardExpiry. */
+  expiresAt?: string;
   starred: boolean;
 }
 

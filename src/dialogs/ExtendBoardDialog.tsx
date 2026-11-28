@@ -1,0 +1,36 @@
+import { useState } from "react";
+import { BoardLifetimeField, defaultLifetime } from "../board/BoardLifetimeField";
+import { t } from "../i18n";
+import type { Lifetime } from "../model";
+import { Button } from "../ui/Button";
+import { Dialog, submitWith } from "../ui/Modal";
+import { dialogFooterClass, dialogTitleClass } from "./dialogLook";
+
+/** Brings a temporary board whose time ran out back from the trash, for a new time or for good. */
+export function ExtendBoardDialog({
+  name,
+  onExtend,
+  onClose,
+}: {
+  name: string;
+  /** A new lifetime, or undefined to keep the board for good. */
+  onExtend: (lifetime: Lifetime | undefined) => void;
+  onClose: () => void;
+}) {
+  const [lifetime, setLifetime] = useState<Lifetime | undefined>(defaultLifetime);
+  const title = t("board.extendTitle", { name });
+  return (
+    <Dialog label={title} onDismiss={onClose} onSubmit={submitWith(() => onExtend(lifetime))}>
+      <h2 className={dialogTitleClass}>{title}</h2>
+      <BoardLifetimeField value={lifetime} onChange={setLifetime} />
+      <div className={dialogFooterClass}>
+        <Button variant="secondary" size="lg" type="button" onClick={onClose}>
+          {t("common.cancel")}
+        </Button>
+        <Button variant="primary" type="submit">
+          {t("board.restoreBoard")}
+        </Button>
+      </div>
+    </Dialog>
+  );
+}

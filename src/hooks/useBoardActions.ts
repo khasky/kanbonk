@@ -9,6 +9,8 @@ import {
   cardViewStats,
   copyBoard,
   copyList,
+  expiryFrom,
+  type Lifetime,
   moveListToBoard,
   newId,
   type ListSort,
@@ -49,8 +51,11 @@ export function useBoardActions({
     return workspace.id;
   }
 
-  /** Creates a board in the workspace, or in the personal workspace when there is none. */
-  function createBoard(name: string, workspaceId: string | undefined) {
+  /**
+   * Creates a board in the workspace, or in the personal workspace when there is none; with a lifetime it is a
+   * temporary board that moves to the trash when the time is up.
+   */
+  function createBoard(name: string, workspaceId: string | undefined, lifetime?: Lifetime) {
     const targetWorkspaceId = workspaceId ?? personalWorkspaceId;
     const created: Board = {
       id: newId(),
@@ -60,6 +65,7 @@ export function useBoardActions({
       background: defaultBoardBackground,
       members: [],
       starred: false,
+      ...(lifetime ? { expiresAt: expiryFrom(lifetime) } : {}),
     };
     setState((current) => {
       const next = ensurePersonalWorkspace(current, targetWorkspaceId, deviceId);

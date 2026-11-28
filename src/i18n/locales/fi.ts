@@ -258,6 +258,16 @@ export default {
     exportBoard: "Vie…",
     moveBoardToTrash: "Siirrä taulu roskakoriin",
     changeBackground: "Vaihda tausta",
+    temporaryBoard: "Väliaikainen taulu",
+    temporaryHint: "Kun aika loppuu, taulu siirtyy roskakoriin. Poista tämä käytöstä, niin taulu säilyy pysyvästi.",
+    lifetimeTitle: "Taulun elinaika",
+    lifetimeDays: "päivää",
+    lifetimeHours: "tuntia",
+    expiresAt: "Siirtyy roskakoriin {date}",
+    boardExpired: "Taulun ”{name}” aika loppui ja se siirrettiin roskakoriin.",
+    extend: "Jatka",
+    extendTitle: "Jatka taulua ”{name}”",
+    restoreBoard: "Palauta taulu",
     background: "Taulun tausta",
 
     // Filter

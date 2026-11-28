@@ -92,6 +92,8 @@ export function validState(state: Record<string, unknown>): boolean {
         (board.requiredFields === undefined || isRequiredFields(board.requiredFields)) &&
         (board.cardAging === undefined || board.cardAging === "regular" || board.cardAging === "pirate") &&
         (board.cardDone === undefined || isCardDoneSettings(board.cardDone)) &&
+        (board.expiresAt === undefined ||
+          (typeof board.expiresAt === "string" && Number.isFinite(Date.parse(board.expiresAt)))) &&
         (board.automationRules === undefined ||
           (Array.isArray(board.automationRules) &&
             board.automationRules.every(

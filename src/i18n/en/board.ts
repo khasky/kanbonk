@@ -24,6 +24,16 @@ export const board = {
   exportBoard: "Export…",
   moveBoardToTrash: "Move board to trash",
   changeBackground: "Change background",
+  temporaryBoard: "Temporary board",
+  temporaryHint: "When the time is up, the board moves to the trash. Turn it off to keep the board for good.",
+  lifetimeTitle: "Board lifetime",
+  lifetimeDays: "days",
+  lifetimeHours: "hours",
+  expiresAt: "Moves to the trash on {date}",
+  boardExpired: "The board “{name}” expired and was moved to the trash.",
+  extend: "Extend",
+  extendTitle: "Extend “{name}”",
+  restoreBoard: "Restore board",
   background: "Board background",
 
   // Filter

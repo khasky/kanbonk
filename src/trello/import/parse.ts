@@ -73,6 +73,9 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
     ),
     sourceTrelloId: string(source.id),
     starred: Boolean(source.starred),
+    ...(Number.isFinite(Date.parse(string(source.kanbonkExpiresAt)))
+      ? { expiresAt: string(source.kanbonkExpiresAt) }
+      : {}),
     ...closedInTrello(source.closed, boardId),
   };
   const members: Member[] = [];

@@ -258,6 +258,17 @@ export default {
     exportBoard: "Exportieren…",
     moveBoardToTrash: "Board in den Papierkorb verschieben",
     changeBackground: "Hintergrund ändern",
+    temporaryBoard: "Temporäres Board",
+    temporaryHint:
+      "Wenn die Zeit abgelaufen ist, wandert das Board in den Papierkorb. Ausschalten, um das Board dauerhaft zu behalten.",
+    lifetimeTitle: "Lebensdauer des Boards",
+    lifetimeDays: "Tage",
+    lifetimeHours: "Stunden",
+    expiresAt: "Wandert am {date} in den Papierkorb",
+    boardExpired: "Das Board „{name}“ ist abgelaufen und wurde in den Papierkorb verschoben.",
+    extend: "Verlängern",
+    extendTitle: "„{name}“ verlängern",
+    restoreBoard: "Board wiederherstellen",
     background: "Board-Hintergrund",
 
     closeFilter: "Filter schließen",

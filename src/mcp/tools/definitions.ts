@@ -42,7 +42,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "get_board",
     description:
-      "Lists (in order, with zones, color, card limit and card count) and cards of a board, with its labels, members, required fields and done settings.",
+      "Lists (in order, with zones, color, card limit and card count) and cards of a board, with its labels, members, required fields, done settings and, for a temporary board, when it expires.",
     inputSchema: obj({ boardId: str("Board ID"), keyword: str("Optional text filter") }, ["boardId"]),
     readOnly: true,
   },
@@ -90,9 +90,15 @@ export const tools: ToolDefinition[] = [
   { name: "create_workspace", description: "Create a workspace.", inputSchema: obj({ name: str("Name") }, ["name"]) },
   {
     name: "create_board",
-    description: "Create a board in a workspace.",
+    description:
+      "Create a board in a workspace. With expiresInHours it is a temporary board that moves to the trash when the time is up.",
     inputSchema: obj(
-      { workspaceId: str("Workspace ID"), name: str("Name"), background: str("Background colour #rrggbb") },
+      {
+        workspaceId: str("Workspace ID"),
+        name: str("Name"),
+        background: str("Background colour #rrggbb"),
+        expiresInHours: { type: "number", description: "Hours the board lives (whole number, at least 1)" },
+      },
       ["workspaceId", "name"],
     ),
   },

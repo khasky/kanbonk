@@ -38,6 +38,7 @@ const parts: Array<{ fields: string[]; key: MessageKey; counted?: boolean }> = [
   { fields: ["automationRules"], key: "board.automation", counted: true },
   { fields: ["isTemplate"], key: "board.template" },
   { fields: ["starred"], key: "pages.starred" },
+  { fields: ["expiresAt"], key: "board.lifetimeTitle" },
   { fields: ["position"], key: "card.position" },
 ];
 const partOf = new Map(parts.flatMap((part) => part.fields.map((field) => [field, part] as const)));

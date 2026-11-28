@@ -175,6 +175,7 @@ export function runTool(
         members: target.members ?? [],
         requiredFields: target.requiredFields,
         cardDone: target.cardDone,
+        expiresAt: target.expiresAt,
         lists: lists.map((item) => ({
           id: item.id,
           name: item.name,
@@ -283,6 +284,9 @@ export function runTool(
       const id = newId();
       const background = text(args, "background") ?? "#0c66e4";
       if (!/^#[\da-f]{6}$/i.test(background)) throw new ToolError(`"background" must be #rrggbb`);
+      const hours = args.expiresInHours;
+      if (hours !== undefined && (typeof hours !== "number" || !Number.isInteger(hours) || hours < 1))
+        throw new ToolError(`"expiresInHours" must be a whole number of hours, at least 1`);
       return done(
         recordRevision(
           {
@@ -297,6 +301,7 @@ export function runTool(
                 background,
                 members: [],
                 starred: false,
+                ...(hours ? { expiresAt: new Date(now.getTime() + (hours as number) * 3_600_000).toISOString() } : {}),
               },
             ],
           },

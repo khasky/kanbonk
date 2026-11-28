@@ -29,6 +29,8 @@ import {
   cloneCard,
   cloneCardName,
   deleteLabels,
+  expiryFrom,
+  type Lifetime,
   mergeLabels,
   newId,
   recordRevision,
@@ -122,12 +124,13 @@ export function AppOverlays({
     overlays.close("boardCopy");
   }
 
-  function submitCreation(name: string) {
+  function submitCreation(name: string, lifetime?: Lifetime) {
     const creation = open.creation;
     if (!creation) return;
     if (creation.kind === "workspace") {
       if (name) app.navigate(`/w/${app.boardActions.createWorkspace(name)}`);
-    } else if (name) app.setBoardId(app.boardActions.createBoard(name, creation.workspaceId ?? defaultWorkspaceId));
+    } else if (name)
+      app.setBoardId(app.boardActions.createBoard(name, creation.workspaceId ?? defaultWorkspaceId, lifetime));
     overlays.close("creation");
   }
 
@@ -181,6 +184,12 @@ export function AppOverlays({
             app.boardActions.updateBoard(settingsBoard.id, (item) => ({ ...item, cardAging }))
           }
           onCardDone={(cardDone) => app.boardActions.updateBoard(settingsBoard.id, (item) => ({ ...item, cardDone }))}
+          onLifetime={(lifetime) =>
+            app.boardActions.updateBoard(settingsBoard.id, (item) => ({
+              ...item,
+              expiresAt: lifetime && expiryFrom(lifetime),
+            }))
+          }
           onClose={() => overlays.close("settingsBoardId")}
         />
       )}

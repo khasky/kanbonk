@@ -257,6 +257,16 @@ export default {
     exportBoard: "Exportálás…",
     moveBoardToTrash: "Tábla áthelyezése a lomtárba",
     changeBackground: "Háttér módosítása",
+    temporaryBoard: "Ideiglenes tábla",
+    temporaryHint: "Ha lejár az idő, a tábla a lomtárba kerül. Kapcsolja ki, hogy a tábla végleg megmaradjon.",
+    lifetimeTitle: "A tábla élettartama",
+    lifetimeDays: "nap",
+    lifetimeHours: "óra",
+    expiresAt: "Lomtárba kerül: {date}",
+    boardExpired: "A(z) „{name}” tábla lejárt, és a lomtárba került.",
+    extend: "Meghosszabbítás",
+    extendTitle: "„{name}” meghosszabbítása",
+    restoreBoard: "Tábla visszaállítása",
     background: "Tábla háttere",
 
     // Filter

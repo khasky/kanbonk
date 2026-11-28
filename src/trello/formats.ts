@@ -77,6 +77,8 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
     idOrganization: board.workspaceId,
     kanbonkOrganizationName: state.workspaces.find((item) => item.id === board.workspaceId)?.name,
     starred: board.starred,
+    // Trello has no temporary boards; Kanbonk's import reads it back.
+    kanbonkExpiresAt: board.expiresAt ?? null,
     shortLink: board.id,
     url: `https://trello.com/b/${board.id}`,
     // A gradient goes by Trello's name for it, which Trello and Kanbonk's import read back.

@@ -17,7 +17,7 @@ import { Sidebar } from "../layout/Sidebar";
 import { boardHref, type Route, useRoute } from "../lib/router";
 import { readLocalAuthor } from "../lib/storage";
 import { readDismissedReminders, type PanelName } from "../lib/uiPreferences";
-import type { Card, Member } from "../model";
+import { type Card, expireBoards, expiryFrom, extendBoard, type Member } from "../model";
 import { applyDueRules } from "../model/automation";
 import { inboxBoardId, inboxListId, inboxWorkspaceId } from "../model/inbox";
 import { dueReminders } from "../model/reminders";
@@ -29,6 +29,7 @@ import { PlannerView } from "../panels/PlannerView";
 import { AppContext, type AppServices } from "./AppContext";
 import { AppOverlays } from "./AppOverlays";
 import { DoneCheer } from "./DoneCheer";
+import { ExpiredBoards } from "./ExpiredBoards";
 import { AskDialogHost } from "../ui/AskDialog";
 import { MainContent } from "./MainContent";
 import { StatusBanners } from "./StatusBanners";
@@ -95,7 +96,7 @@ function App() {
     onNotice: setNotice,
   });
 
-  // Reminders, due-date rules and the trash purge (after the days set in Settings) follow the clock.
+  // Reminders, due-date rules, temporary boards running out and the trash purge (after the days set in Settings) follow the clock.
   const clock = useClock();
   const retentionDays = useTrashRetention();
   useEffect(() => {
@@ -114,7 +115,7 @@ function App() {
   useEffect(() => {
     if (!ready) return;
     setState((current) => {
-      const next = applyDueRules(current, clock.now, localDeviceId);
+      const next = expireBoards(applyDueRules(current, clock.now, localDeviceId), localDeviceId, clock.now);
       return retentionDays === undefined ? next : purgeExpired(next, localDeviceId, clock.now, retentionDays);
     });
   }, [ready, clock.now, state.boards, state.cards, retentionDays]);
@@ -384,6 +385,13 @@ function App() {
             onSkipBackup={() => void skipDueBackup()}
             error={error}
             onDismissError={() => setError("")}
+          />
+          <ExpiredBoards
+            state={fullState}
+            onExtend={(boardId, lifetime) => {
+              setState((current) => extendBoard(current, boardId, lifetime && expiryFrom(lifetime), localDeviceId));
+              setBoardId(boardId);
+            }}
           />
           {/* `panel-open` is a hook for the board toolbar's rules. */}
           <div className={panels.shownPanels.length ? "panel-open flex min-h-0 flex-1" : "flex min-h-0 flex-1"}>

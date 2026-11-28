@@ -267,6 +267,17 @@ export default {
     exportBoard: "Exporter…",
     moveBoardToTrash: "Placer le tableau dans la corbeille",
     changeBackground: "Changer le fond",
+    temporaryBoard: "Tableau temporaire",
+    temporaryHint:
+      "Une fois le temps écoulé, le tableau passe dans la corbeille. Désactivez cette option pour garder le tableau définitivement.",
+    lifetimeTitle: "Durée de vie du tableau",
+    lifetimeDays: "jours",
+    lifetimeHours: "heures",
+    expiresAt: "Passe dans la corbeille le {date}",
+    boardExpired: "Le tableau « {name} » a expiré et a été placé dans la corbeille.",
+    extend: "Prolonger",
+    extendTitle: "Prolonger « {name} »",
+    restoreBoard: "Restaurer le tableau",
     background: "Fond du tableau",
 
     closeFilter: "Fermer le filtre",

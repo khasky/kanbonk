@@ -267,6 +267,17 @@ export default {
     exportBoard: "Esporta…",
     moveBoardToTrash: "Sposta bacheca nel cestino",
     changeBackground: "Cambia sfondo",
+    temporaryBoard: "Bacheca temporanea",
+    temporaryHint:
+      "Allo scadere del tempo, la bacheca va nel cestino. Disattiva l’opzione per conservare la bacheca per sempre.",
+    lifetimeTitle: "Durata della bacheca",
+    lifetimeDays: "giorni",
+    lifetimeHours: "ore",
+    expiresAt: "Va nel cestino il {date}",
+    boardExpired: "La bacheca “{name}” è scaduta ed è stata spostata nel cestino.",
+    extend: "Estendi",
+    extendTitle: "Estendi “{name}”",
+    restoreBoard: "Ripristina bacheca",
     background: "Sfondo della bacheca",
 
     closeFilter: "Chiudi filtro",
