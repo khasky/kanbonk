@@ -107,6 +107,8 @@ export interface BoardList extends Trashable {
   zoneId?: string;
   /** A Trello color name from `listColors`; the list shows its light shade. */
   color?: string;
+  /** The most cards the list should hold; above it the list turns red. */
+  cardLimit?: number;
 }
 
 export interface Label {

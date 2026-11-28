@@ -121,6 +121,7 @@ export function BoardCanvas({
       else boardActions.sortList(listId, action);
     },
     setColor: (listId, color) => boardActions.updateList(listId, (item) => ({ ...item, color })),
+    setCardLimit: (listId, cardLimit) => boardActions.updateList(listId, (item) => ({ ...item, cardLimit })),
     setPriority: (listId, priority) => boardActions.setPriorityOfList(listId, priority),
     moveCards: (listId, targetListId) => {
       for (const item of state.cards
@@ -223,6 +224,7 @@ export function BoardCanvas({
         lists={lists}
         collapsed={collapsedLists.has(list.id)}
         cards={cardsByList.get(list.id) ?? []}
+        total={view.listTotals.get(list.id) ?? 0}
         labels={view.labelMap}
         members={board.members}
         cardById={view.cardById}

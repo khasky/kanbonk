@@ -32,6 +32,7 @@ export interface ListActions {
   rename: (listId: string, name: string) => void;
   run: (listId: string, action: ListSort | "move-left" | "move-right" | "copy" | "delete" | "trash-cards") => void;
   setColor: (listId: string, color: string | undefined) => void;
+  setCardLimit: (listId: string, cardLimit: number | undefined) => void;
   setPriority: (listId: string, priority: Priority | undefined) => void;
   moveCards: (listId: string, targetListId: string) => void;
   toggleCollapsed: (listId: string) => void;
@@ -44,10 +45,11 @@ export interface ListActions {
   movePicker: (list: BoardList, close: () => void) => ReactNode;
 }
 
-/** The light shade a colored list takes, as in Trello. */
-function listBackground(list: BoardList, hidden: boolean) {
+/** The light shade a colored list takes, as in Trello; a list over its card limit is red instead. */
+function listBackground(list: BoardList, hidden: boolean, overLimit: boolean) {
+  const color = overLimit ? "red" : list.color;
   return {
-    ...(list.color ? { background: trelloLabelColors[`${list.color}_light`] } : undefined),
+    ...(color ? { background: trelloLabelColors[`${color}_light`] } : undefined),
     ...(hidden ? { display: "none" } : undefined),
   };
 }
@@ -62,6 +64,7 @@ export function ListColumn({
   list,
   lists,
   cards,
+  total,
   labels,
   members,
   cardById,
@@ -86,6 +89,8 @@ export function ListColumn({
   /** The board's lists, for moving all cards to one of them. */
   lists: BoardList[];
   cards: Card[];
+  /** How many cards the list holds whatever the filter shows, which its card limit counts. */
+  total: number;
   labels: Map<string, Label>;
   members?: Member[];
   cardById: Map<string, Card>;
@@ -113,7 +118,16 @@ export function ListColumn({
 }) {
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement>();
   const [templateAnchor, setTemplateAnchor] = useState<HTMLElement>();
-  const count = (
+  const limit = list.cardLimit;
+  const overLimit = limit !== undefined && total > limit;
+  const count = limit ? (
+    <span
+      className={`flex-none px-1 text-[14px] ${overLimit ? "font-bold text-danger" : "font-normal text-ink-subtle"}`}
+      title={t(overLimit ? "board.overCardLimit" : "board.cardsOfLimit", { count: total, limit })}
+    >
+      {total} / {limit}
+    </span>
+  ) : (
     <span className="flex-none px-1 text-[14px] font-normal text-ink-subtle" title={t("board.totalCards")}>
       {cards.length}
     </span>
@@ -140,7 +154,8 @@ export function ListColumn({
     return (
       <section
         className="list-column flex max-h-full w-11 flex-none flex-col items-center gap-2 rounded-xl bg-surface-sunken py-2 shadow-tile-soft"
-        style={listBackground(list, hidden)}
+        style={listBackground(list, hidden, overLimit)}
+        data-over-limit={overLimit || undefined}
         data-list-id={list.id}
       >
         <Button
@@ -163,7 +178,8 @@ export function ListColumn({
   return (
     <section
       className="list-column flex max-h-full w-[272px] flex-none flex-col rounded-xl bg-surface-sunken p-2 shadow-tile-soft"
-      style={listBackground(list, hidden)}
+      style={listBackground(list, hidden, overLimit)}
+      data-over-limit={overLimit || undefined}
       data-list-id={list.id}
     >
       <div className="flex items-center gap-1 px-1 pt-0.5 pb-2">
@@ -208,6 +224,7 @@ export function ListColumn({
             onSort={(by) => actions.run(list.id, by)}
             onPriority={(priority) => actions.setPriority(list.id, priority)}
             onColor={(color) => actions.setColor(list.id, color)}
+            onCardLimit={(cardLimit) => actions.setCardLimit(list.id, cardLimit)}
             onTrash={() => actions.run(list.id, "delete")}
             onTrashCards={() => actions.run(list.id, "trash-cards")}
             onClose={() => setMenuAnchor(undefined)}

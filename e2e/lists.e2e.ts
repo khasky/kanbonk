@@ -82,3 +82,35 @@ test("creates a template in a list and a card from it", async ({ page }) => {
   await create.getByRole("button", { name: "Create card", exact: true }).click();
   await expect(ideas.getByRole("link", { name: "Report for May" })).toBeVisible();
 });
+
+test("limits the cards of a list and turns it red above the limit, whatever the filter shows", async ({ page }) => {
+  const ideas = await boardWithLists(page);
+  await page.getByLabel("List actions Ideas").click();
+  await page.getByRole("button", { name: "Set card limit…" }).click();
+  const form = page.getByRole("dialog", { name: "Card limit" });
+  await form.getByLabel("Most cards in this list").fill("2");
+  await form.getByRole("button", { name: "Save" }).click();
+  await expect(ideas.getByTitle("Cards: 2, limit: 2")).toHaveText("2 / 2");
+  await expect(ideas).not.toHaveAttribute("data-over-limit");
+
+  await ideas.getByRole("button", { name: "Add a card" }).click();
+  await page.keyboard.type("Cherry");
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Escape");
+  await expect(ideas.getByTitle("Over the limit. Cards: 3, limit: 2")).toHaveText("3 / 2");
+  await expect(ideas).toHaveAttribute("data-over-limit", "true");
+
+  await page.getByLabel("Search cards on this board").fill("Apple");
+  await expect(ideas.getByRole("link")).toHaveCount(1);
+  await expect(ideas).toHaveAttribute("data-over-limit", "true");
+  await page.getByLabel("Search cards on this board").fill("");
+
+  await page.reload();
+  await expect(ideas).toHaveAttribute("data-over-limit", "true");
+  await page.getByLabel("List actions Ideas").click();
+  await page.getByRole("button", { name: "Set card limit…" }).click();
+  await expect(form.getByLabel("Most cards in this list")).toHaveValue("2");
+  await form.getByRole("button", { name: "Remove limit" }).click();
+  await expect(ideas.getByTitle("Total cards")).toHaveText("3");
+  await expect(ideas).not.toHaveAttribute("data-over-limit");
+});

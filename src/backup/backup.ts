@@ -108,7 +108,8 @@ export function validState(state: Record<string, unknown>): boolean {
         typeof list.boardId === "string" &&
         Number.isFinite(list.position) &&
         (list.zoneId === undefined || typeof list.zoneId === "string") &&
-        (list.color === undefined || typeof list.color === "string"),
+        (list.color === undefined || typeof list.color === "string") &&
+        (list.cardLimit === undefined || Number.isInteger(list.cardLimit)),
     ) &&
     value.labels.every(
       (label) =>

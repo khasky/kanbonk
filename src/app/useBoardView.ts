@@ -57,6 +57,14 @@ export function useBoardView(
     for (const group of groups.values()) group.sort((a, b) => a.position - b.position);
     return groups;
   }, [filteredCards]);
+  /** How many cards each list holds whatever the filter shows, for the list limits. */
+  const listTotals = useMemo(() => {
+    const totals = new Map<string, number>();
+    if (boardId)
+      for (const item of filterBoardCards(state, boardId, emptyBoardFilter()))
+        totals.set(item.listId, (totals.get(item.listId) ?? 0) + 1);
+    return totals;
+  }, [state, boardId]);
   const labelMap = useMemo(
     () => new Map(state.labels.filter((item) => !item.deleted).map((item) => [item.id, item])),
     [state.labels],
@@ -117,6 +125,7 @@ export function useBoardView(
     forgetLabel,
     filteredCardIds,
     cardsByList,
+    listTotals,
     labelMap,
     cardById,
     connectionInfo,

@@ -3,13 +3,50 @@ import { t } from "../i18n";
 import type { BoardList, ListSort, Priority } from "../model";
 import { PriorityPicker } from "../card/PriorityPicker";
 import { listColors, trelloLabelColors } from "../model/labelColors";
+import { Input } from "../ui/Field";
 import { Icon } from "../ui/Icon";
 import { MenuItem, MenuSeparator } from "../ui/Menu";
 import { Popover } from "../ui/Popover";
 import { Swatch } from "../ui/Swatch";
 import { Button } from "../ui/Button";
 
-type View = "main" | "move" | "move-cards" | "sort" | "priority";
+type View = "main" | "move" | "move-cards" | "sort" | "priority" | "limit";
+
+/** The "Set card limit" step: the most cards the list should hold, or none. */
+function CardLimitForm({ limit, onLimit }: { limit?: number; onLimit: (limit: number | undefined) => void }) {
+  const [value, setValue] = useState(limit ? String(limit) : "");
+  const parsed = Math.floor(Number(value));
+  return (
+    <form
+      className="grid gap-2 p-1"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onLimit(parsed > 0 ? parsed : undefined);
+      }}
+    >
+      <label className="grid gap-1 text-[12px] font-semibold text-ink-subtle">
+        {t("board.cardLimitLabel")}
+        <Input
+          type="number"
+          min={1}
+          step={1}
+          autoFocus
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+        />
+      </label>
+      <p className="m-0 text-[12px] text-ink-subtle">{t("board.cardLimitHint")}</p>
+      <div className="flex gap-2">
+        <Button variant="primary" type="submit">
+          {t("common.save")}
+        </Button>
+        <Button variant="secondary" type="button" disabled={!limit} onClick={() => onLimit(undefined)}>
+          {t("board.removeCardLimit")}
+        </Button>
+      </div>
+    </form>
+  );
+}
 
 const sorts: { by: ListSort; label: () => string }[] = [
   { by: "newest", label: () => t("board.sortNewest") },
@@ -38,6 +75,7 @@ export function ListActionsPopover({
   onSort,
   onPriority,
   onColor,
+  onCardLimit,
   onTrash,
   onTrashCards,
   onClose,
@@ -56,6 +94,8 @@ export function ListActionsPopover({
   /** Gives all the list's cards the priority, or none with undefined. */
   onPriority: (priority: Priority | undefined) => void;
   onColor: (color: string | undefined) => void;
+  /** Sets the most cards the list should hold, or removes the limit with undefined. */
+  onCardLimit: (limit: number | undefined) => void;
   onTrash: () => void;
   onTrashCards: () => void;
   onClose: () => void;
@@ -104,6 +144,12 @@ export function ListActionsPopover({
         <PriorityPicker onPick={(priority) => run(() => onPriority(priority))()} />
       </Popover>
     );
+  if (view === "limit")
+    return (
+      <Popover title={t("board.cardLimitTitle")} anchor={anchor} onClose={onClose} onBack={back}>
+        <CardLimitForm limit={list.cardLimit} onLimit={(limit) => run(() => onCardLimit(limit))()} />
+      </Popover>
+    );
 
   return (
     <Popover title={t("board.listActions")} anchor={anchor} onClose={onClose}>
@@ -114,6 +160,7 @@ export function ListActionsPopover({
         <MenuItem onClick={() => setView("move-cards")}>{t("board.moveAllCards")}</MenuItem>
         <MenuItem onClick={() => setView("sort")}>{t("board.sortBy")}</MenuItem>
         <MenuItem onClick={() => setView("priority")}>{t("priority.setForList")}</MenuItem>
+        <MenuItem onClick={() => setView("limit")}>{t("board.setCardLimit")}</MenuItem>
         <MenuItem onClick={run(onMoveLeft)}>{t("board.moveLeft")}</MenuItem>
         <MenuItem onClick={run(onMoveRight)}>{t("board.moveRight")}</MenuItem>
         <MenuSeparator />

@@ -20,6 +20,7 @@ The top bar has a link to the trash with the number of trashed items and a searc
 
 - **Drag and drop**: drag a list by its handle (⋮⋮) left or right, into a zone or out of it; drag cards within a list or to another list; drag a zone by its header handle between lists and other zones. While dragging, the item is lifted out and a dark slot of its size shows where it will land, with the lists and cards around it making room. Lists can also be moved with **Move left** / **Move right** in the list menu.
 - List menu (⋯): sort cards by name or due date, move, copy the list with its cards, delete to the trash.
+- **Card limit** (list menu → **Set card limit…**): the header shows the cards against the limit, such as **3 / 2**, and the list turns red while it holds more cards than the limit. The limit counts every card of the list, whatever the search or filter shows.
 - Boards can be starred, copied to another workspace with or without cards and templates, and given a background: a preset color, any color from the color picker, or your own image.
 - Cards can be moved or copied to the very top or very bottom of a list on any board (**⋯ → Move / copy**), turned into templates and created from templates.
 - Renaming creates one revision when you finish typing; Esc cancels the edit.
