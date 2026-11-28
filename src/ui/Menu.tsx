@@ -9,7 +9,7 @@ const summaryFocus = { default: "focus-visible:outline-brand", topbar: "focus-vi
 
 /**
  * A dropdown menu opened from a "⋯" button. It closes when focus leaves it, on Escape (which then goes no further, so
- * a dialog around the menu stays open) and after one of its buttons is pressed. `keepOpen` lets an item such as a color picker take focus without closing the menu. `className` adds layout
+ * a dialog around the menu stays open) and after one of its buttons is pressed. `className` adds layout
  * to the menu (e.g. a z-index), `summaryClassName` styles the "⋯" button; the menu is a `group/menu`, so the button
  * can style its open state with `group-open/menu:`. `placement="topbar"` is the menu in the dark top bar; `touchRows`
  * makes its rows 44px touch targets on phones.
@@ -21,7 +21,6 @@ export function Menu({
   placement = "default",
   touchRows = false,
   children,
-  keepOpen,
   ref,
 }: {
   label: string;
@@ -30,7 +29,6 @@ export function Menu({
   placement?: MenuPlacement;
   touchRows?: boolean;
   children: ReactNode;
-  keepOpen?: (target: Element) => boolean;
   ref?: Ref<HTMLDetailsElement>;
 }) {
   const summary = `cursor-pointer list-none in-[fieldset:disabled]:pointer-events-none in-[fieldset:disabled]:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 ${summaryFocus[placement]} [&::-webkit-details-marker]:hidden`;
@@ -41,8 +39,7 @@ export function Menu({
         className ? `group/menu relative flex-none open:z-40 ${className}` : "group/menu relative flex-none open:z-40"
       }
       onBlur={(event) => {
-        if (!keepOpen?.(event.target as Element) && !event.currentTarget.contains(event.relatedTarget))
-          event.currentTarget.open = false;
+        if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
       }}
       onKeyDown={(event) => {
         if (event.key === "Escape" && event.currentTarget.open) {
@@ -73,7 +70,7 @@ export function Menu({
   );
 }
 
-/** Look of a menu row; also for a `<label>` row that wraps an input. */
+/** Look of a menu row. */
 export const menuItemClass =
   "block w-full cursor-pointer rounded-sm border-0 bg-transparent px-2.5 py-[9px] text-left text-inherit hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent";
 
@@ -89,35 +86,6 @@ export function MenuItem({
     ? "block w-full cursor-pointer rounded-sm border-0 bg-transparent px-2.5 py-[9px] text-left text-danger hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
     : menuItemClass;
   return <button className={look + touch} {...props} />;
-}
-
-/** A row of a `Menu` that picks one file from this device; it clears itself, so the same file can be picked again. */
-export function MenuFileItem({
-  children,
-  accept,
-  onFile,
-}: {
-  children: ReactNode;
-  accept?: string;
-  onFile: (file: File | null) => void;
-}) {
-  const touch = use(TouchRowsContext) ? " max-phone:min-h-11" : "";
-  return (
-    <label
-      className={`${menuItemClass} relative has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-brand${touch}`}
-    >
-      {children}
-      <input
-        type="file"
-        className="sr-only"
-        accept={accept}
-        onChange={(event) => {
-          onFile(event.target.files?.[0] ?? null);
-          event.target.value = "";
-        }}
-      />
-    </label>
-  );
 }
 
 /** A line between groups of menu rows. */

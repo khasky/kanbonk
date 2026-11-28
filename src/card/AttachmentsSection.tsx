@@ -90,10 +90,7 @@ export function AttachmentsSection({
           : () =>
               onChange((item) => ({
                 ...item,
-                cover:
-                  item.cover?.attachmentId === attachment.id
-                    ? undefined
-                    : { attachmentId: attachment.id, size: item.cover?.size ?? "normal" },
+                cover: item.cover?.attachmentId === attachment.id ? undefined : { attachmentId: attachment.id },
               }))
       }
       onRemove={locked ? undefined : () => onRemove(attachment)}

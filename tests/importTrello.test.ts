@@ -466,7 +466,7 @@ describe("Trello import", () => {
     expect(imported.cards[0].cover).toEqual({
       attachmentId: imported.cards[0].attachments[0].id,
       color: undefined,
-      size: "normal",
+      gradient: undefined,
     });
   });
 

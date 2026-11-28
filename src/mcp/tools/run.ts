@@ -424,7 +424,7 @@ export function runTool(
         description: text(args, "description") ?? item.description,
         startAt: startAt === undefined ? item.startAt : (startAt ?? undefined),
         dueAt: dueAt === undefined ? item.dueAt : (dueAt ?? undefined),
-        cover: color === undefined ? item.cover : color ? { color, size: "normal" } : undefined,
+        cover: color === undefined ? item.cover : color ? { color } : undefined,
         priority: priority === undefined ? item.priority : isPriority(priority) ? priority : undefined,
         isEpic: typeof args.isEpic === "boolean" ? args.isEpic || undefined : item.isEpic,
         labelIds: labelIds ?? item.labelIds,

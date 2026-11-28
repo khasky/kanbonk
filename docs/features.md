@@ -21,7 +21,7 @@ The top bar has a link to the trash with the number of trashed items and a searc
 - **Drag and drop**: drag a list by its handle (⋮⋮) left or right, into a zone or out of it; drag cards within a list or to another list; drag a zone by its header handle between lists and other zones. While dragging, the item is lifted out and a dark slot of its size shows where it will land, with the lists and cards around it making room. Lists can also be moved with **Move left** / **Move right** in the list menu.
 - List menu (⋯): sort cards by name or due date, move, copy the list with its cards, delete to the trash.
 - **Card limit** (list menu → **Set card limit…**): the header shows the cards against the limit, such as **3 / 2**, and the list turns red while it holds more cards than the limit. The limit counts every card of the list, whatever the search or filter shows.
-- Boards can be starred, copied to another workspace with or without cards and templates, and given a background: a preset color, any color from the color picker, or your own image.
+- Boards can be starred, copied to another workspace with or without cards and templates, and given a background with **⋯ → Change background**. Boards, workspaces (the square next to the name on the workspace page) and card covers share one picker: standard colors and gradients as in Trello, any color from the color picker, or your own image.
 - Cards can be moved or copied to the very top or very bottom of a list on any board (**⋯ → Move / copy**), turned into templates and created from templates.
 - Renaming creates one revision when you finish typing; Esc cancels the edit.
 - **Search on the board**: the search box in the board toolbar narrows the board to matching cards as you type (title, description, checklists, comments, labels).
@@ -47,7 +47,7 @@ A card opened from a board appears as a modal on top of it; Esc or the close but
 - **Layout**: the header holds the card's list (choosing another moves the card), the cover button, the **⋯** menu (Move / copy, Clone, Make template, Share, Card history, Move to trash) and the close button. Under the title, **Add**, **Labels**, **Dates**, **Checklist** and **Members** open small popovers next to the button; **Add** lists everything that can be added to the card (also attachments, links, dependencies and cover). The card's members, labels and dates show as chips under these buttons; a chip opens its popover. Esc closes a popover without closing the card.
 
 - **Title**: a text field.
-- **Card color**: the cover picker has presets and a color picker; **Color the whole card** paints the whole tile, and the text switches between dark and light for contrast.
+- **Card color**: the cover (a color, a gradient or an image; an uploaded image is attached to the card) fills the whole tile, and the text switches between dark and light for contrast; an image is darkened under white text.
 - **Description**: visual Markdown editing with a formatting toolbar (bold, italic, strikethrough, headings, lists, quote, code, link, divider) and a toggle to edit the Markdown source. Ctrl+Enter saves, Esc cancels. Pasted text is inserted as plain text.
 - **Start and due dates**: the **Dates** popover has a month calendar, a start date, a due date and time and a reminder; a day picked in the calendar goes to the date field last focused. **Save** applies the dates, **Remove** clears them. The date chip turns red once the due date has passed.
 - **Labels**: Trello's 30 colors as presets, or any color from the color picker.

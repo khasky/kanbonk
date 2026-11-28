@@ -23,9 +23,8 @@ export const board = {
   history: "History",
   exportBoard: "Export…",
   moveBoardToTrash: "Move board to trash",
-  backgroundFromFile: "Background from file",
-  backgroundColor: "Background color",
-  boardBackgroundColor: "Board background color",
+  changeBackground: "Change background",
+  background: "Board background",
 
   // Filter
   closeFilter: "Close filter",

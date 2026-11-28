@@ -1,4 +1,4 @@
-import type { Board } from "../model";
+import { backdropFill, type Board } from "../model";
 import { type BoardView, boardHref, type CalendarScale } from "../lib/router";
 import { Icon } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
@@ -135,7 +135,7 @@ export function BoardToolbar({
           })}
         </ul>
       )}
-      <BoardMenu background={board.background} actions={menu} />
+      <BoardMenu background={backdropFill(board)} actions={menu} />
     </div>
   );
 }

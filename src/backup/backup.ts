@@ -51,6 +51,18 @@ function hasIdName(value: unknown): value is Record<string, unknown> {
   return isRecord(value) && typeof value.id === "string" && typeof value.name === "string";
 }
 
+/** A workspace's or a board's optional color, gradient and image. */
+function isBackdrop(item: {
+  background?: unknown;
+  backgroundGradient?: unknown;
+  backgroundImageId?: unknown;
+}): boolean {
+  return ["background", "backgroundGradient", "backgroundImageId"].every((key) => {
+    const value = item[key as keyof typeof item];
+    return value === undefined || typeof value === "string";
+  });
+}
+
 export function validState(state: Record<string, unknown>): boolean {
   if (
     !["workspaces", "boards", "lists", "cards", "labels", "revisions"].every((key) => Array.isArray(state[key])) ||
@@ -62,6 +74,7 @@ export function validState(state: Record<string, unknown>): boolean {
     value.workspaces.every(
       (workspace) =>
         hasIdName(workspace) &&
+        isBackdrop(workspace) &&
         (workspace.sourceTrelloId === undefined || typeof workspace.sourceTrelloId === "string"),
     ) &&
     value.boards.every(
@@ -70,6 +83,7 @@ export function validState(state: Record<string, unknown>): boolean {
         typeof board.workspaceId === "string" &&
         typeof board.description === "string" &&
         typeof board.background === "string" &&
+        isBackdrop(board) &&
         typeof board.starred === "boolean" &&
         (board.zones === undefined ||
           (Array.isArray(board.zones) &&

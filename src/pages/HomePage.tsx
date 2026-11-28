@@ -30,7 +30,7 @@ export function HomePage({
                 href={`/w/${encodeURIComponent(workspace.id)}`}
                 onOpen={() => onOpen(workspace.id)}
               >
-                <WorkspaceAvatar name={workspace.name} />
+                <WorkspaceAvatar workspace={workspace} />
                 <strong>{workspace.name}</strong>
                 <small className="text-ink-muted">
                   {boards.length

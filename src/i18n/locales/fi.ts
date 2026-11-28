@@ -170,6 +170,8 @@ export default {
       "Avaa kortti nähdäksesi sen sisällön; sitä voi muokata taas palautuksen jälkeen. Palautus etenee ketjuna: kohde palaa yhdessä poistettujen yläkohteidensa (työtila, taulu, lista), kaiken sen mukana poistetun ja niiden korttien kanssa, joista se riippuu.",
 
     workspaceName: "Työtilan nimi",
+    workspaceColor: "Työtilan väri",
+    defaultWorkspaceColor: "Käytä oletusväriä",
     moveToTrash: "Siirrä roskakoriin",
     boards: "Taulut",
     starred: "Tähdellä merkityt",
@@ -255,9 +257,8 @@ export default {
     history: "Historia",
     exportBoard: "Vie…",
     moveBoardToTrash: "Siirrä taulu roskakoriin",
-    backgroundFromFile: "Tausta tiedostosta",
-    backgroundColor: "Taustaväri",
-    boardBackgroundColor: "Taulun taustaväri",
+    changeBackground: "Vaihda tausta",
+    background: "Taulun tausta",
 
     // Filter
     closeFilter: "Sulje suodatin",
@@ -643,9 +644,6 @@ export default {
     newChecklistItems: "Uudet tarkistuslistan kohteet",
 
     // Cover
-    coverColor: "Kansikuva: {color}",
-    customColor: "Mukautettu väri",
-    customCoverColor: "Mukautettu kansikuvan väri",
     removeCover: "Poista kansikuva",
 
     // Labels and members
@@ -878,6 +876,14 @@ export default {
     image: "Kuva: {name}",
     untitled: "nimetön",
     closePopover: "Sulje: {title}",
+    fillColors: "Värit",
+    fillGradients: "Liukuvärit",
+    fillColor: "Väri {color}",
+    fillGradient: "Liukuväri {index}",
+    fillCustom: "Oma väri",
+    fillImages: "Kuvat",
+    fillImage: "Kuva",
+    fillUpload: "Lataa kuva",
     textStyles: "Tekstityylit",
     moreFormatting: "Lisää muotoilua",
     lists: "Luettelot",

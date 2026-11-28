@@ -169,6 +169,8 @@ export default {
       "Nyisson meg egy kártyát a tartalma megtekintéséhez; visszaállítás után ismét szerkeszthető. A visszaállítás láncszerű: az elem visszatér a törölt szülőelemeivel (munkaterület, tábla, lista), minden vele együtt törölt elemmel és azokkal a kártyákkal együtt, amelyektől függ.",
 
     workspaceName: "Munkaterület neve",
+    workspaceColor: "Munkaterület színe",
+    defaultWorkspaceColor: "Alapértelmezett szín használata",
     moveToTrash: "Áthelyezés a lomtárba",
     boards: "Táblák",
     starred: "Csillagozott",
@@ -254,9 +256,8 @@ export default {
     history: "Előzmények",
     exportBoard: "Exportálás…",
     moveBoardToTrash: "Tábla áthelyezése a lomtárba",
-    backgroundFromFile: "Háttér fájlból",
-    backgroundColor: "Háttérszín",
-    boardBackgroundColor: "Tábla háttérszíne",
+    changeBackground: "Háttér módosítása",
+    background: "Tábla háttere",
 
     // Filter
     closeFilter: "Szűrő bezárása",
@@ -642,9 +643,6 @@ export default {
     newChecklistItems: "Új ellenőrzőlista-elemek",
 
     // Cover
-    coverColor: "Borító: {color}",
-    customColor: "Egyéni szín",
-    customCoverColor: "Egyéni borítószín",
     removeCover: "Borító eltávolítása",
 
     // Labels and members
@@ -877,6 +875,14 @@ export default {
     image: "Kép: {name}",
     untitled: "névtelen",
     closePopover: "Bezárás: {title}",
+    fillColors: "Színek",
+    fillGradients: "Színátmenetek",
+    fillColor: "Szín: {color}",
+    fillGradient: "Színátmenet {index}",
+    fillCustom: "Egyéni szín",
+    fillImages: "Képek",
+    fillImage: "Kép",
+    fillUpload: "Kép feltöltése",
     textStyles: "Szövegstílusok",
     moreFormatting: "További formázás",
     lists: "Listák",

@@ -8,6 +8,10 @@ export interface Trashable {
 export interface Workspace extends Trashable {
   id: string;
   name: string;
+  /** The tile's color, gradient or image, as on a board; the default green gradient when unset. */
+  background?: string;
+  backgroundGradient?: string;
+  backgroundImageId?: string;
   sourceTrelloId?: string;
 }
 
@@ -30,7 +34,10 @@ export interface Board extends Trashable {
   workspaceId: string;
   name: string;
   description: string;
+  /** A #rrggbb color, also under a gradient or an image. */
   background: string;
+  /** A key of `fillGradients`. */
+  backgroundGradient?: string;
   backgroundImageId?: string;
   sourceTrelloId?: string;
   members?: Member[];
@@ -187,7 +194,8 @@ export interface Card extends Trashable {
   comments: Comment[];
   attachments: Attachment[];
   /** Always shown at the normal size; "full" survives only in data saved before that size was dropped. */
-  cover?: { attachmentId?: string; color?: string; size: "normal" | "full" };
+  /** Fills the whole tile: a color, a gradient (a key of `fillGradients`) or an image attachment. */
+  cover?: { attachmentId?: string; color?: string; gradient?: string };
   sourceTrelloId?: string;
   sourceTrelloShortLink?: string;
   isTemplate?: boolean;

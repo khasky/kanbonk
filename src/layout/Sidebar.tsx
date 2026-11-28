@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { t } from "../i18n";
 import { inboxBoardId, inboxWorkspaceId } from "../model/inbox";
-import type { AppState } from "../model";
+import { type AppState, backdropFill, type Board } from "../model";
+import { useFillStyle } from "../ui/useFileUrl";
 import { boardHref, trashHref } from "../lib/router";
 import { AppLink } from "../ui/AppLink";
 import { Button, buttonClass } from "../ui/Button";
@@ -63,6 +64,16 @@ function NavLink({
  * Links to Inbox, Planner, Workspaces and Trash, then every workspace with its boards. It collapses to a strip of
  * icons; the choice is remembered on this device.
  */
+/** The small square of a board's background in the list of boards. */
+function BoardSwatch({ board }: { board: Board }) {
+  return (
+    <span
+      className="h-5 w-6 flex-none rounded-[3px]"
+      style={{ background: useFillStyle(backdropFill(board)).background }}
+    />
+  );
+}
+
 export function Sidebar({
   state,
   shownPanels,
@@ -165,7 +176,7 @@ export function Sidebar({
                 aria-label={workspace.name}
                 title={collapsed ? workspace.name : undefined}
               >
-                <WorkspaceAvatar name={workspace.name} />
+                <WorkspaceAvatar workspace={workspace} />
                 {!collapsed && <span className="truncate">{workspace.name}</span>}
               </AppLink>
               <Button
@@ -188,7 +199,7 @@ export function Sidebar({
                   href={boardHref(item.id)}
                   onOpen={() => onOpenBoard(item.id)}
                 >
-                  <span className="h-5 w-6 flex-none rounded-[3px]" style={{ background: item.background }} />
+                  <BoardSwatch board={item} />
                   {item.name}
                   {item.starred && <Icon name="star" className="ml-auto size-3.5 fill-warning" />}
                 </AppLink>

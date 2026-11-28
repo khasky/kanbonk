@@ -79,7 +79,8 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
     starred: board.starred,
     shortLink: board.id,
     url: `https://trello.com/b/${board.id}`,
-    prefs: { backgroundColor: board.background },
+    // A gradient goes by Trello's name for it, which Trello and Kanbonk's import read back.
+    prefs: { backgroundColor: board.background, background: board.backgroundGradient ?? null },
     labels: labels.map(label),
     lists: lists.map((list) => ({
       id: list.id,
@@ -116,7 +117,10 @@ export function exportTrelloJson(state: AppState, boardId: string): Record<strin
         ? {
             idAttachment: card.cover.attachmentId ?? null,
             color: card.cover.color ? (colorNames.get(card.cover.color.toLowerCase()) ?? null) : null,
-            size: card.cover.size,
+            // Trello's covers have no gradients; Kanbonk's import reads it back.
+            kanbonkGradient: card.cover.gradient ?? null,
+            // Kanbonk's covers fill the whole card.
+            size: "full",
           }
         : undefined,
       attachments: card.attachments.map((item, index) => {

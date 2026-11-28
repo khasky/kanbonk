@@ -168,9 +168,6 @@ export const card = {
   newChecklistItems: "New checklist items",
 
   // Cover
-  coverColor: "Cover {color}",
-  customColor: "Custom color",
-  customCoverColor: "Custom cover color",
   removeCover: "Remove cover",
 
   // Labels and members

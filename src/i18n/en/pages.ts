@@ -47,6 +47,8 @@ export const pages = {
     "Open a card to see its contents; it can be edited again once restored. Restoring cascades: an item comes back together with its deleted parents (workspace, board, list), everything deleted along with it, and the cards it depends on.",
 
   workspaceName: "Workspace name",
+  workspaceColor: "Workspace color",
+  defaultWorkspaceColor: "Use the default color",
   moveToTrash: "Move to trash",
   boards: "Boards",
   starred: "Starred",

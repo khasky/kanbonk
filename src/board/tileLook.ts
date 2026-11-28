@@ -8,8 +8,8 @@ export const tileClass = `${tileBase} text-ink`;
 /** The title line. */
 export const tileNameClass = "flex items-center gap-[5px] wrap-anywhere";
 
-/** The line of due date, attachments, comments and checklists; hidden when empty. */
-export const tileMetaClass = "flex flex-wrap items-center gap-2.5 text-[12px] text-ink-muted empty:hidden";
+/** The line of due date, attachments, comments and checklists; hidden when empty. Its color comes with the tile. */
+export const tileMetaClass = "flex flex-wrap items-center gap-2.5 text-[12px] empty:hidden";
 
 export const tileMetaItemClass = "inline-flex items-center gap-[3px]";
 

@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import { boardColors } from "../board/BoardMenu";
+import { defaultBoardBackground } from "../board/BoardMenu";
 import type { BoardCopyOptions } from "../dialogs/BoardCopyDialog";
 import {
   type AppState,
@@ -19,6 +19,7 @@ import {
   sortListCards,
   setListPriority,
   type Priority,
+  type Workspace,
 } from "../model";
 import { moveToTrash } from "../model/trash";
 import { ensurePersonalWorkspace, personalWorkspaceId } from "../model/workspaces";
@@ -56,7 +57,7 @@ export function useBoardActions({
       workspaceId: targetWorkspaceId,
       name,
       description: "",
-      background: boardColors[0],
+      background: defaultBoardBackground,
       members: [],
       starred: false,
     };
@@ -94,6 +95,17 @@ export function useBoardActions({
         { ...current, boards: current.boards.map((item) => (item.id === boardId ? change(item) : item)) },
         "board",
         boardId,
+        deviceId,
+      ),
+    );
+  }
+
+  function updateWorkspace(workspaceId: string, change: (item: Workspace) => Workspace) {
+    setState((current) =>
+      recordRevision(
+        { ...current, workspaces: current.workspaces.map((item) => (item.id === workspaceId ? change(item) : item)) },
+        "workspace",
+        workspaceId,
         deviceId,
       ),
     );
@@ -292,6 +304,7 @@ export function useBoardActions({
     createBoard,
     copyBoardTo,
     updateBoard,
+    updateWorkspace,
     createList,
     updateList,
     moveList,

@@ -43,7 +43,7 @@ describe("MCP tools", () => {
 
     call("update_card", { cardId: a, dueAt: "", color: "#ff0000" });
     const card = state().cards.find((item) => item.id === a)!;
-    expect([card.dueAt, card.cover]).toEqual([undefined, { color: "#ff0000", size: "normal" }]);
+    expect([card.dueAt, card.cover]).toEqual([undefined, { color: "#ff0000" }]);
 
     const checklist = call("add_checklist", { cardId: a, name: "Steps", items: ["one", "two"] }) as unknown as {
       items: Array<{ id: string }>;

@@ -403,7 +403,8 @@ export function useCardActions({
     setState((current) => deleteLabel(current, id, deviceId));
   }
 
-  async function attachFiles(target: Card, files: File[]) {
+  /** Attaches the files; the first image becomes the cover when the card has none, or always `asCover`. */
+  async function attachFiles(target: Card, files: File[], asCover = false) {
     for (const file of files) {
       const id = newId();
       try {
@@ -421,7 +422,7 @@ export function useCardActions({
               addedAt: new Date().toISOString(),
             },
           ],
-          cover: current.cover ?? (file.type.startsWith("image/") ? { attachmentId: id, size: "normal" } : undefined),
+          cover: file.type.startsWith("image/") && (asCover || !current.cover) ? { attachmentId: id } : current.cover,
         }));
       } catch (cause) {
         onError(t("hooks.fileSaveFailed", { name: file.name, error: String(cause) }));

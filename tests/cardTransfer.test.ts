@@ -56,7 +56,7 @@ function fixture(): AppState {
         checklists: [{ id: "checklist", name: "Steps", items: [{ id: "item", name: "First", checked: true }] }],
         comments: [{ id: "comment", text: "Comment", author: "Anna", createdAt: "2026-01-01" }],
         attachments: [{ id: "file", name: "photo.png", mimeType: "image/png", size: 3, status: "local" }],
-        cover: { attachmentId: "file", size: "normal" },
+        cover: { attachmentId: "file" },
         sourceTrelloId: "trello-card",
       },
     ],

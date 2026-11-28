@@ -1,7 +1,7 @@
 import { epicBadgeClass } from "../card/CardRelations";
 import { liveComments } from "../model/comments";
 import { memo } from "react";
-import { CardCover } from "../card/CardCover";
+import { useCoverStyle } from "../card/CardCover";
 import { ApprovalChip } from "../card/ApprovalChip";
 import { PriorityChip, priorityName } from "../card/PriorityPicker";
 import { useMyMember } from "../lib/identity";
@@ -87,11 +87,12 @@ export const CardTile = memo(function CardTile({
   useLocale();
   const viewBadge = useViewPreferences().showBadges && viewCount > 0;
   const me = useMyMember(members);
+  const cover = useCoverStyle(item);
   return (
     <AppLink
       href={`/c/${encodeURIComponent(item.id)}`}
       className={tileClass}
-      style={hidden ? { display: "none" } : undefined}
+      style={hidden ? { display: "none" } : cover}
       data-card-id={item.id}
       data-aging={age ? agingMode : undefined}
       data-age={age || undefined}
@@ -104,7 +105,6 @@ export const CardTile = memo(function CardTile({
       onDragEnd={endDrag}
       onOpen={() => actions.open(item.id)}
     >
-      <CardCover card={item} />
       {(item.priority || item.approvals?.length || item.labelIds.some((id) => labels.get(id)?.color)) && (
         <span className="flex flex-wrap gap-1">
           <ApprovalChip card={item} mine={waitsOn(item, me?.id)} className="px-2 py-0.5 text-[11px]" />
@@ -208,7 +208,7 @@ export const CardTile = memo(function CardTile({
       linkCount ||
       mirrorCount ||
       viewBadge ? (
-        <span className={tileMetaClass}>
+        <span className={`${tileMetaClass} ${cover.color ? "opacity-85" : "text-ink-muted"}`}>
           {mirrorCount > 0 && (
             <span className={tileMetaItemClass} title={t("mirrors.tileTitle", { count: mirrorCount })}>
               <Icon name="mirror" className={tileMetaIconClass} />

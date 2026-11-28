@@ -1,9 +1,9 @@
-import type { AppState, Board, Card } from "./types";
+import type { AppState, Board, Card, Workspace } from "./types";
 
 export function mediaReferences(state: AppState): { fileIds: string[]; missingIds: string[] } {
   const files = new Set<string>();
   const missing = new Set<string>();
-  const boardFiles = (board: Board) => {
+  const boardFiles = (board: Board | Workspace) => {
     if (board.backgroundImageId) files.add(board.backgroundImageId);
   };
   const cardFiles = (card: Card) => {
@@ -12,10 +12,12 @@ export function mediaReferences(state: AppState): { fileIds: string[]; missingId
       else if (attachment.status === "missing") missing.add(attachment.id);
     }
   };
+  state.workspaces.forEach(boardFiles);
   state.boards.forEach(boardFiles);
   state.cards.forEach(cardFiles);
   for (const revision of state.revisions) {
-    if (revision.entityKind === "board") boardFiles(revision.snapshot as Board);
+    if (revision.entityKind === "board" || revision.entityKind === "workspace")
+      boardFiles(revision.snapshot as Board | Workspace);
     else if (revision.entityKind === "card") cardFiles(revision.snapshot as Card);
   }
   return { fileIds: [...files], missingIds: [...missing].filter((id) => !files.has(id)) };

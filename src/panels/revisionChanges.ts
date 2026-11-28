@@ -33,7 +33,7 @@ const parts: Array<{ fields: string[]; key: MessageKey; counted?: boolean }> = [
   { fields: ["attachments"], key: "card.attachments", counted: true },
   { fields: ["cover"], key: "card.cover" },
   { fields: ["color"], key: "panels.historyColor" },
-  { fields: ["background", "backgroundImageId"], key: "panels.historyBackground" },
+  { fields: ["background", "backgroundGradient", "backgroundImageId"], key: "panels.historyBackground" },
   { fields: ["zones"], key: "panels.historyZones" },
   { fields: ["automationRules"], key: "board.automation", counted: true },
   { fields: ["isTemplate"], key: "board.template" },

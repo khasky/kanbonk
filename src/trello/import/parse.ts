@@ -1,5 +1,6 @@
 import { t } from "../../i18n";
 import {
+  fillGradients,
   newId,
   recordRevisions,
   type ActivityEvent,
@@ -13,6 +14,7 @@ import {
   type Label,
   type Member,
   type Workspace,
+  withBackdrop,
 } from "../../model/index";
 import { listColors, trelloLabelColors } from "../../model/labelColors";
 import { trelloActionDescription } from "./actions";
@@ -63,7 +65,12 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
     workspaceId,
     name: string(source.name),
     description: string(source.desc),
-    background: string(prefs.backgroundColor) || "#147d86",
+    ...withBackdrop(
+      { background: "#147d86" },
+      fillGradients[string(prefs.background)]
+        ? { gradient: string(prefs.background) }
+        : { color: string(prefs.backgroundColor) || undefined },
+    ),
     sourceTrelloId: string(source.id),
     starred: Boolean(source.starred),
     ...closedInTrello(source.closed, boardId),
@@ -182,14 +189,13 @@ export function parseTrelloBoard(raw: unknown, workspaceId: string): ImportResul
     const sourceCover = object(entry.cover);
     const coverAttachmentId = attachmentIds.get(string(sourceCover.idAttachment) || string(entry.idAttachmentCover));
     const coverColor = trelloLabelColors[string(sourceCover.color)];
+    const coverGradient = fillGradients[string(sourceCover.kanbonkGradient)]
+      ? string(sourceCover.kanbonkGradient)
+      : undefined;
+    // Kanbonk's covers fill the whole card whatever Trello's size.
     const cover =
-      coverAttachmentId || coverColor
-        ? {
-            attachmentId: coverAttachmentId,
-            color: coverColor,
-            // Kanbonk shows every cover at the normal size.
-            size: "normal" as const,
-          }
+      coverAttachmentId || coverColor || coverGradient
+        ? { attachmentId: coverAttachmentId, color: coverColor, gradient: coverGradient }
         : undefined;
     return {
       id,

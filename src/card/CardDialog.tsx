@@ -350,7 +350,10 @@ export function CardDialog({
           }}
         />
       );
-    if (kind === "cover") return <CoverPicker card={card} onChange={onChange} />;
+    if (kind === "cover")
+      return (
+        <CoverPicker card={card} onChange={onChange} onUpload={(file) => actions.attachFiles(card, [file], true)} />
+      );
     if (kind === "approvers")
       return (
         <ApproverPicker
