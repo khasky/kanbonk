@@ -37,6 +37,15 @@ test("fills a card, a board and a workspace with a color, a gradient or an image
   });
   await expect(tile).toHaveCSS("background-image", /url\("blob:/);
   await expect(tile).toHaveCSS("color", white);
+  // The tile shows a copy made for its size (544px wide), not the stored file.
+  const shownWidth = await tile.evaluate(async (element) => {
+    const url = /url\("([^"]+)"\)/.exec(getComputedStyle(element).backgroundImage)?.[1] ?? "";
+    const image = new Image();
+    image.src = url;
+    await image.decode();
+    return image.naturalWidth;
+  });
+  expect(shownWidth).toBe(544);
   await expect(card.getByText("cover.png").first()).toBeVisible();
   await cover.getByRole("button", { name: "Remove cover" }).click();
   await expect(tile).toHaveCSS("background-color", white);

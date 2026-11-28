@@ -1,12 +1,12 @@
 import { ancestryFromRevisions, emptyState, newId, rememberStateIds, type AppState } from "../model";
 import { migrateLegacyState } from "../model/legacy";
 import { t } from "../i18n";
+import { attachmentStore, databaseName } from "./database";
 
-const databaseName = "kanbonk";
 const legacyDatabaseName = "listva";
 
 // "app" comes last: the copy of a legacy database counts as finished once the state is in place.
-const storeNames = ["attachments", "backups", "settings", "app"] as const;
+const storeNames = [attachmentStore, "backups", "settings", "app"] as const;
 type StoreName = (typeof storeNames)[number];
 
 /** Opens a database; with existingOnly, resolves undefined instead of creating a missing one. */

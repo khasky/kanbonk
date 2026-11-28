@@ -4,8 +4,8 @@ import { t } from "../i18n";
 import { Button } from "../ui/Button";
 
 /**
- * Renders a list's cards only while the list is near the viewport, and long lists in pages: the next page mounts when
- * the end of the list scrolls into view. Keeps the DOM small on boards with thousands of cards.
+ * Renders a list's cards once the list first comes near the viewport (and keeps them), and long lists in pages: the
+ * next page mounts when the end of the list scrolls into view. Keeps the DOM small on boards with thousands of cards.
  *
  * While a card is dragged over the list, `slot` is where it would land: a gap of the card's height at `index` among
  * the list's cards other than the dragged one (`draggedId`, which `render` hides).
@@ -31,8 +31,10 @@ export function ListCards({
     if (!element) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries.some((entry) => entry.isIntersecting);
-        startTransition(() => setNear(visible));
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        // Once shown, the cards stay: unmounting them on the way out would rebuild them on every scroll back.
+        observer.disconnect();
+        startTransition(() => setNear(true));
       },
       { rootMargin: "200px 600px" },
     );

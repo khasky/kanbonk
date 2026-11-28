@@ -4,7 +4,7 @@ import { Button } from "./Button";
 import { ColorInput } from "./ColorInput";
 import { FileButton } from "./FileButton";
 import { Swatch } from "./Swatch";
-import { useFileUrl } from "./useFileUrl";
+import { usePreviewUrl } from "./useFileUrl";
 
 const headingClass = "m-0 text-[12px] font-semibold text-ink-subtle";
 const gridClass = "grid grid-cols-6 gap-1.5";
@@ -20,7 +20,7 @@ function ImageSwatch({
   pressed: boolean;
   onClick: () => void;
 }) {
-  const url = useFileUrl(id);
+  const url = usePreviewUrl(id);
   return (
     <Swatch
       color={url ? `url("${url}") center / cover` : "var(--color-surface-sunken)"}
