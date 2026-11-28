@@ -3,6 +3,7 @@ import { type BoardView, boardHref, type CalendarScale } from "../lib/router";
 import { Icon } from "../ui/Icon";
 import { NameEditor } from "../ui/NameEditor";
 import { BoardMenu, type BoardMenuActions } from "./BoardMenu";
+import { expiryTitle, useTimeLeft } from "./TemporaryBadge";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
@@ -15,7 +16,23 @@ export interface BoardVisitor {
   cardName?: string;
 }
 
-/** The bar above a board: title, favorite, description, view switch, search, filter and the board menu. */
+/** A temporary board's time left in the toolbar; it opens the board's settings, where the time can be changed. */
+function TemporaryButton({ expiresAt, onClick }: { expiresAt: string; onClick: () => void }) {
+  const left = useTimeLeft(expiresAt);
+  return (
+    <Button
+      variant="toolbar"
+      className="flex-none whitespace-nowrap"
+      onClick={onClick}
+      title={expiryTitle(expiresAt)}
+      aria-label={`${expiryTitle(expiresAt)} (${left})`}
+    >
+      <Icon name="clock" /> {left}
+    </Button>
+  );
+}
+
+/** The bar above a board: title, favorite, a temporary board's time left, description, view switch, search, filter and the board menu. */
 export function BoardToolbar({
   board,
   view,
@@ -63,6 +80,7 @@ export function BoardToolbar({
       >
         <Icon name="star" className={board.starred ? "fill-warning text-warning" : undefined} />
       </Button>
+      {board.expiresAt && <TemporaryButton expiresAt={board.expiresAt} onClick={menu.onSettings} />}
       <Button variant="toolbar" onClick={onOpenAbout} aria-label={t("board.boardDescription")}>
         <Icon name="info" /> {t("board.description")}
       </Button>

@@ -8,6 +8,7 @@ import { AppLink } from "../ui/AppLink";
 import { Button, buttonClass } from "../ui/Button";
 import { Icon, type IconName } from "../ui/Icon";
 import { WorkspaceAvatar } from "../ui/WorkspaceAvatar";
+import { TemporaryBadge } from "../board/TemporaryBadge";
 import type { PanelName } from "../lib/uiPreferences";
 
 const collapsedKey = "kanbonk-sidebar-collapsed";
@@ -201,7 +202,12 @@ export function Sidebar({
                 >
                   <BoardSwatch board={item} />
                   {item.name}
-                  {item.starred && <Icon name="star" className="ml-auto size-3.5 fill-warning" />}
+                  {(item.starred || item.expiresAt) && (
+                    <span className="ml-auto flex flex-none items-center gap-1.5">
+                      {item.expiresAt && <TemporaryBadge expiresAt={item.expiresAt} compact />}
+                      {item.starred && <Icon name="star" className="size-3.5 fill-warning" />}
+                    </span>
+                  )}
                 </AppLink>
               ))}
           </div>

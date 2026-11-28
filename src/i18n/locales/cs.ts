@@ -279,6 +279,8 @@ export default {
     extend: "Prodloužit",
     extendTitle: "Prodloužit „{name}“",
     restoreBoard: "Obnovit nástěnku",
+    timeLeftDays: "zbývá {days} d {hours} h",
+    timeLeftHours: "zbývá {hours} h",
     background: "Pozadí nástěnky",
 
     closeFilter: "Zavřít filtr",

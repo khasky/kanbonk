@@ -34,6 +34,8 @@ export const board = {
   extend: "Extend",
   extendTitle: "Extend “{name}”",
   restoreBoard: "Restore board",
+  timeLeftDays: "{days}d {hours}h left",
+  timeLeftHours: "{hours}h left",
   background: "Board background",
 
   // Filter

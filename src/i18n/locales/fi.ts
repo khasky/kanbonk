@@ -268,6 +268,8 @@ export default {
     extend: "Jatka",
     extendTitle: "Jatka taulua ”{name}”",
     restoreBoard: "Palauta taulu",
+    timeLeftDays: "{days} pv {hours} t jäljellä",
+    timeLeftHours: "{hours} t jäljellä",
     background: "Taulun tausta",
 
     // Filter

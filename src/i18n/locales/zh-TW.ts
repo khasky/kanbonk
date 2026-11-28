@@ -259,6 +259,8 @@ export default {
     extend: "延長",
     extendTitle: "延長「{name}」",
     restoreBoard: "還原看板",
+    timeLeftDays: "剩餘 {days} 天 {hours} 小時",
+    timeLeftHours: "剩餘 {hours} 小時",
     background: "看板背景",
 
     closeFilter: "關閉篩選",

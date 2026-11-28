@@ -280,6 +280,8 @@ export default {
     extend: "Подовжити",
     extendTitle: "Подовжити «{name}»",
     restoreBoard: "Повернути дошку",
+    timeLeftDays: "залишилося {days} дн. {hours} год",
+    timeLeftHours: "залишилося {hours} год",
     background: "Фон дошки",
 
     closeFilter: "Закрити фільтр",

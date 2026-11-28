@@ -263,6 +263,8 @@ export default {
     extend: "Gia hạn",
     extendTitle: "Gia hạn “{name}”",
     restoreBoard: "Khôi phục bảng",
+    timeLeftDays: "còn {days} ngày {hours} giờ",
+    timeLeftHours: "còn {hours} giờ",
     background: "Nền bảng",
 
     closeFilter: "Đóng bộ lọc",

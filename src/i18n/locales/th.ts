@@ -261,6 +261,8 @@ export default {
     extend: "ต่ออายุ",
     extendTitle: "ต่ออายุ “{name}”",
     restoreBoard: "กู้คืนบอร์ด",
+    timeLeftDays: "เหลือ {days} วัน {hours} ชม.",
+    timeLeftHours: "เหลือ {hours} ชม.",
     background: "พื้นหลังบอร์ด",
 
     closeFilter: "ปิดตัวกรอง",

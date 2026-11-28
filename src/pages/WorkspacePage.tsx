@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TemporaryBadge } from "../board/TemporaryBadge";
 import { MissingPage } from "./MissingPage";
 import { AppLink } from "../ui/AppLink";
 import { boardHref } from "../lib/router";
@@ -22,7 +23,10 @@ function BoardTile({ board, onOpen }: { board: Board; onOpen: () => void }) {
       href={boardHref(board.id)}
       onOpen={onOpen}
     >
-      <strong>{board.name}</strong>
+      <span className="flex min-w-0 flex-col items-start gap-2">
+        <strong>{board.name}</strong>
+        {board.expiresAt && <TemporaryBadge expiresAt={board.expiresAt} />}
+      </span>
       {board.starred && <span aria-label={t("pages.starred")}>★</span>}
     </AppLink>
   );

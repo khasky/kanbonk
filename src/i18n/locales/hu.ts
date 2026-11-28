@@ -267,6 +267,8 @@ export default {
     extend: "Meghosszabbítás",
     extendTitle: "„{name}” meghosszabbítása",
     restoreBoard: "Tábla visszaállítása",
+    timeLeftDays: "még {days} nap {hours} óra",
+    timeLeftHours: "még {hours} óra",
     background: "Tábla háttere",
 
     // Filter

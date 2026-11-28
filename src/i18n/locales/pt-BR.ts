@@ -264,6 +264,8 @@ export default {
     extend: "Estender",
     extendTitle: "Estender “{name}”",
     restoreBoard: "Restaurar quadro",
+    timeLeftDays: "restam {days} d {hours} h",
+    timeLeftHours: "restam {hours} h",
     background: "Fundo do quadro",
     closeFilter: "Fechar filtro",
     filterText: "Texto",

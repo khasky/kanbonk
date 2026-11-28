@@ -266,6 +266,8 @@ export default {
     extend: "Uzat",
     extendTitle: "“{name}” panosunu uzat",
     restoreBoard: "Panoyu geri yükle",
+    timeLeftDays: "{days} g {hours} sa kaldı",
+    timeLeftHours: "{hours} sa kaldı",
     background: "Pano arka planı",
 
     closeFilter: "Filtreyi kapat",

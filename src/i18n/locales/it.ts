@@ -278,6 +278,8 @@ export default {
     extend: "Estendi",
     extendTitle: "Estendi “{name}”",
     restoreBoard: "Ripristina bacheca",
+    timeLeftDays: "mancano {days} g {hours} h",
+    timeLeftHours: "mancano {hours} h",
     background: "Sfondo della bacheca",
 
     closeFilter: "Chiudi filtro",

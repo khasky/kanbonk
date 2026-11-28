@@ -269,6 +269,8 @@ export default {
     extend: "Verlängern",
     extendTitle: "„{name}“ verlängern",
     restoreBoard: "Board wiederherstellen",
+    timeLeftDays: "noch {days} T {hours} Std.",
+    timeLeftHours: "noch {hours} Std.",
     background: "Board-Hintergrund",
 
     closeFilter: "Filter schließen",

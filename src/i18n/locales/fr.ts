@@ -278,6 +278,8 @@ export default {
     extend: "Prolonger",
     extendTitle: "Prolonger « {name} »",
     restoreBoard: "Restaurer le tableau",
+    timeLeftDays: "{days} j {hours} h restants",
+    timeLeftHours: "{hours} h restantes",
     background: "Fond du tableau",
 
     closeFilter: "Fermer le filtre",

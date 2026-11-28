@@ -266,6 +266,8 @@ export default {
     extend: "Förläng",
     extendTitle: "Förläng ”{name}”",
     restoreBoard: "Återställ tavlan",
+    timeLeftDays: "{days} d {hours} tim kvar",
+    timeLeftHours: "{hours} tim kvar",
     background: "Tavlans bakgrund",
 
     closeFilter: "Stäng filtret",

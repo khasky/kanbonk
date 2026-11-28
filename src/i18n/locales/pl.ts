@@ -279,6 +279,8 @@ export default {
     extend: "Przedłuż",
     extendTitle: "Przedłuż „{name}”",
     restoreBoard: "Przywróć tablicę",
+    timeLeftDays: "zostało {days} d {hours} godz.",
+    timeLeftHours: "zostało {hours} godz.",
     background: "Tło tablicy",
 
     closeFilter: "Zamknij filtr",

@@ -263,6 +263,8 @@ export default {
     extend: "延長",
     extendTitle: "「{name}」を延長",
     restoreBoard: "ボードを復元",
+    timeLeftDays: "残り {days}日 {hours}時間",
+    timeLeftHours: "残り {hours}時間",
     background: "ボードの背景",
 
     closeFilter: "フィルターを閉じる",

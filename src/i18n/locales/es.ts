@@ -270,6 +270,8 @@ export default {
     extend: "Ampliar",
     extendTitle: "Ampliar «{name}»",
     restoreBoard: "Restaurar tablero",
+    timeLeftDays: "quedan {days} d {hours} h",
+    timeLeftHours: "quedan {hours} h",
     background: "Fondo del tablero",
     closeFilter: "Cerrar filtro",
     filterText: "Texto",
