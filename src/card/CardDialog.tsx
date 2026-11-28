@@ -8,7 +8,6 @@ import {
   lastChangedAt,
   mirrorsOf,
   missingFields,
-  subCards,
   viewStats,
   type AppState,
   type Card,
@@ -16,7 +15,6 @@ import {
 } from "../model";
 import { missingFieldText } from "../model/requiredFieldsText";
 import { missingBadgeClass } from "../board/CardTile";
-import { dependentsOf, prerequisitesOf } from "../model/trash";
 import { formatDateTime, type MessageKey, t } from "../i18n";
 import { tNodes } from "../i18n/nodes";
 import { Icon, type IconName } from "../ui/Icon";
@@ -30,7 +28,7 @@ import { CardViews } from "./CardViews";
 import { CardMirrors } from "./CardMirrors";
 import { DatesChip, DatesForm } from "./CardDates";
 import { CardDescription } from "./CardDescription";
-import { DependencySummary, RelatedCards, SubCards } from "./CardRelations";
+import { CardLinks, RelatedCards } from "./CardRelations";
 import { ChecklistComposer } from "./ChecklistComposer";
 import { CoverPicker } from "./CoverPicker";
 import { DependencyPicker } from "./DependencyPicker";
@@ -228,8 +226,6 @@ export function CardDialog({
   );
   const assignable = [...boardMembers, ...team.filter((member) => !boardMembers.some((item) => item.id === member.id))];
   const canAssign = assignable.some((member) => member.id !== currentDeviceId) && card.boardId !== inboxBoardId;
-  const children = subCards(state, card.id).filter((item) => isCardAvailable(state, item));
-  const parentCard = state.cards.find((item) => item.id === card.parentCardId && isCardAvailable(state, item));
   const mentionedInDoc = mentionedCardIds(state.boards.find((item) => item.id === card.boardId)?.doc ?? "").has(
     card.id,
   );
@@ -253,10 +249,6 @@ export function CardDialog({
         cover: item.cover?.attachmentId === attachment.id ? undefined : item.cover,
       }));
   }
-  const prerequisiteCards = prerequisitesOf(state, card.id).flatMap((id) =>
-    state.cards.filter((item) => item.id === id),
-  );
-  const dependentCards = dependentsOf(state, card.id);
   const created = cardCreatedAt(state, card);
   const inInbox = card.boardId === inboxBoardId;
   const showDates = !card.isTemplate && Boolean(card.startAt || card.dueAt);
@@ -657,13 +649,6 @@ export function CardDialog({
               localCardForUrl={localCardForUrl}
               onNavigateCard={onNavigateCard}
             />
-            {(prerequisiteCards.length > 0 || dependentCards.length > 0) && (
-              <DependencySummary
-                prerequisiteCards={prerequisiteCards}
-                dependentCards={dependentCards}
-                onNavigateCard={onNavigateCard}
-              />
-            )}
             {mentionedInDoc && (
               <p className="my-1">
                 {tNodes("card.mentionedInDoc", {
@@ -675,15 +660,16 @@ export function CardDialog({
                 })}
               </p>
             )}
-            {!card.isTemplate && !inInbox && (
-              <SubCards
+            {!card.isTemplate && (
+              <CardLinks
                 card={card}
                 state={state}
-                parentCard={parentCard}
-                childCards={children}
+                allowSubCards={!inInbox}
                 onChange={onChange}
                 onCreateSubCard={onCreateSubCard}
                 onNavigateCard={onNavigateCard}
+                onConnect={actions.connectCards}
+                onDisconnect={actions.disconnectCards}
               />
             )}
             {(card.approvals ?? []).length > 0 && (

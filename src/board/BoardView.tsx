@@ -124,13 +124,7 @@ export function BoardView({
           onError={onError}
         />
       ) : route.view === "graph" ? (
-        <BoardGraph
-          state={state}
-          cardIds={view.filteredCardIds}
-          cardActions={cardActions}
-          onOpenCard={onOpenCard}
-          onError={onError}
-        />
+        <BoardGraph state={state} cardIds={view.filteredCardIds} cardActions={cardActions} onOpenCard={onOpenCard} />
       ) : route.view === "calendar" ? (
         <BoardCalendar
           state={state}

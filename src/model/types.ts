@@ -132,6 +132,13 @@ export interface Checklist {
   items: ChecklistItem[];
 }
 
+/** `relates`: the cards are related, both ways; `duplicates`: this card repeats the work of `cardId`. */
+export interface CardLink {
+  id: string;
+  kind: "relates" | "duplicates";
+  cardId: string;
+}
+
 export interface Comment {
   id: string;
   text: string;
@@ -180,6 +187,10 @@ export interface Card extends Trashable {
   isTemplate?: boolean;
   /** Parent card for sub-cards. */
   parentCardId?: string;
+  /** An epic: a card that gathers other work as its sub-cards; see model/connections. */
+  isEpic?: boolean;
+  /** Links to other cards without hierarchy or dependency; see model/connections. */
+  links?: CardLink[];
   /** Cards with the same `mirrorId` mirror each other; see model/mirrors. */
   mirrorId?: string;
   /** How urgent the card is; none when unset. See model/priority. */

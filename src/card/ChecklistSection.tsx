@@ -1,3 +1,4 @@
+import { ProgressBar } from "../ui/ProgressBar";
 import { askConfirm } from "../ui/AskDialog";
 import { useState, type DragEvent as ReactDragEvent } from "react";
 import { moveChecklistItem, newId, type Card, type Checklist } from "../model";
@@ -123,15 +124,7 @@ export function ChecklistSection({
           </MenuItem>
         </Menu>
       </SectionTitle>
-      <div className="flex items-center gap-[9px] text-[12px]">
-        {checklist.items.length ? Math.round((100 * checked) / checklist.items.length) : 0}%
-        <div className="h-2 flex-1 overflow-hidden rounded-[5px] bg-line">
-          <span
-            className="block h-full bg-[#4bce97]"
-            style={{ width: `${checklist.items.length ? (100 * checked) / checklist.items.length : 0}%` }}
-          />
-        </div>
-      </div>
+      <ProgressBar done={checked} total={checklist.items.length} label={checklist.name} />
       {checklist.items
         .filter((item) => !hideChecked || !item.checked)
         .map((item) => (

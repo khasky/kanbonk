@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { type AppState, type Card, emptyState, linkDependency } from "../src/model";
-import { canLink, cardGraph, cardLinks } from "../src/model/cardGraph";
+import { cardGraph } from "../src/model/cardGraph";
+import { allConnections, canConnect } from "../src/model/connections";
 
 const card = (id: string, extra: Partial<Card> = {}): Card => ({
   id,
@@ -57,7 +58,7 @@ const own = new Set(["a", "b", "c", "d", "e"]);
 describe("card graph", () => {
   it("collects dependency and parent links", () => {
     expect(
-      cardLinks(board(cards())).map((edge) => `${edge.from}${edge.kind === "parent" ? "/" : ">"}${edge.to}`),
+      allConnections(board(cards())).map((edge) => `${edge.from}${edge.kind === "parent" ? "/" : ">"}${edge.to}`),
     ).toEqual(expect.arrayContaining(["a>b", "b>c", "c>x", "a/d"]));
   });
 
@@ -98,13 +99,13 @@ describe("card graph", () => {
 
   it("refuses duplicate links, loops and cross-board parents", () => {
     const state = board(cards());
-    expect(canLink(state, "blocks", "a", "e")).toBe(true);
-    expect(canLink(state, "blocks", "a", "b")).toBe(false);
-    expect(canLink(state, "blocks", "c", "a")).toBe(false);
-    expect(canLink(state, "blocks", "a", "a")).toBe(false);
-    expect(canLink(state, "parent", "a", "e")).toBe(true);
-    expect(canLink(state, "parent", "a", "d")).toBe(false);
-    expect(canLink(state, "parent", "d", "a")).toBe(false);
-    expect(canLink(state, "parent", "x", "e")).toBe(false);
+    expect(canConnect(state, "blocks", "a", "e")).toBe(true);
+    expect(canConnect(state, "blocks", "a", "b")).toBe(false);
+    expect(canConnect(state, "blocks", "c", "a")).toBe(false);
+    expect(canConnect(state, "blocks", "a", "a")).toBe(false);
+    expect(canConnect(state, "parent", "a", "e")).toBe(true);
+    expect(canConnect(state, "parent", "a", "d")).toBe(false);
+    expect(canConnect(state, "parent", "d", "a")).toBe(false);
+    expect(canConnect(state, "parent", "x", "e")).toBe(false);
   });
 });

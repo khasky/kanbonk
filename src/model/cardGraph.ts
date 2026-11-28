@@ -1,16 +1,9 @@
-import { isCardAvailable, parentCandidates } from "./cards";
+import { isCardAvailable } from "./cards";
+import { allConnections, type Connection, type ConnectionKind } from "./connections";
 import type { AppState, Card } from "./types";
 
-/** `blocks`: `from` must be finished before `to` (a dependency); `parent`: `to` is a sub-card of `from`. */
-export type LinkKind = "blocks" | "parent";
-
-export interface GraphEdge {
-  from: string;
-  to: string;
-  kind: LinkKind;
-  /** A dependency whose prerequisite is finished, or ticked off in the dependent's checklist. */
-  resolved?: boolean;
-}
+export type LinkKind = ConnectionKind;
+export type GraphEdge = Connection;
 
 /** done: finished; blocked: waits on an unresolved dependency; open: free to work on. */
 export type NodeStatus = "done" | "blocked" | "open";
@@ -40,65 +33,13 @@ const margin = 16;
 const live = (state: AppState, card: Card | undefined): card is Card =>
   Boolean(card && !card.deletedAt && !card.isTemplate && isCardAvailable(state, card));
 
-/** Every dependency and parent link among live cards, keyed by card id for quick lookup. */
-export function cardLinks(state: AppState): GraphEdge[] {
-  const cards = new Map(state.cards.filter((card) => live(state, card)).map((card) => [card.id, card]));
-  const edges: GraphEdge[] = [];
-  const seen = new Set<string>();
-  for (const card of cards.values()) {
-    for (const list of card.checklists)
-      for (const item of list.items) {
-        const prerequisite = item.linkedCardId ? cards.get(item.linkedCardId) : undefined;
-        const key = `${prerequisite?.id}>${card.id}`;
-        if (!prerequisite || prerequisite.id === card.id || seen.has(key)) continue;
-        seen.add(key);
-        edges.push({
-          from: prerequisite.id,
-          to: card.id,
-          kind: "blocks",
-          resolved: Boolean(prerequisite.doneAt) || item.checked,
-        });
-      }
-    if (card.parentCardId && cards.has(card.parentCardId))
-      edges.push({ from: card.parentCardId, to: card.id, kind: "parent" });
-  }
-  return edges;
-}
-
-/** Whether `from` → `to` can be added as a link of `kind` without a duplicate, a loop or a card out of reach. */
-export function canLink(state: AppState, kind: LinkKind, from: string, to: string): boolean {
-  if (from === to) return false;
-  const [first, second] = [state.cards.find((card) => card.id === from), state.cards.find((card) => card.id === to)];
-  if (!live(state, first) || !live(state, second)) return false;
-  if (kind === "parent")
-    return (
-      first.boardId === second.boardId &&
-      second.parentCardId !== from &&
-      parentCandidates(state, to).some((card) => card.id === from)
-    );
-  const edges = cardLinks(state).filter((edge) => edge.kind === "blocks");
-  if (edges.some((edge) => edge.from === from && edge.to === to)) return false;
-  // A loop: `from` already waits on `to`, directly or through other cards.
-  const next = new Map<string, string[]>();
-  for (const edge of edges) next.set(edge.from, [...(next.get(edge.from) ?? []), edge.to]);
-  const reached = new Set([to]);
-  for (const queue = [to]; queue.length; )
-    for (const id of next.get(queue.shift() as string) ?? [])
-      if (!reached.has(id)) {
-        if (id === from) return false;
-        reached.add(id);
-        queue.push(id);
-      }
-  return true;
-}
-
 /**
  * The graph of a board's cards and their links, laid out in columns from left to right: prerequisites and parents
  * before the cards that wait on them or belong to them. `cardIds` are the board's shown cards; cards on other boards
  * linked to them join as external nodes. With `linkedOnly`, cards without links are left out.
  */
 export function cardGraph(state: AppState, cardIds: Set<string>, options: { linkedOnly?: boolean } = {}): CardGraph {
-  const all = cardLinks(state);
+  const all = allConnections(state);
   const edges = all.filter((edge) => cardIds.has(edge.from) || cardIds.has(edge.to));
   const linked = new Set(edges.flatMap((edge) => [edge.from, edge.to]));
   const cards = state.cards.filter(
@@ -109,7 +50,8 @@ export function cardGraph(state: AppState, cardIds: Set<string>, options: { link
   const outgoing = cards.map(() => [] as number[]);
   for (const edge of edges) {
     const [from, to] = [ids.get(edge.from), ids.get(edge.to)];
-    if (from === undefined || to === undefined) continue;
+    // Only dependencies and sub-cards set the columns; related cards and duplicates are drawn across them.
+    if (from === undefined || to === undefined || edge.kind === "relates" || edge.kind === "duplicates") continue;
     outgoing[from].push(to);
     incoming[to].push(from);
   }

@@ -275,8 +275,10 @@ function purgeRefs(state: AppState, refs: Ref[], deviceId: string, now: string):
         card.checklists.some((list) =>
           list.items.some((item) => item.linkedCardId && purgedCards.has(item.linkedCardId)),
         ) ||
-        card.attachments.some((item) => item.linkedCardId && purgedCards.has(item.linkedCardId));
+        card.attachments.some((item) => item.linkedCardId && purgedCards.has(item.linkedCardId)) ||
+        card.links?.some((item) => purgedCards.has(item.cardId));
       if (!links) return card;
+      const kept = card.links?.filter((item) => !purgedCards.has(item.cardId));
       unlinked.push(card.id);
       return {
         ...card,
@@ -286,6 +288,7 @@ function purgeRefs(state: AppState, refs: Ref[], deviceId: string, now: string):
           items: list.items.filter((item) => !item.linkedCardId || !purgedCards.has(item.linkedCardId)),
         })),
         attachments: card.attachments.filter((item) => !item.linkedCardId || !purgedCards.has(item.linkedCardId)),
+        links: kept?.length ? kept : undefined,
       };
     }),
   };

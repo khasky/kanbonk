@@ -1,16 +1,10 @@
+import { connectionBadges } from "../model/connections";
 import { useMemo, useState } from "react";
 import { CardTile } from "../board/CardTile";
 import { currentDrag, dragKind, endDrag, useDragState } from "../board/dragState";
 import { t } from "../i18n";
 import { inboxBoardId } from "../model/inbox";
-import {
-  cardViewStats,
-  emptyBoardFilter,
-  filterBoardCards,
-  isCardAvailable,
-  type AppState,
-  type BoardFilter,
-} from "../model";
+import { cardViewStats, emptyBoardFilter, filterBoardCards, type AppState, type BoardFilter } from "../model";
 import { Button } from "../ui/Button";
 import { Input, Select } from "../ui/Field";
 
@@ -39,13 +33,7 @@ export function InboxView({
   );
   const cardById = useMemo(() => new Map(state.cards.map((item) => [item.id, item])), [state.cards]);
   const cardViews = useMemo(() => cardViewStats(state), [state]);
-  const subCardCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const item of state.cards)
-      if (item.parentCardId && isCardAvailable(state, item))
-        counts.set(item.parentCardId, (counts.get(item.parentCardId) ?? 0) + 1);
-    return counts;
-  }, [state]);
+  const connectionInfo = useMemo(() => connectionBadges(state), [state]);
   const tileActions = useMemo(() => ({ open: onOpen }), [onOpen]);
   /** Whether the card being dragged comes from a board, so it can be dropped here. */
   const fromBoard = (types: readonly string[]) =>
@@ -153,7 +141,11 @@ export function InboxView({
             card={card}
             labels={labels}
             parentName={card.parentCardId ? cardById.get(card.parentCardId)?.name : undefined}
-            subCardCount={subCardCounts.get(card.id)}
+            subCardCount={connectionInfo.get(card.id)?.progress?.total}
+            subCardsDone={connectionInfo.get(card.id)?.progress?.done}
+            blockers={connectionInfo.get(card.id)?.blockers}
+            linkCount={connectionInfo.get(card.id)?.connections}
+            epicName={connectionInfo.get(card.id)?.epic}
             viewCount={cardViews.get(card.id)?.total}
             lastViewedAt={cardViews.get(card.id)?.lastAt}
             actions={tileActions}

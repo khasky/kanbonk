@@ -2,24 +2,15 @@ import { type KeyboardEvent, type PointerEvent, useMemo, useRef, useState } from
 import { type MessageKey, t } from "../i18n";
 import type { CardActions } from "../hooks/useCardActions";
 import type { AppState, Card } from "../model";
-import {
-  canLink,
-  cardGraph,
-  cardLinks,
-  type GraphEdge,
-  type GraphNode,
-  type LinkKind,
-  nodeSize,
-} from "../model/cardGraph";
+import { cardGraph, type GraphEdge, type GraphNode, type LinkKind, nodeSize } from "../model/cardGraph";
+import { descendants } from "../model/connections";
+import { CardLinks, epicBadgeClass } from "../card/CardRelations";
 import { Button } from "../ui/Button";
-import { CardPicker } from "../ui/CardPicker";
-import { Checkbox } from "../ui/Field";
+import { Checkbox, Select } from "../ui/Field";
 import { Hint } from "../ui/Hint";
 import { Segmented, SegmentedTab } from "../ui/Segmented";
 
 type Selection = { card: string } | { edge: GraphEdge } | undefined;
-/** Which relation of the selected card is being added: a card it waits on, one it blocks, its parent or a sub-card. */
-type Adding = "waitsOn" | "blocks" | "parent" | "child";
 
 const statusLook: Record<GraphNode["status"], { border: string; key: MessageKey }> = {
   done: { border: "border-l-success", key: "graph.statusDone" },
@@ -27,35 +18,87 @@ const statusLook: Record<GraphNode["status"], { border: string; key: MessageKey 
   open: { border: "border-l-brand", key: "graph.statusOpen" },
 };
 
+/** How each kind of link is named, explained and drawn: its dash pattern and its colour. */
+const kinds: Record<
+  LinkKind,
+  { mode: MessageKey; hint: MessageKey; legend: MessageKey; edge: MessageKey; dash?: string; colour: string }
+> = {
+  blocks: {
+    mode: "graph.modeBlocks",
+    hint: "graph.hintBlocks",
+    legend: "graph.modeBlocks",
+    edge: "graph.edgeBlocks",
+    colour: "ink-subtle",
+  },
+  parent: {
+    mode: "graph.modeParent",
+    hint: "graph.hintParent",
+    legend: "graph.legendParent",
+    edge: "graph.edgeParent",
+    dash: "6 5",
+    colour: "ink-subtle",
+  },
+  relates: {
+    mode: "graph.modeRelates",
+    hint: "graph.hintRelates",
+    legend: "graph.legendRelates",
+    edge: "graph.edgeRelates",
+    dash: "2 4",
+    colour: "brand",
+  },
+  duplicates: {
+    mode: "graph.modeDuplicates",
+    hint: "graph.hintDuplicates",
+    legend: "graph.legendDuplicates",
+    edge: "graph.edgeDuplicates",
+    dash: "10 4 2 4",
+    colour: "warning",
+  },
+};
+const linkKinds = Object.keys(kinds) as LinkKind[];
+/** Tailwind needs the full class names in the source. */
+const strokeOf: Record<string, string> = {
+  "ink-subtle": "stroke-ink-subtle",
+  brand: "stroke-brand",
+  warning: "stroke-warning",
+};
+const fillOf: Record<string, string> = { "ink-subtle": "bg-ink-subtle", brand: "bg-brand", warning: "bg-warning" };
+
 const sameEdge = (a: GraphEdge, b: GraphEdge) => a.from === b.from && a.to === b.to && a.kind === b.kind;
 
 /**
- * The board's cards as a graph of their dependencies and sub-cards. A link is drawn by dragging from the dot on a card
- * to another card, and removed by selecting it and pressing Delete; the selected card's links can also be added and
- * removed from the list beside the graph, which works without a mouse.
+ * The board's cards as a graph of their links: dependencies, sub-cards, related cards and duplicates. A link is drawn
+ * by dragging from the dot on a card to another card, and removed by selecting it and pressing Delete; the selected
+ * card's links are listed beside the graph, where they can be added and removed without a mouse. Choosing an epic
+ * narrows the graph to the epic, its sub-cards at every level and the cards linked to them.
  */
 export function BoardGraph({
   state,
   cardIds,
   cardActions,
   onOpenCard,
-  onError,
 }: {
   state: AppState;
   cardIds: Set<string>;
   cardActions: CardActions;
   onOpenCard: (card: Card) => void;
-  onError: (message: string) => void;
 }) {
   const [linkedOnly, setLinkedOnly] = useState(true);
   const [mode, setMode] = useState<LinkKind>("blocks");
+  const [epicId, setEpicId] = useState("");
   const [selected, setSelected] = useState<Selection>();
-  const [adding, setAdding] = useState<Adding>();
   const [drag, setDrag] = useState<{ from: string; x: number; y: number }>();
   const canvas = useRef<HTMLDivElement>(null);
-  const graph = useMemo(() => cardGraph(state, cardIds, { linkedOnly }), [state, cardIds, linkedOnly]);
-  /** Every link, also to cards the graph leaves out, for the selected card's list. */
-  const allEdges = useMemo(() => cardLinks(state), [state]);
+  const epics = state.cards.filter((card) => card.isEpic && cardIds.has(card.id));
+  const epic = epics.find((card) => card.id === epicId);
+  const shown = useMemo(
+    () =>
+      epic
+        ? new Set([epic, ...descendants(state, epic.id)].map((card) => card.id).filter((id) => cardIds.has(id)))
+        : cardIds,
+    [state, epic, cardIds],
+  );
+  const graph = useMemo(() => cardGraph(state, shown, { linkedOnly }), [state, shown, linkedOnly]);
   const nodes = new Map(graph.nodes.map((node) => [node.card.id, node]));
   const lists = new Map(state.lists.map((list) => [list.id, list.name]));
   const boards = new Map(state.boards.map((board) => [board.id, board.name]));
@@ -63,19 +106,12 @@ export function BoardGraph({
   const cards = new Map(state.cards.map((card) => [card.id, card]));
   const name = (id: string) => cards.get(id)?.name ?? "";
 
-  const link = (kind: LinkKind, from: string, to: string) => {
-    if (!canLink(state, kind, from, to))
-      return onError(t(kind === "blocks" ? "graph.cannotBlock" : "graph.cannotParent"));
-    if (kind === "blocks") cardActions.addDependency(to, from);
-    else cardActions.updateCard(to, (card) => ({ ...card, parentCardId: from }));
-  };
+  const link = (kind: LinkKind, from: string, to: string) => cardActions.connectCards(kind, from, to);
   const unlink = (edge: GraphEdge) => {
-    if (edge.kind === "blocks") cardActions.removeDependency(edge.to, edge.from);
-    else cardActions.updateCard(edge.to, (card) => ({ ...card, parentCardId: undefined }));
+    cardActions.disconnectCards(edge);
     setSelected((current) => (current && "edge" in current && sameEdge(current.edge, edge) ? undefined : current));
   };
-  const edgeText = (edge: GraphEdge) =>
-    t(edge.kind === "blocks" ? "graph.edgeBlocks" : "graph.edgeParent", { from: name(edge.from), to: name(edge.to) });
+  const edgeText = (edge: GraphEdge) => t(kinds[edge.kind].edge, { from: name(edge.from), to: name(edge.to) });
 
   const point = (event: PointerEvent) => {
     const box = canvas.current?.getBoundingClientRect();
@@ -89,17 +125,27 @@ export function BoardGraph({
     if (target && target !== drag.from) link(mode, drag.from, target);
   };
 
-  const path = (from: { x: number; y: number }, to: { x: number; y: number }) => {
-    const bend = Math.max(40, Math.abs(to.x - from.x) / 2);
-    return `M ${from.x} ${from.y} C ${from.x + bend} ${from.y}, ${to.x - bend} ${to.y}, ${to.x} ${to.y}`;
+  type Point = { x: number; y: number };
+  /** The bezier control points of a curve leaving `from` and reaching `to`; each side's direction is 1 (right) or -1 (left). */
+  const curve = (from: Point, fromSide: number, to: Point, toSide: number) => {
+    const bend = Math.max(40, Math.abs(to.x - from.x) / 2, fromSide === toSide ? Math.abs(to.y - from.y) / 3 : 0);
+    return [from, { x: from.x + fromSide * bend, y: from.y }, { x: to.x + toSide * bend, y: to.y }, to];
   };
-  /** The middle of the curve drawn by `path`. */
-  const halfway = (from: { x: number; y: number }, to: { x: number; y: number }) => ({
-    x: (from.x + to.x) / 2,
-    y: (from.y + to.y) / 2,
+  const path = ([a, b, c, d]: Point[]) => `M ${a.x} ${a.y} C ${b.x} ${b.y}, ${c.x} ${c.y}, ${d.x} ${d.y}`;
+  /** The middle of a curve made by `curve`. */
+  const halfway = ([a, b, c, d]: Point[]) => ({
+    x: (a.x + 3 * b.x + 3 * c.x + d.x) / 8,
+    y: (a.y + 3 * b.y + 3 * c.y + d.y) / 8,
   });
   const exit = (node: GraphNode) => ({ x: node.x + nodeSize.width, y: node.y + nodeSize.height / 2 });
   const entry = (node: GraphNode) => ({ x: node.x, y: node.y + nodeSize.height / 2 });
+  /** Links run from the right side to the left side; a link to a card in the same column or to the left (related cards, duplicates) bends round instead of crossing the cards. */
+  const edgeCurve = (from: GraphNode, to: GraphNode) =>
+    to.x >= from.x + nodeSize.width
+      ? curve(exit(from), 1, entry(to), -1)
+      : to.x + nodeSize.width <= from.x
+        ? curve(entry(from), -1, exit(to), 1)
+        : curve(exit(from), 1, exit(to), 1);
 
   const selectedCard = selected && "card" in selected ? cards.get(selected.card) : undefined;
   const selectedEdge = selected && "edge" in selected ? selected.edge : undefined;
@@ -110,102 +156,6 @@ export function BoardGraph({
     }
   };
 
-  const relations = (card: Card) => {
-    const edges = allEdges.filter((edge) => edge.from === card.id || edge.to === card.id);
-    const group = (title: MessageKey, items: GraphEdge[], other: (edge: GraphEdge) => string, add: Adding) => (
-      <div className="grid gap-1">
-        <div className="flex items-center justify-between gap-2">
-          <strong className="text-[13px]">{t(title)}</strong>
-          <Button
-            variant="text"
-            aria-label={`${t("common.add")}: ${t(title)}`}
-            aria-expanded={adding === add}
-            onClick={() => setAdding(adding === add ? undefined : add)}
-          >
-            {t("common.add")}
-          </Button>
-        </div>
-        {adding === add && (
-          <CardPicker
-            label={t(title)}
-            candidates={state.cards.filter((item) => {
-              if (item.boardId !== card.boardId && add !== "waitsOn" && add !== "blocks") return false;
-              const [kind, from, to]: [LinkKind, string, string] =
-                add === "waitsOn"
-                  ? ["blocks", item.id, card.id]
-                  : add === "blocks"
-                    ? ["blocks", card.id, item.id]
-                    : add === "parent"
-                      ? ["parent", item.id, card.id]
-                      : ["parent", card.id, item.id];
-              return canLink(state, kind, from, to);
-            })}
-            onPick={(item) => {
-              setAdding(undefined);
-              if (add === "waitsOn") link("blocks", item.id, card.id);
-              else if (add === "blocks") link("blocks", card.id, item.id);
-              else if (add === "parent") link("parent", item.id, card.id);
-              else link("parent", card.id, item.id);
-            }}
-          />
-        )}
-        {items.length ? (
-          <ul className="m-0 grid list-none gap-1 p-0">
-            {items.map((edge) => (
-              <li key={`${edge.kind}${edge.from}${edge.to}`} className="flex items-center gap-1">
-                <Button
-                  variant="link-quiet"
-                  className="min-w-0 flex-1 truncate text-left"
-                  onClick={() => setSelected({ card: other(edge) })}
-                >
-                  {name(other(edge))}
-                </Button>
-                <Button
-                  variant="icon"
-                  aria-label={t("graph.removeLink", { link: edgeText(edge) })}
-                  onClick={() => unlink(edge)}
-                >
-                  ×
-                </Button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <span className="text-[13px] text-ink-subtle">{t("graph.none")}</span>
-        )}
-      </div>
-    );
-    const blocks = (edge: GraphEdge) => edge.kind === "blocks";
-    return (
-      <>
-        {group(
-          "graph.waitsOn",
-          edges.filter((edge) => blocks(edge) && edge.to === card.id),
-          (edge) => edge.from,
-          "waitsOn",
-        )}
-        {group(
-          "graph.blocks",
-          edges.filter((edge) => blocks(edge) && edge.from === card.id),
-          (edge) => edge.to,
-          "blocks",
-        )}
-        {group(
-          "graph.parent",
-          edges.filter((edge) => !blocks(edge) && edge.to === card.id),
-          (edge) => edge.from,
-          "parent",
-        )}
-        {group(
-          "graph.subCards",
-          edges.filter((edge) => !blocks(edge) && edge.from === card.id),
-          (edge) => edge.to,
-          "child",
-        )}
-      </>
-    );
-  };
-
   return (
     <section
       className="mx-3 mt-0 mb-3 flex min-h-0 flex-1 flex-col gap-2.5 overflow-auto rounded-[10px] bg-white p-3 text-ink"
@@ -213,13 +163,25 @@ export function BoardGraph({
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <Segmented label={t("graph.newLink")}>
-          <SegmentedTab selected={mode === "blocks"} onClick={() => setMode("blocks")}>
-            {t("graph.modeBlocks")}
-          </SegmentedTab>
-          <SegmentedTab selected={mode === "parent"} onClick={() => setMode("parent")}>
-            {t("graph.modeParent")}
-          </SegmentedTab>
+          {linkKinds.map((kind) => (
+            <SegmentedTab key={kind} selected={mode === kind} onClick={() => setMode(kind)}>
+              {t(kinds[kind].mode)}
+            </SegmentedTab>
+          ))}
         </Segmented>
+        {epics.length > 0 && (
+          <label className="flex items-center gap-2">
+            {t("graph.epicFilter")}
+            <Select size="sm" value={epic?.id ?? ""} onChange={(event) => setEpicId(event.target.value)}>
+              <option value="">{t("graph.allCards")}</option>
+              {epics.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+        )}
         <label className="flex items-center gap-2">
           <Checkbox checked={linkedOnly} onChange={(event) => setLinkedOnly(event.target.checked)} />
           {t("graph.linkedOnly")}
@@ -230,15 +192,25 @@ export function BoardGraph({
               {t(statusLook[status].key)}
             </span>
           ))}
-          <span className="flex items-center gap-1.5">
-            <svg width="28" height="8" aria-hidden="true">
-              <line x1="0" y1="4" x2="28" y2="4" className="stroke-ink-subtle" strokeWidth="2" strokeDasharray="5 4" />
-            </svg>
-            {t("graph.legendParent")}
-          </span>
+          {linkKinds.map((kind) => (
+            <span key={kind} className="flex items-center gap-1.5">
+              <svg width="28" height="8" aria-hidden="true">
+                <line
+                  x1="0"
+                  y1="4"
+                  x2="28"
+                  y2="4"
+                  className={strokeOf[kinds[kind].colour]}
+                  strokeWidth="2"
+                  strokeDasharray={kinds[kind].dash}
+                />
+              </svg>
+              {t(kinds[kind].legend)}
+            </span>
+          ))}
         </span>
       </div>
-      <Hint className="m-0">{t(mode === "blocks" ? "graph.hintBlocks" : "graph.hintParent")}</Hint>
+      <Hint className="m-0">{t(kinds[mode].hint)}</Hint>
       <div className="grid min-h-0 flex-1 grid-cols-[1fr_auto] gap-3 max-phone:grid-cols-1">
         <div className="min-h-[240px] overflow-auto rounded-md border border-line bg-surface-soft">
           {graph.nodes.length ? (
@@ -274,21 +246,23 @@ export function BoardGraph({
                   return (
                     <path
                       key={`${edge.kind}${edge.from}${edge.to}`}
-                      d={path(exit(from), entry(to))}
+                      d={path(edgeCurve(from, to))}
                       fill="none"
-                      markerEnd="url(#graph-arrow)"
+                      markerEnd={edge.kind === "relates" ? undefined : "url(#graph-arrow)"}
                       strokeWidth={active ? 3.5 : 2}
-                      strokeDasharray={edge.kind === "parent" ? "6 5" : undefined}
-                      className={active ? "stroke-brand" : blocking ? "stroke-danger" : "stroke-ink-subtle"}
+                      strokeDasharray={kinds[edge.kind].dash}
+                      className={
+                        active ? "stroke-brand" : blocking ? "stroke-danger" : strokeOf[kinds[edge.kind].colour]
+                      }
                     />
                   );
                 })}
                 {drag && nodes.get(drag.from) && (
                   <path
-                    d={path(exit(nodes.get(drag.from) as GraphNode), drag)}
+                    d={path(curve(exit(nodes.get(drag.from) as GraphNode), 1, drag, -1))}
                     fill="none"
                     strokeWidth="2"
-                    strokeDasharray={mode === "parent" ? "6 5" : undefined}
+                    strokeDasharray={kinds[mode].dash}
                     className="pointer-events-none stroke-brand"
                   />
                 )}
@@ -296,7 +270,7 @@ export function BoardGraph({
               {graph.edges.map((edge) => {
                 const [from, to] = [nodes.get(edge.from), nodes.get(edge.to)];
                 if (!from || !to) return null;
-                const middle = halfway(exit(from), entry(to));
+                const middle = halfway(edgeCurve(from, to));
                 const active = selectedEdge && sameEdge(selectedEdge, edge);
                 return (
                   <button
@@ -306,7 +280,11 @@ export function BoardGraph({
                     aria-pressed={Boolean(active)}
                     title={edgeText(edge)}
                     className={`absolute size-3.5 -translate-1/2 cursor-pointer rounded-full border-2 border-white p-0 shadow hover:scale-125 ${
-                      active ? "bg-brand" : edge.kind === "blocks" && !edge.resolved ? "bg-danger" : "bg-ink-subtle"
+                      active
+                        ? "bg-brand"
+                        : edge.kind === "blocks" && !edge.resolved
+                          ? "bg-danger"
+                          : fillOf[kinds[edge.kind].colour]
                     }`}
                     style={{ left: middle.x, top: middle.y }}
                     onClick={() => setSelected({ edge })}
@@ -336,6 +314,7 @@ export function BoardGraph({
                       onDoubleClick={() => onOpenCard(card)}
                     >
                       <span className="line-clamp-2 text-[13px] leading-tight font-semibold wrap-anywhere">
+                        {card.isEpic && <span className={`${epicBadgeClass} mr-1`}>{t("graph.epicBadge")}</span>}
                         {card.name}
                       </span>
                       <span className="flex min-w-0 items-center gap-1 text-[12px] text-ink-subtle">
@@ -379,7 +358,7 @@ export function BoardGraph({
           )}
         </div>
         {(selectedCard || selectedEdge) && (
-          <aside className="grid w-[280px] content-start gap-3 max-phone:w-auto" aria-label={t("graph.details")}>
+          <aside className="grid w-[316px] content-start gap-3 pl-9 max-phone:w-auto" aria-label={t("graph.details")}>
             {selectedCard && (
               <>
                 <div className="grid gap-1.5">
@@ -388,7 +367,16 @@ export function BoardGraph({
                     {t("graph.openCard")}
                   </Button>
                 </div>
-                {relations(selectedCard)}
+                <CardLinks
+                  card={selectedCard}
+                  state={state}
+                  allowSubCards={false}
+                  onChange={(change) => cardActions.updateCard(selectedCard.id, change)}
+                  onCreateSubCard={() => undefined}
+                  onNavigateCard={(target) => setSelected({ card: target.id })}
+                  onConnect={cardActions.connectCards}
+                  onDisconnect={cardActions.disconnectCards}
+                />
               </>
             )}
             {selectedEdge && (

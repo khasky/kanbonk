@@ -384,6 +384,18 @@ export function mergeParts(state: AppState, keep: Card, drop: Card) {
   };
 }
 
+/** The related and duplicate links of both cards, without links between the two and without repeats. */
+function mergedLinks(keep: Card, drop: Card): Card["links"] {
+  const seen = new Set<string>();
+  const links = [...(keep.links ?? []), ...(drop.links ?? [])].filter((item) => {
+    const key = `${item.kind}:${item.cardId}`;
+    if (item.cardId === keep.id || item.cardId === drop.id || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return links.length ? links : undefined;
+}
+
 /** The comments a merge leaves on both cards, linking each to the other. */
 export interface MergeNotes {
   author: string;
@@ -431,6 +443,7 @@ export function mergeDuplicate(
     memberIds: parts.memberIds.length ? [...(keep.memberIds ?? []), ...parts.memberIds] : keep.memberIds,
     startAt: keep.startAt ?? drop.startAt,
     dueAt: keep.dueAt ?? drop.dueAt,
+    links: mergedLinks(keep, drop),
   };
   const dropped: Card = notes ? { ...drop, comments: [...drop.comments, note(notes.dropped)] } : drop;
   const relinked: string[] = [];
@@ -441,11 +454,16 @@ export function mergeDuplicate(
       if (card.id === dropId) return dropped;
       const links =
         card.checklists.some((list) => list.items.some((item) => item.linkedCardId === dropId)) ||
-        card.attachments.some((item) => item.linkedCardId === dropId);
+        card.attachments.some((item) => item.linkedCardId === dropId) ||
+        card.links?.some((item) => item.cardId === dropId) ||
+        card.parentCardId === dropId;
       if (!links) return card;
       relinked.push(card.id);
       return {
         ...card,
+        // The duplicate's sub-cards move to the card kept, so trashing the duplicate leaves them be.
+        parentCardId: card.parentCardId === dropId ? keepId : card.parentCardId,
+        links: card.links?.map((item) => (item.cardId === dropId ? { ...item, cardId: keepId } : item)),
         checklists: card.checklists.map((list) => ({
           ...list,
           items: list.items.map((item) => (item.linkedCardId === dropId ? { ...item, linkedCardId: keepId } : item)),

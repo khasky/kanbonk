@@ -1,3 +1,4 @@
+import { epicBadgeClass } from "../card/CardRelations";
 import { memo } from "react";
 import { CardCover } from "../card/CardCover";
 import { ApprovalChip } from "../card/ApprovalChip";
@@ -28,6 +29,10 @@ import { tileClass, tileMetaClass, tileMetaIconClass, tileMetaItemClass, tileNam
 export const missingBadgeClass =
   "inline-flex items-center gap-1 rounded-[3px] bg-[#fff7d6] px-1.5 py-0.5 text-[11px] font-semibold text-[#6b4f00]";
 
+/** The red "Blocked" tag of a card waiting on an unfinished card. */
+const blockedBadgeClass =
+  "inline-flex items-center gap-1 rounded-[3px] bg-danger-soft px-1.5 py-0.5 text-[11px] font-semibold text-danger";
+
 export interface TileActions {
   open: (id: string) => void;
 }
@@ -39,6 +44,10 @@ export const CardTile = memo(function CardTile({
   members,
   parentName,
   subCardCount = 0,
+  subCardsDone = 0,
+  blockers = 0,
+  linkCount = 0,
+  epicName,
   viewCount = 0,
   lastViewedAt,
   missing,
@@ -52,7 +61,13 @@ export const CardTile = memo(function CardTile({
   labels: Map<string, Label>;
   members?: Member[];
   parentName?: string;
+  /** Sub-cards at every level below the card, and how many of them are done. */
   subCardCount?: number;
+  subCardsDone?: number;
+  /** Unfinished cards the card waits on, all its links, and the epic above it (see model/connections). */
+  blockers?: number;
+  linkCount?: number;
+  epicName?: string;
   /** Views of the card by everyone, and when it was last opened (see model/views). */
   viewCount?: number;
   lastViewedAt?: string;
@@ -122,6 +137,17 @@ export const CardTile = memo(function CardTile({
         )}
         {item.name}
       </span>
+      {(item.isEpic || blockers > 0) && (
+        <span className="flex flex-wrap gap-1">
+          {item.isEpic && <span className={epicBadgeClass}>{t("links.epic")}</span>}
+          {blockers > 0 && (
+            <span className={blockedBadgeClass} title={t("links.blockedBadge", { count: blockers })}>
+              <Icon name="dependency" className="size-3.5 flex-none" />
+              {t("graph.statusBlocked")}
+            </span>
+          )}
+        </span>
+      )}
       {item.isTemplate && (
         <span className="self-start rounded-[3px] bg-line px-[5px] py-0.5 text-[11px] font-bold text-ink-subtle">
           {t("board.template")}
@@ -130,6 +156,11 @@ export const CardTile = memo(function CardTile({
       {parentName && (
         <span className="truncate text-[12px] opacity-75" title={t("board.parentCard")}>
           ↳ {parentName}
+        </span>
+      )}
+      {epicName && epicName !== parentName && (
+        <span className="truncate text-[12px] opacity-75" title={t("links.epic")}>
+          {t("links.inEpic", { card: epicName })}
         </span>
       )}
       {missing && missing.length > 0 && (
@@ -173,6 +204,7 @@ export const CardTile = memo(function CardTile({
       item.comments.length ||
       item.checklists.length ||
       subCardCount ||
+      linkCount ||
       mirrorCount ||
       viewBadge ? (
         <span className={tileMetaClass}>
@@ -201,9 +233,18 @@ export const CardTile = memo(function CardTile({
             </span>
           )}
           {subCardCount > 0 && (
-            <span className={tileMetaItemClass} title={t("card.subCards")}>
+            <span
+              className={tileMetaItemClass}
+              title={t("links.progressBadge", { done: subCardsDone, total: subCardCount })}
+            >
               <Icon name="sub-cards" className={tileMetaIconClass} />
-              {subCardCount}
+              {subCardsDone}/{subCardCount}
+            </span>
+          )}
+          {linkCount > 0 && (
+            <span className={tileMetaItemClass} title={t("links.connectionsBadge", { count: linkCount })}>
+              <Icon name="link" className={tileMetaIconClass} />
+              {linkCount}
             </span>
           )}
           {item.checklists.map((checklist) => (

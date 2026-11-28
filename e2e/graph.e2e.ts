@@ -39,8 +39,9 @@ test("shows dependencies and sub-cards as a graph and edits them by dragging and
   await view.getByRole("button", { name: "Build, Blocked" }).click();
   const links = view.getByRole("complementary", { name: "Links of the selected card" });
   await expect(links.getByRole("button", { name: "Design", exact: true })).toBeVisible();
-  await links.getByRole("button", { name: "Add: Blocks" }).click();
-  await links.getByRole("searchbox", { name: "Blocks" }).fill("Ship");
+  await links.getByRole("button", { name: "Link…" }).click();
+  await links.getByLabel("Link type").selectOption({ label: "Blocks" });
+  await links.getByRole("searchbox", { name: "Card to link" }).fill("Ship");
   await links.getByRole("option", { name: "Ship" }).click();
   await expect(view.getByRole("button", { name: "“Build” blocks “Ship”", exact: true })).toBeVisible();
   await expect(view.getByRole("button", { name: "Design, Open" })).toContainText("2 wait");
@@ -62,9 +63,9 @@ test("shows dependencies and sub-cards as a graph and edits them by dragging and
 
   await view.getByRole("button", { name: "Ship, Blocked" }).dblclick();
   const card = page.getByRole("dialog", { name: "Ship" });
-  await expect(card.getByText("Parent:")).toBeVisible();
-  await expect(card.getByRole("button", { name: "Design", exact: true })).toBeVisible();
-  await expect(
-    card.locator("p", { hasText: "Depends on:" }).getByRole("button", { name: "Build", exact: true }),
-  ).toBeVisible();
+  const cardLinks = card.getByRole("region", { name: "Links" });
+  await expect(cardLinks.getByText("Parent", { exact: true })).toBeVisible();
+  await expect(cardLinks.getByRole("button", { name: "Design", exact: true })).toBeVisible();
+  await expect(cardLinks.getByText("Is blocked by", { exact: true })).toBeVisible();
+  await expect(cardLinks.getByRole("button", { name: "Build", exact: true })).toBeVisible();
 });

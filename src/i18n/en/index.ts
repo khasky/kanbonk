@@ -30,6 +30,7 @@ import { table } from "./table";
 import { approvals } from "./approvals";
 import { duplicates } from "./duplicates";
 import { graph } from "./graph";
+import { links } from "./links";
 
 /**
  * The English messages, the source of every translation. One namespace per area of the app, each in its own file;
@@ -68,4 +69,5 @@ export const en = {
   approvals,
   duplicates,
   graph,
+  links,
 };

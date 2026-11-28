@@ -1,3 +1,4 @@
+import type { ConnectionBadges } from "../model/connections";
 import { type ReactNode, useState } from "react";
 import { t } from "../i18n";
 import type {
@@ -64,7 +65,7 @@ export function ListColumn({
   labels,
   members,
   cardById,
-  subCardCounts,
+  connectionInfo,
   cardViews,
   missingByCard,
   cardAges,
@@ -88,7 +89,7 @@ export function ListColumn({
   labels: Map<string, Label>;
   members?: Member[];
   cardById: Map<string, Card>;
-  subCardCounts: Map<string, number>;
+  connectionInfo: Map<string, ConnectionBadges>;
   cardViews: Map<string, ViewStats>;
   /** What each card lacks under the board's required fields. */
   missingByCard: Map<string, MissingField[]>;
@@ -224,7 +225,11 @@ export function ListColumn({
             labels={labels}
             members={members}
             parentName={item.parentCardId ? cardById.get(item.parentCardId)?.name : undefined}
-            subCardCount={subCardCounts.get(item.id)}
+            subCardCount={connectionInfo.get(item.id)?.progress?.total}
+            subCardsDone={connectionInfo.get(item.id)?.progress?.done}
+            blockers={connectionInfo.get(item.id)?.blockers}
+            linkCount={connectionInfo.get(item.id)?.connections}
+            epicName={connectionInfo.get(item.id)?.epic}
             viewCount={cardViews.get(item.id)?.total}
             lastViewedAt={cardViews.get(item.id)?.lastAt}
             missing={missingByCard.get(item.id)}

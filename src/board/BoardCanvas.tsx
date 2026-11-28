@@ -226,7 +226,7 @@ export function BoardCanvas({
         labels={view.labelMap}
         members={board.members}
         cardById={view.cardById}
-        subCardCounts={view.subCardCounts}
+        connectionInfo={view.connectionInfo}
         cardViews={view.cardViews}
         missingByCard={view.missingByCard}
         cardAges={view.cardAges}

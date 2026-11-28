@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 import type { TriageItem } from "../ai/ai";
 import { applyCardButton, applyMoveRules } from "../model/automation";
 import { moveToTrash, trashSubCards } from "../model/trash";
+import { canConnect, type Connection, type ConnectionKind, connect, disconnect } from "../model/connections";
 import { inboxBoardId, inboxListId } from "../model/inbox";
 import { moveBlockedText } from "../model/requiredFieldsText";
 import { t } from "../i18n";
@@ -309,6 +310,39 @@ export function useCardActions({
     });
   }
 
+  /** Connects two cards as a dependency, sub-card, related card or duplicate; see model/connections. */
+  function connectCards(kind: ConnectionKind, from: string, to: string) {
+    if (!canConnect(state, kind, from, to)) {
+      onError(
+        t(kind === "parent" ? "graph.cannotParent" : kind === "blocks" ? "graph.cannotBlock" : "graph.cannotLink"),
+      );
+      return;
+    }
+    setState((current) => {
+      const result = connect(current, kind, from, to);
+      return result.changed.length
+        ? recordRevisions(
+            result.state,
+            result.changed.map((id) => ({ kind: "card" as const, id })),
+            deviceId,
+          )
+        : current;
+    });
+  }
+
+  function disconnectCards(connection: Connection) {
+    setState((current) => {
+      const result = disconnect(current, connection);
+      return result.changed.length
+        ? recordRevisions(
+            result.state,
+            result.changed.map((id) => ({ kind: "card" as const, id })),
+            deviceId,
+          )
+        : current;
+    });
+  }
+
   function convertItem(cardId: string, checklistId: string, itemId: string) {
     const createdId = newId();
     setState((current) => {
@@ -428,6 +462,8 @@ export function useCardActions({
     addSubCard,
     addDependency,
     removeDependency,
+    connectCards,
+    disconnectCards,
     convertItem,
     addMember,
     addLabel,

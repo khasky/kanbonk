@@ -27,7 +27,7 @@ Kanbonk keeps every workspace, board, list, card and attachment on your own devi
 - **Sub-cards, clone and share** — a clone lands right below the original as `<name> - Clone`; share a card as print, PNG, JSON, link or QR code.
 - **Zones** — group adjacent lists into one zone, e.g. *Development* = Todo + In progress + Testing + Deployment. A list belongs to at most one zone.
 - **Calendar** — week, month and year views. A card sits on its start date (or creation date) and stretches to its due date like an event; drag it between days, drag its edges to change dates, delete it with ×.
-- **Graph** — the board's dependencies and sub-cards as a graph: see what blocks what and the biggest blockers, draw a link by dragging from card to card, remove it with Delete.
+- **Graph and links** — Jira-style links between cards (epics, sub-cards, blocks, relates, duplicates) with sub-card progress and tile badges; the board as a graph, filtered by epic: see what blocks what and the biggest blockers, draw a link by dragging from card to card, remove it with Delete.
 - **Dependencies** — a card can depend on another card on any board. Deleting a card warns about the cards that depend on it.
 - **Instant search** — on the board and across all workspaces, with filters such as `board:`, `label:`, `due:overdue` and `has:attachments`.
 - **Fast on big boards** — stays responsive with thousands of cards, on phones too. See the [load test results](docs/testing.md#performance).

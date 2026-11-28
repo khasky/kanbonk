@@ -57,7 +57,10 @@ A card opened from a board appears as a modal on top of it; Esc or the close but
 - **Share**: print the card, save it as PNG or JSON, copy its link (`/c/<id>`) or show a QR code of the link.
 - Checklists, attachments, links. **Convert to card** in a checklist item's menu asks for confirmation, then creates a card below this one and removes the item.
 - **Preview** opens a stored attachment in a dialog: images, PDF (in the browser's PDF viewer; not in the Android app), Markdown rendered as formatted text, plain text and code files (txt, json, csv, yaml, source code and similar, first 1 MB), video and audio. The type is taken from the file's MIME type or, for untyped files, its extension.
-- **Dependencies**: **Dependency** links the card to a card it depends on, on any board (as an item of the card's **Dependencies** checklist). The card shows **Depends on** and **Blocks**. See [trash-and-dependencies.md](trash-and-dependencies.md).
+- **Dependencies**: **Dependency** links the card to a card it depends on, on any board (as an item of the card's **Dependencies** checklist). See [trash-and-dependencies.md](trash-and-dependencies.md).
+- **Links**: one section gathers every link of the card, grouped as in Jira: **Parent**, **Sub-cards**, **Is blocked by**, **Blocks**, **Relates to**, **Duplicates** and **Is duplicated by**. Each linked card opens on click and **×** removes the link. **Link…** picks a link type and a card on any board; a parent must be on the same board, and a link that would make cards wait on each other or put a card inside itself is refused. Blocking links are the same as dependencies.
+- **Epics**: tick **Epic** to make the card gather other work as its sub-cards (sub-cards may be epics too). The card shows a progress bar of finished sub-cards at every level, and each card under it shows **Epic: <name>**.
+- **Tile badges**: an **Epic** badge, **Blocked** while an unfinished card blocks it, `done/total` sub-cards, and the number of links.
 - **History**: every change is a revision; any earlier version can be restored.
 - The meta line shows the list, board, creation date and card ID.
 
@@ -77,14 +80,15 @@ Switch a board between **Lists** and **Calendar** in the board toolbar. Scales: 
 
 ## Graph view
 
-**Graph** in the board toolbar (after **Table**) shows the board's cards with their dependencies and sub-cards: the same links the card shows under **Depends on** / **Blocks** and **Sub-cards**, so a change in one place shows in the other.
+**Graph** in the board toolbar (after **Table**) shows the board's cards with their links: the same links the card shows in its **Links** section, so a change in one place shows in the other.
 
 - Cards are laid out in columns from left to right: a card stands after the cards it waits on and after its parent. Cards on other boards linked to this board's cards are shown dimmed with their board name.
 - The coloured edge marks the status: **Open**, **Blocked** (waits on an unfinished card) or **Done** (the card is marked done). A dependency stops blocking when its card is finished or its item is ticked off in the **Dependencies** checklist. **N wait** counts the unfinished cards waiting on the card, directly or through others, so the biggest blockers stand out.
-- Solid arrows are dependencies (red while they still block), dashed arrows sub-cards.
-- **Drag** from the dot on a card's right edge to another card to link them; **Blocks** / **Sub-card** chooses the kind. A link that would make cards wait on each other, or a sub-card that would end up inside itself or on another board, is refused.
+- Solid arrows are dependencies (red while they still block), dashed arrows sub-cards, dotted lines related cards and dash-dotted arrows duplicates. Epics carry an **Epic** badge.
+- **Drag** from the dot on a card's right edge to another card to link them; **Blocks** / **Sub-card** / **Relates** / **Duplicate** chooses the kind. A link that would make cards wait on each other, a sub-card that would end up inside itself or on another board, or a link that exists already is refused.
+- **Epic** (shown when the board has epics) narrows the graph to one epic and everything under it.
 - Select a link by its dot in the middle and press **Delete** (or **Remove link**) to remove it.
-- Selecting a card lists what it waits on, what it blocks, its parent and its sub-cards, each with **Add** (a card search) and **×**, which works with the keyboard and on phones. Double-click a card or press **Open card** to open it.
+- Selecting a card shows its **Links** section beside the graph, with **Link…** and **×**, which works with the keyboard and on phones. Double-click a card or press **Open card** to open it.
 - **Only linked cards** (on by default) hides cards without links; the board filter and search apply.
 
 ## Search
@@ -130,7 +134,7 @@ Due rules run once per due date while the app is open or at the next start. Rule
 - **Normal** (default): also the same words in another order ("Login bug fix" = "Fix login bug") and typos ("Invoce Acme" = "Invoice Acme": one typo in a word of 4+ letters, two in a word of 8+; numbers must match exactly, so "Task 1" ≠ "Task 2").
 - **Loose**: also a title with extra words ("Send invoice Acme today" ⊃ "Invoice Acme") and cards whose text says much the same (TF-IDF over English word stems of titles, descriptions and checklist items).
 
-**Only cards in the same list** narrows the pairs. The fuller card (description, comments, checklist items, attachments, labels, members, due date) is kept by default; **Swap** keeps the other. **Merge…** asks first, listing what moves: the description, comments, checklists, attachments, labels, members and dates the kept card does not have yet, and dependency links. Both cards get a comment linking to the other, and the duplicate goes to the trash, where it can be restored. **Not a duplicate** hides the pair on this device.
+**Only cards in the same list** narrows the pairs. The fuller card (description, comments, checklist items, attachments, labels, members, due date) is kept by default; **Swap** keeps the other. **Merge…** asks first, listing what moves: the description, comments, checklists, attachments, labels, members and dates the kept card does not have yet, dependency, related and duplicate links, and sub-cards. Both cards get a comment linking to the other, and the duplicate goes to the trash, where it can be restored. **Not a duplicate** hides the pair on this device.
 
 ## Offline work
 

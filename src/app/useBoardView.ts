@@ -1,3 +1,4 @@
+import { connectionBadges } from "../model/connections";
 import { useDeferredValue, useEffect, useEffectEvent, useMemo, useState } from "react";
 import { activeFilterCount } from "../board/BoardFilterPanel";
 import { t } from "../i18n";
@@ -7,7 +8,6 @@ import {
   filterBoardCards,
   cardViewStats,
   boardCardAges,
-  isCardAvailable,
   missingFields,
   type AppState,
   type BoardFilter,
@@ -62,14 +62,8 @@ export function useBoardView(
     [state.labels],
   );
   const cardById = useMemo(() => new Map(state.cards.map((item) => [item.id, item])), [state.cards]);
-  /** How many open sub-cards each parent card has, as its dialog lists them. */
-  const subCardCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const item of state.cards)
-      if (item.parentCardId && isCardAvailable(state, item))
-        counts.set(item.parentCardId, (counts.get(item.parentCardId) ?? 0) + 1);
-    return counts;
-  }, [state]);
+  /** Each card's links, blockers, sub-card progress and epic, for the tile badges. */
+  const connectionInfo = useMemo(() => connectionBadges(state), [state]);
 
   /** Views of each card of the open board, for the view badges. */
   const cardViews = useMemo(() => cardViewStats(state, boardId ?? undefined), [state, boardId]);
@@ -125,7 +119,7 @@ export function useBoardView(
     cardsByList,
     labelMap,
     cardById,
-    subCardCounts,
+    connectionInfo,
     cardViews,
     missingByCard,
     cardAges,

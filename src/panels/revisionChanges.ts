@@ -27,6 +27,8 @@ const parts: Array<{ fields: string[]; key: MessageKey; counted?: boolean }> = [
   { fields: ["memberIds", "members"], key: "card.members", counted: true },
   { fields: ["startAt", "dueAt", "dueReminderMinutes"], key: "card.dates" },
   { fields: ["checklists"], key: "card.checklist", counted: true },
+  { fields: ["links"], key: "links.title", counted: true },
+  { fields: ["isEpic"], key: "links.epic" },
   { fields: ["comments"], key: "board.comments", counted: true },
   { fields: ["attachments"], key: "card.attachments", counted: true },
   { fields: ["cover"], key: "card.cover" },

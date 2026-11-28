@@ -1,157 +1,186 @@
 import { useState } from "react";
 import { CardPicker } from "../ui/CardPicker";
 import type { relatedCards } from "../model/links";
-import { type AppState, type Card, isCardAvailable, parentCandidates } from "../model";
+import { type AppState, type Card, isCardAvailable } from "../model";
+import {
+  canConnect,
+  cardConnections,
+  type Connection,
+  type ConnectionGroup,
+  type ConnectionKind,
+  connectionGroups,
+  epicOf,
+  groupLink,
+  subCardProgress,
+} from "../model/connections";
 import { t } from "../i18n";
 import { tNodes } from "../i18n/nodes";
 import { Button } from "../ui/Button";
-import { Input } from "../ui/Field";
+import { Checkbox, Input, Select } from "../ui/Field";
+import { ProgressBar } from "../ui/ProgressBar";
 import { detailSectionClass, inlineFormClass } from "./cardLook";
 import { DetailTitle } from "./DetailTitle";
 
-const dependencyLineClass = "my-1.5 flex flex-wrap items-center gap-1.5";
-/** A sub-card or the parent card, as a blue text link. */
+/** A linked card's name, as a blue text link. */
 const cardLinkClass = "py-0.5";
+/** The small "Epic" tag next to an epic's name. */
+export const epicBadgeClass =
+  "shrink-0 rounded-sm bg-[#dfd8fd] px-1.5 text-[11px] font-bold tracking-wide text-[#5e4db2] uppercase";
 
-/** Cards this card depends on and cards it blocks. */
-export function DependencySummary({
-  prerequisiteCards,
-  dependentCards,
-  onNavigateCard,
-}: {
-  prerequisiteCards: Card[];
-  dependentCards: Card[];
-  onNavigateCard: (target: Card) => void;
-}) {
-  return (
-    <section className={detailSectionClass}>
-      <DetailTitle icon="dependency">{t("card.dependencies")}</DetailTitle>
-      {prerequisiteCards.length > 0 && (
-        <p className={dependencyLineClass}>
-          {tNodes("card.dependsOn", {
-            cards: prerequisiteCards.map((item) => (
-              <Button variant="secondary" key={item.id} onClick={() => onNavigateCard(item)}>
-                {item.name}
-              </Button>
-            )),
-          })}
-        </p>
-      )}
-      {dependentCards.length > 0 && (
-        <p className={dependencyLineClass}>
-          {tNodes("card.blocks", {
-            cards: dependentCards.map((item) => (
-              <Button variant="secondary" key={item.id} onClick={() => onNavigateCard(item)}>
-                {item.name}
-              </Button>
-            )),
-          })}
-        </p>
-      )}
-    </section>
-  );
-}
-
-/** The parent card, sub-cards and a field to add a sub-card. */
-export function SubCards({
+/**
+ * Everything the card is connected to, as in Jira's issue links: its epic and parent, sub-cards with their progress,
+ * the cards it blocks and waits on, related cards and duplicates. Each can be opened or removed, and **Link…** adds
+ * any of them; the card itself can be made an epic.
+ */
+export function CardLinks({
   card,
   state,
-  parentCard,
-  childCards,
+  allowSubCards,
   onChange,
   onCreateSubCard,
   onNavigateCard,
+  onConnect,
+  onDisconnect,
 }: {
   card: Card;
   state: AppState;
-  parentCard: Card | undefined;
-  childCards: Card[];
+  /** Sub-cards can be created here: not in the inbox. */
+  allowSubCards: boolean;
   onChange: (change: (card: Card) => Card) => void;
   onCreateSubCard: (name: string) => void;
   onNavigateCard: (target: Card) => void;
+  onConnect: (kind: ConnectionKind, from: string, to: string) => void;
+  onDisconnect: (connection: Connection) => void;
 }) {
   const [subCardName, setSubCardName] = useState("");
-  const [choosingParent, setChoosingParent] = useState(false);
+  const [linking, setLinking] = useState<ConnectionGroup>();
+  const groups = cardConnections(state, card.id);
+  const progress = subCardProgress(state, card.id);
+  const epic = epicOf(state, card);
+  const boards = new Map(state.boards.map((board) => [board.id, board.name]));
+  const addSubCard = () => {
+    onCreateSubCard(subCardName.trim());
+    setSubCardName("");
+  };
   return (
-    <section className={detailSectionClass}>
-      <DetailTitle icon="sub-cards">{t("card.subCards")}</DetailTitle>
-      {parentCard && (
-        <p>
-          {tNodes("card.parent", {
-            card: (
-              <Button variant="link-quiet" className={cardLinkClass} onClick={() => onNavigateCard(parentCard)}>
-                {parentCard.name}
-              </Button>
+    <section className={detailSectionClass} aria-label={t("links.title")}>
+      <DetailTitle icon="dependency">{t("links.title")}</DetailTitle>
+      <div className="grid gap-2.5">
+        <label className="flex items-center gap-2">
+          <Checkbox
+            checked={Boolean(card.isEpic)}
+            onChange={(event) => onChange((item) => ({ ...item, isEpic: event.target.checked || undefined }))}
+          />
+          {t("links.makeEpic")}
+        </label>
+        {epic && epic.id !== card.parentCardId && (
+          <p className="m-0">
+            {tNodes("links.inEpic", {
+              card: (
+                <Button variant="link-quiet" className={cardLinkClass} onClick={() => onNavigateCard(epic)}>
+                  {epic.name}
+                </Button>
+              ),
+            })}
+          </p>
+        )}
+        {progress.total > 0 && (
+          <ProgressBar
+            done={progress.done}
+            total={progress.total}
+            label={t("links.progressLabel")}
+            caption={t("links.progress", progress)}
+          />
+        )}
+        {connectionGroups.map(
+          (group) =>
+            groups[group].length > 0 && (
+              <div key={group} className="grid gap-0.5">
+                <strong className="text-[13px] text-ink-subtle">{t(`links.${group}`)}</strong>
+                <ul className="m-0 grid list-none gap-0.5 p-0">
+                  {groups[group].map(({ card: other, connection }) => (
+                    <li key={other.id} className="flex items-center gap-1.5">
+                      <Button
+                        variant="link-quiet"
+                        className={`${cardLinkClass} min-w-0 overflow-hidden text-left text-ellipsis whitespace-nowrap ${other.doneAt ? "line-through" : ""}`}
+                        onClick={() => onNavigateCard(other)}
+                      >
+                        {other.name}
+                      </Button>
+                      {other.isEpic && <span className={epicBadgeClass}>{t("links.epic")}</span>}
+                      {other.doneAt && <span className="text-[12px] text-success">{t("links.done")}</span>}
+                      {other.boardId !== card.boardId && (
+                        <span className="overflow-hidden text-[12px] text-ellipsis whitespace-nowrap text-ink-subtle">
+                          {t("links.onBoard", { board: boards.get(other.boardId) ?? "" })}
+                        </span>
+                      )}
+                      <Button
+                        variant="icon"
+                        className="ml-auto"
+                        aria-label={t("links.remove", { name: other.name })}
+                        onClick={() => onDisconnect(connection)}
+                      >
+                        ×
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ),
-          })}
-        </p>
-      )}
-      {childCards.length > 0 && (
-        <ul className="mt-0 mb-2 pl-[18px]">
-          {childCards.map((item) => (
-            <li key={item.id}>
-              <Button variant="link-quiet" className={cardLinkClass} onClick={() => onNavigateCard(item)}>
-                {item.name}
+        )}
+        {allowSubCards && (
+          <div className={inlineFormClass}>
+            <Input
+              size="sm"
+              className="min-w-0 flex-1"
+              value={subCardName}
+              onChange={(event) => setSubCardName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && subCardName.trim()) addSubCard();
+              }}
+              placeholder={t("card.newSubCard")}
+              aria-label={t("card.newSubCardTitle")}
+            />
+            <Button variant="secondary" disabled={!subCardName.trim()} onClick={addSubCard}>
+              {t("common.add")}
+            </Button>
+          </div>
+        )}
+        {linking ? (
+          <div className="grid gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Select
+                size="sm"
+                aria-label={t("links.linkType")}
+                value={linking}
+                onChange={(event) => setLinking(event.target.value as ConnectionGroup)}
+              >
+                {connectionGroups.map((group) => (
+                  <option key={group} value={group}>
+                    {t(`links.${group}`)}
+                  </option>
+                ))}
+              </Select>
+              <Button variant="secondary" onClick={() => setLinking(undefined)}>
+                {t("common.cancel")}
               </Button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <div className={inlineFormClass}>
-        <Input
-          size="sm"
-          className="min-w-0 flex-1"
-          value={subCardName}
-          onChange={(event) => setSubCardName(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && subCardName.trim()) {
-              onCreateSubCard(subCardName.trim());
-              setSubCardName("");
-            }
-          }}
-          placeholder={t("card.newSubCard")}
-          aria-label={t("card.newSubCardTitle")}
-        />
-        <Button
-          variant="secondary"
-          disabled={!subCardName.trim()}
-          onClick={() => {
-            onCreateSubCard(subCardName.trim());
-            setSubCardName("");
-          }}
-        >
-          {t("common.add")}
-        </Button>
-      </div>
-      <div className="mt-2 flex flex-row flex-wrap items-start gap-1.5">
-        {choosingParent ? (
-          <>
+            </div>
             <CardPicker
-              label={t("card.parentCard")}
-              className="min-w-[200px] flex-1"
-              candidates={parentCandidates(state, card.id).filter(
-                (item) => item.boardId === card.boardId && isCardAvailable(state, item),
-              )}
-              onPick={(parent) => {
-                onChange((item) => ({ ...item, parentCardId: parent.id }));
-                setChoosingParent(false);
+              label={t("links.findCard")}
+              candidates={state.cards.filter((item) => canConnect(state, ...groupLink(linking, card.id, item.id)))}
+              describe={(item) =>
+                item.boardId === card.boardId ? item.name : `${item.name} · ${boards.get(item.boardId) ?? ""}`
+              }
+              onPick={(item) => {
+                onConnect(...groupLink(linking, card.id, item.id));
+                setLinking(undefined);
               }}
             />
-            <Button variant="secondary" onClick={() => setChoosingParent(false)}>
-              {t("common.cancel")}
-            </Button>
-          </>
+          </div>
         ) : (
-          <>
-            <Button variant="secondary" onClick={() => setChoosingParent(true)}>
-              {parentCard ? t("card.changeParent") : t("card.chooseParentCard")}
-            </Button>
-            {card.parentCardId && (
-              <Button variant="secondary" onClick={() => onChange((item) => ({ ...item, parentCardId: undefined }))}>
-                {t("card.removeParent")}
-              </Button>
-            )}
-          </>
+          <Button variant="secondary" className="justify-self-start" onClick={() => setLinking("blockedBy")}>
+            {t("links.link")}
+          </Button>
         )}
       </div>
     </section>
