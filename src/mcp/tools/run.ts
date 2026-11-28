@@ -2,26 +2,52 @@
 // in tests, and could run in the app. Every change records revisions with the agent's device ID, so it syncs and
 // shows up in card history like an edit from any other trusted device.
 import {
+  approvalStatus,
   blockedMove,
   cloneCard,
   createSubCard,
   emptyBoardFilter,
   filterBoardCards,
+  finishCard,
+  isPriority,
   linkDependency,
+  mirrorCard,
+  mirrorsOf,
+  missingFields,
   newId,
   positionBefore,
   recordRevision,
   recordRevisions,
+  reopenCard,
   searchCards,
+  syncMirrors,
+  transferCard,
   type AppState,
   type Card,
 } from "../../model";
-import { moveToTrash, restoreFromTrash, trashEntries, visibleState, type TrashKind } from "../../model/trash";
+import { applyMoveRules } from "../../model/automation";
+import {
+  allConnections,
+  canConnect,
+  cardConnections,
+  connect,
+  disconnect,
+  type ConnectionKind,
+} from "../../model/connections";
+import { listColors } from "../../model/labelColors";
+import {
+  moveToTrash,
+  restoreFromTrash,
+  trashEntries,
+  trashSubCards,
+  visibleState,
+  type TrashKind,
+} from "../../model/trash";
 import { createZone, moveListToList } from "../../model/zones";
 import { projectSummary } from "../../model/boardDoc";
 import { findDuplicates, mergeDuplicate } from "../../model/dedupe";
 import { moveBlockedText } from "../../model/requiredFieldsText";
-import { type Json, trashKinds } from "./definitions";
+import { connectionKinds, type Json, trashKinds } from "./definitions";
 
 export class ToolError extends Error {}
 
@@ -38,6 +64,15 @@ const text = (args: Json, key: string, required = false): string | undefined => 
   }
   if (typeof value !== "string") throw new ToolError(`"${key}" must be a string`);
   if (required && !value.trim()) throw new ToolError(`"${key}" must not be empty`);
+  return value;
+};
+
+/** An array of strings, or undefined when the argument is absent. */
+const texts = (args: Json, key: string): string[] | undefined => {
+  const value = args[key];
+  if (value === undefined || value === null) return undefined;
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string"))
+    throw new ToolError(`"${key}" must be an array of strings`);
   return value;
 };
 
@@ -60,6 +95,11 @@ function cardView(state: AppState, card: Card) {
     dueAt: card.dueAt,
     labels,
     parentCardId: card.parentCardId,
+    priority: card.priority,
+    doneAt: card.doneAt,
+    isEpic: card.isEpic,
+    approval: approvalStatus(card),
+    mirrored: Boolean(card.mirrorId) || undefined,
   };
 }
 
@@ -94,7 +134,15 @@ export function runTool(
       id,
       deviceId,
     );
-  const done = (next: AppState, result: unknown) => ({ state: next, result });
+  const done = (next: AppState, result: unknown) => ({
+    state: next === full ? next : syncMirrors(full, next, deviceId),
+    result,
+  });
+  const kind = (value: unknown): ConnectionKind => {
+    if (!connectionKinds.includes(value as ConnectionKind))
+      throw new ToolError(`"kind" must be one of ${connectionKinds.join(", ")}`);
+    return value as ConnectionKind;
+  };
 
   switch (name) {
     case "list_workspaces":
@@ -115,14 +163,24 @@ export function runTool(
       const lists = state.lists
         .filter((item) => item.boardId === target.id && !item.deletedAt)
         .sort((a, b) => a.position - b.position);
+      const all = keyword ? filterBoardCards(state, target.id, emptyBoardFilter()) : cards;
       return done(full, {
         id: target.id,
         name: target.name,
         zones: target.zones ?? [],
+        labels: state.labels
+          .filter((item) => item.boardId === target.id && !item.deleted)
+          .map(({ id, name, color }) => ({ id, name, color })),
+        members: target.members ?? [],
+        requiredFields: target.requiredFields,
+        cardDone: target.cardDone,
         lists: lists.map((item) => ({
           id: item.id,
           name: item.name,
           zoneId: item.zoneId,
+          color: item.color,
+          cardLimit: item.cardLimit,
+          cardCount: all.filter((entry) => entry.listId === item.id).length,
           cards: cards
             .filter((entry) => entry.listId === item.id)
             .sort((a, b) => a.position - b.position)
@@ -154,6 +212,20 @@ export function runTool(
         dependsOn: target.checklists.flatMap((item) =>
           item.items.flatMap((entry) => (entry.linkedCardId ? [entry.linkedCardId] : [])),
         ),
+        members: (target.memberIds ?? []).map((id) => ({
+          id,
+          name: state.boards.find((item) => item.id === target.boardId)?.members?.find((member) => member.id === id)
+            ?.name,
+        })),
+        approvals: target.approvals ?? [],
+        connections: Object.fromEntries(
+          Object.entries(cardConnections(state, target.id)).map(([group, entries]) => [
+            group,
+            entries.map(({ card: other }) => ({ id: other.id, name: other.name, boardId: other.boardId })),
+          ]),
+        ),
+        mirrors: mirrorsOf(state, target).map((item) => ({ id: item.id, boardId: item.boardId, listId: item.listId })),
+        missingRequired: missingFields(target, state.boards.find((item) => item.id === target.boardId)?.requiredFields),
       });
     }
     case "board_summary":
@@ -245,6 +317,35 @@ export function runTool(
         { id },
       );
     }
+    case "update_list": {
+      const target = list(args.listId);
+      const color = text(args, "color");
+      if (color && !listColors.includes(color)) throw new ToolError(`"color" must be one of ${listColors.join(", ")}`);
+      const limit = args.cardLimit;
+      if (limit !== undefined && (typeof limit !== "number" || !Number.isInteger(limit) || limit < 0))
+        throw new ToolError(`"cardLimit" must be a whole number, 0 to remove the limit`);
+      return done(
+        recordRevision(
+          {
+            ...full,
+            lists: full.lists.map((item) =>
+              item.id === target.id
+                ? {
+                    ...item,
+                    name: text(args, "name")?.trim() || item.name,
+                    color: color === undefined ? item.color : color || undefined,
+                    cardLimit: limit === undefined ? item.cardLimit : (limit as number) || undefined,
+                  }
+                : item,
+            ),
+          },
+          "list",
+          target.id,
+          deviceId,
+        ),
+        { ok: true },
+      );
+    }
     case "move_list": {
       const moving = list(args.listId);
       const target = list(args.targetListId);
@@ -299,36 +400,92 @@ export function runTool(
       const dueAt = isoOrClear(text(args, "dueAt"), "dueAt");
       const color = text(args, "color");
       if (color && !/^#[\da-f]{6}$/i.test(color)) throw new ToolError(`"color" must be #rrggbb`);
-      return done(
-        changeCard(target.id, (item) => ({
-          ...item,
-          name: text(args, "name")?.trim() || item.name,
-          description: text(args, "description") ?? item.description,
-          startAt: startAt === undefined ? item.startAt : (startAt ?? undefined),
-          dueAt: dueAt === undefined ? item.dueAt : (dueAt ?? undefined),
-          cover: color === undefined ? item.cover : color ? { color, size: "normal" } : undefined,
-        })),
-        { ok: true },
-      );
+      const priority = text(args, "priority");
+      if (priority && !isPriority(priority))
+        throw new ToolError(`"priority" must be critical, high, medium, low or empty`);
+      const labelIds = texts(args, "labelIds");
+      if (labelIds?.some((id) => !state.labels.some((item) => item.id === id && item.boardId === target.boardId)))
+        throw new ToolError("labelIds must name labels of the card's board");
+      const memberIds = texts(args, "memberIds");
+      const members = board(target.boardId).members ?? [];
+      if (memberIds?.some((id) => !members.some((member) => member.id === id)))
+        throw new ToolError("memberIds must name members of the card's board");
+      let next = changeCard(target.id, (item) => ({
+        ...item,
+        name: text(args, "name")?.trim() || item.name,
+        description: text(args, "description") ?? item.description,
+        startAt: startAt === undefined ? item.startAt : (startAt ?? undefined),
+        dueAt: dueAt === undefined ? item.dueAt : (dueAt ?? undefined),
+        cover: color === undefined ? item.cover : color ? { color, size: "normal" } : undefined,
+        priority: priority === undefined ? item.priority : isPriority(priority) ? priority : undefined,
+        isEpic: typeof args.isEpic === "boolean" ? args.isEpic || undefined : item.isEpic,
+        labelIds: labelIds ?? item.labelIds,
+        memberIds: memberIds ? (memberIds.length ? memberIds : undefined) : item.memberIds,
+      }));
+      // Done goes through the board's settings for finished cards, as the card's Done button does.
+      if (args.done === true) next = finishCard(next, target.id, deviceId, now);
+      if (args.done === false) next = reopenCard(next, target.id, deviceId);
+      return done(next, { ok: true });
     }
     case "move_card": {
       const moving = card(args.cardId);
       const target = list(args.listId);
-      if (target.boardId !== moving.boardId)
-        throw new ToolError("Moving cards between boards is not supported by this tool");
       const missing = blockedMove(full, moving, target.id);
       if (missing.length) throw new ToolError(moveBlockedText(full, moving, missing));
       const before = text(args, "beforeCardId");
-      const position = before
-        ? positionBefore(full.cards, moving.id, { ...card(before), listId: target.id })
-        : Math.max(
-            0,
-            ...full.cards
-              .filter((item) => item.listId === target.id && item.id !== moving.id)
-              .map((item) => item.position),
-          ) + 1;
+      if (before && card(before).listId !== target.id) throw new ToolError("beforeCardId must be a card of listId");
+      // To another board the card takes its labels along and keeps its links, as moving it in the app does.
+      const transferred = transferCard(full, moving.id, target.id, false, moving.id).state;
+      const position = before ? positionBefore(transferred.cards, moving.id, card(before)) : undefined;
+      const next: AppState = {
+        ...transferred,
+        cards: transferred.cards.map((item) =>
+          item.id === moving.id
+            ? applyMoveRules(full, moving, position === undefined ? item : { ...item, position })
+            : item,
+        ),
+      };
+      return done(trashSubCards(recordRevision(next, "card", moving.id, deviceId), moving.id, deviceId), { ok: true });
+    }
+    case "mirror_card": {
+      const source = card(args.cardId);
+      const target = list(args.listId);
+      const id = newId();
+      return done(mirrorCard(full, source.id, target.id, deviceId, { copyId: id }), { id });
+    }
+    case "link_cards":
+    case "unlink_cards": {
+      const linkKind = kind(args.kind);
+      const from = card(args.fromCardId).id;
+      const to = card(args.toCardId).id;
+      if (name === "link_cards") {
+        if (!canConnect(full, linkKind, from, to))
+          throw new ToolError(
+            "These cards cannot be linked: the link exists, would make a loop or a card is out of reach",
+          );
+        const linked = connect(full, linkKind, from, to);
+        return done(
+          recordRevisions(
+            linked.state,
+            linked.changed.map((id) => ({ kind: "card" as const, id })),
+            deviceId,
+          ),
+          { ok: true },
+        );
+      }
+      const connection = allConnections(full).find(
+        (item) =>
+          item.kind === linkKind &&
+          ((item.from === from && item.to === to) || (linkKind === "relates" && item.from === to && item.to === from)),
+      );
+      if (!connection) throw new ToolError("No such link");
+      const unlinked = disconnect(full, connection);
       return done(
-        changeCard(moving.id, (item) => ({ ...item, listId: target.id, position })),
+        recordRevisions(
+          unlinked.state,
+          unlinked.changed.map((id) => ({ kind: "card" as const, id })),
+          deviceId,
+        ),
         { ok: true },
       );
     }

@@ -18,11 +18,31 @@ const obj = (properties: Json, required: string[] = []) => ({
 
 export const trashKinds = ["workspace", "board", "list", "card"];
 
+/** How two cards can be linked; see model/connections. */
+export const connectionKinds = ["blocks", "parent", "relates", "duplicates"];
+
+const ids = (description: string) => ({ type: "array", items: { type: "string" }, description });
+
+const linkSchema = obj(
+  {
+    kind: {
+      type: "string",
+      enum: connectionKinds,
+      description:
+        "blocks: from must be finished before to; parent: to becomes a sub-card of from (same board); relates; duplicates: from duplicates to",
+    },
+    fromCardId: str("Card the link starts at"),
+    toCardId: str("Card the link points to"),
+  },
+  ["kind", "fromCardId", "toCardId"],
+);
+
 export const tools: ToolDefinition[] = [
   { name: "list_workspaces", description: "List workspaces with their boards.", inputSchema: obj({}), readOnly: true },
   {
     name: "get_board",
-    description: "Lists (in order, with zones) and cards of a board.",
+    description:
+      "Lists (in order, with zones, color, card limit and card count) and cards of a board, with its labels, members, required fields and done settings.",
     inputSchema: obj({ boardId: str("Board ID"), keyword: str("Optional text filter") }, ["boardId"]),
     readOnly: true,
   },
@@ -38,7 +58,8 @@ export const tools: ToolDefinition[] = [
   },
   {
     name: "get_card",
-    description: "Full card: description, dates, checklists, comments, sub-cards and dependencies.",
+    description:
+      "Full card: description, dates, priority, done, labels, members, checklists, comments, approvals, links (sub-cards, dependencies, related, duplicates), mirrors and the required fields it lacks.",
     inputSchema: obj({ cardId: str("Card ID") }, ["cardId"]),
     readOnly: true,
   },
@@ -81,6 +102,19 @@ export const tools: ToolDefinition[] = [
     inputSchema: obj({ boardId: str("Board ID"), name: str("Name") }, ["boardId", "name"]),
   },
   {
+    name: "update_list",
+    description: "Rename a list, change its color, or set the most cards it should hold (the list turns red above it).",
+    inputSchema: obj(
+      {
+        listId: str("List ID"),
+        name: str("Name"),
+        color: str("green, yellow, orange, red, purple, blue, sky, lime, pink, black, or empty to remove"),
+        cardLimit: { type: "number", description: "Most cards in the list; 0 removes the limit" },
+      },
+      ["listId"],
+    ),
+  },
+  {
     name: "move_list",
     description: "Move a list next to another list of the same board.",
     inputSchema: obj(
@@ -121,7 +155,8 @@ export const tools: ToolDefinition[] = [
   },
   {
     name: "update_card",
-    description: "Change card fields. Pass an empty string to clear a date.",
+    description:
+      "Change card fields. Pass an empty string to clear a date, colour or priority. done finishes or reopens the card under the board's done settings.",
     inputSchema: obj(
       {
         cardId: str("Card ID"),
@@ -130,15 +165,21 @@ export const tools: ToolDefinition[] = [
         startAt: str("ISO date-time or empty"),
         dueAt: str("ISO date-time or empty"),
         color: str("Card colour #rrggbb or empty"),
+        priority: str("critical, high, medium, low, or empty for none"),
+        done: { type: "boolean", description: "Finish (true) or reopen (false) the card" },
+        isEpic: { type: "boolean", description: "Mark the card as an epic that gathers its sub-cards" },
+        labelIds: ids("Labels of the card's board; replaces the card's labels"),
+        memberIds: ids("Members of the card's board; replaces the card's members"),
       },
       ["cardId"],
     ),
   },
   {
     name: "move_card",
-    description: "Move a card to a list, optionally before another card.",
+    description:
+      "Move a card to a list on any board, optionally before another card. The board's required fields and move rules apply as in the app.",
     inputSchema: obj(
-      { cardId: str("Card ID"), listId: str("Target list"), beforeCardId: str("Place before this card") },
+      { cardId: str("Card ID"), listId: str("Target list"), beforeCardId: str("Place before this card of the list") },
       ["cardId", "listId"],
     ),
   },
@@ -146,6 +187,11 @@ export const tools: ToolDefinition[] = [
     name: "clone_card",
     description: "Copy a card right below the original as '<name> - Clone'.",
     inputSchema: obj({ cardId: str("Card ID") }, ["cardId"]),
+  },
+  {
+    name: "mirror_card",
+    description: "Put a mirror of the card at the end of a list on any board; mirrors stay alike when either changes.",
+    inputSchema: obj({ cardId: str("Card ID"), listId: str("List for the mirror") }, ["cardId", "listId"]),
   },
   {
     name: "add_comment",
@@ -177,6 +223,12 @@ export const tools: ToolDefinition[] = [
       "dependsOnCardId",
     ]),
   },
+  {
+    name: "link_cards",
+    description: "Link two cards: a dependency, a sub-card, related cards or a duplicate.",
+    inputSchema: linkSchema,
+  },
+  { name: "unlink_cards", description: "Remove a link between two cards.", inputSchema: linkSchema },
   {
     name: "merge_cards",
     description:

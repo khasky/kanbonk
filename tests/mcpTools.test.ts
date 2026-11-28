@@ -10,7 +10,13 @@ function session() {
     state = output.state;
     return output.result as Record<string, unknown> & { id: string };
   };
-  return { call, state: () => state };
+  return {
+    call,
+    state: () => state,
+    edit: (change: (current: AppState) => AppState) => {
+      state = change(state);
+    },
+  };
 }
 
 describe("MCP tools", () => {
@@ -108,6 +114,56 @@ describe("MCP tools", () => {
     expect(call("find_duplicates")).toEqual([]);
   });
 
+  it("sets list limits, card priority, labels, done and links, and mirrors and moves cards across boards", () => {
+    const { call, state, edit } = session();
+    const workspaceId = call("create_workspace", { name: "W" }).id;
+    const boardId = call("create_board", { workspaceId, name: "Dev" }).id;
+    const otherBoardId = call("create_board", { workspaceId, name: "Ops" }).id;
+    const todo = call("create_list", { boardId, name: "Todo" }).id;
+    const other = call("create_list", { boardId: otherBoardId, name: "Inbox" }).id;
+    const a = call("create_card", { listId: todo, name: "A" }).id;
+    const b = call("create_card", { listId: todo, name: "B" }).id;
+
+    call("update_list", { listId: todo, name: "Doing", color: "red", cardLimit: 1 });
+    type BoardOut = {
+      labels: Array<{ id: string }>;
+      lists: Array<{ name: string; color?: string; cardLimit?: number; cardCount: number }>;
+    };
+    const board = () => call("get_board", { boardId, keyword: "A" }) as unknown as BoardOut;
+    expect(board().lists[0]).toMatchObject({ name: "Doing", color: "red", cardLimit: 1, cardCount: 2 });
+    call("update_list", { listId: todo, color: "", cardLimit: 0 });
+    expect(board().lists[0]).toMatchObject({ color: undefined, cardLimit: undefined });
+    expect(() => call("update_list", { listId: todo, color: "teal" })).toThrow(ToolError);
+    expect(() => call("update_list", { listId: todo, cardLimit: 1.5 })).toThrow(ToolError);
+
+    edit((current) => ({ ...current, labels: [{ id: "bug", boardId, name: "Bug", color: "red" }] }));
+    expect(board().labels.map((label) => label.id)).toEqual(["bug"]);
+    call("update_card", { cardId: a, priority: "high", isEpic: true, labelIds: ["bug"] });
+    expect(() => call("update_card", { cardId: a, priority: "urgent" })).toThrow(ToolError);
+    expect(() => call("update_card", { cardId: a, labelIds: ["nope"] })).toThrow(ToolError);
+    call("update_card", { cardId: a, done: true });
+    const card = () => call("get_card", { cardId: a }) as unknown as Record<string, unknown>;
+    expect(card()).toMatchObject({ priority: "high", isEpic: true, labels: ["Bug"], doneAt: now.toISOString() });
+    call("update_card", { cardId: a, done: false, priority: "" });
+    expect(card()).toMatchObject({ priority: undefined, doneAt: undefined });
+
+    call("link_cards", { kind: "relates", fromCardId: a, toCardId: b });
+    call("link_cards", { kind: "parent", fromCardId: a, toCardId: b });
+    expect(() => call("link_cards", { kind: "relates", fromCardId: b, toCardId: a })).toThrow(ToolError);
+    const links = () => card().connections as Record<string, Array<{ id: string }>>;
+    expect([links().relates.map((item) => item.id), links().subCards.map((item) => item.id)]).toEqual([[b], [b]]);
+    call("unlink_cards", { kind: "relates", fromCardId: b, toCardId: a });
+    expect(links().relates).toEqual([]);
+
+    const mirror = call("mirror_card", { cardId: a, listId: other }).id;
+    call("update_card", { cardId: a, name: "A renamed" });
+    expect(state().cards.find((item) => item.id === mirror)?.name).toBe("A renamed");
+    expect((card().mirrors as Array<{ id: string }>).map((item) => item.id)).toEqual([mirror]);
+
+    call("move_card", { cardId: b, listId: other });
+    expect(state().cards.find((item) => item.id === b)).toMatchObject({ boardId: otherBoardId, listId: other });
+  });
+
   it("keeps the tool list stable for agents", () => {
     expect(tools.map((tool) => tool.name)).toEqual([
       "list_workspaces",
@@ -121,16 +177,20 @@ describe("MCP tools", () => {
       "create_workspace",
       "create_board",
       "create_list",
+      "update_list",
       "move_list",
       "create_zone",
       "create_card",
       "update_card",
       "move_card",
       "clone_card",
+      "mirror_card",
       "add_comment",
       "add_checklist",
       "set_checklist_item",
       "add_dependency",
+      "link_cards",
+      "unlink_cards",
       "merge_cards",
       "update_board_doc",
       "delete",
