@@ -1526,4 +1526,40 @@ export default {
     mergedWith: "Samengevoegd met {card}.",
     mergedInto: "Samengevoegd in {card}.",
   },
+  graph: {
+    view: "Graaf",
+    region: "Afhankelijkheidsgraaf",
+    newLink: "Nieuwe koppeling",
+    modeBlocks: "Blokkeert",
+    modeParent: "Subkaart",
+    hintBlocks:
+      "Sleep vanaf de stip op een kaart naar een andere kaart: de eerste moet klaar zijn vóór de tweede. Selecteer de stip van een koppeling en druk op Delete om die te verwijderen; dubbelklik op een kaart om die te openen.",
+    hintParent:
+      "Sleep vanaf de stip op een kaart naar een andere kaart op dit bord om de tweede er een subkaart van te maken. Selecteer de stip van een koppeling en druk op Delete om die te verwijderen; dubbelklik op een kaart om die te openen.",
+    linkedOnly: "Alleen gekoppelde kaarten",
+    legendParent: "Subkaart",
+    statusOpen: "Open",
+    statusBlocked: "Geblokkeerd",
+    statusDone: "Klaar",
+    waiting: { one: "{count} wacht", other: "{count} wachten" },
+    dragToLink: "Sleep naar een andere kaart om ze te koppelen",
+    edgeBlocks: "“{from}” blokkeert “{to}”",
+    edgeParent: "“{to}” is een subkaart van “{from}”",
+    cannotBlock:
+      "Deze kaarten kunnen niet worden gekoppeld: de koppeling bestaat al of de kaarten zouden op elkaar wachten.",
+    cannotParent:
+      "Deze kaart kan daar geen subkaart worden: ze staat op een ander bord, hoort er al bij of zou in zichzelf terechtkomen.",
+    details: "Koppelingen van de geselecteerde kaart",
+    openCard: "Kaart openen",
+    waitsOn: "Wacht op",
+    blocks: "Blokkeert",
+    parent: "Bovenliggende kaart",
+    subCards: "Subkaarten",
+    none: "Geen",
+    removeLink: "Koppeling verwijderen: {link}",
+    remove: "Koppeling verwijderen",
+    empty: "Geen kaarten om te tonen.",
+    emptyLinked:
+      "Nog geen gekoppelde kaarten. Vink “Alleen gekoppelde kaarten” uit om alle kaarten te zien en sleep ertussen om ze te koppelen.",
+  },
 } satisfies Translation;

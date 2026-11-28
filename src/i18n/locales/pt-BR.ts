@@ -1549,4 +1549,40 @@ export default {
     mergedWith: "Mesclado com {card}.",
     mergedInto: "Mesclado em {card}.",
   },
+  graph: {
+    view: "Grafo",
+    region: "Grafo de dependências",
+    newLink: "Novo vínculo",
+    modeBlocks: "Bloqueia",
+    modeParent: "Subcartão",
+    hintBlocks:
+      "Arraste do ponto de um cartão até outro cartão: o primeiro precisa ser concluído antes do segundo. Selecione o ponto de um vínculo e pressione Delete para removê-lo; clique duas vezes em um cartão para abri-lo.",
+    hintParent:
+      "Arraste do ponto de um cartão até outro cartão deste quadro para tornar o segundo seu subcartão. Selecione o ponto de um vínculo e pressione Delete para removê-lo; clique duas vezes em um cartão para abri-lo.",
+    linkedOnly: "Somente cartões vinculados",
+    legendParent: "Subcartão",
+    statusOpen: "Aberto",
+    statusBlocked: "Bloqueado",
+    statusDone: "Concluído",
+    waiting: { one: "{count} aguarda", many: "{count} aguardam", other: "{count} aguardam" },
+    dragToLink: "Arraste até outro cartão para vinculá-los",
+    edgeBlocks: "“{from}” bloqueia “{to}”",
+    edgeParent: "“{to}” é um subcartão de “{from}”",
+    cannotBlock:
+      "Não é possível vincular estes cartões: o vínculo já existe ou os cartões ficariam esperando um pelo outro.",
+    cannotParent:
+      "Este cartão não pode virar subcartão ali: ele está em outro quadro, já pertence a ele ou acabaria dentro de si mesmo.",
+    details: "Vínculos do cartão selecionado",
+    openCard: "Abrir cartão",
+    waitsOn: "Aguarda",
+    blocks: "Bloqueia",
+    parent: "Cartão principal",
+    subCards: "Subcartões",
+    none: "Nenhum",
+    removeLink: "Remover vínculo: {link}",
+    remove: "Remover vínculo",
+    empty: "Nenhum cartão para mostrar.",
+    emptyLinked:
+      "Ainda não há cartões vinculados. Desmarque “Somente cartões vinculados” para ver todos os cartões e arraste entre eles para vinculá-los.",
+  },
 } satisfies Translation;

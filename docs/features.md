@@ -75,6 +75,18 @@ Switch a board between **Lists** and **Calendar** in the board toolbar. Scales: 
 - **×** on a card moves it to the trash after a confirmation.
 - The board filter applies to the calendar too.
 
+## Graph view
+
+**Graph** in the board toolbar (after **Table**) shows the board's cards with their dependencies and sub-cards: the same links the card shows under **Depends on** / **Blocks** and **Sub-cards**, so a change in one place shows in the other.
+
+- Cards are laid out in columns from left to right: a card stands after the cards it waits on and after its parent. Cards on other boards linked to this board's cards are shown dimmed with their board name.
+- The coloured edge marks the status: **Open**, **Blocked** (waits on an unfinished card) or **Done** (the card is marked done). A dependency stops blocking when its card is finished or its item is ticked off in the **Dependencies** checklist. **N wait** counts the unfinished cards waiting on the card, directly or through others, so the biggest blockers stand out.
+- Solid arrows are dependencies (red while they still block), dashed arrows sub-cards.
+- **Drag** from the dot on a card's right edge to another card to link them; **Blocks** / **Sub-card** chooses the kind. A link that would make cards wait on each other, or a sub-card that would end up inside itself or on another board, is refused.
+- Select a link by its dot in the middle and press **Delete** (or **Remove link**) to remove it.
+- Selecting a card lists what it waits on, what it blocks, its parent and its sub-cards, each with **Add** (a card search) and **×**, which works with the keyboard and on phones. Double-click a card or press **Open card** to open it.
+- **Only linked cards** (on by default) hides cards without links; the board filter and search apply.
+
 ## Search
 
 The search box in the top bar searches all workspaces: workspace and board names, card titles, descriptions, checklists and comments. Several words must all match; quote a phrase to match it exactly. Prefix a condition with `-` to exclude matches.

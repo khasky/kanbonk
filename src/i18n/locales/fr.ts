@@ -1615,4 +1615,40 @@ export default {
     mergedWith: "Fusionnée avec {card}.",
     mergedInto: "Fusionnée dans {card}.",
   },
+  graph: {
+    view: "Graphe",
+    region: "Graphe des dépendances",
+    newLink: "Nouveau lien",
+    modeBlocks: "Bloque",
+    modeParent: "Sous-carte",
+    hintBlocks:
+      "Faites glisser le point d’une carte vers une autre carte : la première doit être terminée avant la seconde. Sélectionnez le point d’un lien et appuyez sur Suppr pour le retirer ; double-cliquez sur une carte pour l’ouvrir.",
+    hintParent:
+      "Faites glisser le point d’une carte vers une autre carte de ce tableau pour faire de la seconde sa sous-carte. Sélectionnez le point d’un lien et appuyez sur Suppr pour le retirer ; double-cliquez sur une carte pour l’ouvrir.",
+    linkedOnly: "Seulement les cartes liées",
+    legendParent: "Sous-carte",
+    statusOpen: "Ouverte",
+    statusBlocked: "Bloquée",
+    statusDone: "Terminée",
+    waiting: { one: "{count} attend", many: "{count} attendent", other: "{count} attendent" },
+    dragToLink: "Faites glisser vers une autre carte pour les lier",
+    edgeBlocks: "« {from} » bloque « {to} »",
+    edgeParent: "« {to} » est une sous-carte de « {from} »",
+    cannotBlock:
+      "Ces cartes ne peuvent pas être liées : le lien existe déjà ou les cartes s’attendraient l’une l’autre.",
+    cannotParent:
+      "Cette carte ne peut pas devenir une sous-carte ici : elle est sur un autre tableau, en fait déjà partie ou se retrouverait à l’intérieur d’elle-même.",
+    details: "Liens de la carte sélectionnée",
+    openCard: "Ouvrir la carte",
+    waitsOn: "Attend",
+    blocks: "Bloque",
+    parent: "Carte parente",
+    subCards: "Sous-cartes",
+    none: "Aucun",
+    removeLink: "Retirer le lien : {link}",
+    remove: "Retirer le lien",
+    empty: "Aucune carte à afficher.",
+    emptyLinked:
+      "Aucune carte liée pour l’instant. Décochez « Seulement les cartes liées » pour voir toutes les cartes et faites glisser de l’une à l’autre pour les lier.",
+  },
 } satisfies Translation;

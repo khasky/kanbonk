@@ -1537,4 +1537,40 @@ export default {
     mergedWith: "Zusammengeführt mit {card}.",
     mergedInto: "Zusammengeführt in {card}.",
   },
+  graph: {
+    view: "Graph",
+    region: "Abhängigkeitsgraph",
+    newLink: "Neue Verknüpfung",
+    modeBlocks: "Blockiert",
+    modeParent: "Unterkarte",
+    hintBlocks:
+      "Ziehen Sie vom Punkt einer Karte auf eine andere Karte: Die erste muss vor der zweiten erledigt sein. Wählen Sie den Punkt einer Verknüpfung und drücken Sie Entf, um sie zu entfernen; doppelklicken Sie auf eine Karte, um sie zu öffnen.",
+    hintParent:
+      "Ziehen Sie vom Punkt einer Karte auf eine andere Karte dieses Boards, um die zweite zu ihrer Unterkarte zu machen. Wählen Sie den Punkt einer Verknüpfung und drücken Sie Entf, um sie zu entfernen; doppelklicken Sie auf eine Karte, um sie zu öffnen.",
+    linkedOnly: "Nur verknüpfte Karten",
+    legendParent: "Unterkarte",
+    statusOpen: "Offen",
+    statusBlocked: "Blockiert",
+    statusDone: "Erledigt",
+    waiting: { one: "{count} wartet", other: "{count} warten" },
+    dragToLink: "Auf eine andere Karte ziehen, um sie zu verknüpfen",
+    edgeBlocks: "„{from}“ blockiert „{to}“",
+    edgeParent: "„{to}“ ist eine Unterkarte von „{from}“",
+    cannotBlock:
+      "Diese Karten lassen sich nicht verknüpfen: Die Verknüpfung besteht bereits oder die Karten würden aufeinander warten.",
+    cannotParent:
+      "Diese Karte kann dort keine Unterkarte werden: Sie liegt auf einem anderen Board, gehört bereits dorthin oder würde in sich selbst landen.",
+    details: "Verknüpfungen der ausgewählten Karte",
+    openCard: "Karte öffnen",
+    waitsOn: "Wartet auf",
+    blocks: "Blockiert",
+    parent: "Übergeordnete Karte",
+    subCards: "Unterkarten",
+    none: "Keine",
+    removeLink: "Verknüpfung entfernen: {link}",
+    remove: "Verknüpfung entfernen",
+    empty: "Keine Karten anzuzeigen.",
+    emptyLinked:
+      "Noch keine verknüpften Karten. Deaktivieren Sie „Nur verknüpfte Karten“, um alle Karten zu sehen, und ziehen Sie zwischen ihnen, um sie zu verknüpfen.",
+  },
 } satisfies Translation;

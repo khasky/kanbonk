@@ -1560,4 +1560,40 @@ export default {
     mergedWith: "Combinada con {card}.",
     mergedInto: "Combinada en {card}.",
   },
+  graph: {
+    view: "Grafo",
+    region: "Grafo de dependencias",
+    newLink: "Nuevo enlace",
+    modeBlocks: "Bloquea",
+    modeParent: "Subtarjeta",
+    hintBlocks:
+      "Arrastra desde el punto de una tarjeta hasta otra tarjeta: la primera debe completarse antes que la segunda. Selecciona el punto de un enlace y pulsa Supr para quitarlo; haz doble clic en una tarjeta para abrirla.",
+    hintParent:
+      "Arrastra desde el punto de una tarjeta hasta otra tarjeta de este tablero para convertir la segunda en su subtarjeta. Selecciona el punto de un enlace y pulsa Supr para quitarlo; haz doble clic en una tarjeta para abrirla.",
+    linkedOnly: "Solo tarjetas enlazadas",
+    legendParent: "Subtarjeta",
+    statusOpen: "Abierta",
+    statusBlocked: "Bloqueada",
+    statusDone: "Completada",
+    waiting: { one: "{count} espera", many: "{count} esperan", other: "{count} esperan" },
+    dragToLink: "Arrastra a otra tarjeta para enlazarlas",
+    edgeBlocks: "“{from}” bloquea “{to}”",
+    edgeParent: "“{to}” es una subtarjeta de “{from}”",
+    cannotBlock:
+      "Estas tarjetas no se pueden enlazar: el enlace ya existe o las tarjetas quedarían esperándose entre sí.",
+    cannotParent:
+      "Esta tarjeta no puede ser subtarjeta ahí: está en otro tablero, ya pertenece a ella o acabaría dentro de sí misma.",
+    details: "Enlaces de la tarjeta seleccionada",
+    openCard: "Abrir tarjeta",
+    waitsOn: "Espera a",
+    blocks: "Bloquea",
+    parent: "Tarjeta principal",
+    subCards: "Subtarjetas",
+    none: "Ninguno",
+    removeLink: "Quitar enlace: {link}",
+    remove: "Quitar enlace",
+    empty: "No hay tarjetas que mostrar.",
+    emptyLinked:
+      "Aún no hay tarjetas enlazadas. Desmarca “Solo tarjetas enlazadas” para ver todas las tarjetas y arrastra entre ellas para enlazarlas.",
+  },
 } satisfies Translation;

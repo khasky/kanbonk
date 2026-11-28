@@ -10,6 +10,7 @@ import { BoardAttachments } from "./BoardAttachments";
 import { BoardCalendar } from "./BoardCalendar";
 import { BoardCanvas } from "./BoardCanvas";
 import { BoardFilterPanel } from "./BoardFilterPanel";
+import { BoardGraph } from "./BoardGraph";
 import { BoardTable } from "./BoardTable";
 import type { BoardMenuActions } from "./BoardMenu";
 import { BoardToolbar, type BoardVisitor } from "./BoardToolbar";
@@ -118,6 +119,14 @@ export function BoardView({
           state={state}
           board={board}
           filter={view.filter}
+          cardActions={cardActions}
+          onOpenCard={onOpenCard}
+          onError={onError}
+        />
+      ) : route.view === "graph" ? (
+        <BoardGraph
+          state={state}
+          cardIds={view.filteredCardIds}
           cardActions={cardActions}
           onOpenCard={onOpenCard}
           onError={onError}

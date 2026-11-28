@@ -1604,4 +1604,40 @@ export default {
     mergedWith: "Unita a {card}.",
     mergedInto: "Unita in {card}.",
   },
+  graph: {
+    view: "Grafo",
+    region: "Grafo delle dipendenze",
+    newLink: "Nuovo collegamento",
+    modeBlocks: "Blocca",
+    modeParent: "Sottoscheda",
+    hintBlocks:
+      "Trascina dal punto di una scheda a un’altra scheda: la prima deve essere completata prima della seconda. Seleziona il punto di un collegamento e premi Canc per rimuoverlo; fai doppio clic su una scheda per aprirla.",
+    hintParent:
+      "Trascina dal punto di una scheda a un’altra scheda di questa bacheca per renderla sua sottoscheda. Seleziona il punto di un collegamento e premi Canc per rimuoverlo; fai doppio clic su una scheda per aprirla.",
+    linkedOnly: "Solo schede collegate",
+    legendParent: "Sottoscheda",
+    statusOpen: "Aperta",
+    statusBlocked: "Bloccata",
+    statusDone: "Completata",
+    waiting: { one: "{count} attende", many: "{count} attendono", other: "{count} attendono" },
+    dragToLink: "Trascina su un’altra scheda per collegarle",
+    edgeBlocks: "“{from}” blocca “{to}”",
+    edgeParent: "“{to}” è una sottoscheda di “{from}”",
+    cannotBlock:
+      "Queste schede non possono essere collegate: il collegamento esiste già o le schede finirebbero per attendersi a vicenda.",
+    cannotParent:
+      "Questa scheda non può diventare una sottoscheda lì: è in un’altra bacheca, ne fa già parte o finirebbe dentro sé stessa.",
+    details: "Collegamenti della scheda selezionata",
+    openCard: "Apri scheda",
+    waitsOn: "Attende",
+    blocks: "Blocca",
+    parent: "Scheda principale",
+    subCards: "Sottoschede",
+    none: "Nessuno",
+    removeLink: "Rimuovi collegamento: {link}",
+    remove: "Rimuovi collegamento",
+    empty: "Nessuna scheda da mostrare.",
+    emptyLinked:
+      "Ancora nessuna scheda collegata. Deseleziona “Solo schede collegate” per vedere tutte le schede e trascina tra loro per collegarle.",
+  },
 } satisfies Translation;

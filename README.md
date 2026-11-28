@@ -27,6 +27,7 @@ Kanbonk keeps every workspace, board, list, card and attachment on your own devi
 - **Sub-cards, clone and share** — a clone lands right below the original as `<name> - Clone`; share a card as print, PNG, JSON, link or QR code.
 - **Zones** — group adjacent lists into one zone, e.g. *Development* = Todo + In progress + Testing + Deployment. A list belongs to at most one zone.
 - **Calendar** — week, month and year views. A card sits on its start date (or creation date) and stretches to its due date like an event; drag it between days, drag its edges to change dates, delete it with ×.
+- **Graph** — the board's dependencies and sub-cards as a graph: see what blocks what and the biggest blockers, draw a link by dragging from card to card, remove it with Delete.
 - **Dependencies** — a card can depend on another card on any board. Deleting a card warns about the cards that depend on it.
 - **Instant search** — on the board and across all workspaces, with filters such as `board:`, `label:`, `due:overdue` and `has:attachments`.
 - **Fast on big boards** — stays responsive with thousands of cards, on phones too. See the [load test results](docs/testing.md#performance).
@@ -115,7 +116,7 @@ The design and its limits are described in [docs/sync.md](docs/sync.md).
 
 | Document | Contents |
 | --- | --- |
-| [Feature guide](docs/features.md) | Pages, cards, zones, calendar, search syntax, automation, reminders |
+| [Feature guide](docs/features.md) | Pages, cards, zones, calendar, graph, search syntax, automation, reminders |
 | [Architecture](docs/architecture.md) | Code layout, state flow, routing, platform layer |
 | [Data model](docs/data-model.md) | Entities, IDs, revisions, soft delete, tombstones |
 | [Sync](docs/sync.md) | Transports, encryption, trusted devices, merge and conflicts |

@@ -1,0 +1,35 @@
+/** Messages of the board's graph view: cards with their dependencies and sub-cards, and editing those links. */
+export const graph = {
+  view: "Graph",
+  region: "Dependency graph",
+  newLink: "New link",
+  modeBlocks: "Blocks",
+  modeParent: "Sub-card",
+  hintBlocks:
+    "Drag from the dot on a card to another card: the first must be finished before the second. Select a link’s dot and press Delete to remove it; double-click a card to open it.",
+  hintParent:
+    "Drag from the dot on a card to another card on this board to make the second its sub-card. Select a link’s dot and press Delete to remove it; double-click a card to open it.",
+  linkedOnly: "Only linked cards",
+  legendParent: "Sub-card",
+  statusOpen: "Open",
+  statusBlocked: "Blocked",
+  statusDone: "Done",
+  waiting: { one: "{count} waits", other: "{count} wait" },
+  dragToLink: "Drag to another card to link them",
+  edgeBlocks: "“{from}” blocks “{to}”",
+  edgeParent: "“{to}” is a sub-card of “{from}”",
+  cannotBlock: "These cards cannot be linked: the link exists already or would make the cards wait on each other.",
+  cannotParent:
+    "This card cannot become a sub-card there: it is on another board, already belongs there, or would end up inside itself.",
+  details: "Links of the selected card",
+  openCard: "Open card",
+  waitsOn: "Waits on",
+  blocks: "Blocks",
+  parent: "Parent card",
+  subCards: "Sub-cards",
+  none: "None",
+  removeLink: "Remove link: {link}",
+  remove: "Remove link",
+  empty: "No cards to show.",
+  emptyLinked: "No linked cards yet. Untick “Only linked cards” to see every card and drag between them to link them.",
+};
